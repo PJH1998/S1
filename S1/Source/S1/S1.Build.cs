@@ -23,6 +23,8 @@ public class S1 : ModuleRules
             "GameplayTags", 
             "GameplayTasks",
             "UMG",
+            "Slate",
+            "SlateCore",
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

@@ -6,6 +6,7 @@
 #include "UI/S1BaseWidget.h"
 #include "S1Logo.generated.h"
 
+class UTextBlock;
 /**
  * 
  */
@@ -19,6 +20,14 @@ public:
 
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> Text_Logo;
+
+private:
+	float	OpacitySpeed = { 0.4f };
+	int		OpacityReverse = { -1 };
+	float	Opacity = { 1.f };
 };
