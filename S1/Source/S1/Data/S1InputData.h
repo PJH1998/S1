@@ -10,7 +10,7 @@ class UInputAction;
 class UInputMappingContext;
 
 USTRUCT(BlueprintType)
-struct FS1InputActionData
+struct FS1InputAction
 {
 	GENERATED_BODY()
 
@@ -27,9 +27,12 @@ class S1_API US1InputData : public UDataAsset
 	GENERATED_BODY()
 
 public:
+	const UInputAction* FindInputActionByTag(const FGameplayTag& InputTag) const;
+
+public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> InputMappingContext = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-	TArray<FS1InputActionData> InputActions;
+	TArray<FS1InputAction> InputActions;
 };
