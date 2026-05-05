@@ -50,6 +50,7 @@ void AS1PlayerController::SetupInputComponent()
 
 void AS1PlayerController::PlayerTick(float DeltaTime)
 {
+	Super::PlayerTick(DeltaTime);
 }
 
 void AS1PlayerController::OnMove(const FInputActionValue& Value)
@@ -58,6 +59,9 @@ void AS1PlayerController::OnMove(const FInputActionValue& Value)
 	if (!ControlledPawn) return;
 
 	const FVector2D MoveVector = Value.Get<FVector2D>();
+
+	UE_LOG(LogWindows, Log, TEXT("OnMove: %s"), *MoveVector.ToString());
+
 	const FRotator YawRotation(0.f, GetControlRotation().Yaw, 0.f);
 
 	// X축: 좌우 (A/D), Y축: 전후 (W/S)
