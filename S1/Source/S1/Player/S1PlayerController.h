@@ -24,8 +24,4 @@ protected:
 
 	void OnMove(const FInputActionValue& Value);
 	void OnTurn(const FInputActionValue& Value);
-
-private:
-	UPROPERTY()
-	TObjectPtr<US1InputData> InputData;
 };

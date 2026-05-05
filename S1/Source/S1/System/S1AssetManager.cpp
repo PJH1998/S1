@@ -79,6 +79,12 @@ void US1AssetManager::LoadAsyncByTag(const FGameplayTag& DataTag, const FGamepla
 
 void US1AssetManager::LoadAsyncByLabel(const FGameplayTag& Label, FAsyncLoadCompletedDelegate CompletedDelegate)
 {
+    if (UAssetManager::IsInitialized() == false)
+    {
+        UE_LOG(LogWindows, Error, TEXT("AssetManager must be initialized"));
+        return;
+    }
+
     // 모든 AssetData에서 해당 Label을 가진 Entry 수집
     TArray<FSoftObjectPath> PathsToLoad;
     TArray<FAssetEntry> EntriesToLoad;
@@ -225,6 +231,11 @@ US1AssetData* US1AssetManager::GetLoadadAssetByTag(const FGameplayTag& DataTag)
 
 void US1AssetManager::LoadAssetsToLabel(const FGameplayTag& Label, FAsyncLoadCompletedDelegate CompletedDelegate)
 {
+    // PIE 재실행 시 이전 세션 데이터 초기화
+    LoadedAssetData.Reset();
+    TagToLoadedAsset.Reset();
+    NameToTag.Reset();
+
     FPrimaryAssetType PrimaryAssetType(US1AssetData::StaticClass()->GetFName());
     TSharedPtr<FStreamableHandle> Handle = LoadPrimaryAssetsWithType(PrimaryAssetType);
     if (Handle.IsValid())
