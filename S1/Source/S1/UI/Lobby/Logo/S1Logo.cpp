@@ -3,6 +3,8 @@
 
 #include "UI/Lobby/Logo/S1Logo.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
+#include "System/S1UIManager.h"
 
 US1Logo::US1Logo(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -25,4 +27,22 @@ void US1Logo::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	else if (Opacity < 0.f) OpacityReverse = 1;
 
 	Opacity = FMath::Clamp(Opacity, 0.f, 1.f);
+}
+
+FReply US1Logo::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	UE_LOG(LogTemp, Log, TEXT("Logo : BTN Down"));
+
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	{
+		if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
+		{
+			UIManager->FadeOut(3.f, [UIManager]()
+				{
+					UGameplayStatics::OpenLevel(UIManager, FName(TEXT("Devmap")));
+				});
+		}
+	}
+
+	return FReply::Handled();
 }

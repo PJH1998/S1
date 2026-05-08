@@ -6,7 +6,6 @@
 
 namespace S1GameplayTags
 {
-
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Move);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Turn);
 }

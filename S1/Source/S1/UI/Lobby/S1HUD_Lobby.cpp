@@ -12,8 +12,3 @@ void US1HUD_Lobby::NativeConstruct()
 {
 	Super::NativeConstruct();
 }
-
-void US1HUD_Lobby::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
-{
-	Super::NativeTick(MyGeometry, InDeltaTime);
-}

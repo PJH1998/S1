@@ -8,10 +8,12 @@
 #include "Components/CanvasPanelSlot.h"
 #include "S1RootWidget.generated.h"
 
-enum class UI_TYPE { HUD, MENU, POPUP, CURSOR, END };
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeliverFinishedDelegate);
+enum class UI_TYPE { HUD, MENU, POPUP, CURSOR, FADE, END };
 
 class US1HUD_Lobby;
 class US1Cursor;
+class US1Fade;
 /**
  * 
  */
@@ -22,57 +24,70 @@ class S1_API US1RootWidget : public US1BaseWidget
 
 public:
 	US1RootWidget(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+public:
+	void FadeIn(float InDuration = 1.f);
+	void FadeOut(float InDuration = 1.f);
 	
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	virtual void NativeDestruct() override;
 
 private:
 	template <typename T>
-	void Register_Panel(UI_TYPE type, TSubclassOf<T> SubClass, bool bAutoSize = true);
+	T* Register_Panel(UI_TYPE type, TSubclassOf<T> SubClass, TObjectPtr<UCanvasPanel> CanvasPanel, bool bAutoSize = true);
 
 	void UpdateMousePosition(const FGeometry& MyGeometry);
 
 private:
+	UFUNCTION()
+	void DeliveFadeFinished();
+
+public:
+	FDeliverFinishedDelegate			DeliverFinished;
+
+private:
 	UPROPERTY()
-	TSubclassOf<US1HUD_Lobby> HUDClass;
+	TSubclassOf<US1HUD_Lobby>	HUDClass;
 	UPROPERTY()
-	TSubclassOf<US1Cursor> CursorClass;
+	TSubclassOf<US1Cursor>			CursorClass;
+	UPROPERTY()
+	TSubclassOf<US1Fade>			FadeClass;
 
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCanvasPanel> CanvasPanel_HUD;
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCanvasPanel> CanvasPanel_Cursor;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCanvasPanel> CanvasPanel_Fade;
 
 private:
+	TObjectPtr<US1Fade> FadeWidget;
+
 	TArray<TObjectPtr<UCanvasPanelSlot>> PanelSlots;
 };
 
 template <typename T>
-void US1RootWidget::Register_Panel(UI_TYPE type, TSubclassOf<T> SubClass, bool bAutoSize)
+T* US1RootWidget::Register_Panel(UI_TYPE type, TSubclassOf<T> SubClass, TObjectPtr<UCanvasPanel> CanvasPanel, bool bAutoSize)
 {
+	if (SubClass == nullptr || CanvasPanel == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Create to Failed : UI"));
+		return nullptr;
+	}
+
 	T* NewWidget = CreateWidget<T>(GetOwningPlayer(), SubClass);
 	if (NewWidget == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Create to Failed : UI"));
-		return;
+		return nullptr;
 	}
 
-	switch (type)
-	{
-	case UI_TYPE::HUD:
-		PanelSlots[static_cast<int32>(type)] = CanvasPanel_HUD->AddChildToCanvas(NewWidget);
-		break;
-	case UI_TYPE::CURSOR:
-		PanelSlots[static_cast<int32>(type)] = CanvasPanel_Cursor->AddChildToCanvas(NewWidget);
-		break;
-	}
-	PanelSlots[static_cast<int32>(type)]->SetAutoSize(bAutoSize);
-	if (bAutoSize == false)
-	{
-		PanelSlots[static_cast<int32>(type)]->SetAnchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f));
-		PanelSlots[static_cast<int32>(type)]->SetOffsets(FMargin(0.0f));
-		PanelSlots[static_cast<int32>(type)]->SetAlignment(FVector2D::ZeroVector);
-	}
+	int32 LocalType = static_cast<int32>(type);
+	PanelSlots[LocalType] = CanvasPanel->AddChildToCanvas(NewWidget);
+	PanelSlots[LocalType]->SetAutoSize(bAutoSize);
+
+	return NewWidget;
 }
