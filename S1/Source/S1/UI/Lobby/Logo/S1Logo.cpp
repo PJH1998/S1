@@ -37,12 +37,18 @@ FReply US1Logo::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 	{
 		if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
 		{
-			UIManager->FadeOut(3.f, [UIManager]()
+			UIManager->FadeOut(3.f, [this]()
 				{
-					UGameplayStatics::OpenLevel(UIManager, FName(TEXT("Devmap")));
+					//UGameplayStatics::OpenLevel(UIManager, FName(TEXT("Devmap")));
+					Change_Customize();
 				});
 		}
 	}
 
 	return FReply::Handled();
+}
+
+void US1Logo::Change_Customize()
+{
+	OnClickedLogoDelegate.Broadcast();
 }

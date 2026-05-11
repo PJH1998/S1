@@ -10,6 +10,16 @@ namespace S1GameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Turn);
 }
 
+namespace S1UITags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Root);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Cursor);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Fade);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Lobby_HUD);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Lobby_Logo);
+}
+
 namespace S1DataTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Input);
@@ -24,5 +34,6 @@ namespace S1AssetTags
 
 #pragma region ASSET
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_InputData);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_UIData);
 #pragma endregion
 }

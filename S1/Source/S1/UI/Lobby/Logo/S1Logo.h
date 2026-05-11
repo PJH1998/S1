@@ -6,6 +6,8 @@
 #include "UI/S1BaseWidget.h"
 #include "S1Logo.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FClickedLogoDelegate);
+
 class UTextBlock;
 /**
  * 
@@ -22,6 +24,14 @@ protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
+private:
+	UFUNCTION()
+	void Change_Customize();
+
+public:
+	UPROPERTY()
+	FClickedLogoDelegate OnClickedLogoDelegate;
 
 private:
 	UPROPERTY(meta = (BindWidget))

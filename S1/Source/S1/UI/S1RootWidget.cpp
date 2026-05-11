@@ -8,26 +8,31 @@
 #include "UI/Lobby/S1HUD_Lobby.h"
 #include "Framework/Application/SlateApplication.h"
 
+#include "S1GameplayTags.h"
+#include "System/S1AssetManager.h"
+#include "Data/S1UIData.h"
+
 US1RootWidget::US1RootWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	ConstructorHelpers::FClassFinder<US1HUD_Lobby> FindHUD(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprints/UI/Lobby/WBP_HUD_Lobby.WBP_HUD_Lobby_C'"));
-	if (FindHUD.Succeeded())
-	{
-		HUDClass = FindHUD.Class;
-	}
-	ConstructorHelpers::FClassFinder<US1Cursor> FindCursor(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprints/UI/Cursor/WBP_Cursor.WBP_Cursor_C'"));
-	if (FindCursor.Succeeded())
-	{
-		CursorClass = FindCursor.Class;
-	}
-	ConstructorHelpers::FClassFinder<US1Fade> FindFade(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprints/UI/Fade/WBP_Fade.WBP_Fade_C'"));
-	if (FindFade.Succeeded())
-	{
-		FadeClass = FindFade.Class;
-	}
-
 	PanelSlots.SetNum(static_cast<int32>(UI_TYPE::END));
+}
+
+void US1RootWidget::SetUp_HUD(const FGameplayTag& UITag)
+{
+	if (const US1UIData* UIData = US1AssetManager::GetAssetByTag<US1UIData>(S1DataTags::Data_Input, S1AssetTags::Asset_UIData))
+	{
+		if (TSubclassOf<US1BaseWidget> HUDClass = UIData->FindUserWidgetClassByTag(UITag))
+		{
+			Register_Panel<US1BaseWidget>(UI_TYPE::HUD, HUDClass, CanvasPanel_HUD, false);
+			if (PanelSlots[static_cast<int32>(UI_TYPE::HUD)] != nullptr)
+			{
+				PanelSlots[static_cast<int32>(UI_TYPE::HUD)]->SetAnchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f));
+				PanelSlots[static_cast<int32>(UI_TYPE::HUD)]->SetOffsets(FMargin(0.0f));
+				PanelSlots[static_cast<int32>(UI_TYPE::HUD)]->SetAlignment(FVector2D::ZeroVector);
+			}
+		}
+	}
 }
 
 void US1RootWidget::FadeIn(float InDuration)
@@ -54,37 +59,33 @@ void US1RootWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
+	if (const US1UIData* UIData = US1AssetManager::GetAssetByTag<US1UIData>(S1DataTags::Data_Input, S1AssetTags::Asset_UIData))
 	{
-		UIManager->Register_RootUI(this);
-	}
+		if (TSubclassOf<US1BaseWidget> CursorClass = UIData->FindUserWidgetClassByTag(S1UITags::UI_Cursor))
+		{
+			Register_Panel<US1BaseWidget>(UI_TYPE::CURSOR, CursorClass, CanvasPanel_Cursor);
+			CanvasPanel_Cursor->SetVisibility(ESlateVisibility::HitTestInvisible);
+			if (PanelSlots[static_cast<int32>(UI_TYPE::CURSOR)] != nullptr)
+			{
+				PanelSlots[static_cast<int32>(UI_TYPE::CURSOR)]->SetAlignment(FVector2D(0.5f, 0.5f));
+			}
+		}
 
-	Register_Panel<US1HUD_Lobby>(UI_TYPE::HUD, HUDClass, CanvasPanel_HUD, false);
-	if (PanelSlots[static_cast<int32>(UI_TYPE::HUD)] != nullptr)
-	{
-		PanelSlots[static_cast<int32>(UI_TYPE::HUD)]->SetAnchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f));
-		PanelSlots[static_cast<int32>(UI_TYPE::HUD)]->SetOffsets(FMargin(0.0f));
-		PanelSlots[static_cast<int32>(UI_TYPE::HUD)]->SetAlignment(FVector2D::ZeroVector);
-	}
+		if (TSubclassOf<US1BaseWidget> FadeClass = UIData->FindUserWidgetClassByTag(S1UITags::UI_Fade))
+		{
+			FadeWidget = Cast<US1Fade>(Register_Panel<US1BaseWidget>(UI_TYPE::FADE, FadeClass, CanvasPanel_Fade));
+			CanvasPanel_Fade->SetVisibility(ESlateVisibility::HitTestInvisible);
+			if (PanelSlots[static_cast<int32>(UI_TYPE::FADE)] != nullptr)
+			{
+				PanelSlots[static_cast<int32>(UI_TYPE::FADE)]->SetAnchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f));
+				PanelSlots[static_cast<int32>(UI_TYPE::FADE)]->SetOffsets(FMargin(0.0f));
+				PanelSlots[static_cast<int32>(UI_TYPE::FADE)]->SetAlignment(FVector2D::ZeroVector);
+			}
 
-	Register_Panel<US1Cursor>(UI_TYPE::CURSOR, CursorClass, CanvasPanel_Cursor);
-	CanvasPanel_Cursor->SetVisibility(ESlateVisibility::HitTestInvisible);
-	if (PanelSlots[static_cast<int32>(UI_TYPE::CURSOR)] != nullptr)
-	{
-		PanelSlots[static_cast<int32>(UI_TYPE::CURSOR)]->SetAlignment(FVector2D(0.5f, 0.5f));
+			// Fade Delegate
+			FadeWidget->OnFadeFinished.AddDynamic(this, &ThisClass::DeliveFadeFinished);
+		}
 	}
-
-	FadeWidget = Register_Panel<US1Fade>(UI_TYPE::FADE, FadeClass, CanvasPanel_Fade);
-	CanvasPanel_Fade->SetVisibility(ESlateVisibility::HitTestInvisible);
-	if (PanelSlots[static_cast<int32>(UI_TYPE::FADE)] != nullptr)
-	{
-		PanelSlots[static_cast<int32>(UI_TYPE::FADE)]->SetAnchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f));
-		PanelSlots[static_cast<int32>(UI_TYPE::FADE)]->SetOffsets(FMargin(0.0f));
-		PanelSlots[static_cast<int32>(UI_TYPE::FADE)]->SetAlignment(FVector2D::ZeroVector);
-	}
-
-	// Fade Delegate
-	FadeWidget->OnFadeFinished.AddDynamic(this, &ThisClass::DeliveFadeFinished);
 }
 
 void US1RootWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

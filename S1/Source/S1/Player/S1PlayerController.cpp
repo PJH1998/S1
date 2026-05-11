@@ -9,6 +9,8 @@
 #include "System/S1AssetManager.h"
 #include "Data/S1InputData.h"
 
+#include "System/S1UIManager.h"
+
 AS1PlayerController::AS1PlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -18,13 +20,17 @@ void AS1PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-
 	if (const US1InputData* InputData = US1AssetManager::GetAssetByTag<US1InputData>(S1DataTags::Data_Input, S1AssetTags::Asset_InputData))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(InputData->InputMappingContext, 0);
 		}
+	}
+
+	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
+	{
+		UIManager->Create_RootUI(this);
 	}
 }
 

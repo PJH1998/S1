@@ -2,6 +2,11 @@
 
 
 #include "UI/Lobby/S1HUD_Lobby.h"
+#include "UI/Lobby/Logo/S1Logo.h"
+#include "UI/Lobby/Custom/S1Customize.h"
+#include "Components/WidgetSwitcher.h"
+
+#include "System/S1UIManager.h"
 
 US1HUD_Lobby::US1HUD_Lobby(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -11,4 +16,15 @@ US1HUD_Lobby::US1HUD_Lobby(const FObjectInitializer& ObjectInitializer)
 void US1HUD_Lobby::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	Logo->OnClickedLogoDelegate.AddDynamic(this, &ThisClass::ShowCustomize);
+}
+
+void US1HUD_Lobby::ShowCustomize()
+{
+	WidgetSwitcher_Root->SetActiveWidgetIndex(static_cast<int32>(HUD_LOBBY::CUSTOM));
+	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
+	{
+		UIManager->FadeIn(3.f);
+	}
 }

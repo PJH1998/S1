@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UI/S1BaseWidget.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
@@ -26,6 +27,8 @@ public:
 	US1RootWidget(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 public:
+	void SetUp_HUD(const FGameplayTag& UITag);
+
 	void FadeIn(float InDuration = 1.f);
 	void FadeOut(float InDuration = 1.f);
 	
@@ -46,14 +49,6 @@ private:
 
 public:
 	FDeliverFinishedDelegate			DeliverFinished;
-
-private:
-	UPROPERTY()
-	TSubclassOf<US1HUD_Lobby>	HUDClass;
-	UPROPERTY()
-	TSubclassOf<US1Cursor>			CursorClass;
-	UPROPERTY()
-	TSubclassOf<US1Fade>			FadeClass;
 
 private:
 	UPROPERTY(meta = (BindWidget))

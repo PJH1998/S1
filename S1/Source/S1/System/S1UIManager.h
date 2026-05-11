@@ -20,6 +20,9 @@ class S1_API US1UIManager : public ULocalPlayerSubsystem
 	GENERATED_BODY()
 	
 public:
+	US1UIManager();
+
+public:
 	/** Implement this for initialization of instances of the system */
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
@@ -27,7 +30,7 @@ public:
 	virtual void Deinitialize() override;
 
 public:
-	void Register_RootUI(US1RootWidget* InRootWidget);
+	void Create_RootUI(APlayerController* PC);
 	void UnRegister_RootUI();
 
 public:
