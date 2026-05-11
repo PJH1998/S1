@@ -10,6 +10,11 @@ namespace S1GameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Turn);
 }
 
+namespace S1AbilityTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack);
+}
+
 namespace S1Labels
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Label_Preload);
@@ -18,4 +23,5 @@ namespace S1Labels
 namespace S1AssetTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_InputData);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability);
 }

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Engine/AssetManager.h"
+#include "S1LogChannels.h"
 #include "GameplayTagContainer.h"
 #include "Data/S1AssetData.h"
 #include "S1AssetManager.generated.h"
@@ -23,7 +24,6 @@ public:
 
 	template<typename AssetType>
 	static AssetType*	GetAssetByTag(const FGameplayTag& AssetTag);
-
 
 public:
 	static void			Initialize();
@@ -71,7 +71,7 @@ AssetType* US1AssetManager::GetAssetByTag(const FGameplayTag& AssetTag)
 		LoadedAsset = Cast<AssetType>(AssetPath.ResolveObject());
 		if (LoadedAsset == nullptr)
 		{
-			UE_LOG(LogWindows, Warning, TEXT("Attempted sync loading because asset hadn't loaded yet [%s]."), *AssetTag.ToString());
+			LOG_WARNING(TEXT("Attempted sync loading because asset hadn't loaded yet [%s]."), *AssetTag.ToString());
 			LoadedAsset = Cast<AssetType>(AssetPath.TryLoad());
 		}
 	}

@@ -16,9 +16,10 @@ class S1_API US1AbilitySystemComponent : public UAbilitySystemComponent
 	GENERATED_BODY()
 	
 public:
-	void AddCharacterAbilities(const TArray<TSubclassOf<class UGameplayAbility>>& StartupAbilities);
-	void ActivateAbility(FGameplayTag AbilityTag);
+	void AddCharacterAbilities(const FGameplayTag& AssetTag);
+	void ActivateAbility(const FGameplayTag& AbilityTag);
 
 public:
+	TMap<FGameplayTag, FGameplayAbilitySpecHandle> TagToSpecHandles;
 	TArray<FGameplayAbilitySpecHandle> SpecHandles;
 };

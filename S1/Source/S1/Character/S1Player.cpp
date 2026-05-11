@@ -4,7 +4,11 @@
 #include "Character/S1Player.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+
 #include "AbilitySystem/S1AbilitySystemComponent.h"
+#include "AbilitySystem/Attributes/S1PlayerSet.h"
+#include "Player/S1PlayerController.h"
+#include "Player/S1PlayerState.h"
 
 AS1Player::AS1Player()
 {
@@ -48,11 +52,36 @@ void AS1Player::BeginPlay()
 void AS1Player::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+
+	InitSystem();
 }
 
-void AS1Player::InitAbilitySystem()
+void AS1Player::InitSystem()
 {
-	Super::InitAbilitySystem();
+	Super::InitSystem();
+
+	if (AS1PlayerState* PS = GetPlayerState<AS1PlayerState>())
+	{
+		AbilitySystemComponent = Cast<US1AbilitySystemComponent>(PS->GetAbilitySystemComponent());
+		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+
+		AttributeSet = PS->GetS1PlayerSet();
+	}
+
+	if (AS1PlayerController* PC = Cast<AS1PlayerController>(GetController()))
+	{
+		PlayerController = PC;
+	}
+}
+
+void AS1Player::ActivateAbility(const FGameplayTag& AbilityTag)
+{
+	if (AbilitySystemComponent == nullptr)
+	{
+		return;
+	}
+
+	AbilitySystemComponent->ActivateAbility(AbilityTag);
 }
 
 void AS1Player::Tick(float DeltaTime)

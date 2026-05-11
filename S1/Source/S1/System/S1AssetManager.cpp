@@ -25,7 +25,9 @@ void US1AssetManager::Initialize()
 {
     Get().LoadAssetsToLabel(S1Labels::Label_Preload, FAsyncLoadCompletedDelegate::CreateLambda([](const FName&, UObject*)
     {
-        UE_LOG(LogWindows, Log, TEXT("Preload Assets Complete"));
+        // TODO Load Complete
+        LOG(TEXT("Preload Assets Complete"));
+
     }));
 }
 
@@ -33,7 +35,7 @@ void US1AssetManager::LoadAsyncByPath(const FSoftObjectPath& AssetPath, const FG
 {
     if (UAssetManager::IsInitialized() == false)
     {
-        UE_LOG(LogWindows, Error, TEXT("AssetManager must be initialized"));
+        LOG_ERROR(TEXT("AssetManager must be initialized"));
         return;
     }
 
@@ -66,7 +68,7 @@ void US1AssetManager::LoadAsyncByTag(const FGameplayTag& AssetTag, FAsyncLoadCom
 {
     if (UAssetManager::IsInitialized() == false)
     {
-        UE_LOG(LogWindows, Error, TEXT("AssetManager must be initialized"));
+        LOG_ERROR(TEXT("AssetManager must be initialized"));
         return;
     }
 
@@ -81,7 +83,7 @@ void US1AssetManager::LoadAsyncByLabel(const FGameplayTag& Label, FAsyncLoadComp
 {
     if (UAssetManager::IsInitialized() == false)
     {
-        UE_LOG(LogWindows, Error, TEXT("AssetManager must be initialized"));
+        LOG_ERROR(TEXT("AssetManager must be initialized"));
         return;
     }
 
@@ -106,7 +108,7 @@ void US1AssetManager::LoadAsyncByLabel(const FGameplayTag& Label, FAsyncLoadComp
 
     if (PathsToLoad.IsEmpty())
     {
-        UE_LOG(LogWindows, Warning, TEXT("LoadAsyncByLabel: Label [%s] 에 해당하는 에셋 없음"), *Label.ToString());
+        LOG_WARNING(TEXT("None Asset to Label : [%s]."), *Label.ToString());
         return;
     }
 
@@ -125,7 +127,7 @@ void US1AssetManager::LoadAsyncByLabel(const FGameplayTag& Label, FAsyncLoadComp
                 }
                 else
                 {
-                    UE_LOG(LogWindows, Warning, TEXT("Failed to resolve asset [%s]"), *Entry.AssetPath.ToString());
+                    LOG_WARNING(TEXT("Failed to resolve asset [%s]"), *Entry.AssetPath.ToString());
                 }
             }
 
@@ -145,7 +147,7 @@ void US1AssetManager::ReleaseByPath(const FSoftObjectPath& AssetPath)
     FGameplayTag* FoundTag = AssetManager.NameToTag.Find(AssetName);
     if (!FoundTag)
     {
-        UE_LOG(LogWindows, Warning, TEXT("ReleaseByPath: 등록되지 않은 에셋 [%s]"), *AssetPath.ToString());
+        LOG_WARNING(TEXT("ReleaseByPath: 등록되지 않은 에셋 [%s]"), *AssetPath.ToString());
         return;
     }
 
@@ -159,7 +161,7 @@ void US1AssetManager::ReleaseByTag(const FGameplayTag& AssetTag)
 
     if (!AssetManager.TagToLoadedAsset.Contains(AssetTag))
     {
-        UE_LOG(LogWindows, Warning, TEXT("ReleaseByTag: 등록되지 않은 Tag [%s]"), *AssetTag.ToString());
+        LOG_WARNING(TEXT("ReleaseByTag: 등록되지 않은 Tag [%s]"), *AssetTag.ToString());
         return;
     }
 
@@ -241,7 +243,7 @@ void US1AssetManager::LoadAssetsToLabel(const FGameplayTag& Label, FAsyncLoadCom
         }
         else
         {
-            UE_LOG(LogWindows, Fatal, TEXT("Failed to load AssetData asset type [%s]."), *PrimaryAssetType.ToString());
+            LOG_FATAL(TEXT("Failed to load AssetData asset type [%s]."), *PrimaryAssetType.ToString());
         }
     }
 }

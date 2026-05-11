@@ -9,6 +9,7 @@
 class USkeletalMeshComponent;
 class USpringArmComponent;
 class UCameraComponent;
+class AS1PlayerController;
 
 UCLASS()
 class S1_API AS1Player : public AS1Character
@@ -21,10 +22,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
-	virtual void InitAbilitySystem() override;
 
 public:
 	virtual void Tick(float DeltaTime) override;
+	virtual void InitSystem() override;
+
+	void ActivateAbility(const FGameplayTag& AbilityTag);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -38,4 +41,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UCameraComponent> Camera;
+
+private:
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<AS1PlayerController> PlayerController;
 };
