@@ -2,6 +2,7 @@
 
 
 #include "Character/S1Character.h"
+#include "AbilitySystem/S1AbilitySystemComponent.h"
 
 // Sets default values
 AS1Character::AS1Character()
@@ -25,3 +26,11 @@ void AS1Character::Tick(float DeltaTime)
 
 }
 
+UAbilitySystemComponent* AS1Character::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
+void AS1Character::InitAbilitySystem()
+{
+}

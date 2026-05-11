@@ -6,9 +6,10 @@
 #include "Character/S1Character.h"
 #include "S1Player.generated.h"
 
-/**
- * 
- */
+class USkeletalMeshComponent;
+class USpringArmComponent;
+class UCameraComponent;
+
 UCLASS()
 class S1_API AS1Player : public AS1Character
 {
@@ -19,14 +20,22 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void InitAbilitySystem() override;
 
 public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<class USpringArmComponent> SpringArm;
+	TObjectPtr<USkeletalMeshComponent> HairMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<class UCameraComponent> Camera;
+	TObjectPtr<USkeletalMeshComponent> FaceMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<USpringArmComponent> SpringArm;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UCameraComponent> Camera;
 };

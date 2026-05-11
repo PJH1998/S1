@@ -9,7 +9,7 @@
 #include "S1Character.generated.h"
 
 UCLASS()
-class S1_API AS1Character : public ACharacter
+class S1_API AS1Character : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -24,4 +24,12 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+public:
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	virtual void InitAbilitySystem();
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<class UAbilitySystemComponent> AbilitySystemComponent;
 };

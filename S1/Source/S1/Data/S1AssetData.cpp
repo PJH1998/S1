@@ -53,7 +53,9 @@ const FAssetSet* US1AssetData::FindAssetSetByLabel(const FGameplayTag& Label) co
     return AssetLabelToSet.Find(Label);
 }
 
+/* PDA_TAG VERSION
 const FGameplayTag& US1AssetData::GetDataTag()
 {
     return DataTag;
 }
+*/

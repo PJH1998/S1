@@ -4,25 +4,55 @@
 #include "Character/S1Player.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "AbilitySystem/S1AbilitySystemComponent.h"
 
 AS1Player::AS1Player()
 {
-	// SpringArm — 캐릭터 머리 위 높이에서 뒤로 뻗음
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	//BodyMesh
+	USkeletalMeshComponent* BodyMesh = GetMesh();
+	BodyMesh->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90.f), FRotator(0.f, -90.f, 0.f));
+
+	//HairMesh
+	HairMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Hair");
+	HairMesh->SetupAttachment(BodyMesh);
+	HairMesh->SetLeaderPoseComponent(BodyMesh);
+	
+	//FaceMesh
+	FaceMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Face");
+	FaceMesh->SetupAttachment(BodyMesh);
+	FaceMesh->SetLeaderPoseComponent(BodyMesh);
+
+	// SpringArm
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent);
-	SpringArm->SetRelativeLocation(FVector(0.f, 0.f, 90.f));	// 머리 높이로 피벗 올리기
-	SpringArm->TargetArmLength = 500.f;							// 발까지 보이는 거리
-	SpringArm->bUsePawnControlRotation = true;					// 마우스로 카메라 회전
+	SpringArm->SetRelativeLocation(FVector(0.f, 0.f, 90.f));	
+	SpringArm->TargetArmLength = 800.f;							
+	SpringArm->bUsePawnControlRotation = true;					
 
 	// Camera
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
-	Camera->bUsePawnControlRotation = false;					// SpringArm이 회전 담당
+	Camera->bUsePawnControlRotation = false;
+
 }
 
 void AS1Player::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AS1Player::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+}
+
+void AS1Player::InitAbilitySystem()
+{
+	Super::InitAbilitySystem();
 }
 
 void AS1Player::Tick(float DeltaTime)

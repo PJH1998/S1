@@ -9,18 +9,12 @@ namespace S1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Turn, "Input.Action.Turn");
 }
 
-namespace S1DataTags
+namespace S1Labels
 {
-	UE_DEFINE_GAMEPLAY_TAG(Data_Input, "Data.Input");
+	UE_DEFINE_GAMEPLAY_TAG(Label_Preload, "Label.Preload");
 }
 
 namespace S1AssetTags
 {
-#pragma region LABEL
-	UE_DEFINE_GAMEPLAY_TAG(Label_Preload, "Label.Preload");
-#pragma endregion
-
-#pragma region ASSET
 	UE_DEFINE_GAMEPLAY_TAG(Asset_InputData, "Asset.InputData");
-#pragma endregion
 }

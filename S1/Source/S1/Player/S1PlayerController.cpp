@@ -19,7 +19,7 @@ void AS1PlayerController::BeginPlay()
 	Super::BeginPlay();
 
 
-	if (const US1InputData* InputData = US1AssetManager::GetAssetByTag<US1InputData>(S1DataTags::Data_Input, S1AssetTags::Asset_InputData))
+	if (const US1InputData* InputData = US1AssetManager::GetAssetByTag<US1InputData>(S1AssetTags::Asset_InputData))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 		{
@@ -32,7 +32,7 @@ void AS1PlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	if (const US1InputData * InputData = US1AssetManager::GetAssetByTag<US1InputData>(S1DataTags::Data_Input, S1AssetTags::Asset_InputData))
+	if (const US1InputData * InputData = US1AssetManager::GetAssetByTag<US1InputData>(S1AssetTags::Asset_InputData))
 	{
 		UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
 
