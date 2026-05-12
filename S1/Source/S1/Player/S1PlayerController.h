@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "GameplayTagContainer.h"
 #include "InputActionValue.h"
 #include "S1PlayerController.generated.h"
 
@@ -22,6 +23,15 @@ protected:
 	virtual void SetupInputComponent() override;
 	virtual void PlayerTick(float DeltaTime) override;
 
+public:
+	virtual void HandleGameplayEvent(FGameplayTag EventTag);
+
+private:
 	void OnMove(const FInputActionValue& Value);
 	void OnTurn(const FInputActionValue& Value);
+	void Test();
+
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<class AS1Player> S1Player;
 };

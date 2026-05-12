@@ -20,20 +20,19 @@ namespace S1UITags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Lobby_Logo);
 }
 
-namespace S1DataTags
+namespace S1AbilityTags
 {
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Input);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack);
+}
+
+namespace S1Labels
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Label_Preload);
 }
 
 namespace S1AssetTags
 {
-#pragma region LABEL
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Label_Preload);
-#pragma endregion
-
-
-#pragma region ASSET
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_InputData);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_UIData);
-#pragma endregion
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability);
 }

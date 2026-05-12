@@ -29,7 +29,7 @@ void US1UIManager::Deinitialize()
 
 void US1UIManager::Create_RootUI(APlayerController* PC)
 {
-	if (const US1UIData* UIData = US1AssetManager::GetAssetByTag<US1UIData>(S1DataTags::Data_Input, S1AssetTags::Asset_UIData))
+	if (const US1UIData* UIData = US1AssetManager::GetAssetByTag<US1UIData>(S1AssetTags::Asset_UIData))
 	{
 		if (TSubclassOf<US1BaseWidget> RootWidgetClass = UIData->FindUserWidgetClassByTag(S1UITags::UI_Root))
 		{

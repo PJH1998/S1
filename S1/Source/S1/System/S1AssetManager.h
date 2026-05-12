@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Engine/AssetManager.h"
+#include "S1LogChannels.h"
 #include "GameplayTagContainer.h"
 #include "Data/S1AssetData.h"
 #include "S1AssetManager.generated.h"
@@ -22,15 +23,14 @@ public:
 	static US1AssetManager& Get();
 
 	template<typename AssetType>
-	static AssetType*	GetAssetByTag(const FGameplayTag& DataTag, const FGameplayTag& AssetTag);
-
+	static AssetType*	GetAssetByTag(const FGameplayTag& AssetTag);
 
 public:
 	static void			Initialize();
 
 	static void			LoadAsyncByPath(const FSoftObjectPath& AssetPath, const FGameplayTag& AssetTag, FAsyncLoadCompletedDelegate CompletedDelegate = FAsyncLoadCompletedDelegate());
-	static void			LoadAsyncByTag(const FGameplayTag& DataTag, const FGameplayTag& AssetTag, FAsyncLoadCompletedDelegate CompletedDelegate = FAsyncLoadCompletedDelegate());
-
+	
+	static void			LoadAsyncByTag(const FGameplayTag& AssetTag, FAsyncLoadCompletedDelegate CompletedDelegate = FAsyncLoadCompletedDelegate());
 	static void			LoadAsyncByLabel(const FGameplayTag& AssetTag, FAsyncLoadCompletedDelegate CompletedDelegate = FAsyncLoadCompletedDelegate());
 
 	static void			ReleaseByPath(const FSoftObjectPath& AssetPath);
@@ -39,14 +39,14 @@ public:
 	static void			ReleaseAll();
 
 private:
-	US1AssetData*		GetLoadadAssetByTag(const FGameplayTag& AssetTag);
 	void				LoadAssetsToLabel(const FGameplayTag& Label, FAsyncLoadCompletedDelegate CompletedDelegate = FAsyncLoadCompletedDelegate());
 
 	void				AddLoadedAsset(const FName& AssetName, const FGameplayTag& AssetTag, const UObject* Asset);
 
 private:
+
 	UPROPERTY()
-	TMap<FGameplayTag, TObjectPtr<US1AssetData>> LoadedAssetData;
+	TObjectPtr<US1AssetData> LoadedAssetData;
 
 	UPROPERTY()
 	TMap<FName, FGameplayTag> NameToTag;
@@ -56,9 +56,47 @@ private:
 };
 
 template<typename AssetType>
+AssetType* US1AssetManager::GetAssetByTag(const FGameplayTag& AssetTag)
+{
+	US1AssetData* AssetData = Get().LoadedAssetData;
+	if (!AssetData)
+	{
+		return nullptr;
+	}
+
+	AssetType* LoadedAsset = nullptr;
+	const FSoftObjectPath AssetPath = AssetData->GetAssetPathByTag(AssetTag);
+	if (AssetPath.IsValid())
+	{
+		LoadedAsset = Cast<AssetType>(AssetPath.ResolveObject());
+		if (LoadedAsset == nullptr)
+		{
+			LOG_WARNING(TEXT("Attempted sync loading because asset hadn't loaded yet [%s]."), *AssetTag.ToString());
+			LoadedAsset = Cast<AssetType>(AssetPath.TryLoad());
+		}
+	}
+	return LoadedAsset;
+}
+
+
+#pragma region PDA_TAG VERSION
+/*
+
+
+UPROPERTY()
+TMap<FGameplayTag, TObjectPtr<US1AssetData>> LoadedAssetData;
+
+
+US1AssetData*		GetLoadadAssetByTag(const FGameplayTag& AssetTag);
+
+template<typename AssetType>
+static AssetType* GetAssetByTag(const FGameplayTag& DataTag, const FGameplayTag& AssetTag);
+
+template<typename AssetType>
 AssetType* US1AssetManager::GetAssetByTag(const FGameplayTag& DataTag, const FGameplayTag& AssetTag)
 {
 	US1AssetData* AssetData = Get().GetLoadadAssetByTag(DataTag);
+
 	if (!AssetData)
 	{
 		return nullptr;
@@ -77,3 +115,5 @@ AssetType* US1AssetManager::GetAssetByTag(const FGameplayTag& DataTag, const FGa
 	}
 	return LoadedAsset;
 }
+*/
+#pragma endregion

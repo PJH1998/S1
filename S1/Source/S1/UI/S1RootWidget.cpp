@@ -20,7 +20,7 @@ US1RootWidget::US1RootWidget(const FObjectInitializer& ObjectInitializer)
 
 void US1RootWidget::SetUp_HUD(const FGameplayTag& UITag)
 {
-	if (const US1UIData* UIData = US1AssetManager::GetAssetByTag<US1UIData>(S1DataTags::Data_Input, S1AssetTags::Asset_UIData))
+	if (const US1UIData* UIData = US1AssetManager::GetAssetByTag<US1UIData>(S1AssetTags::Asset_UIData))
 	{
 		if (TSubclassOf<US1BaseWidget> HUDClass = UIData->FindUserWidgetClassByTag(UITag))
 		{
@@ -59,7 +59,7 @@ void US1RootWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (const US1UIData* UIData = US1AssetManager::GetAssetByTag<US1UIData>(S1DataTags::Data_Input, S1AssetTags::Asset_UIData))
+	if (const US1UIData* UIData = US1AssetManager::GetAssetByTag<US1UIData>(S1AssetTags::Asset_UIData))
 	{
 		if (TSubclassOf<US1BaseWidget> CursorClass = UIData->FindUserWidgetClassByTag(S1UITags::UI_Cursor))
 		{

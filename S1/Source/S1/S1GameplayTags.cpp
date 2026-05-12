@@ -19,19 +19,19 @@ namespace S1UITags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Lobby_Logo, "UI.Lobby.Logo");
 }
 
-namespace S1DataTags
+namespace S1AbilityTags
 {
-	UE_DEFINE_GAMEPLAY_TAG(Data_Input, "Data.Input");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack, "Ability.Attack");
+}
+
+namespace S1Labels
+{
+	UE_DEFINE_GAMEPLAY_TAG(Label_Preload, "Label.Preload");
 }
 
 namespace S1AssetTags
 {
-#pragma region LABEL
-	UE_DEFINE_GAMEPLAY_TAG(Label_Preload, "Label.Preload");
-#pragma endregion
-
-#pragma region ASSET
 	UE_DEFINE_GAMEPLAY_TAG(Asset_InputData, "Asset.InputData");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_UIData, "Asset.UIData");
-#pragma endregion
+	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability,"Asset.Ability");
 }

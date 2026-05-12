@@ -2,6 +2,9 @@
 
 
 #include "Character/S1Character.h"
+#include "AbilitySystem/S1AbilitySystemComponent.h"
+#include "AbilitySystem/Attributes/S1AttributeSet.h"
+#include "S1GameplayTags.h"
 
 // Sets default values
 AS1Character::AS1Character()
@@ -16,6 +19,12 @@ void AS1Character::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (AbilitySystemComponent == nullptr)
+	{
+		return;
+	}
+
+	AbilitySystemComponent->AddCharacterAbilities(S1AssetTags::Asset_Ability);
 }
 
 // Called every frame
@@ -25,3 +34,11 @@ void AS1Character::Tick(float DeltaTime)
 
 }
 
+UAbilitySystemComponent* AS1Character::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
+void AS1Character::InitSystem()
+{
+}

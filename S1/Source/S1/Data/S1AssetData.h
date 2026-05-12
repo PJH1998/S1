@@ -45,14 +45,10 @@ public:
 	FSoftObjectPath		GetAssetPathByTag(const FGameplayTag& AssetTag);
 	const FAssetSet&	GetAssetSetByLabel(const FGameplayTag& Label);
 	const FAssetSet*	FindAssetSetByLabel(const FGameplayTag& Label) const;  // nullptr 반환 (크래시 없음)
-	const FGameplayTag& GetDataTag();
 
 private:
 	UPROPERTY(EditDefaultsOnly)
 	TMap<FName, FAssetSet> AssetGroupNameToSet;
-
-	UPROPERTY(EditDefaultsOnly)
-	FGameplayTag DataTag;
 
 	// ��Ȯ�� Tag�� Path ã��
 	UPROPERTY()
