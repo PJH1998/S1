@@ -8,6 +8,9 @@
 #include "AbilitySystemInterface.h"
 #include "S1Character.generated.h"
 
+class US1AbilitySystemComponent;
+class US1AttributeSet;
+
 UCLASS()
 class S1_API AS1Character : public ACharacter, public IAbilitySystemInterface
 {
@@ -31,8 +34,8 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<class US1AbilitySystemComponent> AbilitySystemComponent;
+	TObjectPtr<US1AbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<class US1AttributeSet> AttributeSet;
+	TObjectPtr<US1AttributeSet> AttributeSet;
 };

@@ -8,7 +8,7 @@
 #include "InputActionValue.h"
 #include "S1PlayerController.generated.h"
 
-class US1InputData;
+class AS1Player;
 
 UCLASS()
 class S1_API AS1PlayerController : public APlayerController
@@ -33,5 +33,5 @@ private:
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<class AS1Player> S1Player;
+	TObjectPtr<AS1Player> S1Player;
 };

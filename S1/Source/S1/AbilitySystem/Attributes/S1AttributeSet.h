@@ -35,7 +35,8 @@ class S1_API US1AttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
 	
-public:	US1AttributeSet();
+public:	
+	US1AttributeSet();
 
 public:
 	ATTRIBUTE_ACCESSORS(ThisClass, Health);
