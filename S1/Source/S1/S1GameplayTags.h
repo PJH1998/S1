@@ -18,6 +18,8 @@ namespace S1UITags
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Lobby_HUD);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Lobby_Logo);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Gameplay_HUD);
 }
 
 namespace S1AbilityTags

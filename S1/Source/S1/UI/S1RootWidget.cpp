@@ -20,6 +20,9 @@ US1RootWidget::US1RootWidget(const FObjectInitializer& ObjectInitializer)
 
 void US1RootWidget::SetUp_HUD(const FGameplayTag& UITag)
 {
+	if (CanvasPanel_HUD->HasAnyChildren())
+		CanvasPanel_HUD->ClearChildren();
+
 	if (const US1UIData* UIData = US1AssetManager::GetAssetByTag<US1UIData>(S1AssetTags::Asset_UIData))
 	{
 		if (TSubclassOf<US1BaseWidget> HUDClass = UIData->FindUserWidgetClassByTag(UITag))

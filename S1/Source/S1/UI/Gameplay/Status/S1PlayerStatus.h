@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "UI/S1BaseWidget.h"
-#include "S1HUD_Gameplay.generated.h"
+#include "S1PlayerStatus.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class S1_API US1HUD_Gameplay : public US1BaseWidget
+class S1_API US1PlayerStatus : public US1BaseWidget
 {
 	GENERATED_BODY()
-
+	
 public:
-	US1HUD_Gameplay(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	US1PlayerStatus(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
 	virtual void NativeConstruct() override;

@@ -3,19 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/S1BaseWidget.h"
-#include "S1HUD_Gameplay.generated.h"
+#include "UI/ProgressBar/S1ProgressBar.h"
+#include "S1HPBar.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class S1_API US1HUD_Gameplay : public US1BaseWidget
+class S1_API US1HPBar : public US1ProgressBar
 {
 	GENERATED_BODY()
-
+	
 public:
-	US1HUD_Gameplay(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	US1HPBar(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
 	virtual void NativeConstruct() override;

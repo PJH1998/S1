@@ -42,7 +42,7 @@ void US1UIManager::Create_RootUI(APlayerController* PC)
 		UE_LOG(LogWindows, Error, TEXT("Failed to Create : RootWidget"));
 		return;
 	}
-	RootWidget->SetUp_HUD(S1UITags::UI_Lobby_HUD);
+	RootWidget->SetUp_HUD(S1UITags::UI_Gameplay_HUD);
 
 	RootWidget->AddToViewport();
 
