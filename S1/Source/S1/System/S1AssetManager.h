@@ -9,8 +9,7 @@
 #include "S1AssetManager.generated.h"
 
 DECLARE_DELEGATE_TwoParams(FAsyncLoadCompletedDelegate, const FName&, UObject*);
-// FName = AssetName or Label
-// UObject = LoadedAsset
+DECLARE_DELEGATE(FAsyncLabelLoadCompletedDelegate);
 
 UCLASS()
 class S1_API US1AssetManager : public UAssetManager
@@ -29,17 +28,20 @@ public:
 	static void			Initialize();
 
 	static void			LoadAsyncByPath(const FSoftObjectPath& AssetPath, const FGameplayTag& AssetTag, FAsyncLoadCompletedDelegate CompletedDelegate = FAsyncLoadCompletedDelegate());
-	
 	static void			LoadAsyncByTag(const FGameplayTag& AssetTag, FAsyncLoadCompletedDelegate CompletedDelegate = FAsyncLoadCompletedDelegate());
-	static void			LoadAsyncByLabel(const FGameplayTag& AssetTag, FAsyncLoadCompletedDelegate CompletedDelegate = FAsyncLoadCompletedDelegate());
+	static void			LoadAsyncByLabel(const FGameplayTag& AssetTag, FAsyncLabelLoadCompletedDelegate CompletedDelegate = FAsyncLabelLoadCompletedDelegate());
 
 	static void			ReleaseByPath(const FSoftObjectPath& AssetPath);
 	static void			ReleaseByTag(const FGameplayTag& AssetTag);
 	static void			ReleaseByLabel(const FGameplayTag& Label);
 	static void			ReleaseAll();
 
+	// Loading Progress - After the Call LoadAsyncByLabel
+	static float		GetLoadingProgress();
+	static TWeakPtr<FStreamableHandle> GetActiveLoadHandle();
+
 private:
-	void				LoadAssetsToLabel(const FGameplayTag& Label, FAsyncLoadCompletedDelegate CompletedDelegate = FAsyncLoadCompletedDelegate());
+	void				LoadAssetsToLabel(const FGameplayTag& Label, FAsyncLabelLoadCompletedDelegate CompletedDelegate = FAsyncLabelLoadCompletedDelegate());
 
 	void				AddLoadedAsset(const FName& AssetName, const FGameplayTag& AssetTag, const UObject* Asset);
 
@@ -53,6 +55,8 @@ private:
 
 	UPROPERTY()
 	TMap<FGameplayTag, TObjectPtr<const UObject>> TagToLoadedAsset;
+
+	TSharedPtr<FStreamableHandle> ActiveLoadHandle;
 };
 
 template<typename AssetType>
