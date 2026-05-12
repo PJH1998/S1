@@ -39,9 +39,16 @@ void US1AnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		return;
 	}
 
+	
 	Velocity = MovementComponent->Velocity;
 	GroundSpeed = Velocity.Size2D();
 
 	bMove = (GroundSpeed > 0.f && MovementComponent->GetCurrentAcceleration() != FVector::ZeroVector);
+
 	bIsFalling = MovementComponent->IsFalling();
+
+	//TEMP
+	WaitTime = bMove ? 0.f : WaitTime + DeltaSeconds;
+	bWait = WaitTime >= MaxWaitTime;
+
 }
