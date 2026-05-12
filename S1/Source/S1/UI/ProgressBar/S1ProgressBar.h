@@ -6,6 +6,10 @@
 #include "UI/S1BaseWidget.h"
 #include "S1ProgressBar.generated.h"
 
+class UImage;
+class UMaterialInstance;
+class UMaterialInstanceDynamic;
+
 /**
  * 
  */
@@ -18,16 +22,42 @@ public:
 	US1ProgressBar(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "ProgressBar")
 	void SetCurrentValue(float InValue);
+	UFUNCTION(BlueprintCallable, Category = "ProgressBar")
+	void SetMaxValue(float InValue);
+	UFUNCTION(BlueprintCallable, Category = "ProgressBar")
+	void SetValue(float InCurrentValue, float InMaxValue);
 
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-private:
-	float CurrentValue = {};
-	float LerpValue = {};
-	float MaxValue = {};
+protected:
+	virtual void	Bind_ShaderResource() {};
+	float			GetFillRatio(float InValue) const;
 
+private:
+	void InitializeFillMaterial();
+
+
+protected:
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_Fill;
+
+	UPROPERTY(EditDefaultsOnly, Category = "ProgressBar")
+	TObjectPtr<UMaterialInstance> GaugeMaterial;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UMaterialInstanceDynamic> Fill_MID;
+
+protected:
+
+	float CurrentValue = { 50.f };
+	float MaxValue = { 100.f };
+
+	FName FillRatioParameterName = TEXT("FillRatio");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProgressBar", meta = (AllowPrivateAccess = "true"))
 	float LerpSpeed = { 0.5f };
 };

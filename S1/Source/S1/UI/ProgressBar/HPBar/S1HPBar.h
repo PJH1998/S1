@@ -19,4 +19,13 @@ public:
 
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+protected:
+	virtual void Bind_ShaderResource() override;
+
+private:
+	float LerpValue = { 100.f };
+
+	FName LerpRatioParameterName = TEXT("LerpRatio");
 };
