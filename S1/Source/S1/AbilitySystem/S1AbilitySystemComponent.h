@@ -17,9 +17,10 @@ class S1_API US1AbilitySystemComponent : public UAbilitySystemComponent
 	
 public:
 	void AddCharacterAbilities(const FGameplayTag& AssetTag);
+	void RemoveCharacterAbilities(const FGameplayTag& AssetTag);
 	void ActivateAbility(const FGameplayTag& AbilityTag);
 
-public:
+private:
 	TMap<FGameplayTag, FGameplayAbilitySpecHandle> TagToSpecHandles;
-	TArray<FGameplayAbilitySpecHandle> SpecHandles;
+	TMap<FGameplayTag, TArray<FGameplayAbilitySpecHandle>> GroupToSpecHandles;
 };

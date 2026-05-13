@@ -47,12 +47,16 @@ void AS1PlayerController::SetupInputComponent()
 		if (const UInputAction* MoveAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Move))
 		{
 			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::OnMove);
-			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Started, this, &ThisClass::Test);
 		}
 
 		if (const UInputAction* TurnAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Turn))
 		{
 			EnhancedInputComponent->BindAction(TurnAction, ETriggerEvent::Triggered, this, &ThisClass::OnTurn);
+		}
+
+		if (const UInputAction* AttacAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Attack))
+		{
+			EnhancedInputComponent->BindAction(AttacAction, ETriggerEvent::Started, this, &ThisClass::OnAttack);
 		}
 	}
 }
@@ -89,9 +93,7 @@ void AS1PlayerController::OnTurn(const FInputActionValue& Value)
 	AddPitchInput(LookVector.Y);
 }
 
-void AS1PlayerController::Test()
+void AS1PlayerController::OnAttack(const FInputActionValue& Value)
 {
-	S1Player->ActivateAbility(S1AbilityTags::Ability_Attack);
-
-
+	S1Player->ActivateAbility(S1AbilityTags::Ability_WeakAttack);
 }

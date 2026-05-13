@@ -25,6 +25,10 @@ public:
 	UFUNCTION()
 	void AnimNotify_LoopStart();
 
+public:
+	UPROPERTY(BlueprintReadOnly)
+	bool bCanNextAttack = false;
+
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	bool bRunLoop = false;

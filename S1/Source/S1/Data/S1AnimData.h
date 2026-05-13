@@ -32,9 +32,8 @@ struct FS1MontageData
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UAnimMontage> Montage;
 
-	// SectionName → SectionData
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TMap<FName, FS1MontageSection> Sections;
+	TArray<FS1MontageSection> Sections;
 };
 
 UCLASS()

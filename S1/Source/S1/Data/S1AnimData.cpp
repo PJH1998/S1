@@ -13,5 +13,13 @@ const FS1MontageSection* US1AnimData::FindSection(const FGameplayTag& MontageTag
 	if (!MontageData)
 		return nullptr;
 
-	return MontageData->Sections.Find(SectionName);
+	for (const FS1MontageSection& SectionInfo : MontageData->Sections)
+	{
+		if (SectionInfo.SectionName == SectionName)
+		{
+			return &SectionInfo;
+		}
+	}
+
+	return nullptr;
 }

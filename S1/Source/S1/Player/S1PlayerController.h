@@ -29,7 +29,7 @@ public:
 private:
 	void OnMove(const FInputActionValue& Value);
 	void OnTurn(const FInputActionValue& Value);
-	void Test();
+	void OnAttack(const FInputActionValue& Value);
 
 protected:
 	UPROPERTY(BlueprintReadOnly)

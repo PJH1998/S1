@@ -15,7 +15,7 @@ bool US1AbilityData::FindAbilityByTag(const FGameplayTag& AbilityTag, OUT TSubcl
 		}
 	}
 
-	UE_LOG(LogWindows, Error, TEXT("Can't find InputAction for InputTag [%s]"), *AbilityTag.ToString());
+	UE_LOG(LogWindows, Error, TEXT("Can't find Ability for AbilityTag [%s]"), *AbilityTag.ToString());
 
 	return false;
 }

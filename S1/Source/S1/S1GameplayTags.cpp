@@ -7,6 +7,7 @@ namespace S1GameplayTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Move, "Input.Action.Move");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Turn, "Input.Action.Turn");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Attack, "Input.Action.Attack");
 }
 
 namespace S1UITags
@@ -30,9 +31,15 @@ namespace S1UIResourceTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Asna_Skill03, "UI.Tex.Asna.Skill03");
 }
 
+namespace S1AnimTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Weak, "Anim.Montage.PRP_Weak");
+}
+
 namespace S1AbilityTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack, "Ability.Attack");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_WeakAttack, "Ability.WeakAttack");
 }
 
 namespace S1Labels
@@ -46,4 +53,5 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_UIData, "Asset.UIData");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_UIResource, "Asset.UIResource");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability,"Asset.Ability");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData, "Asset.AnimData");
 }
