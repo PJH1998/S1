@@ -23,7 +23,7 @@ US1AssetManager& US1AssetManager::Get()
 
 void US1AssetManager::Initialize()
 {
-    Get().LoadAssetsToLabel(S1Labels::Label_Preload, FAsyncLoadCompletedDelegate::CreateLambda([](const FName&, UObject*)
+    Get().LoadAssetsToLabel(S1Labels::Label_Preload, FAsyncLabelLoadCompletedDelegate::CreateLambda([]()
     {
         // TODO Load Complete
         LOG(TEXT("Preload Assets Complete"));
@@ -79,7 +79,7 @@ void US1AssetManager::LoadAsyncByTag(const FGameplayTag& AssetTag, FAsyncLoadCom
     LoadAsyncByPath(AssetPath, AssetTag, CompletedDelegate);
 }
 
-void US1AssetManager::LoadAsyncByLabel(const FGameplayTag& Label, FAsyncLoadCompletedDelegate CompletedDelegate)
+void US1AssetManager::LoadAsyncByLabel(const FGameplayTag& Label, FAsyncLabelLoadCompletedDelegate CompletedDelegate)
 {
     if (UAssetManager::IsInitialized() == false)
     {
@@ -114,7 +114,7 @@ void US1AssetManager::LoadAsyncByLabel(const FGameplayTag& Label, FAsyncLoadComp
 
     US1AssetManager* AssetManager = &Get();
 
-    GetStreamableManager().RequestAsyncLoad(
+    AssetManager->ActiveLoadHandle = GetStreamableManager().RequestAsyncLoad(
         PathsToLoad,
         FStreamableDelegate::CreateLambda([AssetManager, EntriesToLoad, CompletedDelegate]()
         {
@@ -133,10 +133,32 @@ void US1AssetManager::LoadAsyncByLabel(const FGameplayTag& Label, FAsyncLoadComp
 
             if (CompletedDelegate.IsBound())
             {
-                CompletedDelegate.Execute(NAME_None, nullptr);
+                CompletedDelegate.Execute();
             }
+
+            AssetManager->ActiveLoadHandle.Reset();
         })
     );
+}
+
+float US1AssetManager::GetLoadingProgress()
+{
+    const TSharedPtr<FStreamableHandle>& Handle = Get().ActiveLoadHandle;
+    if (Handle.IsValid())
+        return Handle->GetProgress();
+
+    LOG_WARNING(TEXT("None Loading Handle."));
+    return 1.f;
+}
+
+TWeakPtr<FStreamableHandle> US1AssetManager::GetActiveLoadHandle()
+{
+    const TSharedPtr<FStreamableHandle>& Handle = Get().ActiveLoadHandle;
+    if (Handle.IsValid())
+        return TWeakPtr<FStreamableHandle>(Handle);
+
+    LOG_WARNING(TEXT("GetActiveLoadHandle: None ActiveLoadHandle, Check After the LoadAsyncByLabel"));
+    return TWeakPtr<FStreamableHandle>();
 }
 
 void US1AssetManager::ReleaseByPath(const FSoftObjectPath& AssetPath)
@@ -147,7 +169,7 @@ void US1AssetManager::ReleaseByPath(const FSoftObjectPath& AssetPath)
     FGameplayTag* FoundTag = AssetManager.NameToTag.Find(AssetName);
     if (!FoundTag)
     {
-        LOG_WARNING(TEXT("ReleaseByPath: 등록되지 않은 에셋 [%s]"), *AssetPath.ToString());
+        LOG_WARNING(TEXT("ReleaseByPath: None Loaded Asset, Path - [%s]"), *AssetPath.ToString());
         return;
     }
 
@@ -161,7 +183,7 @@ void US1AssetManager::ReleaseByTag(const FGameplayTag& AssetTag)
 
     if (!AssetManager.TagToLoadedAsset.Contains(AssetTag))
     {
-        LOG_WARNING(TEXT("ReleaseByTag: 등록되지 않은 Tag [%s]"), *AssetTag.ToString());
+        LOG_WARNING(TEXT("ReleaseByTag: None Loaded Asset, Tag - [%s]"), *AssetTag.ToString());
         return;
     }
 
@@ -213,12 +235,13 @@ void US1AssetManager::ReleaseByLabel(const FGameplayTag& Label)
 void US1AssetManager::ReleaseAll()
 {
     US1AssetManager& AssetManager = Get();
+
     AssetManager.LoadedAssetData = nullptr;
     AssetManager.TagToLoadedAsset.Reset();
     AssetManager.NameToTag.Reset();
 }
 
-void US1AssetManager::LoadAssetsToLabel(const FGameplayTag& Label, FAsyncLoadCompletedDelegate CompletedDelegate)
+void US1AssetManager::LoadAssetsToLabel(const FGameplayTag& Label, FAsyncLabelLoadCompletedDelegate CompletedDelegate)
 {
     if (LoadedAssetData)
     {
@@ -392,7 +415,7 @@ US1AssetData* US1AssetManager::GetLoadadAssetByTag(const FGameplayTag& DataTag)
     return Found ? Found->Get() : nullptr;
 }
 
-void US1AssetManager::LoadAssetsToLabel(const FGameplayTag& Label, FAsyncLoadCompletedDelegate CompletedDelegate)
+void US1AssetManager::LoadAssetsToLabel(const FGameplayTag& Label, FAsyncLabelLoadCompletedDelegate CompletedDelegate)
 {
     // PIE 재실행 시 이전 세션 데이터 초기화
     ReleaseAll();
