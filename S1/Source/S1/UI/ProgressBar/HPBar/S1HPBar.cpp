@@ -2,6 +2,8 @@
 
 
 #include "UI/ProgressBar/HPBar/S1HPBar.h"
+#include "Player/S1PlayerState.h"
+#include "AbilitySystem/Attributes/S1PlayerSet.h"
 
 US1HPBar::US1HPBar(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -12,6 +14,14 @@ void US1HPBar::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	PlayerSet = Cast<AS1PlayerState>(GetOwningPlayerState())->GetS1PlayerSet();
+	if (PlayerSet == nullptr)
+	{
+		UE_LOG(LogWindows, Error, TEXT("Can't Search PlayerSet"));
+		return;
+	}
+
+	MaxValue = PlayerSet->GetHealth();
 	CurrentValue = MaxValue;
 	LerpValue = CurrentValue;
 	LerpSpeed = 25.f;
@@ -20,6 +30,13 @@ void US1HPBar::NativeConstruct()
 void US1HPBar::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	if (PlayerSet == nullptr)
+	{
+		return;
+	}
+
+	CurrentValue = PlayerSet->GetHealth();
 
 	if (CurrentValue >= LerpValue)
 	{

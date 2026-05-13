@@ -6,6 +6,7 @@
 #include "UI/ProgressBar/S1ProgressBar.h"
 #include "S1HPBar.generated.h"
 
+class US1PlayerSet;
 /**
  * 
  */
@@ -28,4 +29,7 @@ private:
 	float LerpValue = { 100.f };
 
 	FName LerpRatioParameterName = TEXT("LerpRatio");
+
+private:
+	TObjectPtr<US1PlayerSet> PlayerSet;
 };
