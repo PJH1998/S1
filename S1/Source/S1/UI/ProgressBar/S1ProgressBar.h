@@ -31,7 +31,6 @@ public:
 
 protected:
 	virtual void NativeConstruct() override;
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 protected:
 	virtual void	Bind_ShaderResource() {};
@@ -53,7 +52,7 @@ protected:
 
 protected:
 
-	float CurrentValue = { 50.f };
+	float CurrentValue = {};
 	float MaxValue = { 100.f };
 
 	FName FillRatioParameterName = TEXT("FillRatio");

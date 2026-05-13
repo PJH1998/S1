@@ -12,6 +12,7 @@ void US1HPBar::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	CurrentValue = MaxValue;
 	LerpValue = CurrentValue;
 	LerpSpeed = 25.f;
 }

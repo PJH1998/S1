@@ -36,11 +36,6 @@ void US1ProgressBar::NativeConstruct()
 	InitializeFillMaterial();
 }
 
-void US1ProgressBar::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
-{
-	Super::NativeTick(MyGeometry, InDeltaTime);
-}
-
 void US1ProgressBar::InitializeFillMaterial()
 {
 	if (Image_Fill == nullptr)
