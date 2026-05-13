@@ -48,7 +48,15 @@ void US1AnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsFalling = MovementComponent->IsFalling();
 
 	//TEMP
-	WaitTime = bMove ? 0.f : WaitTime + DeltaSeconds;
-	bWait = WaitTime >= MaxWaitTime;
-
+	WaitTime = bMove ? 0.f : FMath::Min(WaitTime + DeltaSeconds, MaxWaitTime);
+	
+	if (WaitTime >= MaxWaitTime && false == bWait)
+	{
+		bWait = true;
+		WaitTime = 0.f;
+	}
+	else
+	{
+		bWait = false;
+	}
 }

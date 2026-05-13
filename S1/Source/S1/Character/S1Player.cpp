@@ -3,6 +3,7 @@
 
 #include "Character/S1Player.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 #include "AbilitySystem/S1AbilitySystemComponent.h"
@@ -16,6 +17,8 @@ AS1Player::AS1Player()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
+	GetCharacterMovement()->bOrientRotationToMovement = true;  
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 480.f, 0.f);
 	//BodyMesh
 	USkeletalMeshComponent* BodyMesh = GetMesh();
 	BodyMesh->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90.f), FRotator(0.f, -90.f, 0.f));

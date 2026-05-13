@@ -72,11 +72,8 @@ void AS1PlayerController::OnMove(const FInputActionValue& Value)
 
 	const FVector2D MoveVector = Value.Get<FVector2D>();
 
-	UE_LOG(LogWindows, Log, TEXT("OnMove: %s"), *MoveVector.ToString());
-
 	const FRotator YawRotation(0.f, GetControlRotation().Yaw, 0.f);
 
-	// X축: 좌우 (A/D), Y축: 전후 (W/S)
 	const FVector ForwardDir = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDir   = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
