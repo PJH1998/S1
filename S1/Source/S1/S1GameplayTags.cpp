@@ -21,6 +21,15 @@ namespace S1UITags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Gameplay_HUD, "UI.Gameplay.HUD");
 }
 
+namespace S1UIResourceTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Heal, "UI.Tex.Heal");
+
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Asna_Skill01, "UI.Tex.Asna.Skill01");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Asna_Skill02, "UI.Tex.Asna.Skill02");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Asna_Skill03, "UI.Tex.Asna.Skill03");
+}
+
 namespace S1AbilityTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack, "Ability.Attack");
@@ -35,5 +44,6 @@ namespace S1AssetTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Asset_InputData, "Asset.InputData");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_UIData, "Asset.UIData");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_UIResource, "Asset.UIResource");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability,"Asset.Ability");
 }
