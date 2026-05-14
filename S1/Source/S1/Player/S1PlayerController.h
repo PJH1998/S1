@@ -30,6 +30,8 @@ private:
 	void OnMove(const FInputActionValue& Value);
 	void OnTurn(const FInputActionValue& Value);
 	void OnAttack(const FInputActionValue& Value);
+	void OnSprint(const FInputActionValue& Value);
+	void OnSkill01(const FInputActionValue& Value);
 
 protected:
 	UPROPERTY(BlueprintReadOnly)

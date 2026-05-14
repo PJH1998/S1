@@ -44,6 +44,8 @@ void AS1PlayerController::SetupInputComponent()
 	{
 		UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
 
+
+#pragma region Move
 		if (const UInputAction* MoveAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Move))
 		{
 			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::OnMove);
@@ -53,11 +55,26 @@ void AS1PlayerController::SetupInputComponent()
 		{
 			EnhancedInputComponent->BindAction(TurnAction, ETriggerEvent::Triggered, this, &ThisClass::OnTurn);
 		}
-
-		if (const UInputAction* AttacAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Attack))
+		
+		if (const UInputAction* SprintAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Sprint))
 		{
-			EnhancedInputComponent->BindAction(AttacAction, ETriggerEvent::Started, this, &ThisClass::OnAttack);
+			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ThisClass::OnSprint);
+			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ThisClass::OnSprint);
 		}
+#pragma endregion
+
+#pragma region Attack
+		if (const UInputAction* AttackAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Attack))
+		{
+			EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ThisClass::OnAttack);
+		}
+
+		if (const UInputAction* Skill01Action = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Skill01))
+		{
+			EnhancedInputComponent->BindAction(Skill01Action, ETriggerEvent::Started, this, &ThisClass::OnSkill01);
+		}
+#pragma endregion
+
 	}
 }
 
@@ -72,7 +89,10 @@ void AS1PlayerController::HandleGameplayEvent(FGameplayTag EventTag)
 
 void AS1PlayerController::OnMove(const FInputActionValue& Value)
 {
-	if (!S1Player) return;
+	if (nullptr == S1Player)
+	{
+		return;
+	}
 
 	const FVector2D MoveVector = Value.Get<FVector2D>();
 
@@ -83,7 +103,6 @@ void AS1PlayerController::OnMove(const FInputActionValue& Value)
 
 	S1Player->AddMovementInput(ForwardDir, MoveVector.Y);
 	S1Player->AddMovementInput(RightDir,   MoveVector.X);
-
 }
 
 void AS1PlayerController::OnTurn(const FInputActionValue& Value)
@@ -95,5 +114,20 @@ void AS1PlayerController::OnTurn(const FInputActionValue& Value)
 
 void AS1PlayerController::OnAttack(const FInputActionValue& Value)
 {
-	S1Player->ActivateAbility(S1AbilityTags::Ability_WeakAttack);
+	S1Player->ActivateAbility(S1AbilityTags::Ability_Attack_WeakAttack);
+}
+
+void AS1PlayerController::OnSprint(const FInputActionValue& Value)
+{
+	if (nullptr == S1Player)
+	{
+		return;
+	}
+
+	S1Player->SetSprinting(Value.Get<bool>());
+}
+
+void AS1PlayerController::OnSkill01(const FInputActionValue& Value)
+{
+	S1Player->ActivateAbility(S1AbilityTags::Ability_Attack_Skill01);
 }

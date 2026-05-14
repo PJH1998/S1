@@ -77,6 +77,17 @@ void AS1Player::InitSystem()
 	}
 }
 
+void AS1Player::SetSprinting(bool bInSprint)
+{
+	bSprint = bInSprint;
+	GetCharacterMovement()->MaxWalkSpeed = bSprint ? SprintSpeed : WalkSpeed;
+}
+
+bool AS1Player::GetSprinting()
+{
+	return bSprint;
+}
+
 void AS1Player::ActivateAbility(const FGameplayTag& AbilityTag)
 {
 	if (AbilitySystemComponent == nullptr)

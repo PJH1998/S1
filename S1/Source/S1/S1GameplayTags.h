@@ -7,8 +7,12 @@
 namespace S1GameplayTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Move);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Sprint);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Turn);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Attack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill02);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill03);
 }
 
 namespace S1UITags
@@ -26,6 +30,7 @@ namespace S1UITags
 namespace S1AnimTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Weak);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Skill01);
 }
 
 namespace S1UIResourceTags
@@ -39,8 +44,10 @@ namespace S1UIResourceTags
 
 namespace S1AbilityTags
 {
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_WeakAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_WeakAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_Skill01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_Skill02);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_Skill03);
 }
 
 namespace S1Labels

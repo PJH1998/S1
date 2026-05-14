@@ -1,12 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/S1GameplayAbility.h"
 #include "System/S1AssetManager.h"
 #include "S1GameplayTags.h"
 #include "Data/S1AbilityData.h"
-
 
 void US1AbilitySystemComponent::AddCharacterAbilities(const FGameplayTag& AssetTag)
 {
@@ -20,15 +18,7 @@ void US1AbilitySystemComponent::AddCharacterAbilities(const FGameplayTag& AssetT
 		FGameplayAbilitySpecHandle Handle = GiveAbility(AbilitySpec);
 
 		GroupHandles.Add(Handle);
-
-		if (false == TagToSpecHandles.Contains(AbilitySet.AbilityTag))
-		{
-			TagToSpecHandles.Emplace(AbilitySet.AbilityTag, Handle);
-		}
-		else
-		{
-			LOG_FATAL(TEXT("Add to Duplicate Tag : [%s]."), *AbilitySet.AbilityTag.ToString());
-		}
+		TagToSpecHandles.FindOrAdd(AbilitySet.AbilityTag).Add(Handle);
 	}
 }
 
@@ -56,28 +46,31 @@ void US1AbilitySystemComponent::RemoveCharacterAbilities(const FGameplayTag& Ass
 
 void US1AbilitySystemComponent::ActivateAbility(const FGameplayTag& AbilityTag)
 {
-	FGameplayAbilitySpecHandle* SpecHandle = TagToSpecHandles.Find(AbilityTag);
-	if (nullptr == SpecHandle)
+	TArray<FGameplayAbilitySpecHandle>* Handles = TagToSpecHandles.Find(AbilityTag);
+	if (nullptr == Handles)
 	{
 		return;
 	}
 
-	FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(*SpecHandle);
-	if (nullptr == Spec)
+	// 활성 GA가 있으면 콤보 입력으로 처리
+	for (auto& Handle : *Handles)
 	{
-		return;
-	}
+		FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(Handle);
+		if (nullptr == Spec || false == Spec->IsActive())
+		{
+			continue;
+		}
 
-	if (true == Spec->IsActive())
-	{
-		US1GameplayAbility* GA = Cast<US1GameplayAbility>(Spec->GetPrimaryInstance());
-		if (nullptr != GA)
+		if (US1GameplayAbility* GA = Cast<US1GameplayAbility>(Spec->GetPrimaryInstance()))
 		{
 			GA->OnInputReactivated();
 		}
+		return;
 	}
-	else
+
+	// 활성 GA 없으면 핸들로 순회하며 태그 조건에 맞는 것 발동
+	for (auto& Handle : *Handles)
 	{
-		TryActivateAbility(*SpecHandle);
+		TryActivateAbility(Handle);
 	}
 }
