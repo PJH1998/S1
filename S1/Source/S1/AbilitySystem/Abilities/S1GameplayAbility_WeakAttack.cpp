@@ -16,30 +16,8 @@ void US1GameplayAbility_WeakAttack::ActivateAbility(const FGameplayAbilitySpecHa
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	US1PlayerAnimInstance* AnimInst = GetPlayerAnimInstance();
-	if (nullptr == AnimInst)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
-	const FS1MontageData* MontageData = GetMontageData();
-	if (nullptr == MontageData || true == MontageData->Sections.IsEmpty())
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
 	CurrentSectionIndex = 0;
-
-	AS1Character* Character = Cast<AS1Character>(ActorInfo->AvatarActor);
-	Character->PlayAnimMontage(MontageData->Montage);
-
-	FOnMontageEnded EndDelegate;
-	EndDelegate.BindUObject(this, &US1GameplayAbility_WeakAttack::OnMontageEnded);
-	AnimInst->Montage_SetEndDelegate(EndDelegate, MontageData->Montage);
-
-	AnimInst->Montage_JumpToSection(MontageData->Sections[CurrentSectionIndex].SectionName, MontageData->Montage);
+	PlayMontageSet(ActorInfo);
 }
 
 void US1GameplayAbility_WeakAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -52,6 +30,35 @@ void US1GameplayAbility_WeakAttack::EndAbility(const FGameplayAbilitySpecHandle 
 void US1GameplayAbility_WeakAttack::OnInputReactivated()
 {
 	TryAdvanceCombo();
+}
+
+void US1GameplayAbility_WeakAttack::PlayMontageSet(const FGameplayAbilityActorInfo* ActorInfo)
+{
+	const FS1MontageSet* MontageSet = GetCurrentMontageSet();
+	if (nullptr == MontageSet || nullptr == MontageSet->Montage)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
+	}
+
+	AS1Character* Character = Cast<AS1Character>(ActorInfo->AvatarActor);
+	if (nullptr == Character)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
+	}
+
+	Character->PlayAnimMontage(MontageSet->Montage);
+
+	US1PlayerAnimInstance* AnimInst = GetPlayerAnimInstance();
+	if (nullptr == AnimInst)
+	{
+		return;
+	}
+
+	FOnMontageEnded EndDelegate;
+	EndDelegate.BindUObject(this, &US1GameplayAbility_WeakAttack::OnMontageEnded);
+	AnimInst->Montage_SetEndDelegate(EndDelegate, MontageSet->Montage);
 }
 
 void US1GameplayAbility_WeakAttack::TryAdvanceCombo()
@@ -69,18 +76,25 @@ void US1GameplayAbility_WeakAttack::TryAdvanceCombo()
 	}
 
 	int32 NextIndex = CurrentSectionIndex + 1;
-	if (NextIndex >= MontageData->Sections.Num())
+	if (false == MontageData->MontageSets.IsValidIndex(NextIndex))
 	{
 		return;
 	}
 
 	CurrentSectionIndex = NextIndex;
 	AnimInst->bCanNextAttack = false;
-	AnimInst->Montage_JumpToSection(MontageData->Sections[CurrentSectionIndex].SectionName, MontageData->Montage);
+
+	PlayMontageSet(CurrentActorInfo);
 }
 
 void US1GameplayAbility_WeakAttack::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
+	const FS1MontageSet* CurrentSet = GetCurrentMontageSet();
+	if (nullptr == CurrentSet || Montage != CurrentSet->Montage)
+	{
+		return;
+	}
+
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, bInterrupted);
 }
 
@@ -104,4 +118,15 @@ const FS1MontageData* US1GameplayAbility_WeakAttack::GetMontageData() const
 	}
 
 	return AnimData->FindMontageByTag(MontageTag);
+}
+
+const FS1MontageSet* US1GameplayAbility_WeakAttack::GetCurrentMontageSet() const
+{
+	US1AnimData* AnimData = US1AssetManager::GetAssetByTag<US1AnimData>(AnimDataTag);
+	if (nullptr == AnimData)
+	{
+		return nullptr;
+	}
+
+	return AnimData->FindMontageSet(MontageTag, CurrentSectionIndex);
 }

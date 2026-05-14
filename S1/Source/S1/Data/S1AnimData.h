@@ -10,12 +10,12 @@ class UAnimMontage;
 class UGameplayEffect;
 
 USTRUCT(BlueprintType)
-struct FS1MontageSection
+struct FS1MontageSet
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FName SectionName;
+	TObjectPtr<UAnimMontage> Montage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UGameplayEffect> DamageEffect;
@@ -30,10 +30,7 @@ struct FS1MontageData
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UAnimMontage> Montage;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<FS1MontageSection> Sections;
+	TArray<FS1MontageSet> MontageSets;
 };
 
 UCLASS()
@@ -43,10 +40,9 @@ class S1_API US1AnimData : public UDataAsset
 
 public:
 	const FS1MontageData* FindMontageByTag(const FGameplayTag& MontageTag) const;
-	const FS1MontageSection* FindSection(const FGameplayTag& MontageTag, const FName& SectionName) const;
+	const FS1MontageSet* FindMontageSet(const FGameplayTag& MontageTag, int32 Index) const;
 
 public:
-	// MontageTag → MontageData
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim")
 	TMap<FGameplayTag, FS1MontageData> Montages;
 };

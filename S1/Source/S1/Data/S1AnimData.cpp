@@ -7,19 +7,18 @@ const FS1MontageData* US1AnimData::FindMontageByTag(const FGameplayTag& MontageT
 	return Montages.Find(MontageTag);
 }
 
-const FS1MontageSection* US1AnimData::FindSection(const FGameplayTag& MontageTag, const FName& SectionName) const
+const FS1MontageSet* US1AnimData::FindMontageSet(const FGameplayTag& MontageTag, int32 Index) const
 {
 	const FS1MontageData* MontageData = Montages.Find(MontageTag);
-	if (!MontageData)
-		return nullptr;
-
-	for (const FS1MontageSection& SectionInfo : MontageData->Sections)
+	if (nullptr == MontageData)
 	{
-		if (SectionInfo.SectionName == SectionName)
-		{
-			return &SectionInfo;
-		}
+		return nullptr;
 	}
 
-	return nullptr;
+	if (false == MontageData->MontageSets.IsValidIndex(Index))
+	{
+		return nullptr;
+	}
+
+	return &MontageData->MontageSets[Index];
 }

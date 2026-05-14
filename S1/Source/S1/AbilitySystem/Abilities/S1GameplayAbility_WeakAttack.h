@@ -8,6 +8,7 @@
 
 class US1PlayerAnimInstance;
 struct FS1MontageData;
+struct FS1MontageSet;
 
 UCLASS()
 class S1_API US1GameplayAbility_WeakAttack : public US1GameplayAbility
@@ -24,9 +25,11 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 private:
+	void PlayMontageSet(const FGameplayAbilityActorInfo* ActorInfo);
 	void TryAdvanceCombo();
 	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 	const FS1MontageData* GetMontageData() const;
+	const FS1MontageSet* GetCurrentMontageSet() const;
 	US1PlayerAnimInstance* GetPlayerAnimInstance() const;
 
 private:
