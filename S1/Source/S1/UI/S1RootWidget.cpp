@@ -116,7 +116,8 @@ void US1RootWidget::UpdateMousePosition(const FGeometry& MyGeometry)
 
 	const FVector2D MouseAbsolutePos = FSlateApplication::Get().GetCursorPos();
 
-	FVector2D MouseLocalPos = CanvasPanel_Cursor->GetCachedGeometry().AbsoluteToLocal(MouseAbsolutePos);
+	//FVector2D MouseLocalPos = CanvasPanel_Cursor->GetCachedGeometry().AbsoluteToLocal(MouseAbsolutePos);
+	FVector2D MouseLocalPos = MyGeometry.AbsoluteToLocal(MouseAbsolutePos);
 	PanelSlots[static_cast<int32>(UI_TYPE::CURSOR)]->SetPosition(MouseLocalPos);
 }
 
