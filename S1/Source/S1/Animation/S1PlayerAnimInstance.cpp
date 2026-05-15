@@ -2,6 +2,7 @@
 
 
 #include "Animation/S1PlayerAnimInstance.h"
+#include "Character/S1Player.h"
 
 US1PlayerAnimInstance::US1PlayerAnimInstance(const FObjectInitializer& ObjectInitialzer)
 	: Super(ObjectInitialzer)
@@ -17,6 +18,11 @@ void US1PlayerAnimInstance::NativeInitializeAnimation()
 void US1PlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	if (AS1Player* Player = Cast<AS1Player>(Character))
+	{
+		bSprint = Player->GetSprinting();
+	}
 
 	if (false == bMove)
 	{

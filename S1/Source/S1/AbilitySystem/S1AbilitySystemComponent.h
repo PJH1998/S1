@@ -7,20 +7,17 @@
 #include "GameplayTagContainer.h"
 #include "S1AbilitySystemComponent.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class S1_API US1AbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
-	
+
 public:
 	void AddCharacterAbilities(const FGameplayTag& AssetTag);
 	void RemoveCharacterAbilities(const FGameplayTag& AssetTag);
 	void ActivateAbility(const FGameplayTag& AbilityTag);
 
 private:
-	TMap<FGameplayTag, FGameplayAbilitySpecHandle> TagToSpecHandles;
+	TMap<FGameplayTag, TArray<FGameplayAbilitySpecHandle>> TagToSpecHandles;
 	TMap<FGameplayTag, TArray<FGameplayAbilitySpecHandle>> GroupToSpecHandles;
 };

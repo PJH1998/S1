@@ -25,9 +25,15 @@ public:
 	UFUNCTION()
 	void AnimNotify_LoopStart();
 
+	void SetCanNextAttack(bool bInCanNextAttack) { bCanNextAttack = bInCanNextAttack; }
+	bool GetCanNextAttack() const { return bCanNextAttack; }
+
 public:
 	UPROPERTY(BlueprintReadOnly)
 	bool bCanNextAttack = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bSprint = false;
 
 protected:
 	UPROPERTY(BlueprintReadOnly)

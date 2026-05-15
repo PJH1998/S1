@@ -12,7 +12,7 @@ void US1AnimNotifyState_WeakCombo::NotifyBegin(USkeletalMeshComponent* MeshComp,
 		return;
 	}
 
-	AnimInst->bCanNextAttack = true;
+	AnimInst->SetCanNextAttack(true);
 }
 
 void US1AnimNotifyState_WeakCombo::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
@@ -23,6 +23,6 @@ void US1AnimNotifyState_WeakCombo::NotifyEnd(USkeletalMeshComponent* MeshComp, U
 		return;
 	}
 
-	AnimInst->bCanNextAttack = false;
+	AnimInst->SetCanNextAttack(false);
 }
 

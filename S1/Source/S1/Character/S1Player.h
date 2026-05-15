@@ -28,6 +28,8 @@ public:
 	virtual void InitSystem() override;
 
 	void ActivateAbility(const FGameplayTag& AbilityTag);
+	void SetSprinting(bool bInSprint);
+	bool GetSprinting();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -42,7 +44,16 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UCameraComponent> Camera;
 
+
 private:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<AS1PlayerController> PlayerController;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float WalkSpeed = 600.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float SprintSpeed = 1000.f;
+
+	bool bSprint = false;
 };

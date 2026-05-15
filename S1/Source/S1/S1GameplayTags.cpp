@@ -6,8 +6,12 @@
 namespace S1GameplayTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Move, "Input.Action.Move");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Sprint, "Input.Action.Sprint");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Turn, "Input.Action.Turn");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Attack, "Input.Action.Attack");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Skill01, "Input.Action.Skill01");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Skill02, "Input.Action.Skill02");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Skill03, "Input.Action.Skill03");
 }
 
 namespace S1UITags
@@ -34,12 +38,15 @@ namespace S1UIResourceTags
 namespace S1AnimTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Weak, "Anim.Montage.PRP_Weak");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Skill01, "Anim.Montage.RPR_Skill01");
 }
 
 namespace S1AbilityTags
 {
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack, "Ability.Attack");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_WeakAttack, "Ability.WeakAttack");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_WeakAttack, "Ability.Attack.WeakAttack");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Skill01, "Ability.Attack.Skill01");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Skill02, "Ability.Attack.Skill02");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Skill03, "Ability.Attack.Skill03");
 }
 
 namespace S1Labels
