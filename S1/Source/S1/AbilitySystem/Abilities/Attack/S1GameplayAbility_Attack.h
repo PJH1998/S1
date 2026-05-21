@@ -6,7 +6,7 @@
 #include "AbilitySystem/Abilities/S1GameplayAbility.h"
 #include "S1GameplayAbility_Attack.generated.h"
 
-class US1PlayerAnimInstance;
+class US1AnimInstance;
 struct FS1MontageData;
 struct FS1MontageSet;
 
@@ -26,7 +26,7 @@ protected:
 
 	virtual void OnBeforePlayMontage() {}
 
-	US1PlayerAnimInstance* GetPlayerAnimInstance() const;
+	US1AnimInstance* GetAnimInstance() const;
 
 private:
 	void PlayMontageSet(const FGameplayAbilityActorInfo* ActorInfo);

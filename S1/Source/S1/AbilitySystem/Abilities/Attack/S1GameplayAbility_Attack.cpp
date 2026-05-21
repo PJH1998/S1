@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Abilities/Attack/S1GameplayAbility_Attack.h"
-#include "Animation/S1PlayerAnimInstance.h"
+#include "Animation/S1AnimInstance.h"
 #include "Character/S1Character.h"
 #include "Data/S1AnimData.h"
 #include "System/S1AssetManager.h"
@@ -54,7 +54,7 @@ void US1GameplayAbility_Attack::PlayMontageSet(const FGameplayAbilityActorInfo* 
 
 	Character->PlayAnimMontage(MontageSet->Montage);
 
-	US1PlayerAnimInstance* AnimInst = GetPlayerAnimInstance();
+	US1AnimInstance* AnimInst = GetAnimInstance();
 	if (nullptr == AnimInst)
 	{
 		return;
@@ -102,7 +102,7 @@ void US1GameplayAbility_Attack::OnMontageEnded(UAnimMontage* Montage, bool bInte
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, bInterrupted);
 }
 
-US1PlayerAnimInstance* US1GameplayAbility_Attack::GetPlayerAnimInstance() const
+US1AnimInstance* US1GameplayAbility_Attack::GetAnimInstance() const
 {
 	AS1Character* Character = Cast<AS1Character>(GetAvatarActorFromActorInfo());
 	if (nullptr == Character)
@@ -110,7 +110,7 @@ US1PlayerAnimInstance* US1GameplayAbility_Attack::GetPlayerAnimInstance() const
 		return nullptr;
 	}
 
-	return Cast<US1PlayerAnimInstance>(Character->GetMesh()->GetAnimInstance());
+	return Cast<US1AnimInstance>(Character->GetMesh()->GetAnimInstance());
 }
 
 const FS1MontageData* US1GameplayAbility_Attack::GetMontageData() const
