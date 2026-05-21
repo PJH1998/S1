@@ -6,7 +6,6 @@
 #include "Character/S1Character.h"
 #include "S1Monster.generated.h"
 
-class UBlackboardComponent;
 class UBehaviorTree;
 /**
  * 
@@ -23,6 +22,9 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
+
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -30,9 +32,6 @@ public:
 	virtual void InitSystem() override;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	TObjectPtr<UBlackboardComponent> Blackboard;
-
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
 };
