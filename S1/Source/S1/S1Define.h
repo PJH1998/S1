@@ -8,3 +8,10 @@ namespace S1Levels
 {
 	const FName LoadingMap = TEXT("LoadingMap");
 }
+
+namespace S1CollisionChannel
+{
+	constexpr ECollisionChannel CC_Player = ECC_GameTraceChannel1;
+	constexpr ECollisionChannel CC_Monster = ECC_GameTraceChannel2;
+	constexpr ECollisionChannel CC_Weapon = ECC_GameTraceChannel3;
+}

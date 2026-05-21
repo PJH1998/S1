@@ -62,3 +62,8 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability,"Asset.Ability");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData, "Asset.AnimData");
 }
+
+namespace S1StateTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(State_CanNextAttack, "State.CanNextAttack");
+}
