@@ -5,6 +5,8 @@
 #include "Character/S1Character.h"
 #include "Data/S1AnimData.h"
 #include "System/S1AssetManager.h"
+#include "S1GameplayTags.h"
+#include "AbilitySystem/S1AbilitySystemComponent.h"
 
 US1GameplayAbility_Attack::US1GameplayAbility_Attack(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -65,8 +67,8 @@ void US1GameplayAbility_Attack::PlayMontageSet(const FGameplayAbilityActorInfo* 
 
 void US1GameplayAbility_Attack::TryAdvanceCombo()
 {
-	US1PlayerAnimInstance* AnimInst = GetPlayerAnimInstance();
-	if (nullptr == AnimInst || false == AnimInst->GetCanNextAttack())
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (nullptr == ASC || false == ASC->HasMatchingGameplayTag(S1StateTags::State_CanNextAttack))
 	{
 		return;
 	}
@@ -84,7 +86,7 @@ void US1GameplayAbility_Attack::TryAdvanceCombo()
 	}
 
 	CurrentSectionIndex = NextIndex;
-	AnimInst->SetCanNextAttack(false);
+	ASC->RemoveLooseGameplayTag(S1StateTags::State_CanNextAttack);
 
 	PlayMontageSet(CurrentActorInfo);
 }

@@ -2,27 +2,40 @@
 
 
 #include "Animation/Notify/S1AnimNotifyState_WeakCombo.h"
-#include "Animation/S1PlayerAnimInstance.h"
+#include "AbilitySystemInterface.h"
+#include "AbilitySystemComponent.h"
+#include "S1GameplayTags.h"
 
-void US1AnimNotifyState_WeakCombo::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
+static void SetCanNextAttackTag(USkeletalMeshComponent* MeshComp, bool bAdd)
 {
-	US1PlayerAnimInstance* AnimInst = Cast<US1PlayerAnimInstance>(MeshComp->GetAnimInstance());
-	if (nullptr == AnimInst)
+	IAbilitySystemInterface* ASI = Cast<IAbilitySystemInterface>(MeshComp->GetOwner());
+	if (nullptr == ASI)
 	{
 		return;
 	}
 
-	AnimInst->SetCanNextAttack(true);
+	UAbilitySystemComponent* ASC = ASI->GetAbilitySystemComponent();
+	if (nullptr == ASC)
+	{
+		return;
+	}
+
+	if (bAdd)
+	{
+		ASC->AddLooseGameplayTag(S1StateTags::State_CanNextAttack);
+	}
+	else
+	{
+		ASC->RemoveLooseGameplayTag(S1StateTags::State_CanNextAttack);
+	}
+}
+
+void US1AnimNotifyState_WeakCombo::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
+{
+	SetCanNextAttackTag(MeshComp, true);
 }
 
 void US1AnimNotifyState_WeakCombo::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-	US1PlayerAnimInstance* AnimInst = Cast<US1PlayerAnimInstance>(MeshComp->GetAnimInstance());
-	if (nullptr == AnimInst)
-	{
-		return;
-	}
-
-	AnimInst->SetCanNextAttack(false);
+	SetCanNextAttackTag(MeshComp, false);
 }
-

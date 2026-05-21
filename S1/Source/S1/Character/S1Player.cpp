@@ -10,6 +10,7 @@
 #include "AbilitySystem/Attributes/S1PlayerSet.h"
 #include "Player/S1PlayerController.h"
 #include "Player/S1PlayerState.h"
+#include "S1GameplayTags.h"
 
 AS1Player::AS1Player()
 {
@@ -50,6 +51,13 @@ AS1Player::AS1Player()
 void AS1Player::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (AbilitySystemComponent == nullptr)
+	{
+		return;
+	}
+
+	AbilitySystemComponent->AddCharacterAbilities(S1AssetTags::Asset_Ability);
 }
 
 void AS1Player::PossessedBy(AController* NewController)

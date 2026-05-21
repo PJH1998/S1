@@ -63,3 +63,8 @@ namespace S1AssetTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_AnimData);
 }
+
+namespace S1StateTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_CanNextAttack);
+}
