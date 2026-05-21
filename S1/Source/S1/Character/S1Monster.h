@@ -7,6 +7,7 @@
 #include "S1Monster.generated.h"
 
 class UBehaviorTree;
+class UAnimMontage;
 /**
  * 
  */
@@ -23,6 +24,8 @@ protected:
 
 public:
 	UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
+
+	void PlayAnimation(UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
 
 public:
 	// Called every frame

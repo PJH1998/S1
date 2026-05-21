@@ -39,6 +39,8 @@ namespace S1AnimTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Weak, "Anim.Montage.PRP_Weak");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Skill01, "Anim.Montage.RPR_Skill01");
+
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_Atack00, "Anim.Montage.Boss000.Attack00");
 }
 
 namespace S1AbilityTags
@@ -47,6 +49,10 @@ namespace S1AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Skill01, "Ability.Attack.Skill01");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Skill02, "Ability.Attack.Skill02");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Skill03, "Ability.Attack.Skill03");
+
+#pragma region Boss000
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Attack00, "Ability.Boss000.Attack00");
+#pragma endregion
 }
 
 namespace S1Labels

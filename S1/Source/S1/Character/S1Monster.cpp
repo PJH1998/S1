@@ -19,6 +19,11 @@ void AS1Monster::BeginPlay()
 	InitSystem();
 }
 
+void AS1Monster::PlayAnimation(UAnimMontage* AnimMontage, float InPlayRate, FName StartSectionName)
+{
+	PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
+}
+
 void AS1Monster::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

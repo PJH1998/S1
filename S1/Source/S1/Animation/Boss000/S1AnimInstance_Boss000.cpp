@@ -16,4 +16,6 @@ void US1AnimInstance_Boss000::NativeInitializeAnimation()
 void US1AnimInstance_Boss000::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	bMove = GroundSpeed > 3.f;
 }

@@ -31,6 +31,8 @@ namespace S1AnimTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Weak);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Skill01);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack00);
 }
 
 namespace S1UIResourceTags
@@ -48,6 +50,10 @@ namespace S1AbilityTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_Skill02);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_Skill03);
+
+#pragma region Boss000
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_Attack00);
+#pragma endregion
 }
 
 namespace S1Labels
