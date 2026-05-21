@@ -20,16 +20,20 @@ public:
 	AS1Player();
 
 protected:
-	virtual void BeginPlay() override;
-	virtual void PossessedBy(AController* NewController) override;
+	virtual void	BeginPlay() override;
+	virtual void	PossessedBy(AController* NewController) override;
+	virtual void	Landed(const FHitResult& Hit) override;
 
 public:
-	virtual void Tick(float DeltaTime) override;
-	virtual void InitSystem() override;
+	virtual void	Tick(float DeltaTime) override;
+	virtual void	Jump() override;
 
-	void ActivateAbility(const FGameplayTag& AbilityTag);
-	void SetSprinting(bool bInSprint);
-	bool GetSprinting();
+public:
+	virtual void	InitSystem() override;
+
+	void			ActivateAbility(const FGameplayTag& AbilityTag);
+	void			SetSprinting(bool bInSprint);
+	bool			GetSprinting();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

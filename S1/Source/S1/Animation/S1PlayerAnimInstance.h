@@ -27,6 +27,7 @@ public:
 
 	void SetCanNextAttack(bool bInCanNextAttack) { bCanNextAttack = bInCanNextAttack; }
 	bool GetCanNextAttack() const { return bCanNextAttack; }
+	void SetDirectToFall(bool bInDirectToFall) { bDirectToFall = bInDirectToFall; }
 
 public:
 	UPROPERTY(BlueprintReadOnly)
@@ -38,4 +39,15 @@ public:
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	bool bRunLoop = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bDirectToFall = false;
+
+	//TEMP
+	UPROPERTY(BlueprintReadOnly)
+	bool bWait = false;
+
+private:
+	float WaitTime = 0.f;
+	float MaxWaitTime = 5.f;
 };

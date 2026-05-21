@@ -32,6 +32,7 @@ private:
 	void OnAttack(const FInputActionValue& Value);
 	void OnSprint(const FInputActionValue& Value);
 	void OnSkill01(const FInputActionValue& Value);
+	void OnJump(const FInputActionValue& Value);
 
 protected:
 	UPROPERTY(BlueprintReadOnly)

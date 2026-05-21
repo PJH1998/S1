@@ -85,6 +85,37 @@ void AS1Player::InitSystem()
 	}
 }
 
+void AS1Player::Jump()
+{
+	Super::Jump();
+
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->AddLooseGameplayTag(S1StateTags::State_Air);
+	}
+}
+
+void AS1Player::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	if (AbilitySystemComponent)
+	{
+		// State.Air 및 하위 태그(State.Air.Used.* 등) 전체 제거
+		FGameplayTagContainer OwnedTags;
+		AbilitySystemComponent->GetOwnedGameplayTags(OwnedTags);
+
+		FGameplayTagContainer TagsToRemove;
+		for (const FGameplayTag& Tag : OwnedTags)
+		{
+			if (Tag.MatchesTag(S1StateTags::State_Air))
+			{
+				AbilitySystemComponent->RemoveLooseGameplayTag(Tag);
+			}
+		}
+	}
+}
+
 void AS1Player::SetSprinting(bool bInSprint)
 {
 	bSprint = bInSprint;
