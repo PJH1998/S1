@@ -8,7 +8,10 @@ namespace S1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Move, "Input.Action.Move");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Sprint, "Input.Action.Sprint");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Turn, "Input.Action.Turn");
+	
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Attack, "Input.Action.Attack");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Jump, "Input.Action.Jump");
+
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Skill01, "Input.Action.Skill01");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Skill02, "Input.Action.Skill02");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Skill03, "Input.Action.Skill03");
@@ -38,6 +41,7 @@ namespace S1UIResourceTags
 namespace S1AnimTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Weak, "Anim.Montage.PRP_Weak");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirWeak, "Anim.Montage.PRP_AirWeak");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Skill01, "Anim.Montage.RPR_Skill01");
 
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_Atack00, "Anim.Montage.Boss000.Attack00");
@@ -45,10 +49,12 @@ namespace S1AnimTags
 
 namespace S1AbilityTags
 {
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_WeakAttack, "Ability.Attack.WeakAttack");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Skill01, "Ability.Attack.Skill01");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Skill02, "Ability.Attack.Skill02");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Skill03, "Ability.Attack.Skill03");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Ground, "Ability.Player.Attack.Ground");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Air, "Ability.Player.Attack.Air");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_WeakAttack, "Ability.Player.Attack.WeakAttack");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill01, "Ability.Player.Attack.Skill01");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill02, "Ability.Player.Attack.Skill02");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill03, "Ability.Player.Attack.Skill03");
 
 #pragma region Boss000
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Attack00, "Ability.Boss000.Attack00");
@@ -72,4 +78,7 @@ namespace S1AssetTags
 namespace S1StateTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(State_CanNextAttack, "State.CanNextAttack");
+	UE_DEFINE_GAMEPLAY_TAG(State_Air, "State.Air");
+	UE_DEFINE_GAMEPLAY_TAG(State_Air_Used_WeakAttack, "State.Air.Used.WeakAttack");
+	UE_DEFINE_GAMEPLAY_TAG(State_Air_Used_Skill01, "State.Air.Used.Skill01");
 }

@@ -75,6 +75,14 @@ void AS1PlayerController::SetupInputComponent()
 		}
 #pragma endregion
 
+#pragma region Jump
+		if (const UInputAction* JumpAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Jump))
+		{
+			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ThisClass::OnJump);
+			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ThisClass::OnJump);
+		}
+#pragma endregion
+
 	}
 }
 
@@ -114,7 +122,7 @@ void AS1PlayerController::OnTurn(const FInputActionValue& Value)
 
 void AS1PlayerController::OnAttack(const FInputActionValue& Value)
 {
-	S1Player->ActivateAbility(S1AbilityTags::Ability_Attack_WeakAttack);
+	S1Player->ActivateAbility(S1AbilityTags::Ability_Player_Attack_WeakAttack);
 }
 
 void AS1PlayerController::OnSprint(const FInputActionValue& Value)
@@ -129,5 +137,22 @@ void AS1PlayerController::OnSprint(const FInputActionValue& Value)
 
 void AS1PlayerController::OnSkill01(const FInputActionValue& Value)
 {
-	S1Player->ActivateAbility(S1AbilityTags::Ability_Attack_Skill01);
+	S1Player->ActivateAbility(S1AbilityTags::Ability_Player_Attack_Skill01);
+}
+
+void AS1PlayerController::OnJump(const FInputActionValue& Value)
+{
+	if (nullptr == S1Player)
+	{
+		return;
+	}
+
+	if (Value.Get<bool>())
+	{
+		S1Player->Jump();
+	}
+	else
+	{
+		S1Player->StopJumping();
+	}
 }

@@ -40,12 +40,4 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsFalling = false;
-
-	//TEMP
-	UPROPERTY(BlueprintReadOnly)
-	bool bWait = false;
-
-	float WaitTime = 0.f;
-
-	float MaxWaitTime = 5.f;
 };

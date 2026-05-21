@@ -24,9 +24,27 @@ void US1PlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bSprint = Player->GetSprinting();
 	}
 
-	if (false == bMove)
+	if (false == bMove || bIsFalling)
 	{
 		bRunLoop = false;
+	}
+
+	if (!bIsFalling)
+	{
+		bDirectToFall = false;
+	}
+
+	//TEMP
+	WaitTime = bMove ? 0.f : FMath::Min(WaitTime + DeltaSeconds, MaxWaitTime);
+
+	if (WaitTime >= MaxWaitTime && false == bWait)
+	{
+		bWait = true;
+		WaitTime = 0.f;
+	}
+	else
+	{
+		bWait = false;
 	}
 }
 

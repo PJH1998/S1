@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Animation/Notify/S1AnimNotifyState_WeakCombo.h"
+#include "Animation/Notify/S1AnimNotifyState_AttackCombo.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "S1GameplayTags.h"
@@ -30,12 +30,12 @@ static void SetCanNextAttackTag(USkeletalMeshComponent* MeshComp, bool bAdd)
 	}
 }
 
-void US1AnimNotifyState_WeakCombo::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
+void US1AnimNotifyState_AttackCombo::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
 	SetCanNextAttackTag(MeshComp, true);
 }
 
-void US1AnimNotifyState_WeakCombo::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+void US1AnimNotifyState_AttackCombo::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	SetCanNextAttackTag(MeshComp, false);
 }

@@ -9,7 +9,10 @@ namespace S1GameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Move);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Sprint);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Turn);
+	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Attack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Jump);
+
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill02);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill03);
@@ -30,6 +33,7 @@ namespace S1UITags
 namespace S1AnimTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Weak);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirWeak);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Skill01);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack00);
@@ -46,10 +50,12 @@ namespace S1UIResourceTags
 
 namespace S1AbilityTags
 {
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_WeakAttack);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_Skill01);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_Skill02);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_Skill03);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Ground);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Air);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_WeakAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill02);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill03);
 
 #pragma region Boss000
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_Attack00);
@@ -73,4 +79,7 @@ namespace S1AssetTags
 namespace S1StateTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_CanNextAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air_Used_WeakAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air_Used_Skill01);
 }
