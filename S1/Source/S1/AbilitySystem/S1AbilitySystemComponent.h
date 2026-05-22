@@ -13,11 +13,11 @@ class S1_API US1AbilitySystemComponent : public UAbilitySystemComponent
 	GENERATED_BODY()
 
 public:
-	void AddCharacterAbilities(const FGameplayTag& AssetTag);
-	void RemoveCharacterAbilities(const FGameplayTag& AssetTag);
-	bool ActivateAbility(const FGameplayTag& AbilityTag);
+	virtual void AddCharacterAbilities(const FGameplayTag& AssetTag);
+	virtual void RemoveCharacterAbilities(const FGameplayTag& AssetTag);
+	virtual bool ActivateAbility(const FGameplayTag& AbilityTag);
 
-private:
+protected:
 	TMap<FGameplayTag, TArray<FGameplayAbilitySpecHandle>> TagToSpecHandles;
 	TMap<FGameplayTag, TArray<FGameplayAbilitySpecHandle>> GroupToSpecHandles;
 };

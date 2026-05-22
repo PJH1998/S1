@@ -6,7 +6,6 @@
 #include "Character/S1Character.h"
 #include "Data/S1AnimData.h"
 #include "System/S1AssetManager.h"
-#include "S1GameplayTags.h"
 
 void US1GameplayAbility_ComboAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -23,9 +22,31 @@ void US1GameplayAbility_ComboAttack::EndAbility(const FGameplayAbilitySpecHandle
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void US1GameplayAbility_ComboAttack::OnInputReactivated()
+bool US1GameplayAbility_ComboAttack::OnInputReactivated()
 {
-	TryAdvanceCombo();
+	return TryAdvanceCombo();
+}
+
+bool US1GameplayAbility_ComboAttack::OnCrossInput(const FGameplayTagContainer& TargetAbilityTags)
+{
+	if (CrossComboGroupTags.IsEmpty())
+	{
+		return false;
+	}
+
+	if (false == TargetAbilityTags.HasAny(CrossComboGroupTags))
+	{
+		return false;
+	}
+
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (nullptr == ASC || false == ASC->HasMatchingGameplayTag(CanNextAttackTag))
+	{
+		return false;
+	}
+
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	return true;
 }
 
 const FS1MontageSet* US1GameplayAbility_ComboAttack::GetCurrentMontageSet() const
@@ -68,18 +89,18 @@ void US1GameplayAbility_ComboAttack::PlayMontageSet(const FGameplayAbilityActorI
 	AnimInst->Montage_SetEndDelegate(EndDelegate, MontageSet->Montage);
 }
 
-void US1GameplayAbility_ComboAttack::TryAdvanceCombo()
+bool US1GameplayAbility_ComboAttack::TryAdvanceCombo()
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-	if (nullptr == ASC || false == ASC->HasMatchingGameplayTag(S1StateTags::State_CanNextAttack))
+	if (nullptr == ASC || false == ASC->HasMatchingGameplayTag(CanNextAttackTag))
 	{
-		return;
+		return false; // 윈도우 미오픈 — 호출부에서 큐잉 처리
 	}
 
 	const FS1MontageData* MontageData = GetMontageData();
 	if (nullptr == MontageData)
 	{
-		return;
+		return false;
 	}
 
 	int32 NextIndex = CurrentSectionIndex + 1;
@@ -91,12 +112,19 @@ void US1GameplayAbility_ComboAttack::TryAdvanceCombo()
 			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 			ASC->TryActivateAbilitiesByTag(FGameplayTagContainer(NextAttackAbilityTag));
 		}
-		return;
+		return true;
 	}
 
 	CurrentSectionIndex = NextIndex;
-	ASC->RemoveLooseGameplayTag(S1StateTags::State_CanNextAttack);
+	ASC->RemoveLooseGameplayTag(CanNextAttackTag);
 	PlayMontageSet(CurrentActorInfo);
+
+	if (bRotateToCamera)
+	{
+		StartRotateToCamera();
+	}
+
+	return true;
 }
 
 void US1GameplayAbility_ComboAttack::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)

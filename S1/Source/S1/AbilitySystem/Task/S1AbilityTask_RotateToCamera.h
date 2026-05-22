@@ -19,6 +19,9 @@ public:
 	virtual void Activate() override;
 	virtual void TickTask(float DeltaTime) override;
 
+	// 콤보 어드밴스 시 목표 Yaw 갱신 (태스크 재생성 없이 방향만 변경)
+	void UpdateTargetYaw(float NewYaw);
+
 private:
 	float RotationSpeed;
 	float TargetYaw;

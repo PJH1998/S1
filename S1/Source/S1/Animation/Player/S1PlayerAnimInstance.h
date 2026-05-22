@@ -25,14 +25,9 @@ public:
 	UFUNCTION()
 	void AnimNotify_LoopStart();
 
-	void SetCanNextAttack(bool bInCanNextAttack) { bCanNextAttack = bInCanNextAttack; }
-	bool GetCanNextAttack() const { return bCanNextAttack; }
 	void SetDirectToFall(bool bInDirectToFall) { bDirectToFall = bInDirectToFall; }
 
 public:
-	UPROPERTY(BlueprintReadOnly)
-	bool bCanNextAttack = false;
-
 	UPROPERTY(BlueprintReadOnly)
 	bool bSprint = false;
 

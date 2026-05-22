@@ -16,20 +16,29 @@ class S1_API US1GameplayAbility : public UGameplayAbility
 public:
 	US1GameplayAbility(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	virtual void OnInputReactivated() {}
+	// 동일 GA 입력이 들어왔을 때 기능 구현 ( 필요시 Overrde )
+	virtual bool		OnInputReactivated() { return false; }
+
+	// 다른 GA 입력이 들어왔을 때 기능 구현 ( 필요시 Overrde ) / FGameplayTagContainer에 전환 하려는 Ability의 Tag를 모은 후 전달
+	virtual bool		OnCrossInput(const FGameplayTagContainer& TargetAbilityTags) { return false; }
+
+	// 입력 큐 실행 트리거 Tag ( 필요시 Override ) / Return Tag가 ASC에 추가될 때 보관중인 입력에 대한 GA 실행 ( Return Tag를 Event로 사용 )
+	virtual FGameplayTag GetInputFlushTag() const { return FGameplayTag(); }
 
 protected:
-	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const override;
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+	virtual bool		CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const override;
+	virtual void		ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual void		EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 protected:
-	US1AnimInstance* GetAnimInstance() const;
+	US1AnimInstance*	GetAnimInstance() const;
 
-	void SetGravityScale(float Scale);
-	void ResetGravityScale();
+	// GravityScale 변경 및 이전 GravityScale 보관
+	void				SetGravityScale(float Scale);
+	// 이전 GravityScale로 복구
+	void				ResetGravityScale();
 
 private:
-	float PrevGravityScale = 1.f;
-	bool bGravityScaleSaved = false;
+	float	PrevGravityScale = 1.f;
+	bool	bGravityScaleSaved = false;
 };

@@ -18,7 +18,7 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
-	// Loop → End 섹션 전환 — 서브클래스에서 override 가능
+	// Loop → End 섹션 전환 ( 필요시 Override )
 	virtual void OnLoopEndEvent(FGameplayEventData Payload);
 
 private:
@@ -32,12 +32,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "LoopAttack")
 	FGameplayTag LoopEndEventTag;
 
+	// Start Section Name
 	UPROPERTY(EditDefaultsOnly, Category = "LoopAttack|Section")
 	FName StartSection = FName("Start");
 
+	// Loop Section Name
 	UPROPERTY(EditDefaultsOnly, Category = "LoopAttack|Section")
 	FName LoopSection = FName("Loop");
 
+	// End Section Name
 	UPROPERTY(EditDefaultsOnly, Category = "LoopAttack|Section")
 	FName EndSection = FName("End");
 };

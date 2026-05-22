@@ -57,9 +57,14 @@ const FS1MontageSet* US1GameplayAbility_Attack::GetCurrentMontageSet() const
 
 void US1GameplayAbility_Attack::StartRotateToCamera()
 {
-	if (RotateTask)
+	if (IsValid(RotateTask))
 	{
-		RotateTask->EndTask();
+		// 태스크 재생성 없이 목표 Yaw만 갱신
+		if (const APlayerController* PC = GetCurrentActorInfo()->PlayerController.Get())
+		{
+			RotateTask->UpdateTargetYaw(PC->GetControlRotation().Yaw);
+		}
+		return;
 	}
 
 	RotateTask = US1AbilityTask_RotateToCamera::RotateToCamera(this, RotationSpeed);

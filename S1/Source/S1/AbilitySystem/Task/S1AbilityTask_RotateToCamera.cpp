@@ -12,6 +12,11 @@ US1AbilityTask_RotateToCamera* US1AbilityTask_RotateToCamera::RotateToCamera(UGa
 	return Task;
 }
 
+void US1AbilityTask_RotateToCamera::UpdateTargetYaw(float NewYaw)
+{
+	TargetYaw = NewYaw;
+}
+
 void US1AbilityTask_RotateToCamera::Activate()
 {
 	Super::Activate();
@@ -43,8 +48,5 @@ void US1AbilityTask_RotateToCamera::TickTask(float DeltaTime)
 	const FRotator Next = FMath::RInterpConstantTo(Current, Target, DeltaTime, RotationSpeed);
 	Character->SetActorRotation(Next);
 
-	if (FMath::IsNearlyEqual(Current.Yaw, TargetYaw, 1.f))
-	{
-		EndTask();
-	}
+	// 자기 종료 없음 — Ability 종료 시 GAS가 자동으로 태스크를 정리함
 }

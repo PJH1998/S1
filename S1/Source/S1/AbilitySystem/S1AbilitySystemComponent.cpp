@@ -52,24 +52,6 @@ bool US1AbilitySystemComponent::ActivateAbility(const FGameplayTag& AbilityTag)
 		return false;
 	}
 
-	// 활성 GA가 있으면 콤보 입력으로 처리
-	for (auto& Handle : *Handles)
-	{
-		FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(Handle);
-		if (nullptr == Spec || false == Spec->IsActive())
-		{
-			continue;
-		}
-
-		if (US1GameplayAbility* GA = Cast<US1GameplayAbility>(Spec->GetPrimaryInstance()))
-		{
-			GA->OnInputReactivated();
-		}
-		return true;
-	}
-
-	// 활성 GA 없으면 핸들로 순회하며 태그 조건에 맞는 것 발동
-	
 	bool bActivated = false;
 	for (auto& Handle : *Handles)
 	{

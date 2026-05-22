@@ -2,13 +2,13 @@
 
 
 #include "Player/S1PlayerState.h"
-#include "AbilitySystem/S1AbilitySystemComponent.h"
+#include "AbilitySystem/AbilitySystemComponent/Player/S1PlayerAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/S1PlayerSet.h"
 
 AS1PlayerState::AS1PlayerState(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	AbilitySystemComponent = CreateDefaultSubobject<US1AbilitySystemComponent>("AbilitySystemComponent");
+	AbilitySystemComponent = CreateDefaultSubobject<US1PlayerAbilitySystemComponent>("AbilitySystemComponent");
 	PlayerSet = CreateDefaultSubobject<US1PlayerSet>("PlayerSet");
 
 	//TEMP
