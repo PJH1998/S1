@@ -3,6 +3,7 @@
 
 #include "AI/S1AIController.h"
 #include "S1LogChannels.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Character/S1Monster.h"
 
 AS1AIController::AS1AIController(const FObjectInitializer& ObjectInitializer)
@@ -29,6 +30,17 @@ void AS1AIController::OnPossess(APawn* InPawn)
 	}
 
 	RunBehaviorTree(BehaviorTree);
+}
+
+AActor* AS1AIController::GetTargetActor() const
+{
+	const UBlackboardComponent* BlackboardComponent = GetBlackboardComponent();
+	if (BlackboardComponent == nullptr)
+	{
+		return nullptr;
+	}
+
+	return Cast<AActor>(BlackboardComponent->GetValueAsObject(TargetKeyName));
 }
 
 void AS1AIController::BeginPlay()

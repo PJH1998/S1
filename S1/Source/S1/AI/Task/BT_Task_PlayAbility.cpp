@@ -45,7 +45,10 @@ EBTNodeResult::Type UBT_Task_PlayAbility::ExecuteTask(UBehaviorTreeComponent& Ow
 	CachedAbilitySystemComponent = ASC;
 	AbilityEndedDelegateHandle = ASC->OnAbilityEnded.AddUObject(this, &UBT_Task_PlayAbility::OnAbilityEnded);
 
-	ASC->ActivateAbility(AbilityTag);
+	if (ASC->ActivateAbility(AbilityTag) == false)
+	{
+		return EBTNodeResult::Failed;
+	}
 
 	return EBTNodeResult::InProgress;
 }

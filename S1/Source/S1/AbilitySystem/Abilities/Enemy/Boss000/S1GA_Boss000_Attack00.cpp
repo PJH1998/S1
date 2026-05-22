@@ -2,15 +2,14 @@
 
 
 #include "S1GA_Boss000_Attack00.h"
+
 #include "Animation/AnimInstance.h"
 #include "Character/S1Monster.h"
 #include "Data/S1AnimData.h"
-#include "System/S1AssetManager.h"
 
 US1GA_Boss000_Attack00::US1GA_Boss000_Attack00(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
 bool US1GA_Boss000_Attack00::OnInputReactivated()
@@ -43,38 +42,17 @@ void US1GA_Boss000_Attack00::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 		return;
 	}
 
+	// Animation
 	ActiveMontage = MontageSet->Montage;
 	Monster->PlayAnimation(ActiveMontage);
 
+	// Delegate
 	FOnMontageEnded EndDelegate;
-	EndDelegate.BindUObject(this, &US1GA_Boss000_Attack00::OnMontageEnded);
+	EndDelegate.BindUObject(this, &US1GA_Enemy::OnMontageEnded);
 	AnimInstance->Montage_SetEndDelegate(EndDelegate, ActiveMontage);
 }
 
 void US1GA_Boss000_Attack00::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	ActiveMontage = nullptr;
-
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-}
-
-void US1GA_Boss000_Attack00::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
-{
-	if (Montage != ActiveMontage)
-	{
-		return;
-	}
-
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, bInterrupted);
-}
-
-const FS1MontageSet* US1GA_Boss000_Attack00::GetMontage() const
-{
-	US1AnimData* AnimData = US1AssetManager::GetAssetByTag<US1AnimData>(AnimDataTag);
-	if (nullptr == AnimData)
-	{
-		return nullptr;
-	}
-
-	return AnimData->FindMontageSet(MontageTag, 0);
 }

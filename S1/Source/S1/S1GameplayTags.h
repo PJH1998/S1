@@ -37,6 +37,7 @@ namespace S1AnimTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Skill01);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack00);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack01);
 }
 
 namespace S1UIResourceTags
@@ -61,6 +62,16 @@ namespace S1AbilityTags
 
 #pragma region Boss000
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_Attack00);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_Attack01);
+#pragma endregion
+}
+
+namespace S1CooldownTags
+{
+
+#pragma region Boss000
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss000_Attack00);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss000_Attack01);
 #pragma endregion
 }
 
@@ -75,6 +86,7 @@ namespace S1AssetTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_UIData);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_UIResource);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Boss000);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_AnimData);
 }
 
@@ -89,4 +101,5 @@ namespace S1StateTags
 namespace S1EventTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Landed);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_CheckDistance);
 }

@@ -45,6 +45,7 @@ namespace S1AnimTags
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Skill01, "Anim.Montage.RPR_Skill01");
 
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_Atack00, "Anim.Montage.Boss000.Attack00");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_Atack01, "Anim.Montage.Boss000.Attack01");
 }
 
 namespace S1AbilityTags
@@ -58,8 +59,19 @@ namespace S1AbilityTags
 
 #pragma region Boss000
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Attack00, "Ability.Boss000.Attack00");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Attack01, "Ability.Boss000.Attack01");
 #pragma endregion
 }
+
+namespace S1CooldownTags
+{
+
+#pragma region Boss000
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_Attack00, "Cooldown.Boss000.Attack00");
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_Attack01, "Cooldown.Boss000.Attack01");
+#pragma endregion
+}
+
 
 namespace S1Labels
 {
@@ -72,6 +84,7 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_UIData, "Asset.UIData");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_UIResource, "Asset.UIResource");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability,"Asset.Ability");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Boss000,"Asset.Ability.Boss000");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData, "Asset.AnimData");
 }
 
@@ -86,4 +99,5 @@ namespace S1StateTags
 namespace S1EventTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Event_Landed, "Event.Landed");
+	UE_DEFINE_GAMEPLAY_TAG(Event_CheckDistance, "Event.CheckDistance");
 }
