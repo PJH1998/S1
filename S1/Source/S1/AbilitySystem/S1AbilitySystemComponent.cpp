@@ -75,4 +75,6 @@ bool US1AbilitySystemComponent::ActivateAbility(const FGameplayTag& AbilityTag)
 	{
 		bActivated |= TryActivateAbility(Handle);
 	}
+
+	return bActivated;
 }
