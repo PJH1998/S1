@@ -92,3 +92,8 @@ namespace S1StateTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Air_Used_WeakAttack, "State.Air.Used.WeakAttack");
 	UE_DEFINE_GAMEPLAY_TAG(State_Air_Used_Skill01, "State.Air.Used.Skill01");
 }
+
+namespace S1EventTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(Event_Landed, "Event.Landed");
+}

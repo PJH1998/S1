@@ -40,7 +40,7 @@ class S1_API US1AnimData : public UDataAsset
 
 public:
 	const FS1MontageData* FindMontageByTag(const FGameplayTag& MontageTag) const;
-	const FS1MontageSet* FindMontageSet(const FGameplayTag& MontageTag, int32 Index) const;
+	const FS1MontageSet* FindMontageSet(const FGameplayTag& MontageTag, int32 Index = 0) const;
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim")

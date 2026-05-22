@@ -8,7 +8,7 @@
 #include "S1GameplayTags.h"
 #include "System/S1AssetManager.h"
 #include "Data/S1InputData.h"
-#include "Character/S1Player.h"
+#include "Character/Player/S1Player.h"
 
 #include "System/S1UIManager.h"
 

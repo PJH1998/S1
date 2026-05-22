@@ -50,12 +50,14 @@ namespace S1UIResourceTags
 
 namespace S1AbilityTags
 {
+#pragma region Player
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Ground);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Air);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_WeakAttack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill02);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill03);
+#pragma endregion
 
 #pragma region Boss000
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_Attack00);
@@ -91,4 +93,9 @@ namespace S1StateTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air_Used_WeakAttack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air_Used_Skill01);
+}
+
+namespace S1EventTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Landed);
 }

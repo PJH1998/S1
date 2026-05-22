@@ -2,7 +2,7 @@
 
 
 #include "Animation/S1AnimInstance.h"
-#include "Character/S1Player.h"
+#include "Character/Player/S1Player.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "S1LogChannels.h"
 
