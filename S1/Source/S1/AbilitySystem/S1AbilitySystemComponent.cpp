@@ -44,12 +44,12 @@ void US1AbilitySystemComponent::RemoveCharacterAbilities(const FGameplayTag& Ass
 	GroupToSpecHandles.Remove(AssetTag);
 }
 
-void US1AbilitySystemComponent::ActivateAbility(const FGameplayTag& AbilityTag)
+bool US1AbilitySystemComponent::ActivateAbility(const FGameplayTag& AbilityTag)
 {
 	TArray<FGameplayAbilitySpecHandle>* Handles = TagToSpecHandles.Find(AbilityTag);
 	if (nullptr == Handles)
 	{
-		return;
+		return false;
 	}
 
 	// 활성 GA가 있으면 콤보 입력으로 처리
@@ -65,12 +65,14 @@ void US1AbilitySystemComponent::ActivateAbility(const FGameplayTag& AbilityTag)
 		{
 			GA->OnInputReactivated();
 		}
-		return;
+		return true;
 	}
 
 	// 활성 GA 없으면 핸들로 순회하며 태그 조건에 맞는 것 발동
+	
+	bool bActivated = false;
 	for (auto& Handle : *Handles)
 	{
-		TryActivateAbility(Handle);
+		bActivated |= TryActivateAbility(Handle);
 	}
 }

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/S1Player.h"
+#include "Character/Player/S1Player.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -101,11 +101,9 @@ void AS1Player::Landed(const FHitResult& Hit)
 
 	if (AbilitySystemComponent)
 	{
-		// State.Air 및 하위 태그(State.Air.Used.* 등) 전체 제거
 		FGameplayTagContainer OwnedTags;
 		AbilitySystemComponent->GetOwnedGameplayTags(OwnedTags);
 
-		FGameplayTagContainer TagsToRemove;
 		for (const FGameplayTag& Tag : OwnedTags)
 		{
 			if (Tag.MatchesTag(S1StateTags::State_Air))
@@ -113,6 +111,10 @@ void AS1Player::Landed(const FHitResult& Hit)
 				AbilitySystemComponent->RemoveLooseGameplayTag(Tag);
 			}
 		}
+
+		// DiveAttack GA에 착지 이벤트 전달
+		FGameplayEventData EventData;
+		AbilitySystemComponent->HandleGameplayEvent(S1EventTags::Event_Landed, &EventData);
 	}
 }
 

@@ -6,9 +6,8 @@
 #include "Abilities/GameplayAbility.h"
 #include "S1GameplayAbility.generated.h"
 
-/**
- * 
- */
+class US1AnimInstance;
+
 UCLASS()
 class S1_API US1GameplayAbility : public UGameplayAbility
 {
@@ -24,4 +23,13 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
+protected:
+	US1AnimInstance* GetAnimInstance() const;
+
+	void SetGravityScale(float Scale);
+	void ResetGravityScale();
+
+private:
+	float PrevGravityScale = 1.f;
+	bool bGravityScaleSaved = false;
 };

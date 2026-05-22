@@ -2,7 +2,7 @@
 
 
 #include "AI/Decorator/BT_Deco_CanAttack.h"
-#include "Character/S1Player.h"
+#include "Character/Player/S1Player.h"
 #include "AI/S1AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 

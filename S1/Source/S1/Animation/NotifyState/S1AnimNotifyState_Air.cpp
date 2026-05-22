@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Animation/Notify/S1AnimNotifyState_Air.h"
-#include "Animation/S1PlayerAnimInstance.h"
+#include "Animation/NotifyState/S1AnimNotifyState_Air.h"
+#include "Animation/Player/S1PlayerAnimInstance.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "GameFramework/Character.h"

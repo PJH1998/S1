@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Animation/Notify/S1AnimNotifyState_AttackCombo.h"
+#include "Animation/NotifyState/S1AnimNotifyState_AttackCombo.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "S1GameplayTags.h"

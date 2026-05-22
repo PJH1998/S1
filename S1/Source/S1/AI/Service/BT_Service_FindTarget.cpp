@@ -3,7 +3,7 @@
 
 #include "AI/Service/BT_Service_FindTarget.h"
 #include "AI/S1AIController.h"
-#include "Character/S1Player.h"
+#include "Character/Player/S1Player.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Engine/OverlapResult.h"
 
