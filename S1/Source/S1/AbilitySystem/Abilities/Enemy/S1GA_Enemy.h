@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/S1GameplayAbility.h"
-#include "S1GA_Boss000_Attack00.generated.h"
+#include "S1GA_Enemy.generated.h"
 
 struct FS1MontageData;
 struct FS1MontageSet;
@@ -14,14 +14,18 @@ class UGameplayEffect;
  * 
  */
 UCLASS()
-class S1_API US1GA_Boss000_Attack00 : public US1GameplayAbility
+class S1_API US1GA_Enemy : public US1GameplayAbility
 {
 	GENERATED_BODY()
 
 public:
-	US1GA_Boss000_Attack00(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	US1GA_Enemy(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void OnInputReactivated() override;
+
+public:
+	const FS1MontageSet* GetMontage() const;
+	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
@@ -30,11 +34,7 @@ protected:
 	virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
 	virtual const FGameplayTagContainer* GetCooldownTags() const override;
 
-private:
-	const FS1MontageSet* GetMontage() const;
-	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-
-private:
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	FGameplayTag	AnimDataTag;
 
@@ -44,10 +44,11 @@ private:
 	UPROPERTY()
 	TObjectPtr<UAnimMontage> ActiveMontage;
 
-private:
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Cooldown")
 	TSubclassOf<UGameplayEffect> CooldownEffectClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Cooldown")
 	FGameplayTagContainer	CooldownTags;
+	
 };

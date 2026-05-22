@@ -18,8 +18,13 @@ public:
 	AS1AIController(const FObjectInitializer& ObjectInitializer);
 
 	virtual void OnPossess(APawn* InPawn) override;
+	AActor* GetTargetActor() const;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	FName TargetKeyName = TEXT("TargetActor");
 };

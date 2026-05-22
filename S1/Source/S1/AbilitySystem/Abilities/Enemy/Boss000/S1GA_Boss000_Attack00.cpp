@@ -2,17 +2,14 @@
 
 
 #include "S1GA_Boss000_Attack00.h"
+
 #include "Animation/AnimInstance.h"
 #include "Character/S1Monster.h"
 #include "Data/S1AnimData.h"
-#include "System/S1AssetManager.h"
-
-#include "AbilitySystem/S1AbilitySystemComponent.h"
 
 US1GA_Boss000_Attack00::US1GA_Boss000_Attack00(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
 void US1GA_Boss000_Attack00::OnInputReactivated()
@@ -23,13 +20,6 @@ void US1GA_Boss000_Attack00::OnInputReactivated()
 void US1GA_Boss000_Attack00::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	// Cooldown
-	if (CommitAbility(Handle, ActorInfo, ActivationInfo) == false)
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
 
 	const FS1MontageSet* MontageSet = GetMontage();
 	if (nullptr == MontageSet || nullptr == MontageSet->Montage)
@@ -58,56 +48,11 @@ void US1GA_Boss000_Attack00::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 
 	// Delegate
 	FOnMontageEnded EndDelegate;
-	EndDelegate.BindUObject(this, &US1GA_Boss000_Attack00::OnMontageEnded);
+	EndDelegate.BindUObject(this, &US1GA_Enemy::OnMontageEnded);
 	AnimInstance->Montage_SetEndDelegate(EndDelegate, ActiveMontage);
 }
 
 void US1GA_Boss000_Attack00::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	ActiveMontage = nullptr;
-
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-}
-
-void US1GA_Boss000_Attack00::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
-{
-	if (CooldownEffectClass == nullptr)
-	{
-		return;
-	}
-
-	FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(CooldownEffectClass, GetAbilityLevel(Handle, ActorInfo));
-
-	if (SpecHandle.IsValid())
-	{
-		SpecHandle.Data->DynamicGrantedTags.AppendTags(CooldownTags);
-
-		ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
-	}
-}
-
-const FGameplayTagContainer* US1GA_Boss000_Attack00::GetCooldownTags() const
-{
-	return &CooldownTags;
-}
-
-void US1GA_Boss000_Attack00::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
-{
-	if (Montage != ActiveMontage)
-	{
-		return;
-	}
-
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, bInterrupted);
-}
-
-const FS1MontageSet* US1GA_Boss000_Attack00::GetMontage() const
-{
-	US1AnimData* AnimData = US1AssetManager::GetAssetByTag<US1AnimData>(AnimDataTag);
-	if (nullptr == AnimData)
-	{
-		return nullptr;
-	}
-
-	return AnimData->FindMontageSet(MontageTag, 0);
 }
