@@ -62,6 +62,14 @@ namespace S1AbilityTags
 #pragma endregion
 }
 
+namespace S1CooldownTags
+{
+
+#pragma region Boss000
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss000_Attack00);
+#pragma endregion
+}
+
 namespace S1Labels
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Label_Preload);

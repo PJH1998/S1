@@ -7,6 +7,8 @@
 #include "Data/S1AnimData.h"
 #include "System/S1AssetManager.h"
 
+#include "AbilitySystem/S1AbilitySystemComponent.h"
+
 US1GA_Boss000_Attack00::US1GA_Boss000_Attack00(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -21,6 +23,13 @@ void US1GA_Boss000_Attack00::OnInputReactivated()
 void US1GA_Boss000_Attack00::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	// Cooldown
+	if (CommitAbility(Handle, ActorInfo, ActivationInfo) == false)
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
 
 	const FS1MontageSet* MontageSet = GetMontage();
 	if (nullptr == MontageSet || nullptr == MontageSet->Montage)
@@ -43,9 +52,11 @@ void US1GA_Boss000_Attack00::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 		return;
 	}
 
+	// Animation
 	ActiveMontage = MontageSet->Montage;
 	Monster->PlayAnimation(ActiveMontage);
 
+	// Delegate
 	FOnMontageEnded EndDelegate;
 	EndDelegate.BindUObject(this, &US1GA_Boss000_Attack00::OnMontageEnded);
 	AnimInstance->Montage_SetEndDelegate(EndDelegate, ActiveMontage);
@@ -56,6 +67,28 @@ void US1GA_Boss000_Attack00::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	ActiveMontage = nullptr;
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void US1GA_Boss000_Attack00::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+	if (CooldownEffectClass == nullptr)
+	{
+		return;
+	}
+
+	FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(CooldownEffectClass, GetAbilityLevel(Handle, ActorInfo));
+
+	if (SpecHandle.IsValid())
+	{
+		SpecHandle.Data->DynamicGrantedTags.AppendTags(CooldownTags);
+
+		ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
+	}
+}
+
+const FGameplayTagContainer* US1GA_Boss000_Attack00::GetCooldownTags() const
+{
+	return &CooldownTags;
 }
 
 void US1GA_Boss000_Attack00::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
