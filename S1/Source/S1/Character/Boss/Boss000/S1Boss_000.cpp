@@ -8,12 +8,18 @@
 #include "S1GameplayTags.h"
 
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AS1Boss_000::AS1Boss_000()
 	: Super()
 {
 	GetCapsuleComponent()->SetCapsuleHalfHeight(400.f);
 	GetCapsuleComponent()->SetCapsuleRadius(200.f);
+
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->RotationRate.Yaw = 120.f;
 
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -400.f), FRotator(0.f, -90.f, 0.f));
 
@@ -31,7 +37,7 @@ void AS1Boss_000::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AbilitySystemComponent->AddCharacterAbilities(S1AssetTags::Asset_Ability);
+	AbilitySystemComponent->AddCharacterAbilities(S1AssetTags::Asset_Ability_Boss000);
 }
 
 void AS1Boss_000::Tick(float DeltaTime)

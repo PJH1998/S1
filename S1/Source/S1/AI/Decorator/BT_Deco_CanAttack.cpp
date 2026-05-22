@@ -7,14 +7,11 @@
 #include "BehaviorTree/BlackboardComponent.h"
 
 UBT_Deco_CanAttack::UBT_Deco_CanAttack()
-	: Super()
 {
 }
 
 bool UBT_Deco_CanAttack::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
-	Super::CalculateRawConditionValue(OwnerComp, NodeMemory);
-	
 	APawn* ControllerPawn = OwnerComp.GetAIOwner()->GetPawn();
 	if (ControllerPawn == nullptr)
 	{

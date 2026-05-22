@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BTTaskNode.h"
-#include "S1Task.generated.h"
+#include "Data/S1AbilityData.h"
+#include "S1AbilityData_Boss000.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class S1_API US1Task : public UBTTaskNode
+class S1_API US1AbilityData_Boss000 : public US1AbilityData
 {
 	GENERATED_BODY()
 	

@@ -72,6 +72,7 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_UIData, "Asset.UIData");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_UIResource, "Asset.UIResource");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability,"Asset.Ability");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Boss000,"Asset.Ability.Boss000");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData, "Asset.AnimData");
 }
 
