@@ -79,7 +79,8 @@ void US1GameplayAbility_LoopAttack::OnLoopEndEvent(FGameplayEventData Payload)
 	const FS1MontageSet* MontageSet = GetCurrentMontageSet();
 	if (AnimInst && MontageSet)
 	{
-		AnimInst->Montage_SetNextSection(LoopSection, EndSection, MontageSet->Montage);
+		//AnimInst->Montage_SetNextSection(LoopSection, EndSection, MontageSet->Montage);
+		AnimInst->Montage_JumpToSection(EndSection);
 	}
 }
 
