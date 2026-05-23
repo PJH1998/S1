@@ -16,11 +16,6 @@ US1GA_Boss000_Attack01::US1GA_Boss000_Attack01(const FObjectInitializer& ObjectI
 {
 }
 
-void US1GA_Boss000_Attack01::OnInputReactivated()
-{
-	Super::OnInputReactivated();
-}
-
 void US1GA_Boss000_Attack01::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
