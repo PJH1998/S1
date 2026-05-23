@@ -52,7 +52,7 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, Category = "Ability System Component")
 	FGameplayTag CharacterAbilitiesTag;
-	
+
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<AS1PlayerController> PlayerController;
 
@@ -63,4 +63,20 @@ private:
 	float SprintSpeed = 1000.f;
 
 	bool bSprint = false;
+
+	// 액션 중 점프 차단 조건 태그
+	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
+	FGameplayTag ActionStateTag;
+
+	// 공중 상태 태그
+	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
+	FGameplayTag AirStateTag;
+
+	// Jump() 호출 시 GA에 전달할 이벤트 태그
+	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
+	FGameplayTag JumpEventTag;
+
+	// Landed() 호출 시 GA에 전달할 이벤트 태그
+	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
+	FGameplayTag LandedEventTag;
 };

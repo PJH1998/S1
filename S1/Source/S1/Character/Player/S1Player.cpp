@@ -87,11 +87,22 @@ void AS1Player::InitSystem()
 
 void AS1Player::Jump()
 {
+	if (AbilitySystemComponent && AbilitySystemComponent->HasMatchingGameplayTag(ActionStateTag))
+	{
+		return;
+	}
+
+	if (AbilitySystemComponent && JumpEventTag.IsValid())
+	{
+		FGameplayEventData EventData;
+		AbilitySystemComponent->HandleGameplayEvent(JumpEventTag, &EventData);
+	}
+
 	Super::Jump();
 
-	if (AbilitySystemComponent)
+	if (AbilitySystemComponent && AirStateTag.IsValid() && !GetCharacterMovement()->IsFalling())
 	{
-		AbilitySystemComponent->AddLooseGameplayTag(S1StateTags::State_Air);
+		AbilitySystemComponent->AddLooseGameplayTag(AirStateTag);
 	}
 }
 
@@ -99,22 +110,29 @@ void AS1Player::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	if (AbilitySystemComponent)
+	if (false == IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	if (AirStateTag.IsValid())
 	{
 		FGameplayTagContainer OwnedTags;
 		AbilitySystemComponent->GetOwnedGameplayTags(OwnedTags);
 
 		for (const FGameplayTag& Tag : OwnedTags)
 		{
-			if (Tag.MatchesTag(S1StateTags::State_Air))
+			if (Tag.MatchesTag(AirStateTag))
 			{
 				AbilitySystemComponent->RemoveLooseGameplayTag(Tag);
 			}
 		}
+	}
 
-		// DiveAttack GA에 착지 이벤트 전달
+	if (LandedEventTag.IsValid())
+	{
 		FGameplayEventData EventData;
-		AbilitySystemComponent->HandleGameplayEvent(S1EventTags::Event_Landed, &EventData);
+		AbilitySystemComponent->HandleGameplayEvent(LandedEventTag, &EventData);
 	}
 }
 

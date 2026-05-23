@@ -40,13 +40,18 @@ bool US1GameplayAbility_ComboAttack::OnCrossInput(const FGameplayTagContainer& T
 	}
 
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-	if (nullptr == ASC || false == ASC->HasMatchingGameplayTag(CanNextAttackTag))
+	if (nullptr == ASC || false == CanNextAction(ASC))
 	{
 		return false;
 	}
 
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	return true;
+}
+
+bool US1GameplayAbility_ComboAttack::CanNextAction(UAbilitySystemComponent* ASC) const
+{
+	return ASC->HasMatchingGameplayTag(CanNextAttackTag);
 }
 
 const FS1MontageSet* US1GameplayAbility_ComboAttack::GetCurrentMontageSet() const
@@ -92,9 +97,9 @@ void US1GameplayAbility_ComboAttack::PlayMontageSet(const FGameplayAbilityActorI
 bool US1GameplayAbility_ComboAttack::TryAdvanceCombo()
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-	if (nullptr == ASC || false == ASC->HasMatchingGameplayTag(CanNextAttackTag))
+	if (nullptr == ASC || false == CanNextAction(ASC))
 	{
-		return false; // 윈도우 미오픈 — 호출부에서 큐잉 처리
+		return false; // 전환 불가 — 호출부에서 큐잉 처리
 	}
 
 	const FS1MontageData* MontageData = GetMontageData();

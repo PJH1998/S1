@@ -27,7 +27,11 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	
 	// CurrentSectionIndex 사용
-	virtual const FS1MontageSet* GetCurrentMontageSet() const override; 
+	virtual const FS1MontageSet* GetCurrentMontageSet() const override;
+
+protected:
+	// 다음 액션으로 전환 가능한지 — 서브클래스에서 override해 조건 확장 가능
+	virtual bool CanNextAction(UAbilitySystemComponent* ASC) const;
 
 private:
 	void PlayMontageSet(const FGameplayAbilityActorInfo* ActorInfo);

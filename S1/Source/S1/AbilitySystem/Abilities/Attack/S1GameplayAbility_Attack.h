@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Abilities/S1GameplayAbility.h"
+#include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
 #include "S1GameplayAbility_Attack.generated.h"
 
 struct FS1MontageData;
@@ -11,7 +11,7 @@ struct FS1MontageSet;
 class US1AbilityTask_RotateToCamera;
 
 UCLASS()
-class S1_API US1GameplayAbility_Attack : public US1GameplayAbility
+class S1_API US1GameplayAbility_Attack : public US1GameplayAbility_Action
 {
 	GENERATED_BODY()
 
