@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/S1Monster.h"
+#include "Character/Boss/S1BossBase.h"
 #include "S1Boss_000.generated.h"
 
 /*
 [BOSS] Cobalt
  */
 UCLASS()
-class S1_API AS1Boss_000 : public AS1Monster
+class S1_API AS1Boss_000 : public AS1BossBase
 {
 	GENERATED_BODY()
 	

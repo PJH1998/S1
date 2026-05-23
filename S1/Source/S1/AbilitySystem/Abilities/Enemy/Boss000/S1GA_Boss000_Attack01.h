@@ -30,7 +30,6 @@ private:
 	void OnCheckDistanceEvent(FGameplayEventData Payload);
 
 	void UpdateNextSectionByDistance();
-	void RotateToTargetInLoop();
 	float GetDistanceToTarget() const;
 	AActor* GetTargetActor() const;
 
@@ -49,12 +48,4 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attack01")
 	float LoopDistance = 500.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Attack01|Rotation")
-	float RotationSpeed = 360.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Attack01|Rotation")
-	float RotationInterval = 0.01f;
-
-	FTimerHandle RotateTimerHandle;
 };
