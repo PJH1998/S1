@@ -53,9 +53,15 @@ void US1GameplayAbility::SetGravityScale(float Scale)
 
 void US1GameplayAbility::ResetGravityScale()
 {
+	if (false == bGravityScaleSaved)
+	{
+		return;
+	}
+
 	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
 	{
 		Character->GetCharacterMovement()->GravityScale = PrevGravityScale;
+		bGravityScaleSaved = false;
 	}
 }
 
