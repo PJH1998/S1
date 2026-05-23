@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "GameplayTagContainer.h"
-#include "S1AnimNotify_CheckDistance.generated.h"
+#include "S1AnimNotify_SendGameplayEvent.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class S1_API US1AnimNotify_CheckDistance : public UAnimNotify
+class S1_API US1AnimNotify_SendGameplayEvent : public UAnimNotify
 {
 	GENERATED_BODY()
 	

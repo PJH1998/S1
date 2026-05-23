@@ -21,8 +21,6 @@ class S1_API US1GA_Enemy : public US1GameplayAbility
 public:
 	US1GA_Enemy(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	virtual bool OnInputReactivated() override;
-
 public:
 	const FS1MontageSet* GetMontage() const;
 	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
