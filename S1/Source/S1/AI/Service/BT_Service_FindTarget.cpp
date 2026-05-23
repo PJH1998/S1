@@ -3,6 +3,7 @@
 
 #include "AI/Service/BT_Service_FindTarget.h"
 #include "AI/S1AIController.h"
+#include "Character/Boss/S1BossBase.h"
 #include "Character/Player/S1Player.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Engine/OverlapResult.h"
@@ -44,6 +45,7 @@ void UBT_Service_FindTarget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 		CollisionQueryParam
 	);
 
+	AS1Player* FoundPlayer = nullptr;
 	if (bResult)
 	{
 		for (FOverlapResult& OverlapResult : OverlapResults)
@@ -51,12 +53,33 @@ void UBT_Service_FindTarget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 			AS1Player* Player = Cast<AS1Player>(OverlapResult.GetActor());
 			if (Player)
 			{
-				OwnerComp.GetBlackboardComponent()->SetValueAsObject(TargetKey.SelectedKeyName, Player);
+				FoundPlayer = Player;
+				break;
 			}
 		}
 	}
-	else
+
+	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
+	if (BlackboardComponent == nullptr)
 	{
-		OwnerComp.GetBlackboardComponent()->SetValueAsObject(TargetKey.SelectedKeyName, nullptr);
+		return;
+	}
+
+	AActor* OldTarget = Cast<AActor>(BlackboardComponent->GetValueAsObject(TargetKey.SelectedKeyName));
+	AActor* NewTarget = FoundPlayer;
+	const bool bHadTarget = OldTarget != nullptr;
+	const bool bHasTarget = NewTarget != nullptr;
+
+	if (OldTarget != NewTarget)
+	{
+		BlackboardComponent->SetValueAsObject(TargetKey.SelectedKeyName, NewTarget);
+	}
+
+	if (bHadTarget != bHasTarget)
+	{
+		if (AS1BossBase* Boss = Cast<AS1BossBase>(LocalPawn))
+		{
+			Boss->NotifyHasTargetChanged(bHasTarget);
+		}
 	}
 }
