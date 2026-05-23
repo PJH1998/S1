@@ -34,6 +34,7 @@ namespace S1AnimTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Weak);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirWeak);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirWeakDive);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Skill01);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack00);
@@ -55,6 +56,7 @@ namespace S1AbilityTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Ground);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Air);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_WeakAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_WeakAttackDive);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill02);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill03);
@@ -85,7 +87,7 @@ namespace S1AssetTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_InputData);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_UIData);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_UIResource);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Player_Asna);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Boss000);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_AnimData);
 }
@@ -101,5 +103,6 @@ namespace S1StateTags
 namespace S1EventTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Landed);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_StartDive);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_CheckDistance);
 }

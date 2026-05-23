@@ -50,6 +50,9 @@ protected:
 
 
 private:
+	UPROPERTY(EditAnywhere, Category = "Ability System Component")
+	FGameplayTag CharacterAbilitiesTag;
+	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<AS1PlayerController> PlayerController;
 

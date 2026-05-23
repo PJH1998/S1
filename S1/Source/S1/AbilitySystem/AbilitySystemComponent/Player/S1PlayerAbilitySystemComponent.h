@@ -23,7 +23,7 @@ private:
 	void OnFlushTagChanged(const FGameplayTag Tag, int32 NewCount);
 
 private:
-	// 버퍼 유효 시간 (초) — 이 시간 내 조건 미충족 시 자동 클리어
+	// 키 입력 버퍼 유효 시간
 	UPROPERTY(EditDefaultsOnly, Category = "InputBuffer")
 	float InputBufferDuration = 0.1f;
 

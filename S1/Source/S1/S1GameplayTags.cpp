@@ -42,6 +42,7 @@ namespace S1AnimTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Weak, "Anim.Montage.PRP_Weak");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirWeak, "Anim.Montage.PRP_AirWeak");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirWeakDive, "Anim.Montage.PRP_AirWeakDive");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Skill01, "Anim.Montage.RPR_Skill01");
 
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_Atack00, "Anim.Montage.Boss000.Attack00");
@@ -53,6 +54,7 @@ namespace S1AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Ground, "Ability.Player.Attack.Ground");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Air, "Ability.Player.Attack.Air");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_WeakAttack, "Ability.Player.Attack.WeakAttack");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_WeakAttackDive, "Ability.Player.Attack.WeakAttackDive");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill01, "Ability.Player.Attack.Skill01");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill02, "Ability.Player.Attack.Skill02");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill03, "Ability.Player.Attack.Skill03");
@@ -83,7 +85,7 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_InputData, "Asset.InputData");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_UIData, "Asset.UIData");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_UIResource, "Asset.UIResource");
-	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability,"Asset.Ability");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player_Asna,"Asset.Ability.Player.Asna");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Boss000,"Asset.Ability.Boss000");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData, "Asset.AnimData");
 }
@@ -99,5 +101,6 @@ namespace S1StateTags
 namespace S1EventTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Event_Landed, "Event.Landed");
+	UE_DEFINE_GAMEPLAY_TAG(Event_StartDive, "Event.StartDive");
 	UE_DEFINE_GAMEPLAY_TAG(Event_CheckDistance, "Event.CheckDistance");
 }

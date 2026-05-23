@@ -57,7 +57,7 @@ void AS1Player::BeginPlay()
 		return;
 	}
 
-	AbilitySystemComponent->AddCharacterAbilities(S1AssetTags::Asset_Ability);
+	AbilitySystemComponent->AddCharacterAbilities(CharacterAbilitiesTag);
 }
 
 void AS1Player::PossessedBy(AController* NewController)

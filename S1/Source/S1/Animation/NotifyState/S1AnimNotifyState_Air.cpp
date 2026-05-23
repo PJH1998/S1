@@ -35,7 +35,7 @@ void US1AnimNotifyState_Air::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnim
 {
 	SetAirTag(MeshComp, true);
 
-	// Root Motion 중 GravityScale은 효과 없음 — LaunchCharacter로 추가 높이 부여
+	// Root Motion 중 GravityScale은 효과 없음 —> LaunchCharacter로 추가 높이 부여
 	if (ACharacter* Character = Cast<ACharacter>(MeshComp->GetOwner()))
 	{
 		Character->LaunchCharacter(FVector(0.f, 0.f, AdditionalLaunchZ), false, true);

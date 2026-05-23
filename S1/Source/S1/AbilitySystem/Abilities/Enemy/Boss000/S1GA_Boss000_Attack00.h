@@ -17,7 +17,7 @@ class S1_API US1GA_Boss000_Attack00 : public US1GA_Enemy
 public:
 	US1GA_Boss000_Attack00(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	virtual void OnInputReactivated() override;
+	virtual bool OnInputReactivated() override;
 
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
