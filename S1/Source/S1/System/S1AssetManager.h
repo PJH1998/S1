@@ -73,7 +73,7 @@ AssetType* US1AssetManager::GetAssetByTag(const FGameplayTag& AssetTag)
 	if (AssetPath.IsValid())
 	{
 		LoadedAsset = Cast<AssetType>(AssetPath.ResolveObject());
-		if (LoadedAsset == nullptr)
+		if (nullptr == LoadedAsset)
 		{
 			LOG_WARNING(TEXT("Attempted sync loading because asset hadn't loaded yet [%s]."), *AssetTag.ToString());
 			LoadedAsset = Cast<AssetType>(AssetPath.TryLoad());

@@ -33,7 +33,7 @@ void US1AssetManager::Initialize()
 
 void US1AssetManager::LoadAsyncByPath(const FSoftObjectPath& AssetPath, const FGameplayTag& AssetTag, FAsyncLoadCompletedDelegate CompletedDelegate)
 {
-    if (UAssetManager::IsInitialized() == false)
+    if (false == UAssetManager::IsInitialized())
     {
         LOG_ERROR(TEXT("AssetManager must be initialized"));
         return;
@@ -66,7 +66,7 @@ void US1AssetManager::LoadAsyncByPath(const FSoftObjectPath& AssetPath, const FG
 
 void US1AssetManager::LoadAsyncByTag(const FGameplayTag& AssetTag, FAsyncLoadCompletedDelegate CompletedDelegate)
 {
-    if (UAssetManager::IsInitialized() == false)
+    if (false == UAssetManager::IsInitialized())
     {
         LOG_ERROR(TEXT("AssetManager must be initialized"));
         return;
@@ -81,7 +81,7 @@ void US1AssetManager::LoadAsyncByTag(const FGameplayTag& AssetTag, FAsyncLoadCom
 
 void US1AssetManager::LoadAsyncByLabel(const FGameplayTag& Label, FAsyncLabelLoadCompletedDelegate CompletedDelegate)
 {
-    if (UAssetManager::IsInitialized() == false)
+    if (false == UAssetManager::IsInitialized())
     {
         LOG_ERROR(TEXT("AssetManager must be initialized"));
         return;
@@ -277,12 +277,12 @@ void US1AssetManager::AddLoadedAsset(const FName& AssetName, const FGameplayTag&
     {
         //FScopeLock LoadedAssetsLock(&LoadedAssetsCritical);
 
-        if (NameToTag.Contains(AssetName) == false)
+        if (false == NameToTag.Contains(AssetName))
         {
             NameToTag.Emplace(AssetName, AssetTag);
         }
 
-        if (TagToLoadedAsset.Contains(AssetTag) == false)
+        if (false == TagToLoadedAsset.Contains(AssetTag))
         {
             TagToLoadedAsset.Emplace(AssetTag, Asset);
         }
@@ -294,7 +294,7 @@ void US1AssetManager::AddLoadedAsset(const FName& AssetName, const FGameplayTag&
 /*
 void US1AssetManager::LoadAsyncByTag(const FGameplayTag& DataTag, const FGameplayTag& AssetTag, FAsyncLoadCompletedDelegate CompletedDelegate)
 {
-    if (UAssetManager::IsInitialized() == false)
+    if (false == UAssetManager::IsInitialized())
     {
         UE_LOG(LogWindows, Error, TEXT("AssetManager must be initialized"));
         return;
@@ -310,7 +310,7 @@ void US1AssetManager::LoadAsyncByTag(const FGameplayTag& DataTag, const FGamepla
 
 void US1AssetManager::LoadAsyncByLabel(const FGameplayTag& Label, FAsyncLoadCompletedDelegate CompletedDelegate)
 {
-    if (UAssetManager::IsInitialized() == false)
+    if (false == UAssetManager::IsInitialized())
     {
         UE_LOG(LogWindows, Error, TEXT("AssetManager must be initialized"));
         return;

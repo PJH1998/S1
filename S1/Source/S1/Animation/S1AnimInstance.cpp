@@ -27,13 +27,13 @@ void US1AnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	if (Character == nullptr)
+	if (nullptr == Character)
 	{
 		LOG_WARNING(TEXT("US1AnimInstance : Nullptr Character"));
 		return;
 	}
 
-	if (MovementComponent == nullptr)
+	if (nullptr == MovementComponent)
 	{
 		LOG_WARNING(TEXT("US1AnimInstance : Nullptr MovementComponent"));
 		return;

@@ -7,6 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 
 #include "AbilitySystem/S1AbilitySystemComponent.h"
+#include "Weapon/S1Weapon.h"
 #include "AbilitySystem/Attributes/S1PlayerSet.h"
 #include "Player/S1PlayerController.h"
 #include "Player/S1PlayerState.h"
@@ -34,6 +35,7 @@ AS1Player::AS1Player()
 	FaceMesh->SetupAttachment(BodyMesh);
 	FaceMesh->SetLeaderPoseComponent(BodyMesh);
 
+
 	// SpringArm
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent);
@@ -52,7 +54,7 @@ void AS1Player::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (AbilitySystemComponent == nullptr)
+	if (nullptr == AbilitySystemComponent)
 	{
 		return;
 	}
@@ -65,6 +67,16 @@ void AS1Player::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	InitSystem();
+
+	if (nullptr == WeaponClass)
+	{
+		return;
+	}
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	EquippedWeapon = GetWorld()->SpawnActor<AS1Weapon>(WeaponClass, SpawnParams);
+	EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponSocketName);
 }
 
 void AS1Player::InitSystem()
@@ -110,7 +122,7 @@ void AS1Player::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	if (false == IsValid(AbilitySystemComponent))
+	if (nullptr == AbilitySystemComponent)
 	{
 		return;
 	}
@@ -149,12 +161,22 @@ bool AS1Player::GetSprinting()
 
 void AS1Player::ActivateAbility(const FGameplayTag& AbilityTag)
 {
-	if (AbilitySystemComponent == nullptr)
+	if (nullptr == AbilitySystemComponent)
 	{
 		return;
 	}
 
 	AbilitySystemComponent->ActivateAbility(AbilityTag);
+}
+
+void AS1Player::AddMovementInput(FVector WorldDirection, float ScaleValue, bool bForce)
+{
+	if (AbilitySystemComponent && AbilitySystemComponent->HasMatchingGameplayTag(ActionStateTag))
+	{
+		return;
+	}
+
+	Super::AddMovementInput(WorldDirection, ScaleValue, bForce);
 }
 
 void AS1Player::Tick(float DeltaTime)
