@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Abilities/Attack/Loop/S1GameplayAbility_LoopAttack.h"
+#include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Animation/S1AnimInstance.h"
 #include "Data/S1AnimData.h"
@@ -30,7 +31,7 @@ void US1GameplayAbility_LoopAttack::ActivateAbility(const FGameplayAbilitySpecHa
 	}
 
 	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
-	if (nullptr == Character)
+	if (false == IsValid(Character))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
@@ -46,7 +47,7 @@ void US1GameplayAbility_LoopAttack::ActivateAbility(const FGameplayAbilitySpecHa
 	}
 
 	US1AnimInstance* AnimInst = GetAnimInstance();
-	if (AnimInst)
+	if (IsValid(AnimInst))
 	{
 		AnimInst->Montage_SetNextSection(LoopSection, LoopSection, MontageSet->Montage);
 
@@ -77,11 +78,55 @@ void US1GameplayAbility_LoopAttack::OnLoopEndEvent(FGameplayEventData Payload)
 {
 	US1AnimInstance* AnimInst = GetAnimInstance();
 	const FS1MontageSet* MontageSet = GetCurrentMontageSet();
-	if (AnimInst && MontageSet)
+	if (IsValid(AnimInst) && MontageSet)
 	{
 		//AnimInst->Montage_SetNextSection(LoopSection, EndSection, MontageSet->Montage);
 		AnimInst->Montage_JumpToSection(EndSection);
 	}
+}
+
+bool US1GameplayAbility_LoopAttack::OnInputReactivated()
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (false == IsValid(ASC) || false == ASC->HasMatchingGameplayTag(CanNextAttackTag))
+	{
+		return false;
+	}
+
+	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromHandle(CurrentSpecHandle);
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	if (Spec)
+	{
+		ASC->TryActivateAbilitiesByTag(Spec->Ability->AbilityTags);
+	}
+	return true;
+}
+
+bool US1GameplayAbility_LoopAttack::OnCrossInput(const FGameplayTagContainer& TargetAbilityTags)
+{
+	if (CrossComboGroupTags.IsEmpty())
+	{
+		return false;
+	}
+
+	if (false == TargetAbilityTags.HasAny(CrossComboGroupTags))
+	{
+		return false;
+	}
+
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (false == IsValid(ASC) || false == ASC->HasMatchingGameplayTag(CanNextAttackTag))
+	{
+		return false;
+	}
+
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	return true;
+}
+
+FGameplayTag US1GameplayAbility_LoopAttack::GetInputFlushTag() const
+{
+	return CanNextAttackTag;
 }
 
 void US1GameplayAbility_LoopAttack::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)

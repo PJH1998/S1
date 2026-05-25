@@ -36,7 +36,7 @@ void US1GameplayAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle
 const FS1MontageData* US1GameplayAbility_Attack::GetMontageData() const
 {
 	US1AnimData* AnimData = US1AssetManager::GetAssetByTag<US1AnimData>(AnimDataTag);
-	if (nullptr == AnimData)
+	if (false == IsValid(AnimData))
 	{
 		return nullptr;
 	}
@@ -47,7 +47,7 @@ const FS1MontageData* US1GameplayAbility_Attack::GetMontageData() const
 const FS1MontageSet* US1GameplayAbility_Attack::GetCurrentMontageSet() const
 {
 	US1AnimData* AnimData = US1AssetManager::GetAssetByTag<US1AnimData>(AnimDataTag);
-	if (nullptr == AnimData)
+	if (false == IsValid(AnimData))
 	{
 		return nullptr;
 	}

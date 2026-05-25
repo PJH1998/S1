@@ -10,6 +10,7 @@ class USkeletalMeshComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class AS1PlayerController;
+class AS1Weapon;
 
 UCLASS()
 class S1_API AS1Player : public AS1Character
@@ -27,6 +28,7 @@ protected:
 public:
 	virtual void	Tick(float DeltaTime) override;
 	virtual void	Jump() override;
+	virtual void	AddMovementInput(FVector WorldDirection, float ScaleValue = 1.f, bool bForce = false) override;
 
 public:
 	virtual void	InitSystem() override;
@@ -34,6 +36,7 @@ public:
 	void			ActivateAbility(const FGameplayTag& AbilityTag);
 	void			SetSprinting(bool bInSprint);
 	bool			GetSprinting();
+	AS1Weapon*		GetEquippedWeapon() const { return EquippedWeapon; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -41,6 +44,15 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> FaceMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<AS1Weapon> WeaponClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TObjectPtr<AS1Weapon> EquippedWeapon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	FName WeaponSocketName = FName("w_R_Attach");
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USpringArmComponent> SpringArm;
@@ -52,7 +64,7 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, Category = "Ability System Component")
 	FGameplayTag CharacterAbilitiesTag;
-	
+
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<AS1PlayerController> PlayerController;
 
@@ -63,4 +75,20 @@ private:
 	float SprintSpeed = 1000.f;
 
 	bool bSprint = false;
+
+	// 액션 중 점프 차단 조건 태그
+	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
+	FGameplayTag ActionStateTag;
+
+	// 공중 상태 태그
+	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
+	FGameplayTag AirStateTag;
+
+	// Jump() 호출 시 GA에 전달할 이벤트 태그
+	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
+	FGameplayTag JumpEventTag;
+
+	// Landed() 호출 시 GA에 전달할 이벤트 태그
+	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
+	FGameplayTag LandedEventTag;
 };

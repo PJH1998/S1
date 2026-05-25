@@ -13,7 +13,7 @@ US1GameplayAbility::US1GameplayAbility(const FObjectInitializer& ObjectInitializ
 
 bool US1GameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
-	if (Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) == false)
+	if (false == Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
 		return false;
 	}
@@ -36,7 +36,7 @@ void US1GameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 void US1GameplayAbility::SetGravityScale(float Scale)
 {
 	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
-	if (nullptr == Character)
+	if (false == IsValid(Character))
 	{
 		return;
 	}
@@ -68,7 +68,7 @@ void US1GameplayAbility::ResetGravityScale()
 US1AnimInstance* US1GameplayAbility::GetAnimInstance() const
 {
 	AS1Character* Character = Cast<AS1Character>(GetAvatarActorFromActorInfo());
-	if (nullptr == Character)
+	if (false == IsValid(Character))
 	{
 		return nullptr;
 	}

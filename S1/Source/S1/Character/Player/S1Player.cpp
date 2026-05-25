@@ -7,6 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 
 #include "AbilitySystem/S1AbilitySystemComponent.h"
+#include "Weapon/S1Weapon.h"
 #include "AbilitySystem/Attributes/S1PlayerSet.h"
 #include "Player/S1PlayerController.h"
 #include "Player/S1PlayerState.h"
@@ -34,6 +35,7 @@ AS1Player::AS1Player()
 	FaceMesh->SetupAttachment(BodyMesh);
 	FaceMesh->SetLeaderPoseComponent(BodyMesh);
 
+
 	// SpringArm
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent);
@@ -52,7 +54,7 @@ void AS1Player::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (AbilitySystemComponent == nullptr)
+	if (false == IsValid(AbilitySystemComponent))
 	{
 		return;
 	}
@@ -65,6 +67,17 @@ void AS1Player::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	InitSystem();
+
+	if (nullptr == WeaponClass)
+	{
+		return;
+	}
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	EquippedWeapon = GetWorld()->SpawnActor<AS1Weapon>(WeaponClass, SpawnParams);
+	EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponSocketName);
+	EquippedWeapon->SetActorRelativeRotation(FRotator(0.f, 0.f, -90.f));
 }
 
 void AS1Player::InitSystem()
@@ -87,11 +100,22 @@ void AS1Player::InitSystem()
 
 void AS1Player::Jump()
 {
+	if (IsValid(AbilitySystemComponent) && AbilitySystemComponent->HasMatchingGameplayTag(ActionStateTag))
+	{
+		return;
+	}
+
+	if (IsValid(AbilitySystemComponent) && JumpEventTag.IsValid())
+	{
+		FGameplayEventData EventData;
+		AbilitySystemComponent->HandleGameplayEvent(JumpEventTag, &EventData);
+	}
+
 	Super::Jump();
 
-	if (AbilitySystemComponent)
+	if (IsValid(AbilitySystemComponent) && AirStateTag.IsValid() && !GetCharacterMovement()->IsFalling())
 	{
-		AbilitySystemComponent->AddLooseGameplayTag(S1StateTags::State_Air);
+		AbilitySystemComponent->AddLooseGameplayTag(AirStateTag);
 	}
 }
 
@@ -99,22 +123,29 @@ void AS1Player::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	if (AbilitySystemComponent)
+	if (false == IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	if (AirStateTag.IsValid())
 	{
 		FGameplayTagContainer OwnedTags;
 		AbilitySystemComponent->GetOwnedGameplayTags(OwnedTags);
 
 		for (const FGameplayTag& Tag : OwnedTags)
 		{
-			if (Tag.MatchesTag(S1StateTags::State_Air))
+			if (Tag.MatchesTag(AirStateTag))
 			{
 				AbilitySystemComponent->RemoveLooseGameplayTag(Tag);
 			}
 		}
+	}
 
-		// DiveAttack GA에 착지 이벤트 전달
+	if (LandedEventTag.IsValid())
+	{
 		FGameplayEventData EventData;
-		AbilitySystemComponent->HandleGameplayEvent(S1EventTags::Event_Landed, &EventData);
+		AbilitySystemComponent->HandleGameplayEvent(LandedEventTag, &EventData);
 	}
 }
 
@@ -131,12 +162,22 @@ bool AS1Player::GetSprinting()
 
 void AS1Player::ActivateAbility(const FGameplayTag& AbilityTag)
 {
-	if (AbilitySystemComponent == nullptr)
+	if (false == IsValid(AbilitySystemComponent))
 	{
 		return;
 	}
 
 	AbilitySystemComponent->ActivateAbility(AbilityTag);
+}
+
+void AS1Player::AddMovementInput(FVector WorldDirection, float ScaleValue, bool bForce)
+{
+	if (IsValid(AbilitySystemComponent) && AbilitySystemComponent->HasMatchingGameplayTag(ActionStateTag))
+	{
+		return;
+	}
+
+	Super::AddMovementInput(WorldDirection, ScaleValue, bForce);
 }
 
 void AS1Player::Tick(float DeltaTime)

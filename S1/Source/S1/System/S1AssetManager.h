@@ -63,7 +63,7 @@ template<typename AssetType>
 AssetType* US1AssetManager::GetAssetByTag(const FGameplayTag& AssetTag)
 {
 	US1AssetData* AssetData = Get().LoadedAssetData;
-	if (!AssetData)
+	if (false == ::IsValid(AssetData))
 	{
 		return nullptr;
 	}
@@ -73,7 +73,7 @@ AssetType* US1AssetManager::GetAssetByTag(const FGameplayTag& AssetTag)
 	if (AssetPath.IsValid())
 	{
 		LoadedAsset = Cast<AssetType>(AssetPath.ResolveObject());
-		if (LoadedAsset == nullptr)
+		if (false == ::IsValid(LoadedAsset))
 		{
 			LOG_WARNING(TEXT("Attempted sync loading because asset hadn't loaded yet [%s]."), *AssetTag.ToString());
 			LoadedAsset = Cast<AssetType>(AssetPath.TryLoad());

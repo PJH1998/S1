@@ -95,6 +95,7 @@ namespace S1AssetTags
 
 namespace S1StateTags
 {
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Action);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_CanNextAttack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air_Used_WeakAttack);
@@ -103,6 +104,8 @@ namespace S1StateTags
 
 namespace S1EventTags
 {
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_EarlyMove);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Jump);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Landed);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_StartDive);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_CheckDistance);
