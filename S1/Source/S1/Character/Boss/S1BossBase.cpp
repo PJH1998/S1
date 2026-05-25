@@ -2,6 +2,7 @@
 
 
 #include "Character/Boss/S1BossBase.h"
+#include "AbilitySystem/Attributes/S1BossSet.h"
 
 AS1BossBase::AS1BossBase()
 	: Super()
@@ -16,5 +17,16 @@ void AS1BossBase::NotifyHasTargetChanged(bool bInHasTarget)
 	}
 
 	bHasTarget = bInHasTarget;
-	OnHasTargetChanged.Broadcast(this, bHasTarget);
+
+    OnHasTargetChanged.Broadcast(this, bHasTarget);
+}
+
+US1BossSet* AS1BossBase::GetS1BossSet() const
+{
+	return Cast<US1BossSet>(AttributeSet);
+}
+
+const FName& AS1BossBase::GetBossName() const
+{
+	return BossName;
 }

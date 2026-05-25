@@ -7,6 +7,7 @@
 #include "S1BossBase.generated.h"
 
 class AS1BossBase;
+class US1BossSet;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBossHasTargetChangedDelegate, AS1BossBase*, Boss, bool, bHasTarget);
 
@@ -23,10 +24,15 @@ public:
 
 public:
 	void NotifyHasTargetChanged(bool bInHasTarget);
+	US1BossSet* GetS1BossSet() const;
+	const FName& GetBossName() const;
 
 public:
 	UPROPERTY(BlueprintAssignable)
 	FBossHasTargetChangedDelegate OnHasTargetChanged;
+
+protected:
+	FName BossName = {};
 
 private:
 	bool bHasTarget = { false };
