@@ -31,7 +31,7 @@ void US1GameplayAbility_LoopAttack::ActivateAbility(const FGameplayAbilitySpecHa
 	}
 
 	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
-	if (nullptr == Character)
+	if (false == IsValid(Character))
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
@@ -47,7 +47,7 @@ void US1GameplayAbility_LoopAttack::ActivateAbility(const FGameplayAbilitySpecHa
 	}
 
 	US1AnimInstance* AnimInst = GetAnimInstance();
-	if (AnimInst)
+	if (IsValid(AnimInst))
 	{
 		AnimInst->Montage_SetNextSection(LoopSection, LoopSection, MontageSet->Montage);
 
@@ -78,7 +78,7 @@ void US1GameplayAbility_LoopAttack::OnLoopEndEvent(FGameplayEventData Payload)
 {
 	US1AnimInstance* AnimInst = GetAnimInstance();
 	const FS1MontageSet* MontageSet = GetCurrentMontageSet();
-	if (AnimInst && MontageSet)
+	if (IsValid(AnimInst) && MontageSet)
 	{
 		//AnimInst->Montage_SetNextSection(LoopSection, EndSection, MontageSet->Montage);
 		AnimInst->Montage_JumpToSection(EndSection);
@@ -88,7 +88,7 @@ void US1GameplayAbility_LoopAttack::OnLoopEndEvent(FGameplayEventData Payload)
 bool US1GameplayAbility_LoopAttack::OnInputReactivated()
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-	if (nullptr == ASC || false == ASC->HasMatchingGameplayTag(CanNextAttackTag))
+	if (false == IsValid(ASC) || false == ASC->HasMatchingGameplayTag(CanNextAttackTag))
 	{
 		return false;
 	}
@@ -115,7 +115,7 @@ bool US1GameplayAbility_LoopAttack::OnCrossInput(const FGameplayTagContainer& Ta
 	}
 
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-	if (nullptr == ASC || false == ASC->HasMatchingGameplayTag(CanNextAttackTag))
+	if (false == IsValid(ASC) || false == ASC->HasMatchingGameplayTag(CanNextAttackTag))
 	{
 		return false;
 	}

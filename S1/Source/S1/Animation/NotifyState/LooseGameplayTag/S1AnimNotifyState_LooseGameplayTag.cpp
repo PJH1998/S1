@@ -30,7 +30,7 @@ void US1AnimNotifyState_LooseGameplayTag::SetTag(USkeletalMeshComponent* MeshCom
 	}
 
 	UAbilitySystemComponent* ASC = ASI->GetAbilitySystemComponent();
-	if (nullptr == ASC)
+	if (false == IsValid(ASC))
 	{
 		return;
 	}

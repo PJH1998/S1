@@ -433,7 +433,7 @@ void US1AssetManager::LoadAssetsToLabel(const FGameplayTag& Label, FAsyncLabelLo
         for (UObject* Obj : LoadedObjects)
         {
             US1AssetData* AssetData = Cast<US1AssetData>(Obj);
-            if (nullptr == AssetData)
+            if (false == IsValid(AssetData))
             {
                 continue;
             }

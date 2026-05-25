@@ -30,7 +30,7 @@ void US1AbilityTask_EarlyExitChecker::TickTask(float DeltaTime)
 	Super::TickTask(DeltaTime);
 
 	ACharacter* Char = Cast<ACharacter>(GetAvatarActor());
-	if (nullptr == Char)
+	if (false == IsValid(Char))
 	{
 		return;
 	}

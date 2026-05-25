@@ -97,7 +97,7 @@ void AS1PlayerController::HandleGameplayEvent(FGameplayTag EventTag)
 
 void AS1PlayerController::OnMove(const FInputActionValue& Value)
 {
-	if (nullptr == S1Player)
+	if (false == IsValid(S1Player))
 	{
 		return;
 	}
@@ -127,7 +127,7 @@ void AS1PlayerController::OnAttack(const FInputActionValue& Value)
 
 void AS1PlayerController::OnSprint(const FInputActionValue& Value)
 {
-	if (nullptr == S1Player)
+	if (false == IsValid(S1Player))
 	{
 		return;
 	}
@@ -142,7 +142,7 @@ void AS1PlayerController::OnSkill01(const FInputActionValue& Value)
 
 void AS1PlayerController::OnJump(const FInputActionValue& Value)
 {
-	if (nullptr == S1Player)
+	if (false == IsValid(S1Player))
 	{
 		return;
 	}

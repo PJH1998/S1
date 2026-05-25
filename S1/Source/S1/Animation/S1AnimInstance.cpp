@@ -17,7 +17,7 @@ void US1AnimInstance::NativeInitializeAnimation()
 
 	Character = Cast<AS1Character>(TryGetPawnOwner());
 
-	if (Character)
+	if (IsValid(Character))
 	{
 		MovementComponent = Character->GetCharacterMovement();
 	}
@@ -27,13 +27,13 @@ void US1AnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	if (nullptr == Character)
+	if (false == IsValid(Character))
 	{
 		LOG_WARNING(TEXT("US1AnimInstance : Nullptr Character"));
 		return;
 	}
 
-	if (nullptr == MovementComponent)
+	if (false == IsValid(MovementComponent))
 	{
 		LOG_WARNING(TEXT("US1AnimInstance : Nullptr MovementComponent"));
 		return;

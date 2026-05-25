@@ -6,7 +6,7 @@
 bool US1GameplayAbility_ComboAttack_Transition::OnInputReactivated()
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-	if (ASC && ASC->HasMatchingGameplayTag(TransitionStateTag))
+	if (IsValid(ASC) && ASC->HasMatchingGameplayTag(TransitionStateTag))
 	{
 		// 전환 상태 → 동일 AbilityTag 재발동으로 전환 GA 활성화
 		FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromHandle(CurrentSpecHandle);

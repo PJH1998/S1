@@ -40,7 +40,7 @@ bool US1GameplayAbility_ComboAttack::OnCrossInput(const FGameplayTagContainer& T
 	}
 
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-	if (nullptr == ASC || false == CanNextAction(ASC))
+	if (false == IsValid(ASC) || false == CanNextAction(ASC))
 	{
 		return false;
 	}
@@ -57,7 +57,7 @@ bool US1GameplayAbility_ComboAttack::CanNextAction(UAbilitySystemComponent* ASC)
 const FS1MontageSet* US1GameplayAbility_ComboAttack::GetCurrentMontageSet() const
 {
 	US1AnimData* AnimData = US1AssetManager::GetAssetByTag<US1AnimData>(AnimDataTag);
-	if (nullptr == AnimData)
+	if (false == IsValid(AnimData))
 	{
 		return nullptr;
 	}
@@ -75,7 +75,7 @@ void US1GameplayAbility_ComboAttack::PlayMontageSet(const FGameplayAbilityActorI
 	}
 
 	AS1Character* Character = Cast<AS1Character>(ActorInfo->AvatarActor);
-	if (nullptr == Character)
+	if (false == IsValid(Character))
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
@@ -84,7 +84,7 @@ void US1GameplayAbility_ComboAttack::PlayMontageSet(const FGameplayAbilityActorI
 	Character->PlayAnimMontage(MontageSet->Montage);
 
 	US1AnimInstance* AnimInst = GetAnimInstance();
-	if (nullptr == AnimInst)
+	if (false == IsValid(AnimInst))
 	{
 		return;
 	}
@@ -97,7 +97,7 @@ void US1GameplayAbility_ComboAttack::PlayMontageSet(const FGameplayAbilityActorI
 bool US1GameplayAbility_ComboAttack::TryAdvanceCombo()
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-	if (nullptr == ASC || false == CanNextAction(ASC))
+	if (false == IsValid(ASC) || false == CanNextAction(ASC))
 	{
 		return false; // 전환 불가 — 호출부에서 큐잉 처리
 	}

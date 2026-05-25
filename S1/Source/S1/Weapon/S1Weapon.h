@@ -7,6 +7,7 @@
 #include "S1Weapon.generated.h"
 
 class USkeletalMeshComponent;
+class UBoxComponent;
 
 UCLASS()
 class S1_API AS1Weapon : public AActor
@@ -16,23 +17,16 @@ class S1_API AS1Weapon : public AActor
 public:
 	AS1Weapon();
 
-	void DoLineTrace(TArray<FHitResult>& OutHitResults);
+	void EnableHitCollision();
+	void DisableHitCollision();
 
 	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
+	UBoxComponent* GetHitBox() const { return HitBox; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> WeaponMesh;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Socket")
-	FName TraceStartSocketName = FName("w_TraceStart");
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Socket")
-	FName TraceEndSocketName = FName("w_TraceEnd");
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Trace")
-	float TraceRadius = 5.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Trace")
-	TEnumAsByte<ECollisionChannel> TraceChannel = ECC_Pawn;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UBoxComponent> HitBox;
 };

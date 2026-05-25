@@ -54,7 +54,7 @@ void AS1Player::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (nullptr == AbilitySystemComponent)
+	if (false == IsValid(AbilitySystemComponent))
 	{
 		return;
 	}
@@ -77,6 +77,7 @@ void AS1Player::PossessedBy(AController* NewController)
 	SpawnParams.Owner = this;
 	EquippedWeapon = GetWorld()->SpawnActor<AS1Weapon>(WeaponClass, SpawnParams);
 	EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponSocketName);
+	EquippedWeapon->SetActorRelativeRotation(FRotator(0.f, 0.f, -90.f));
 }
 
 void AS1Player::InitSystem()
@@ -99,12 +100,12 @@ void AS1Player::InitSystem()
 
 void AS1Player::Jump()
 {
-	if (AbilitySystemComponent && AbilitySystemComponent->HasMatchingGameplayTag(ActionStateTag))
+	if (IsValid(AbilitySystemComponent) && AbilitySystemComponent->HasMatchingGameplayTag(ActionStateTag))
 	{
 		return;
 	}
 
-	if (AbilitySystemComponent && JumpEventTag.IsValid())
+	if (IsValid(AbilitySystemComponent) && JumpEventTag.IsValid())
 	{
 		FGameplayEventData EventData;
 		AbilitySystemComponent->HandleGameplayEvent(JumpEventTag, &EventData);
@@ -112,7 +113,7 @@ void AS1Player::Jump()
 
 	Super::Jump();
 
-	if (AbilitySystemComponent && AirStateTag.IsValid() && !GetCharacterMovement()->IsFalling())
+	if (IsValid(AbilitySystemComponent) && AirStateTag.IsValid() && !GetCharacterMovement()->IsFalling())
 	{
 		AbilitySystemComponent->AddLooseGameplayTag(AirStateTag);
 	}
@@ -122,7 +123,7 @@ void AS1Player::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	if (nullptr == AbilitySystemComponent)
+	if (false == IsValid(AbilitySystemComponent))
 	{
 		return;
 	}
@@ -161,7 +162,7 @@ bool AS1Player::GetSprinting()
 
 void AS1Player::ActivateAbility(const FGameplayTag& AbilityTag)
 {
-	if (nullptr == AbilitySystemComponent)
+	if (false == IsValid(AbilitySystemComponent))
 	{
 		return;
 	}
@@ -171,7 +172,7 @@ void AS1Player::ActivateAbility(const FGameplayTag& AbilityTag)
 
 void AS1Player::AddMovementInput(FVector WorldDirection, float ScaleValue, bool bForce)
 {
-	if (AbilitySystemComponent && AbilitySystemComponent->HasMatchingGameplayTag(ActionStateTag))
+	if (IsValid(AbilitySystemComponent) && AbilitySystemComponent->HasMatchingGameplayTag(ActionStateTag))
 	{
 		return;
 	}
