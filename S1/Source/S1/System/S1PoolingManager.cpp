@@ -106,7 +106,7 @@ AActor* US1PoolingManager::SpawnFromPool(FGameplayTag PoolTag, FVector Location,
 		return nullptr;
 	}
 
-	Poolable->OnSpawnFromPool(Location, Rotation);
+	Poolable->OnSpawnFromPool(PoolTag, Location, Rotation);
 
 	// Active 추적
 	// ActiveActors.FindOrAdd(PoolTag).Add(Actor);

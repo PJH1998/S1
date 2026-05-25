@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "GameplayTagContainer.h"
 #include "S1PoolingInterface.generated.h"
 
 UINTERFACE(MinimalAPI)
@@ -17,6 +18,10 @@ class S1_API IS1PoolingInterface
 	GENERATED_BODY()
 
 public:
-	virtual void OnSpawnFromPool(FVector Location, FRotator Rotation);
+	virtual void OnSpawnFromPool(FGameplayTag InPoolTag, FVector Location, FRotator Rotation);
 	virtual void OnReturnToPool();
+	void ReturnSelf();
+
+protected:
+	FGameplayTag PoolTag;
 };
