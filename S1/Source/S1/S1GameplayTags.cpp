@@ -88,6 +88,7 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player_Asna,"Asset.Ability.Player.Asna");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Boss000,"Asset.Ability.Boss000");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData, "Asset.AnimData");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_PoolingData, "Asset.PoolingData");
 }
 
 namespace S1StateTags
@@ -106,4 +107,9 @@ namespace S1EventTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Landed, "Event.Landed");
 	UE_DEFINE_GAMEPLAY_TAG(Event_StartDive, "Event.StartDive");
 	UE_DEFINE_GAMEPLAY_TAG(Event_CheckDistance, "Event.CheckDistance");
+}
+
+namespace S1PoolingTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(Pool_Stage01, "Pool.Stage01");
 }

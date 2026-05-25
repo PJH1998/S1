@@ -11,23 +11,23 @@ AS1Weapon::AS1Weapon()
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("WeaponMesh");
 	SetRootComponent(WeaponMesh);
 
-	HitBox = CreateDefaultSubobject<UBoxComponent>("HitBox");
-	HitBox->SetupAttachment(WeaponMesh);
-	HitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttackBox = CreateDefaultSubobject<UBoxComponent>("AttackBox");
+	AttackBox->SetupAttachment(WeaponMesh);
+	AttackBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AS1Weapon::EnableHitCollision()
 {
-	if (IsValid(HitBox))
+	if (IsValid(AttackBox))
 	{
-		HitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		AttackBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
 }
 
 void AS1Weapon::DisableHitCollision()
 {
-	if (IsValid(HitBox))
+	if (IsValid(AttackBox))
 	{
-		HitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		AttackBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }

@@ -21,12 +21,12 @@ public:
 	void DisableHitCollision();
 
 	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
-	UBoxComponent* GetHitBox() const { return HitBox; }
+	UBoxComponent* GetAttackBox() const { return AttackBox; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> WeaponMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<UBoxComponent> HitBox;
+	TObjectPtr<UBoxComponent> AttackBox;
 };

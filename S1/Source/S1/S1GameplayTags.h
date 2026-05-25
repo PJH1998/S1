@@ -90,6 +90,7 @@ namespace S1AssetTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Player_Asna);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Boss000);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_AnimData);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_PoolingData);
 }
 
 namespace S1StateTags
@@ -108,4 +109,9 @@ namespace S1EventTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Landed);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_StartDive);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_CheckDistance);
+}
+
+namespace S1PoolingTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Pool_Stage01);
 }

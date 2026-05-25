@@ -18,8 +18,8 @@ public:
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 	virtual void Deinitialize() override;
 
-	void AddToPoolFromAsset(FGameplayTag AssetTag);
-	void RemovePoolByAsset(FGameplayTag AssetTag);
+	void AddToPoolFromAsset(FGameplayTag AssetTag, FGameplayTag WorldTag);
+	void RemovePoolByWorld(FGameplayTag WorldTag);
 
 	AActor* SpawnFromPool(FGameplayTag PoolTag, FVector Location, FRotator Rotation);
 	void ReturnToPool(AActor* Actor, FGameplayTag PoolTag);
@@ -29,7 +29,7 @@ private:
 
 	TMap<FGameplayTag, TArray<AActor*>> Pool;
 
-	TMap<FGameplayTag, TArray<FGameplayTag>> AssetToPoolTags;
+	TMap<FGameplayTag, TArray<FGameplayTag>> WorldToPoolTags;
 
 	// Active 추적
 	// TMap<FGameplayTag, TArray<TWeakObjectPtr<AActor>>> ActiveActors;

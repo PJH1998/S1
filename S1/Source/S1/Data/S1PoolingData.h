@@ -10,7 +10,7 @@
 class AActor;
 
 USTRUCT(BlueprintType)
-struct FS1PoolSet
+struct FS1PoolEntry
 {
 	GENERATED_BODY()
 
@@ -24,12 +24,23 @@ struct FS1PoolSet
 	int32 Count = 10;
 };
 
+USTRUCT(BlueprintType)
+struct FS1PoolSet
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TArray<FS1PoolEntry> Pools;
+};
+
 UCLASS()
 class S1_API US1PoolingData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 
 public:
+	const FS1PoolSet* FindByWorldTag(FGameplayTag WorldTag) const;
+
 	UPROPERTY(EditDefaultsOnly)
-	TArray<FS1PoolSet> Pools;
+	TMap<FGameplayTag, FS1PoolSet> WorldPools;
 };
