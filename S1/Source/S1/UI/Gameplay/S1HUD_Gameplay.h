@@ -45,6 +45,9 @@ private:
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	TObjectPtr<UWidgetAnimation> Anim_BossStatus_FadeIn;
 
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> Anim_BossStatus_FadeOut;
+
 private:
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<AS1BossBase>> BoundBosses;

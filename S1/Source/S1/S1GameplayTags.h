@@ -90,6 +90,7 @@ namespace S1AssetTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Player_Asna);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Boss000);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_AnimData);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Effect);
 }
 
 namespace S1StateTags
@@ -105,4 +106,11 @@ namespace S1EventTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Landed);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_StartDive);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_CheckDistance);
+}
+
+namespace S1EffectTags
+{
+#pragma region Decal
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Decal_AttackRange);
+#pragma endregion
 }

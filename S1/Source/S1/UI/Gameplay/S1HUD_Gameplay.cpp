@@ -23,6 +23,11 @@ void US1HUD_Gameplay::NativeConstruct()
 
 void US1HUD_Gameplay::NativeDestruct()
 {
+	if (BossStatus != nullptr)
+	{
+		BossStatus->SetBoss(nullptr);
+	}
+
 	for (AS1BossBase* Boss : BoundBosses)
 	{
 		if (Boss == nullptr)
@@ -60,21 +65,32 @@ void US1HUD_Gameplay::BindBossEvents()
 
 void US1HUD_Gameplay::SetUpBossStatus()
 {
+	if (BossStatus == nullptr)
+	{
+		return;
+	}
+
+	BossStatus->SetBoss(nullptr);
 	BossStatus->SetVisibility(ESlateVisibility::Collapsed);
 
-	// TODO
-	//if (Anim_BossStatus_FadeIn)
-	//{
-	//	FWidgetAnimationDynamicEvent EndEvent;
-	//	EndEvent.BindDynamic(this, &ThisClass::HandleHideAnimationFinished);
-	//	BindToAnimationFinished(Anim_BossStatus_FadeIn, EndEvent);
-	//}
+	if (Anim_BossStatus_FadeOut)
+	{
+		FWidgetAnimationDynamicEvent EndEvent;
+		EndEvent.BindDynamic(this, &ThisClass::HandleHideAnimationFinished);
+		BindToAnimationFinished(Anim_BossStatus_FadeOut, EndEvent);
+	}
 }
 
 void US1HUD_Gameplay::ShowBossUI(AS1BossBase* InBoss)
 {
+	if (BossStatus == nullptr)
+	{
+		return;
+	}
+
 	CurrentBoss = InBoss;
 	
+	BossStatus->SetBoss(InBoss);
 	BossStatus->SetVisibility(ESlateVisibility::HitTestInvisible);
 	if (Anim_BossStatus_FadeIn)
 	{
@@ -84,13 +100,22 @@ void US1HUD_Gameplay::ShowBossUI(AS1BossBase* InBoss)
 
 void US1HUD_Gameplay::HideBossUI(AS1BossBase* InBoss)
 {
+	if (BossStatus == nullptr)
+	{
+		return;
+	}
+
 	if (CurrentBoss != nullptr && CurrentBoss != InBoss)
 	{
 		return;
 	}
 
 	CurrentBoss = nullptr;
-	BossStatus->SetVisibility(ESlateVisibility::Collapsed);
+	BossStatus->SetBoss(nullptr);
+	if (Anim_BossStatus_FadeOut)
+	{
+		PlayAnimation(Anim_BossStatus_FadeOut);
+	}
 }
 
 void US1HUD_Gameplay::HandleBossHasTargetChanged(AS1BossBase* InBoss, bool bInHasTarget)
@@ -107,5 +132,8 @@ void US1HUD_Gameplay::HandleBossHasTargetChanged(AS1BossBase* InBoss, bool bInHa
 
 void US1HUD_Gameplay::HandleHideAnimationFinished()
 {
-	BossStatus->SetVisibility(ESlateVisibility::Collapsed);
+	if (BossStatus != nullptr)
+	{
+		BossStatus->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }

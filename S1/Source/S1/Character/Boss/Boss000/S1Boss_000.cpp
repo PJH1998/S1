@@ -13,16 +13,20 @@
 AS1Boss_000::AS1Boss_000()
 	: Super()
 {
+	// Collider
 	GetCapsuleComponent()->SetCapsuleHalfHeight(400.f);
 	GetCapsuleComponent()->SetCapsuleRadius(200.f);
 
+	// Movement
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	GetCharacterMovement()->RotationRate.Yaw = 120.f;
 
+	// Mesh
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -400.f), FRotator(0.f, -90.f, 0.f));
 
+	// AttributeSet
 	AttributeSet = CreateDefaultSubobject<US1BossSet>("AttributeSet");
 
 	FS1DefaultAttribute DefaultAttribute;
@@ -31,6 +35,9 @@ AS1Boss_000::AS1Boss_000()
 	DefaultAttribute.BaseDamage = 10.f;
 	DefaultAttribute.BaseDefense = 10.f;
 	AttributeSet->InitDefaultAttribute(DefaultAttribute);
+
+	// UI
+	BossName = TEXT("Cobalt");
 }
 
 void AS1Boss_000::BeginPlay()
