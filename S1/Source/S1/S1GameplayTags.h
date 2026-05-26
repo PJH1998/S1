@@ -123,3 +123,8 @@ namespace S1PoolingTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Pool_Stage01);
 }
+
+namespace S1SetByCallerTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Damage);
+}

@@ -20,6 +20,7 @@ void AS1Weapon::EnableHitCollision()
 {
 	if (IsValid(AttackBox))
 	{
+		OnHitCollisionEnabled.Broadcast();
 		AttackBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
 }

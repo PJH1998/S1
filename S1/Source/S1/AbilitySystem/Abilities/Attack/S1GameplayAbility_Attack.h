@@ -20,6 +20,8 @@ public:
 
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+	
 	const FS1MontageData* GetMontageData() const;
 	virtual const FS1MontageSet* GetCurrentMontageSet() const; // 기본: index 0
 
@@ -36,6 +38,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
 	FGameplayTag UsedTag;
 
+	// 기본 데미지 GE
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	TSubclassOf<UGameplayEffect> DamageEffect;
+
+	// 추가 디버프 GE — 설정 시 DamageEffect와 함께 적용
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	TSubclassOf<UGameplayEffect> DebuffEffect;
+
 	// US1AbilityTask_RotateToCamera 실행 여부
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
 	bool bRotateToCamera = false;
@@ -45,9 +55,18 @@ protected:
 	float RotationSpeed = 720.f;
 
 protected:
+	void ResetHitTargets();
 	void StartRotateToCamera();
 
 private:
+	void BindAttackBox();
+	void UnbindAttackBox();
+
+	UFUNCTION()
+	void OnAttackBoxOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	UPROPERTY()
 	TObjectPtr<US1AbilityTask_RotateToCamera> RotateTask;
+
+	TArray<TWeakObjectPtr<AActor>> HitTargets;
 };

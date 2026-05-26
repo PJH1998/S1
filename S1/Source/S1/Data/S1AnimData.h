@@ -18,9 +18,9 @@ struct FS1MontageSet
 	TObjectPtr<UAnimMontage> Montage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayEffect> DamageEffect;
+	bool bAttackMontage = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (EditCondition = "bAttackMontage", EditConditionHides))
 	float DamageRatio = 1.f;
 };
 

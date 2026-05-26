@@ -121,3 +121,8 @@ namespace S1PoolingTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Pool_Stage01, "Pool.Stage01");
 }
+
+namespace S1SetByCallerTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Damage, "SetByCaller.Damage");
+}

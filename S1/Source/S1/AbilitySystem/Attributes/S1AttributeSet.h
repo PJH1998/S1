@@ -47,6 +47,7 @@ public:
 	ATTRIBUTE_ACCESSORS(ThisClass, BaseDefense);
 
 public:
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 	void InitDefaultAttribute(const FS1DefaultAttribute& DefaultAttribute);
 
 private:

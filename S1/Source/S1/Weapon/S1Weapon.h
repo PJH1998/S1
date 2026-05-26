@@ -9,6 +9,8 @@
 class USkeletalMeshComponent;
 class UBoxComponent;
 
+DECLARE_MULTICAST_DELEGATE(FOnS1HitCollisionEnabled)
+
 UCLASS()
 class S1_API AS1Weapon : public AActor
 {
@@ -22,6 +24,8 @@ public:
 
 	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 	UBoxComponent* GetAttackBox() const { return AttackBox; }
+
+	FOnS1HitCollisionEnabled OnHitCollisionEnabled;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

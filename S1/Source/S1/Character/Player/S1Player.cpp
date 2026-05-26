@@ -8,7 +8,7 @@
 
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "Weapon/S1Weapon.h"
-#include "AbilitySystem/Attributes/S1PlayerSet.h"
+#include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
 #include "Player/S1PlayerController.h"
 #include "Player/S1PlayerState.h"
 #include "S1GameplayTags.h"
