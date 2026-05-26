@@ -17,11 +17,14 @@ AS1Boss_000::AS1Boss_000()
 	GetCapsuleComponent()->SetCapsuleHalfHeight(400.f);
 	GetCapsuleComponent()->SetCapsuleRadius(200.f);
 
-	// Movement
+	// Movement — Chase Notify가 yaw를 제어하므로 자동 회전은 비활성
 	bUseControllerRotationYaw = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	GetCharacterMovement()->RotationRate.Yaw = 120.f;
+	UCharacterMovementComponent* Movement = GetCharacterMovement();
+	Movement->bOrientRotationToMovement = false;
+	Movement->bUseControllerDesiredRotation = false;
+	Movement->RotationRate.Yaw = 180.f;
+	Movement->MaxWalkSpeed = DefaultMaxWalkSpeed;
+	Movement->MaxAcceleration = DefaultMaxAcceleration;
 
 	// Mesh
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -400.f), FRotator(0.f, -90.f, 0.f));

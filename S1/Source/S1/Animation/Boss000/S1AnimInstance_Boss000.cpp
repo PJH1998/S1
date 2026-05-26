@@ -7,15 +7,3 @@ US1AnimInstance_Boss000::US1AnimInstance_Boss000(const FObjectInitializer& Objec
 	: Super(ObjectInitialzer)
 {
 }
-
-void US1AnimInstance_Boss000::NativeInitializeAnimation()
-{
-	Super::NativeInitializeAnimation();
-}
-
-void US1AnimInstance_Boss000::NativeUpdateAnimation(float DeltaSeconds)
-{
-	Super::NativeUpdateAnimation(DeltaSeconds);
-
-	bMove = GroundSpeed > 3.f;
-}

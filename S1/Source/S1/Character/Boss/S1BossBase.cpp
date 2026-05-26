@@ -3,10 +3,12 @@
 
 #include "Character/Boss/S1BossBase.h"
 #include "AbilitySystem/Attributes/S1BossSet.h"
+#include "Component/S1BossLocomotionComponent.h"
 
 AS1BossBase::AS1BossBase()
 	: Super()
 {
+	LocomotionComponent = CreateDefaultSubobject<US1BossLocomotionComponent>(TEXT("LocomotionComponent"));
 }
 
 void AS1BossBase::NotifyHasTargetChanged(bool bInHasTarget)
@@ -18,7 +20,7 @@ void AS1BossBase::NotifyHasTargetChanged(bool bInHasTarget)
 
 	bHasTarget = bInHasTarget;
 
-    OnHasTargetChanged.Broadcast(this, bHasTarget);
+	OnHasTargetChanged.Broadcast(this, bHasTarget);
 }
 
 US1BossSet* AS1BossBase::GetS1BossSet() const

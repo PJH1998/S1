@@ -13,7 +13,7 @@ UCLASS()
 class S1_API AS1Boss_000 : public AS1BossBase
 {
 	GENERATED_BODY()
-	
+
 public:
 	AS1Boss_000();
 
@@ -21,6 +21,12 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Chase")
+	float DefaultMaxWalkSpeed = 600.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Chase")
+	float DefaultMaxAcceleration = 2048.f;
 };

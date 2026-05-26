@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTDecorator.h"
-#include "BT_Deco_CanAttack.generated.h"
+#include "BT_Deco_CheckRange.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class S1_API UBT_Deco_CanAttack : public UBTDecorator
+class S1_API UBT_Deco_CheckRange: public UBTDecorator
 {
 	GENERATED_BODY()
 	
 public:
-	UBT_Deco_CanAttack();
+	UBT_Deco_CheckRange();
 
 protected:
 	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
@@ -23,4 +23,7 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, Category = Blackboard)
 	FBlackboardKeySelector TargetKey;
+
+	UPROPERTY(EditAnywhere)
+	float AttackRange = { 600.f };
 };
