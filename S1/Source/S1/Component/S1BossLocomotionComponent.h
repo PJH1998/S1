@@ -62,7 +62,6 @@ protected:
 private:
 	void TickApproach(float DeltaTime);
 	void BeginStop();
-	void SetChaseRotationActive(bool bActive);
 	void RestoreMovementSpeed();
 	float GetForwardAngleThresholdCos() const;
 

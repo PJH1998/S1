@@ -6,14 +6,18 @@
 #include "BehaviorTree/BTDecorator.h"
 #include "BT_Deco_CheckRange.generated.h"
 
-/**
- * 
- */
+UENUM(BlueprintType)
+enum class EBTCheckRangeCompare : uint8
+{
+	LessThan,
+	GreaterOrEqual,
+};
+
 UCLASS()
-class S1_API UBT_Deco_CheckRange: public UBTDecorator
+class S1_API UBT_Deco_CheckRange : public UBTDecorator
 {
 	GENERATED_BODY()
-	
+
 public:
 	UBT_Deco_CheckRange();
 
@@ -24,6 +28,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Blackboard)
 	FBlackboardKeySelector TargetKey;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0"))
 	float AttackRange = { 600.f };
+
+	UPROPERTY(EditAnywhere, Category = "Range")
+	EBTCheckRangeCompare Compare = EBTCheckRangeCompare::LessThan;
 };

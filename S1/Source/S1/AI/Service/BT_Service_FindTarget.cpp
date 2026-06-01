@@ -39,8 +39,8 @@ void UBT_Service_FindTarget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 		OverlapResults,
 		Location,
 		FQuat::Identity,
-		//ECollisionChannel::ECC_EngineTraceChannel1,
-		ECollisionChannel::ECC_Pawn,
+		ECollisionChannel::ECC_EngineTraceChannel2,
+		//ECollisionChannel::ECC_Pawn,
 		FCollisionShape::MakeSphere(SearchRadius),
 		CollisionQueryParam
 	);

@@ -59,7 +59,8 @@ void US1BossStatus::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		return;
 	}
 
-	BossSet->SetHealth(BossSet->GetHealth() - 2.f * InDeltaTime);
+	// Temp
+	//BossSet->SetHealth(BossSet->GetHealth() - 2.f * InDeltaTime);
 
 	SetValue(BossSet->GetHealth(), BossSet->GetMaxHealth());
 

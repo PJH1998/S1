@@ -70,8 +70,6 @@ bool US1BossLocomotionComponent::StartApproach(AActor* Target, EBossLocomotionMo
 	Movement->MaxWalkSpeed = FMath::Max(50.f, GetTargetMoveSpeed() * 0.15f);
 
 	AnimInstance->BeginApproach(Mode);
-	SetChaseRotationActive(true);
-	AIController->SetFocus(Target, EAIFocusPriority::Gameplay);
 
 	const EPathFollowingRequestResult::Type MoveResult = AIController->MoveToActor(Target, MoveAcceptRadius);
 	if (MoveResult == EPathFollowingRequestResult::Failed)
@@ -90,10 +88,8 @@ void US1BossLocomotionComponent::AbortApproach(bool bInstantReset)
 	if (AIController)
 	{
 		AIController->StopMovement();
-		AIController->ClearFocus(EAIFocusPriority::Gameplay);
 	}
 
-	SetChaseRotationActive(false);
 	RestoreMovementSpeed();
 
 	if (US1AnimInstance_BossBase* AnimInstance = GetBossAnimInstance())
@@ -175,13 +171,11 @@ bool US1BossLocomotionComponent::StartTurn(AActor* Target)
 	}
 
 	AIController->StopMovement();
-	SetChaseRotationActive(false);
 
 	CurrentTurnDirection = TurnDirection;
 	TurnState = EBossTurnState::Turning;
 
 	AnimInstance->BeginTurn(TurnDirection);
-	AIController->SetFocus(Target, EAIFocusPriority::Gameplay);
 
 	return true;
 }
@@ -191,10 +185,7 @@ void US1BossLocomotionComponent::AbortTurn(bool bInstantReset)
 	if (AAIController* AIController = GetBossAIController())
 	{
 		AIController->StopMovement();
-		AIController->ClearFocus(EAIFocusPriority::Gameplay);
 	}
-
-	SetChaseRotationActive(false);
 
 	if (US1AnimInstance_BossBase* AnimInstance = GetBossAnimInstance())
 	{
@@ -218,11 +209,6 @@ void US1BossLocomotionComponent::NotifyTurnFinished()
 	if (TurnState != EBossTurnState::Turning)
 	{
 		return;
-	}
-
-	if (AAIController* AIController = GetBossAIController())
-	{
-		AIController->ClearFocus(EAIFocusPriority::Gameplay);
 	}
 
 	TurnState = EBossTurnState::TurnComplete;
@@ -325,23 +311,11 @@ void US1BossLocomotionComponent::BeginStop()
 	if (AAIController* AIController = GetBossAIController())
 	{
 		AIController->StopMovement();
-		AIController->ClearFocus(EAIFocusPriority::Gameplay);
 	}
-
-	SetChaseRotationActive(false);
 
 	if (US1AnimInstance_BossBase* AnimInstance = GetBossAnimInstance())
 	{
 		AnimInstance->RequestStop();
-	}
-}
-
-void US1BossLocomotionComponent::SetChaseRotationActive(bool bActive)
-{
-	if (UCharacterMovementComponent* Movement = GetBossMovement())
-	{
-		Movement->bOrientRotationToMovement = false;
-		Movement->bUseControllerDesiredRotation = bActive;
 	}
 }
 
