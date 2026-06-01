@@ -43,6 +43,19 @@ AActor* AS1AIController::GetTargetActor() const
 	return Cast<AActor>(BlackboardComponent->GetValueAsObject(TargetKeyName));
 }
 
+void AS1AIController::SetBlackboardIsDead(bool bInIsDead)
+{
+	if (IsDeadKeyName == NAME_None)
+	{
+		return;
+	}
+
+	if (UBlackboardComponent* BlackboardComponent = GetBlackboardComponent())
+	{
+		BlackboardComponent->SetValueAsBool(IsDeadKeyName, bInIsDead);
+	}
+}
+
 void AS1AIController::BeginPlay()
 {
 	Super::BeginPlay();

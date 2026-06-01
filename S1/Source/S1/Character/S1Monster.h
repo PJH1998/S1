@@ -8,9 +8,7 @@
 
 class UBehaviorTree;
 class UAnimMontage;
-/**
- * 
- */
+
 UCLASS()
 class S1_API AS1Monster : public AS1Character
 {
@@ -27,14 +25,19 @@ public:
 
 	void PlayAnimation(UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	void NotifyDeath();
+	void HandleDeath();
+	bool IsDead() const { return bIsDead; }
 
 public:
+	virtual void Tick(float DeltaTime) override;
 	virtual void InitSystem() override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
+
+private:
+	bool bIsDead = false;
 };
+

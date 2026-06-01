@@ -19,6 +19,7 @@ public:
 
 	virtual void OnPossess(APawn* InPawn) override;
 	AActor* GetTargetActor() const;
+	void SetBlackboardIsDead(bool bInIsDead);
 
 protected:
 	virtual void BeginPlay() override;
@@ -27,4 +28,7 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	FName TargetKeyName = TEXT("TargetActor");
+
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	FName IsDeadKeyName = TEXT("bIsDead");
 };
