@@ -3,7 +3,7 @@
 
 #include "Player/S1PlayerState.h"
 #include "AbilitySystem/AbilitySystemComponent/Player/S1PlayerAbilitySystemComponent.h"
-#include "AbilitySystem/Attributes/S1PlayerSet.h"
+#include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
 
 AS1PlayerState::AS1PlayerState(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

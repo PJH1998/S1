@@ -5,18 +5,19 @@
 #include "System/S1WorldSettings.h"
 #include "Data/S1PoolingData.h"
 #include "Interface/S1PoolingInterface.h"
+#include "S1LogChannels.h"
 
 void US1PoolingManager::OnWorldBeginPlay(UWorld& InWorld)
 {
 	Super::OnWorldBeginPlay(InWorld);
 
 	AS1WorldSettings* WS = Cast<AS1WorldSettings>(InWorld.GetWorldSettings());
-	if (false == IsValid(WS) || false == WS->PoolAssetTag.IsValid())
+	if (false == IsValid(WS) || false == WS->PoolAssetTag.IsValid() || false == WS->PoolWorldTag.IsValid())
 	{
 		return;
 	}
 
-	AddToPoolFromAsset(WS->PoolAssetTag);
+	AddToPoolFromAsset(WS->PoolAssetTag, WS->PoolWorldTag);
 }
 
 void US1PoolingManager::Deinitialize()
@@ -33,7 +34,7 @@ void US1PoolingManager::Deinitialize()
 	}
 
 	Pool.Empty();
-	AssetToPoolTags.Empty();
+	WorldToPoolTags.Empty();
 
 	// Active 추적
 	// ActiveActors.Empty();
@@ -41,7 +42,7 @@ void US1PoolingManager::Deinitialize()
 	Super::Deinitialize();
 }
 
-void US1PoolingManager::AddToPoolFromAsset(FGameplayTag AssetTag)
+void US1PoolingManager::AddToPoolFromAsset(FGameplayTag AssetTag, FGameplayTag WorldTag)
 {
 	US1PoolingData* PoolingData = US1AssetManager::GetAssetByTag<US1PoolingData>(AssetTag);
 	if (false == IsValid(PoolingData))
@@ -49,16 +50,24 @@ void US1PoolingManager::AddToPoolFromAsset(FGameplayTag AssetTag)
 		return;
 	}
 
-	TArray<FGameplayTag>& PoolTags = AssetToPoolTags.FindOrAdd(AssetTag);
-	for (const FS1PoolSet& Set : PoolingData->Pools)
+	const FS1PoolSet* PoolSet = PoolingData->FindByWorldTag(WorldTag);
+	if (nullptr == PoolSet)
 	{
-		if (false == Set.PoolTag.IsValid() || nullptr == Set.ActorClass)
+		return;
+	}
+
+	TArray<FGameplayTag>& PoolTags = WorldToPoolTags.FindOrAdd(WorldTag);
+	for (const FS1PoolEntry& Entry : PoolSet->Pools)
+	{
+		LOG_WARNING(TEXT("TEST : ADD TO POOL"));
+		if (false == Entry.PoolTag.IsValid() || nullptr == Entry.ActorClass)
 		{
+			LOG_WARNING(TEXT("TEST : NONE TAG"));
 			continue;
 		}
 
-		AddToPool(Set.PoolTag, Set.ActorClass, Set.Count);
-		PoolTags.AddUnique(Set.PoolTag);
+		AddToPool(Entry.PoolTag, Entry.ActorClass, Entry.Count);
+		PoolTags.AddUnique(Entry.PoolTag);
 	}
 }
 
@@ -138,9 +147,9 @@ void US1PoolingManager::ReturnToPool(AActor* Actor, FGameplayTag PoolTag)
 	Pool.FindOrAdd(PoolTag).Add(Actor);
 }
 
-void US1PoolingManager::RemovePoolByAsset(FGameplayTag AssetTag)
+void US1PoolingManager::RemovePoolByWorld(FGameplayTag WorldTag)
 {
-	TArray<FGameplayTag>* PoolTags = AssetToPoolTags.Find(AssetTag);
+	TArray<FGameplayTag>* PoolTags = WorldToPoolTags.Find(WorldTag);
 	if (nullptr == PoolTags)
 	{
 		return;
@@ -171,5 +180,5 @@ void US1PoolingManager::RemovePoolByAsset(FGameplayTag AssetTag)
 		}
 	}
 
-	AssetToPoolTags.Remove(AssetTag);
+	WorldToPoolTags.Remove(WorldTag);
 }

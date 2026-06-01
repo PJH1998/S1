@@ -3,7 +3,7 @@
 
 #include "UI/ProgressBar/HPBar/S1HPBar.h"
 #include "Player/S1PlayerState.h"
-#include "AbilitySystem/Attributes/S1PlayerSet.h"
+#include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
 
 US1HPBar::US1HPBar(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

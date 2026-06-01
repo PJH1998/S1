@@ -15,4 +15,7 @@ class S1_API AS1WorldSettings : public AWorldSettings
 public:
 	UPROPERTY(EditAnywhere, Category = "Pooling")
 	FGameplayTag PoolAssetTag;
+
+	UPROPERTY(EditAnywhere, Category = "Pooling")
+	FGameplayTag PoolWorldTag;
 };

@@ -91,6 +91,7 @@ namespace S1AssetTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Boss000);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_AnimData);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Effect);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_PoolingData);
 }
 
 namespace S1StateTags
@@ -116,4 +117,14 @@ namespace S1EffectTags
 #pragma region Decal
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Decal_AttackRange);
 #pragma endregion
+}
+
+namespace S1PoolingTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Pool_Stage01);
+}
+
+namespace S1SetByCallerTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Damage);
 }

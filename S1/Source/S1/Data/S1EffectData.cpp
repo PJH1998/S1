@@ -2,6 +2,7 @@
 
 
 #include "Data/S1EffectData.h"
+#include "S1/Effect/S1Effect.h"
 
 TSubclassOf<AS1Effect> US1EffectData::FindEffectClassByTag(const FGameplayTag& EffectTag) const
 {

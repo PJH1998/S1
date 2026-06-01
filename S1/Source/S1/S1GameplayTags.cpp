@@ -89,6 +89,7 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Boss000,"Asset.Ability.Boss000");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData, "Asset.AnimData");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Effect, "Asset.Effect");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_PoolingData, "Asset.PoolingData");
 }
 
 namespace S1StateTags
@@ -114,4 +115,14 @@ namespace S1EffectTags
 #pragma region Decal
 	UE_DEFINE_GAMEPLAY_TAG(Effect_Decal_AttackRange, "Effect.Decal.AttackRange");
 #pragma endregion
+}
+
+namespace S1PoolingTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(Pool_Stage01, "Pool.Stage01");
+}
+
+namespace S1SetByCallerTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Damage, "SetByCaller.Damage");
 }
