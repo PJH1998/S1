@@ -2,6 +2,7 @@
 
 
 #include "Character/Player/S1Player.h"
+#include "S1Enums.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -48,6 +49,13 @@ AS1Player::AS1Player()
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 
+	// Custom Depth: 머티리얼 오클루전 페이드 감지용
+	BodyMesh->SetRenderCustomDepth(true);
+	BodyMesh->SetCustomDepthStencilValue((uint8)ES1StencilLayer::Player);
+	HairMesh->SetRenderCustomDepth(true);
+	HairMesh->SetCustomDepthStencilValue((uint8)ES1StencilLayer::Player);
+	FaceMesh->SetRenderCustomDepth(true);
+	FaceMesh->SetCustomDepthStencilValue((uint8)ES1StencilLayer::Player);
 }
 
 void AS1Player::BeginPlay()
