@@ -23,6 +23,8 @@ class S1_API AS1BossBase : public AS1Monster
 public:
 	AS1BossBase();
 
+	virtual void NotifyDeath() override;
+
 public:
 	void NotifyHasTargetChanged(bool bInHasTarget);
 	US1BossSet* GetS1BossSet() const;

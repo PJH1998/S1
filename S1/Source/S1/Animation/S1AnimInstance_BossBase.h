@@ -46,6 +46,7 @@ public:
 	void BeginTurn(EBossTurnDirection InDirection);
 	void RequestStop();
 	void ResetLocomotion();
+	void SetDeadAnimState(bool bInDead);
 	bool IsLocomotionEndPlaying() const;
 
 	UFUNCTION()
@@ -56,6 +57,14 @@ public:
 
 	UFUNCTION()
 	void AnimNotify_TurnFinished();
+
+	/** Death 시퀀스 끝: 포즈 고정 + 연출 시작(ABP Notify에서 호출). */
+	UFUNCTION()
+	void AnimNotify_DeathFinished();
+
+	/** 연출(페이드)만 시작. DeathFinished와 분리 배치 가능. */
+	UFUNCTION()
+	void AnimNotify_BeginDeathPresentation();
 
 public:
 	UPROPERTY(BlueprintReadOnly, Category = "Locomotion")
@@ -69,4 +78,8 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Locomotion")
 	bool bLocomotionLoop = false;
+
+	/** ABP Dead 분기용. NotifyDeath에서 true. */
+	UPROPERTY(BlueprintReadOnly, Category = "Death")
+	bool bIsDeadAnim = false;
 };

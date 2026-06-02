@@ -116,6 +116,10 @@ void US1HUD_Gameplay::HideBossUI(AS1BossBase* InBoss)
 	{
 		PlayAnimation(Anim_BossStatus_FadeOut);
 	}
+	else
+	{
+		BossStatus->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 void US1HUD_Gameplay::HandleBossHasTargetChanged(AS1BossBase* InBoss, bool bInHasTarget)

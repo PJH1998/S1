@@ -20,6 +20,9 @@ public:
 	virtual void OnPossess(APawn* InPawn) override;
 	AActor* GetTargetActor() const;
 	void SetBlackboardIsDead(bool bInIsDead);
+	void StopAIForDeath();
+	void ResumeAIAfterRevive();
+	void ResetBlackboardForSpawn();
 
 protected:
 	virtual void BeginPlay() override;

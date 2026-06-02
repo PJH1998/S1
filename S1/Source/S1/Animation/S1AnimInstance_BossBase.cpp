@@ -1,15 +1,32 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Animation/S1AnimInstance_BossBase.h"
-
 #include "Character/Boss/S1BossBase.h"
+#include "Character/S1Monster.h"
 #include "Component/S1BossLocomotionComponent.h"
 
 void US1AnimInstance_BossBase::NativeUpdateAnimation(float DeltaSeconds)
 {
-	Super::NativeUpdateAnimation(DeltaSeconds);
+	if (bIsDeadAnim)
+	{
+		Super::NativeUpdateAnimation(DeltaSeconds);
+		bMove = false;
+		GroundSpeed = 0.f;
+		return;
+	}
 
+	if (AS1Monster* Monster = Cast<AS1Monster>(GetOwningActor()))
+	{
+		if (Monster->IsDead())
+		{
+			Super::NativeUpdateAnimation(DeltaSeconds);
+			bMove = false;
+			GroundSpeed = 0.f;
+			return;
+		}
+	}
+
+	Super::NativeUpdateAnimation(DeltaSeconds);
 	if (LocomotionMode == EBossLocomotionMode::Turn)
 	{
 		bMove = false;
@@ -46,7 +63,6 @@ void US1AnimInstance_BossBase::RequestStop()
 	{
 		return;
 	}
-
 	LocomotionPhase = EBossLocomotionPhase::End;
 	bLocomotionLoop = false;
 }
@@ -59,6 +75,11 @@ void US1AnimInstance_BossBase::ResetLocomotion()
 	bLocomotionLoop = false;
 }
 
+void US1AnimInstance_BossBase::SetDeadAnimState(bool bInDead)
+{
+	bIsDeadAnim = bInDead;
+}
+
 bool US1AnimInstance_BossBase::IsLocomotionEndPlaying() const
 {
 	return LocomotionMode != EBossLocomotionMode::None && LocomotionPhase == EBossLocomotionPhase::End;
@@ -66,19 +87,27 @@ bool US1AnimInstance_BossBase::IsLocomotionEndPlaying() const
 
 void US1AnimInstance_BossBase::AnimNotify_LocomotionLoopStart()
 {
-	if (LocomotionMode == EBossLocomotionMode::None || LocomotionPhase != EBossLocomotionPhase::Start)
+	if (bIsDeadAnim)
 	{
 		return;
 	}
 
+	if (LocomotionMode == EBossLocomotionMode::None || LocomotionPhase != EBossLocomotionPhase::Start)
+	{
+		return;
+	}
 	bLocomotionLoop = true;
 	LocomotionPhase = EBossLocomotionPhase::Loop;
 }
 
 void US1AnimInstance_BossBase::AnimNotify_LocomotionEndFinished()
 {
-	ResetLocomotion();
+	if (bIsDeadAnim)
+	{
+		return;
+	}
 
+	ResetLocomotion();
 	if (AS1BossBase* Boss = Cast<AS1BossBase>(GetOwningActor()))
 	{
 		if (US1BossLocomotionComponent* LocomotionComponent = Boss->GetLocomotionComponent())
@@ -90,13 +119,44 @@ void US1AnimInstance_BossBase::AnimNotify_LocomotionEndFinished()
 
 void US1AnimInstance_BossBase::AnimNotify_TurnFinished()
 {
-	ResetLocomotion();
+	if (bIsDeadAnim)
+	{
+		return;
+	}
 
+	ResetLocomotion();
 	if (AS1BossBase* Boss = Cast<AS1BossBase>(GetOwningActor()))
 	{
 		if (US1BossLocomotionComponent* LocomotionComponent = Boss->GetLocomotionComponent())
 		{
 			LocomotionComponent->NotifyTurnFinished();
 		}
+	}
+}
+
+void US1AnimInstance_BossBase::AnimNotify_DeathFinished()
+{
+	if (!bIsDeadAnim)
+	{
+		return;
+	}
+
+	if (AS1Monster* Monster = Cast<AS1Monster>(GetOwningActor()))
+	{
+		Monster->OnDeathAnimSequenceEnded();
+		Monster->BeginDeathPresentation();
+	}
+}
+
+void US1AnimInstance_BossBase::AnimNotify_BeginDeathPresentation()
+{
+	if (!bIsDeadAnim)
+	{
+		return;
+	}
+
+	if (AS1Monster* Monster = Cast<AS1Monster>(GetOwningActor()))
+	{
+		Monster->BeginDeathPresentation();
 	}
 }
