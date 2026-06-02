@@ -60,7 +60,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UCameraComponent> Camera;
 
-
 private:
 	UPROPERTY(EditAnywhere, Category = "Ability System Component")
 	FGameplayTag CharacterAbilitiesTag;
