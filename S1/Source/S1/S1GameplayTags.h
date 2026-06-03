@@ -127,6 +127,14 @@ namespace S1EffectTags
 #pragma region Decal
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Decal_AttackRange);
 #pragma endregion
+
+#pragma region Slash
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Slash);
+#pragma endregion
+
+#pragma region Impact
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Impact);
+#pragma endregion
 }
 
 namespace S1PoolingTags
