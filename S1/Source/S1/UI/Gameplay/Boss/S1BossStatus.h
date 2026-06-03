@@ -32,9 +32,20 @@ protected:
 	virtual void Bind_ShaderResource() override;
 
 private:
+	int32 GetLineCount(float InValue) const;
+	float GetLineFillRatio(float InValue, int32 InLineCount) const;
+	FLinearColor GetLineColor(int32 InLineCount) const;
+	void UpdateLineCountText(int32 InLineCount);
+
+private:
 	float LerpValue = { 100.f };
 
 	FName LerpRatioParameterName = TEXT("LerpRatio");
+	FName CurrentColorParameterName = TEXT("CurrentColor");
+	FName NextColorParameterName = TEXT("NextColor");
+
+	UPROPERTY(EditAnywhere, Category = "BossStatus", meta = (AllowPrivateAccess = "true"))
+	float HealthPerLine = { 100.f };
 
 private:
 	UPROPERTY(Transient)
@@ -47,4 +58,6 @@ private:
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UTextBlock> Text_Name;
 
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> Text_Num;
 };

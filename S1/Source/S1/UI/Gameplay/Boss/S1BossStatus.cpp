@@ -23,6 +23,7 @@ void US1BossStatus::SetBoss(AS1BossBase* InBoss)
 		{
 			Text_Name->SetText(FText::GetEmpty());
 		}
+		UpdateLineCountText(0);
 
 		SetValue(0.f, 1.f);
 		LerpValue = CurrentValue;
@@ -83,6 +84,66 @@ void US1BossStatus::Bind_ShaderResource()
 		return;
 	}
 
-	Fill_MID->SetScalarParameterValue(FillRatioParameterName, GetFillRatio(CurrentValue));
-	Fill_MID->SetScalarParameterValue(LerpRatioParameterName, GetFillRatio(LerpValue));
+	const int32 CurrentLineCount = GetLineCount(CurrentValue);
+	const int32 NextLineCount = CurrentLineCount - 1;
+
+	Fill_MID->SetScalarParameterValue(FillRatioParameterName, GetLineFillRatio(CurrentValue, CurrentLineCount));
+	Fill_MID->SetScalarParameterValue(LerpRatioParameterName, GetLineFillRatio(LerpValue, CurrentLineCount));
+	Fill_MID->SetVectorParameterValue(CurrentColorParameterName, GetLineColor(CurrentLineCount));
+	Fill_MID->SetVectorParameterValue(NextColorParameterName, NextLineCount > 0 ? GetLineColor(NextLineCount) : FLinearColor::Transparent);
+
+	UpdateLineCountText(CurrentLineCount);
+}
+
+int32 US1BossStatus::GetLineCount(float InValue) const
+{
+	if (HealthPerLine <= KINDA_SMALL_NUMBER)
+	{
+		return 0;
+	}
+
+	const float ClampedValue = FMath::Clamp(InValue, 0.f, MaxValue);
+	return FMath::CeilToInt(ClampedValue / HealthPerLine);
+}
+
+float US1BossStatus::GetLineFillRatio(float InValue, int32 InLineCount) const
+{
+	if (HealthPerLine <= KINDA_SMALL_NUMBER || InLineCount <= 0)
+	{
+		return 0.f;
+	}
+
+	const float LineMinValue = (InLineCount - 1) * HealthPerLine;
+	const float ValueInLine = FMath::Clamp(InValue - LineMinValue, 0.f, HealthPerLine);
+	return ValueInLine / HealthPerLine;
+}
+
+FLinearColor US1BossStatus::GetLineColor(int32 InLineCount) const
+{
+	static const FLinearColor LineColors[] =
+	{
+		FLinearColor(1.f, 0.15f, 0.f, 1.f),
+		FLinearColor(0.f, 0.65f, 1.f, 1.f),
+		FLinearColor(0.45f, 1.f, 0.1f, 1.f),
+		FLinearColor(1.f, 0.85f, 0.f, 1.f),
+	};
+
+	const int32 MaxLineCount = GetLineCount(MaxValue);
+	if (InLineCount <= 0 || MaxLineCount <= 0)
+	{
+		return FLinearColor::Transparent;
+	}
+
+	const int32 ColorIndex = FMath::Clamp(MaxLineCount - InLineCount, 0, MaxLineCount - 1) % UE_ARRAY_COUNT(LineColors);
+	return LineColors[ColorIndex];
+}
+
+void US1BossStatus::UpdateLineCountText(int32 InLineCount)
+{
+	if (Text_Num == nullptr)
+	{
+		return;
+	}
+
+	Text_Num->SetText(FText::Format(NSLOCTEXT("BossStatus", "LineCountFormat", "x{0}"), FText::AsNumber(FMath::Max(InLineCount, 0))));
 }

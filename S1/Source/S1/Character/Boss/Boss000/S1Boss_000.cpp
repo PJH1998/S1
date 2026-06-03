@@ -33,7 +33,7 @@ AS1Boss_000::AS1Boss_000()
 	AttributeSet = CreateDefaultSubobject<US1BossSet>("AttributeSet");
 
 	FS1DefaultAttribute DefaultAttribute;
-	DefaultAttribute.MaxHealth = 100.f;
+	DefaultAttribute.MaxHealth = 2000.f;
 	DefaultAttribute.MaxStamina = 100.f;
 	DefaultAttribute.BaseDamage = 10.f;
 	DefaultAttribute.BaseDefense = 10.f;
