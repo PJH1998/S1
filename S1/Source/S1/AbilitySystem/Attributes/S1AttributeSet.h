@@ -18,16 +18,16 @@ struct FS1DefaultAttribute
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float MaxHealth;
+	float MaxHealth = 0.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float MaxStamina;
+	float MaxStamina = 0.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float BaseDamage;
+	float BaseDamage = 0.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float BaseDefense;
+	float BaseDefense = 0.f;
 };
 
 UCLASS()
@@ -52,20 +52,20 @@ public:
 
 private:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData Health;
+	FGameplayAttributeData Health = 0.f;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData MaxHealth;
+	FGameplayAttributeData MaxHealth = 0.f;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData Stamina;
+	FGameplayAttributeData Stamina = 0.f;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData MaxStamina;
+	FGameplayAttributeData MaxStamina = 0.f;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData BaseDamage;
+	FGameplayAttributeData BaseDamage = 0.f;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData BaseDefense;
+	FGameplayAttributeData BaseDefense = 0.f;
 };

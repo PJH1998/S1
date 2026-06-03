@@ -24,6 +24,7 @@ public:
 	AS1BossBase();
 
 	virtual void NotifyDeath() override;
+	virtual ES1EnemyTier GetLockOnTier_Implementation() override;
 
 public:
 	void NotifyHasTargetChanged(bool bInHasTarget);

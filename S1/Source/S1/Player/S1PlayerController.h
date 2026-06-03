@@ -33,6 +33,10 @@ private:
 	void OnSprint(const FInputActionValue& Value);
 	void OnSkill01(const FInputActionValue& Value);
 	void OnJump(const FInputActionValue& Value);
+	void OnLockOn(const FInputActionValue& Value);
+	void OnChangeLockOnSide(const FInputActionValue& Value);
+	void OnCycleLeft(const FInputActionValue& Value);
+	void OnCycleRight(const FInputActionValue& Value);
 
 protected:
 	UPROPERTY(BlueprintReadOnly)

@@ -6,6 +6,11 @@
 #include "Component/S1BossLocomotionComponent.h"
 #include "Component/S1DeathPresentationComponent.h"
 
+ES1EnemyTier AS1BossBase::GetLockOnTier_Implementation()
+{
+	return ES1EnemyTier::Boss;
+}
+
 AS1BossBase::AS1BossBase()
 	: Super()
 {

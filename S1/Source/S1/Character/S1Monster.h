@@ -3,12 +3,13 @@
 #include "CoreMinimal.h"
 #include "Character/S1Character.h"
 #include "Interface/S1PoolingInterface.h"
+#include "Interface/S1LockOnInterface.h"
 #include "S1Monster.generated.h"
 class UBehaviorTree;
 class UAnimMontage;
 class US1DeathPresentationComponent;
 UCLASS()
-class S1_API AS1Monster : public AS1Character, public IS1PoolingInterface
+class S1_API AS1Monster : public AS1Character, public IS1PoolingInterface, public IS1LockOnInterface
 {
 	GENERATED_BODY()
 public:
@@ -38,6 +39,9 @@ public:
 	bool IsDead() const { return bIsDead; }
 	virtual void OnSpawnFromPool(FGameplayTag InPoolTag, FVector Location, FRotator Rotation) override;
 	virtual void OnReturnToPool() override;
+
+	virtual ES1EnemyTier GetLockOnTier_Implementation()      override;
+	virtual FVector      GetLockOnFocusLocation_Implementation() override;
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void InitSystem() override;
@@ -56,6 +60,9 @@ protected:
 	US1DeathPresentationComponent* GetDeathPresentationComponent() const { return DeathPresentationComponent; }
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Death")
 	TObjectPtr<US1DeathPresentationComponent> DeathPresentationComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
+	FName LockOnFocusBone = FName("VFX_Center");
+
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
 	UPROPERTY(EditDefaultsOnly, Category = "Death")

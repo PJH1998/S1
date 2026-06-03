@@ -261,3 +261,18 @@ void AS1Monster::InitSystem()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 }
+
+ES1EnemyTier AS1Monster::GetLockOnTier_Implementation()
+{
+	return ES1EnemyTier::Normal;
+}
+
+FVector AS1Monster::GetLockOnFocusLocation_Implementation()
+{
+	USkeletalMeshComponent* SkelMesh = GetMesh();
+	if (false == ::IsValid(SkelMesh) || SkelMesh->GetBoneIndex(LockOnFocusBone) == INDEX_NONE)
+	{
+		return GetActorLocation();
+	}
+	return SkelMesh->GetBoneLocation(LockOnFocusBone);
+}
