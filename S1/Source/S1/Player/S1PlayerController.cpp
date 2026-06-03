@@ -9,6 +9,7 @@
 #include "System/S1AssetManager.h"
 #include "Data/S1InputData.h"
 #include "Character/Player/S1Player.h"
+#include "Component/S1LockOnComponent.h"
 
 #include "System/S1UIManager.h"
 
@@ -83,12 +84,42 @@ void AS1PlayerController::SetupInputComponent()
 		}
 #pragma endregion
 
+#pragma region LockOn
+		if (const UInputAction* LockOnAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_LockOn))
+		{
+			EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Started, this, &ThisClass::OnLockOn);
+		}
+		if (const UInputAction* ChangeSideAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_ChangeLockOnSide))
+		{
+			EnhancedInputComponent->BindAction(ChangeSideAction, ETriggerEvent::Started, this, &ThisClass::OnChangeLockOnSide);
+		}
+		if (const UInputAction* CycleLeftAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_LockOnLeft))
+		{
+			EnhancedInputComponent->BindAction(CycleLeftAction, ETriggerEvent::Started, this, &ThisClass::OnCycleLeft);
+		}
+		if (const UInputAction* CycleRightAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_LockOnRight))
+		{
+			EnhancedInputComponent->BindAction(CycleRightAction, ETriggerEvent::Started, this, &ThisClass::OnCycleRight);
+		}
+#pragma endregion
+
 	}
 }
 
 void AS1PlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
+
+	if (false == IsValid(S1Player)) { return; }
+
+	const US1LockOnComponent* LockOnComp = S1Player->GetLockOnComponent();
+	if (false == (LockOnComp && LockOnComp->IsLockedOn())) { return; }
+
+	const FVector ToTarget = (LockOnComp->GetLockOnTargetLocation()
+		- S1Player->GetActorLocation()).GetSafeNormal2D();
+	if (ToTarget.IsNearlyZero()) { return; }
+
+	SetControlRotation(FRotator(GetControlRotation().Pitch, ToTarget.Rotation().Yaw, 0.f));
 }
 
 void AS1PlayerController::HandleGameplayEvent(FGameplayTag EventTag)
@@ -154,5 +185,54 @@ void AS1PlayerController::OnJump(const FInputActionValue& Value)
 	else
 	{
 		S1Player->StopJumping();
+	}
+}
+
+void AS1PlayerController::OnLockOn(const FInputActionValue& Value)
+{
+	if (false == ::IsValid(S1Player)) { return; }
+
+	if (US1LockOnComponent* Comp = S1Player->GetLockOnComponent())
+	{
+		FVector   CamLoc;
+		FRotator  CamRot;
+		GetPlayerViewPoint(CamLoc, CamRot);
+		Comp->OnLockOnInput(CamRot);
+	}
+}
+
+void AS1PlayerController::OnCycleLeft(const FInputActionValue& Value)
+{
+	if (false == ::IsValid(S1Player)) { return; }
+
+	if (US1LockOnComponent* Comp = S1Player->GetLockOnComponent())
+	{
+		FVector  CamLoc;
+		FRotator CamRot;
+		GetPlayerViewPoint(CamLoc, CamRot);
+		Comp->CycleLeft(CamRot);
+	}
+}
+
+void AS1PlayerController::OnCycleRight(const FInputActionValue& Value)
+{
+	if (false == ::IsValid(S1Player)) { return; }
+
+	if (US1LockOnComponent* Comp = S1Player->GetLockOnComponent())
+	{
+		FVector  CamLoc;
+		FRotator CamRot;
+		GetPlayerViewPoint(CamLoc, CamRot);
+		Comp->CycleRight(CamRot);
+	}
+}
+
+void AS1PlayerController::OnChangeLockOnSide(const FInputActionValue& Value)
+{
+	if (false == ::IsValid(S1Player)) { return; }
+
+	if (US1LockOnComponent* Comp = S1Player->GetLockOnComponent())
+	{
+		Comp->ToggleCameraSide();
 	}
 }

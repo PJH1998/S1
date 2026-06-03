@@ -16,6 +16,11 @@ namespace S1GameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill02);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill03);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LockOn);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_ChangeLockOnSide);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LockOnLeft);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LockOnRight);
 }
 
 namespace S1UITags

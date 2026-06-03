@@ -8,9 +8,10 @@
 
 class USkeletalMeshComponent;
 class USpringArmComponent;
-class UCameraComponent;
 class AS1PlayerController;
 class AS1Weapon;
+class US1LockOnComponent;
+class US1PlayerCameraComponent;
 
 UCLASS()
 class S1_API AS1Player : public AS1Character
@@ -33,10 +34,11 @@ public:
 public:
 	virtual void	InitSystem() override;
 
-	void			ActivateAbility(const FGameplayTag& AbilityTag);
-	void			SetSprinting(bool bInSprint);
-	bool			GetSprinting();
-	AS1Weapon*		GetEquippedWeapon() const { return EquippedWeapon; }
+	void			    ActivateAbility(const FGameplayTag& AbilityTag);
+	void			    SetSprinting(bool bInSprint);
+	bool			    GetSprinting();
+	AS1Weapon*		    GetEquippedWeapon()    const { return EquippedWeapon; }
+	US1LockOnComponent* GetLockOnComponent()   const { return LockOnComponent; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -55,10 +57,13 @@ protected:
 	FName WeaponSocketName = FName("w_R_Attach");
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<US1LockOnComponent> LockOnComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USpringArmComponent> SpringArm;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<UCameraComponent> Camera;
+	TObjectPtr<US1PlayerCameraComponent> Camera;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Ability System Component")

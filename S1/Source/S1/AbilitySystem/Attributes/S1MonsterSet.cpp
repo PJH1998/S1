@@ -2,6 +2,9 @@
 
 
 #include "AbilitySystem/Attributes/S1MonsterSet.h"
+#include "GameplayEffectExtension.h"
+#include "AbilitySystemComponent.h"
+#include "Character/S1Monster.h"
 
 #include "AbilitySystemComponent.h"
 #include "Character/S1Monster.h"

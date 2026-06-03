@@ -3,7 +3,8 @@
 
 #include "Character/Player/S1Player.h"
 #include "S1Enums.h"
-#include "Camera/CameraComponent.h"
+#include "Camera/S1PlayerCameraComponent.h"
+#include "Component/S1LockOnComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -36,6 +37,8 @@ AS1Player::AS1Player()
 	FaceMesh->SetupAttachment(BodyMesh);
 	FaceMesh->SetLeaderPoseComponent(BodyMesh);
 
+	// LockOn
+	LockOnComponent = CreateDefaultSubobject<US1LockOnComponent>(TEXT("LockOnComponent"));
 
 	// SpringArm
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
@@ -45,7 +48,7 @@ AS1Player::AS1Player()
 	SpringArm->bUsePawnControlRotation = true;					
 
 	// Camera
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera = CreateDefaultSubobject<US1PlayerCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 

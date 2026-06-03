@@ -11,3 +11,18 @@ enum class ES1StencilLayer : uint8
 	Player = 1 UMETA(DisplayName = "Player"),
 	Boss   = 2 UMETA(DisplayName = "Boss"),
 };
+
+UENUM(BlueprintType)
+enum class ES1EnemyTier : uint8
+{
+	Boss   = 0 UMETA(DisplayName = "Boss"),
+	Elite  = 1 UMETA(DisplayName = "Elite"),
+	Normal = 2 UMETA(DisplayName = "Normal"),
+};
+
+UENUM(BlueprintType)
+enum class ES1LockOnSide : uint8
+{
+	Right = 0 UMETA(DisplayName = "Right"),
+	Left  = 1 UMETA(DisplayName = "Left"),
+};

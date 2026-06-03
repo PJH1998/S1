@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Character/S1Character.h"
 #include "Interface/S1PoolingInterface.h"
+#include "Interface/S1LockOnInterface.h"
 #include "S1Monster.generated.h"
 
 class UBehaviorTree;
@@ -10,7 +11,7 @@ class UAnimMontage;
 class US1DeathPresentationComponent;
 
 UCLASS()
-class S1_API AS1Monster : public AS1Character, public IS1PoolingInterface
+class S1_API AS1Monster : public AS1Character, public IS1PoolingInterface, public IS1LockOnInterface
 {
 	GENERATED_BODY()
 
@@ -30,6 +31,9 @@ public:
 
 	virtual void OnSpawnFromPool(FGameplayTag InPoolTag, FVector Location, FRotator Rotation) override;
 	virtual void OnReturnToPool() override;
+
+	virtual ES1EnemyTier	GetLockOnTier_Implementation()      override;
+	virtual FVector			GetLockOnFocusLocation_Implementation() override;
 
 public:
 	/** HP 0 시 1회: bIsDead, 어빌리티 취소, BB bIsDead (BT는 유지). */
@@ -72,6 +76,9 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Death")
 	TObjectPtr<US1DeathPresentationComponent> DeathPresentationComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
+	FName LockOnFocusBone = FName("VFX_Center");
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
