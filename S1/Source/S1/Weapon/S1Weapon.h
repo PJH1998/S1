@@ -8,6 +8,7 @@
 
 class USkeletalMeshComponent;
 class UBoxComponent;
+class UNiagaraComponent;
 
 DECLARE_MULTICAST_DELEGATE(FOnS1HitCollisionEnabled)
 
@@ -22,6 +23,9 @@ public:
 	void EnableHitCollision();
 	void DisableHitCollision();
 
+	void EnableTrail();
+	void DisableTrail();
+
 	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 	UBoxComponent* GetAttackBox() const { return AttackBox; }
 
@@ -33,4 +37,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UBoxComponent> AttackBox;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UNiagaraComponent> TrailComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Trail")
+	FName TipSocketName = TEXT("Tip");
 };

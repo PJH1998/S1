@@ -3,6 +3,7 @@
 #include "Weapon/S1Weapon.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "NiagaraComponent.h"
 
 AS1Weapon::AS1Weapon()
 {
@@ -14,6 +15,10 @@ AS1Weapon::AS1Weapon()
 	AttackBox = CreateDefaultSubobject<UBoxComponent>("AttackBox");
 	AttackBox->SetupAttachment(WeaponMesh);
 	AttackBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	TrailComponent = CreateDefaultSubobject<UNiagaraComponent>("TrailComponent");
+	TrailComponent->SetupAttachment(WeaponMesh, TipSocketName);
+	TrailComponent->bAutoActivate = false;
 }
 
 void AS1Weapon::EnableHitCollision()
@@ -31,4 +36,14 @@ void AS1Weapon::DisableHitCollision()
 	{
 		AttackBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+}
+
+void AS1Weapon::EnableTrail()
+{
+	TrailComponent->Activate(true);
+}
+
+void AS1Weapon::DisableTrail()
+{
+	TrailComponent->Deactivate();
 }

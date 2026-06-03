@@ -22,6 +22,7 @@ public class S1 : ModuleRules
             "GameplayAbilities", 
             "GameplayTags", 
             "GameplayTasks",
+            "Niagara",
             "UMG",
             "Slate",
             "SlateCore",
