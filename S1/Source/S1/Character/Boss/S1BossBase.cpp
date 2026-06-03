@@ -23,6 +23,14 @@ AS1BossBase::AS1BossBase()
 	}
 }
 
+void AS1BossBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	OnHasTargetChanged.Clear();
+	bHasTarget = false;
+
+	Super::EndPlay(EndPlayReason);
+}
+
 void AS1BossBase::NotifyDeath()
 {
 	Super::NotifyDeath();

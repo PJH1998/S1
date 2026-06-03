@@ -70,6 +70,11 @@ namespace S1AbilityTags
 #pragma endregion
 }
 
+namespace S1MonsterCollisionTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(Collision_Attack_Right, "Collision.Attack.Right");
+}
+
 namespace S1CooldownTags
 {
 

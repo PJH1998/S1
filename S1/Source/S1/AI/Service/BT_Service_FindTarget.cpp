@@ -7,6 +7,7 @@
 #include "Character/Player/S1Player.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Engine/OverlapResult.h"
+#include "S1Define.h"
 
 UBT_Service_FindTarget::UBT_Service_FindTarget()
 	: Super()
@@ -42,7 +43,7 @@ void UBT_Service_FindTarget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 		OverlapResults,
 		Location,
 		FQuat::Identity,
-		ECollisionChannel::ECC_EngineTraceChannel2,
+		S1CollisionChannel::CC_Player,
 		//ECollisionChannel::ECC_Pawn,
 		FCollisionShape::MakeSphere(SearchRadius),
 		CollisionQueryParam

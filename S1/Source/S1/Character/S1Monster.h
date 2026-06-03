@@ -2,6 +2,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Character/S1Character.h"
+#include "GameplayTagContainer.h"
 #include "Interface/S1PoolingInterface.h"
 #include "Interface/S1LockOnInterface.h"
 #include "S1Monster.generated.h"
@@ -9,6 +10,8 @@
 class UBehaviorTree;
 class UAnimMontage;
 class US1DeathPresentationComponent;
+class UGameplayEffect;
+class UPrimitiveComponent;
 
 UCLASS()
 class S1_API AS1Monster : public AS1Character, public IS1PoolingInterface, public IS1LockOnInterface
@@ -20,6 +23,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	UBehaviorTree*		GetBehaviorTree()	const { return BehaviorTree; }
@@ -40,6 +44,10 @@ public:
 	virtual void NotifyDeath();
 
 	void PlayAnimation(UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
+
+	void EnableAttackCollision(const FGameplayTag& CollisionTag, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio);
+	void DisableAttackCollision(const FGameplayTag& CollisionTag);
+	bool ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio);
 
 public:
 	/** 사망 시 이동·캡슐 OFF. NotifyDeath에서 호출. */
@@ -70,12 +78,23 @@ protected:
 
 	void UnbindDeathPresentation();
 
+protected:
+	void InitializeAttackCollisions();
+	void UninitializeAttackCollisions();
+	UPrimitiveComponent* FindAttackCollisionComponent(const FGameplayTag& CollisionTag) const;
+
+	UFUNCTION()
+	void OnAttackCollisionBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	UFUNCTION()
 	void HandleDeathPresentationFinished();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Death")
 	TObjectPtr<US1DeathPresentationComponent> DeathPresentationComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AttackCollision")
+	FGameplayTagContainer AttackCollisionTags;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LockOn")
 	FName LockOnFocusBone = FName("VFX_Center");
@@ -87,7 +106,16 @@ protected:
 	bool bUsePooling = { false };
 
 private:
+	struct FS1ActiveAttackCollision
+	{
+		TSubclassOf<UGameplayEffect> DamageEffect;
+		float DamageRatio = 1.f;
+	};
+
 	bool bIsDead = { false };
 	bool bDeathPoseFrozen = { false };
 	bool bDeathPresentationStarted = { false };
+
+	TMap<FGameplayTag, FS1ActiveAttackCollision> ActiveAttackCollisions;
+	TMap<FGameplayTag, TArray<TWeakObjectPtr<AActor>>> AttackCollisionHitActors;
 };

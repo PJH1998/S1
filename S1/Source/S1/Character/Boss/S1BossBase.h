@@ -23,6 +23,10 @@ class S1_API AS1BossBase : public AS1Monster
 public:
 	AS1BossBase();
 
+protected:
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+public:
 	virtual void NotifyDeath() override;
 	virtual ES1EnemyTier GetLockOnTier_Implementation() override;
 

@@ -75,6 +75,14 @@ void US1DeathPresentationComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
+void US1DeathPresentationComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	StopPresentation();
+	OnPresentationComplete.Clear();
+
+	Super::EndPlay(EndPlayReason);
+}
+
 void US1DeathPresentationComponent::CompletePresentation()
 {
 	if (AActor* Owner = GetOwner())

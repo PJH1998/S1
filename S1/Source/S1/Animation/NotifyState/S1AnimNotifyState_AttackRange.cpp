@@ -2,8 +2,11 @@
 
 
 #include "Animation/NotifyState/S1AnimNotifyState_AttackRange.h"
+#include "Character/S1Monster.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
+#include "Engine/OverlapResult.h"
+#include "S1Define.h"
 #include "System/S1DecalManager.h"
 
 void US1AnimNotifyState_AttackRange::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
@@ -27,6 +30,8 @@ void US1AnimNotifyState_AttackRange::NotifyBegin(USkeletalMeshComponent* MeshCom
 	{
 		ActiveDecals.FindOrAdd(MeshComp) = Decal;
 	}
+
+	HitActors.FindOrAdd(MeshComp).Reset();
 }
 
 void US1AnimNotifyState_AttackRange::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
@@ -37,6 +42,8 @@ void US1AnimNotifyState_AttackRange::NotifyEnd(USkeletalMeshComponent* MeshComp,
 	{
 		return;
 	}
+
+	ApplyRangeDamage(MeshComp);
 
 	TWeakObjectPtr<AS1Decal_AttackRange> DecalPtr;
 	if (ActiveDecals.RemoveAndCopyValue(MeshComp, DecalPtr))
@@ -49,6 +56,8 @@ void US1AnimNotifyState_AttackRange::NotifyEnd(USkeletalMeshComponent* MeshComp,
 			}
 		}
 	}
+
+	HitActors.Remove(MeshComp);
 }
 
 FS1AttackRangeDecalRequest US1AnimNotifyState_AttackRange::MakeRequest(USkeletalMeshComponent* MeshComp, float TotalDuration) const
@@ -96,4 +105,115 @@ FS1AttackRangeDecalRequest US1AnimNotifyState_AttackRange::MakeRequest(USkeletal
 	Request.Color = Color;
 
 	return Request;
+}
+
+void US1AnimNotifyState_AttackRange::ApplyRangeDamage(USkeletalMeshComponent* MeshComp)
+{
+	if (bApplyDamage == false || DamageEffect == nullptr || MeshComp == nullptr)
+	{
+		return;
+	}
+
+	AS1Monster* Monster = Cast<AS1Monster>(MeshComp->GetOwner());
+	if (Monster == nullptr)
+	{
+		return;
+	}
+
+	UWorld* World = Monster->GetWorld();
+	if (World == nullptr)
+	{
+		return;
+	}
+
+	const FS1AttackRangeDecalRequest Request = MakeRequest(MeshComp, 0.f);
+	TArray<FOverlapResult> OverlapResults;
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(AttackRangeDamageOverlap), false, Monster);
+
+	bool bHasOverlap = false;
+	const FQuat QueryRotation = FRotator(0.f, Request.Rotation.Yaw, 0.f).Quaternion();
+	switch (Shape)
+	{
+	case ES1AttackRangeDecalShape::Rectangle:
+	{
+		const FVector BoxExtent(
+			FMath::Max(Length * 0.5f, 1.f),
+			FMath::Max(Width * 0.5f, 1.f),
+			FMath::Max(DamageHeight * 0.5f, 1.f));
+		bHasOverlap = World->OverlapMultiByChannel(OverlapResults, Request.Location, QueryRotation, S1CollisionChannel::CC_Player, FCollisionShape::MakeBox(BoxExtent), QueryParams);
+		break;
+	}
+	case ES1AttackRangeDecalShape::Cone:
+	case ES1AttackRangeDecalShape::Circle:
+	default:
+		bHasOverlap = World->OverlapMultiByChannel(OverlapResults, Request.Location, FQuat::Identity, S1CollisionChannel::CC_Player, FCollisionShape::MakeSphere(FMath::Max(Radius, 1.f)), QueryParams);
+		break;
+	}
+
+	if (bHasOverlap == false)
+	{
+		return;
+	}
+
+	for (const FOverlapResult& OverlapResult : OverlapResults)
+	{
+		AActor* TargetActor = OverlapResult.GetActor();
+		if (TargetActor == nullptr || HasHitActor(MeshComp, TargetActor))
+		{
+			continue;
+		}
+
+		if (Shape == ES1AttackRangeDecalShape::Cone && IsInsideCone(Request, TargetActor->GetActorLocation()) == false)
+		{
+			continue;
+		}
+
+		AddHitActor(MeshComp, TargetActor);
+		Monster->ApplyAttackDamage(TargetActor, DamageEffect, DamageRatio);
+	}
+}
+
+bool US1AnimNotifyState_AttackRange::IsInsideCone(const FS1AttackRangeDecalRequest& Request, const FVector& TargetLocation) const
+{
+	FVector ToTarget = TargetLocation - Request.Location;
+	ToTarget.Z = 0.f;
+
+	if (ToTarget.SizeSquared() > FMath::Square(FMath::Max(Radius, 1.f)))
+	{
+		return false;
+	}
+
+	if (ToTarget.Normalize() == false)
+	{
+		return true;
+	}
+
+	const FVector Forward = FRotator(0.f, Request.Rotation.Yaw, 0.f).Vector();
+	const float HalfAngle = FMath::Clamp(Angle * 0.5f, 0.f, 180.f);
+	const float MinDot = FMath::Cos(FMath::DegreesToRadians(HalfAngle));
+	return FVector::DotProduct(Forward, ToTarget) >= MinDot;
+}
+
+bool US1AnimNotifyState_AttackRange::HasHitActor(USkeletalMeshComponent* MeshComp, AActor* TargetActor) const
+{
+	const TArray<TWeakObjectPtr<AActor>>* HitActorList = HitActors.Find(MeshComp);
+	if (HitActorList == nullptr)
+	{
+		return false;
+	}
+
+	for (const TWeakObjectPtr<AActor>& HitActor : *HitActorList)
+	{
+		if (HitActor.Get() == TargetActor)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void US1AnimNotifyState_AttackRange::AddHitActor(USkeletalMeshComponent* MeshComp, AActor* TargetActor)
+{
+	HitActors.FindOrAdd(MeshComp).Add(TargetActor);
 }

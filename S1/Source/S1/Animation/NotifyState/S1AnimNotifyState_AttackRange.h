@@ -8,6 +8,7 @@
 #include "S1AnimNotifyState_AttackRange.generated.h"
 
 class AS1Decal_AttackRange;
+class UGameplayEffect;
 
 UCLASS()
 class S1_API US1AnimNotifyState_AttackRange : public UAnimNotifyState
@@ -20,6 +21,10 @@ public:
 
 private:
 	FS1AttackRangeDecalRequest MakeRequest(USkeletalMeshComponent* MeshComp, float TotalDuration) const;
+	void ApplyRangeDamage(USkeletalMeshComponent* MeshComp);
+	bool IsInsideCone(const FS1AttackRangeDecalRequest& Request, const FVector& TargetLocation) const;
+	bool HasHitActor(USkeletalMeshComponent* MeshComp, AActor* TargetActor) const;
+	void AddHitActor(USkeletalMeshComponent* MeshComp, AActor* TargetActor);
 
 private:
 	UPROPERTY(EditAnywhere, Category = "AttackRange|Shape")
@@ -58,6 +63,20 @@ private:
 	UPROPERTY(EditAnywhere, Category = "AttackRange|Visual")
 	FLinearColor Color = FLinearColor(1.f, 0.f, 0.f, 0.65f);
 
+	UPROPERTY(EditAnywhere, Category = "AttackRange|Damage")
+	bool bApplyDamage = false;
+
+	UPROPERTY(EditAnywhere, Category = "AttackRange|Damage", meta = (EditCondition = "bApplyDamage"))
+	TSubclassOf<UGameplayEffect> DamageEffect;
+
+	UPROPERTY(EditAnywhere, Category = "AttackRange|Damage", meta = (EditCondition = "bApplyDamage"))
+	float DamageRatio = 1.f;
+
+	UPROPERTY(EditAnywhere, Category = "AttackRange|Damage", meta = (EditCondition = "bApplyDamage"))
+	float DamageHeight = 200.f;
+
 	UPROPERTY(Transient)
 	TMap<TWeakObjectPtr<USkeletalMeshComponent>, TWeakObjectPtr<AS1Decal_AttackRange>> ActiveDecals;
+
+	TMap<TWeakObjectPtr<USkeletalMeshComponent>, TArray<TWeakObjectPtr<AActor>>> HitActors;
 };
