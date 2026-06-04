@@ -7,7 +7,7 @@
 #include "S1GameplayTags.h"
 #include "S1LogChannels.h"
 
-void US1PlayerSet::InitAttributeFromTable(const FGameplayTag& AssetTag, const FGameplayTag& TableTag)
+void US1PlayerSet::InitAttributeFromTable(const FGameplayTag& AssetTag, const FGameplayTag& TableTag, FName RowName)
 {
 	US1DataTableData* DTData = US1AssetManager::GetAssetByTag<US1DataTableData>(AssetTag);
 	if (!::IsValid(DTData)) { return; }
@@ -15,9 +15,20 @@ void US1PlayerSet::InitAttributeFromTable(const FGameplayTag& AssetTag, const FG
 	UDataTable* DT = DTData->GetDataTable(TableTag);
 	if (!::IsValid(DT)) { return; }
 
-	TArray<FS1PlayerData*> Rows;
-	DT->GetAllRows<FS1PlayerData>(TEXT(""), Rows);
-	if (!Rows.IsValidIndex(0)) { return; }
+	const FS1PlayerData* Row = nullptr;
 
-	LOG(TEXT("MaxHealth: %f, BaseDamage: %f"), Rows[0]->MaxHealth, Rows[0]->BaseDamage);
+	if (RowName == NAME_None)
+	{
+		TArray<FS1PlayerData*> Rows;
+		DT->GetAllRows<FS1PlayerData>(TEXT(""), Rows);
+		if (!Rows.IsValidIndex(0)) { return; }
+		Row = Rows[0];
+	}
+	else
+	{
+		Row = DT->FindRow<FS1PlayerData>(RowName, TEXT(""));
+		if (nullptr == Row) { return; }
+	}
+
+	LOG(TEXT("MaxHealth: %f, BaseDamage: %f"), Row->MaxHealth, Row->BaseDamage);
 }

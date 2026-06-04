@@ -49,7 +49,7 @@ public:
 public:
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 	void InitDefaultAttribute(const FS1DefaultAttribute& DefaultAttribute);
-	virtual void InitAttributeFromTable(const FGameplayTag& AssetTag, const FGameplayTag& TableTag) {}
+	virtual void InitAttributeFromTable(const FGameplayTag& AssetTag, const FGameplayTag& TableTag, FName RowName = NAME_None) {}
 
 private:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
