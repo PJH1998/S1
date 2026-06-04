@@ -10,4 +10,6 @@ class S1_API US1PlayerSet : public US1AttributeSet
 {
 	GENERATED_BODY()
 
+public:
+	virtual void InitAttributeFromTable(const FGameplayTag& AssetTag, const FGameplayTag& TableTag) override;
 };

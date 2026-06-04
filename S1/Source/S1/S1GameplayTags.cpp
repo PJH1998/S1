@@ -100,6 +100,7 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData, "Asset.AnimData");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Effect, "Asset.Effect");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_PoolingData, "Asset.PoolingData");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_DataTable, "Asset.DataTable");
 }
 
 namespace S1StateTags
@@ -143,4 +144,9 @@ namespace S1PoolingTags
 namespace S1SetByCallerTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Damage, "SetByCaller.Damage");
+}
+
+namespace S1DataTableTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(DataTable_PlayerData, "DataTable.PlayerData");
 }

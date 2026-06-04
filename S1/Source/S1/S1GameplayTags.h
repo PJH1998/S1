@@ -102,6 +102,7 @@ namespace S1AssetTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_AnimData);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Effect);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_PoolingData);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DataTable);
 }
 
 namespace S1StateTags
@@ -145,4 +146,9 @@ namespace S1PoolingTags
 namespace S1SetByCallerTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Damage);
+}
+
+namespace S1DataTableTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_PlayerData);
 }
