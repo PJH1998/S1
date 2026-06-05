@@ -21,14 +21,44 @@
 // };
 // -------------------------------------------------------
 
- USTRUCT(BlueprintType)
- struct FS1PlayerData : public FTableRowBase
- {
- 	GENERATED_BODY()
+USTRUCT(BlueprintType)
+struct FS1MonsterData : public FTableRowBase
+{
+	GENERATED_BODY()
 
- 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MaxHealth = 100.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MaxStamina = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float BaseDamage = 10.f;
- };
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float BaseDefense = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float RewardXP = 0.f;
+};
+
+USTRUCT(BlueprintType)
+struct FS1PlayerData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MaxHealth = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MaxStamina = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float BaseDamage = 10.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float BaseDefense = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MaxXP = 100.f;
+};

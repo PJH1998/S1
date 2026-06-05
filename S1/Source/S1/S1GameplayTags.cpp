@@ -104,6 +104,12 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_DropItemResource, "Asset.DropItemResource");
 
 	UE_DEFINE_GAMEPLAY_TAG(Asset_DropTable_Boss000, "Asset.DropTable.Boss000");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_GameplayEffect, "Asset.GameplayEffect");
+}
+
+namespace S1GameplayEffectTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(GameplayEffect_GainXP, "GameplayEffect.GainXP");
 }
 
 namespace S1StateTags
@@ -162,9 +168,11 @@ namespace S1ItemRarityTags
 namespace S1SetByCallerTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Damage, "SetByCaller.Damage");
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_XP, "SetByCaller.XP");
 }
 
 namespace S1DataTableTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(DataTable_PlayerData, "DataTable.PlayerData");
+	UE_DEFINE_GAMEPLAY_TAG(DataTable_MonsterData, "DataTable.MonsterData");
 }

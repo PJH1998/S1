@@ -2,6 +2,7 @@
 
 
 #include "Data/S1AssetData.h"
+#include "S1LogChannels.h"
 #include "UObject/ObjectSaveContext.h"
 
 void US1AssetData::PreSave(FObjectPreSaveContext ObjectSaveContext)
@@ -36,8 +37,12 @@ void US1AssetData::PreSave(FObjectPreSaveContext ObjectSaveContext)
 FSoftObjectPath US1AssetData::GetAssetPathByTag(const FGameplayTag& AssetTag)
 {
     FSoftObjectPath* AssetPath = AssetTagToPath.Find(AssetTag);
-    ensureAlwaysMsgf(AssetPath, TEXT("Can't Find Asset Path from Asset Tag [%s]."), *AssetTag.ToString());
-    return *(AssetPath);
+    if (nullptr == AssetPath)
+    {
+        LOG_WARNING(TEXT("Can't Find Asset Path from Asset Tag [%s]."), *AssetTag.ToString());
+        return FSoftObjectPath();
+    }
+    return *AssetPath;
 }
 
 const FAssetSet& US1AssetData::GetAssetSetByLabel(const FGameplayTag& Label)

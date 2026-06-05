@@ -106,6 +106,12 @@ namespace S1AssetTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DropItemResource);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DropTable_Boss000);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_GameplayEffect);
+}
+
+namespace S1GameplayEffectTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEffect_GainXP);
 }
 
 namespace S1StateTags
@@ -164,9 +170,11 @@ namespace S1ItemRarityTags
 namespace S1SetByCallerTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Damage);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_XP);
 }
 
 namespace S1DataTableTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_PlayerData);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_MonsterData);
 }
