@@ -100,6 +100,9 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData, "Asset.AnimData");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Effect, "Asset.Effect");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_PoolingData, "Asset.PoolingData");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_DropItemResource, "Asset.DropItemResource");
+
+	UE_DEFINE_GAMEPLAY_TAG(Asset_DropTable_Boss000, "Asset.DropTable.Boss000");
 }
 
 namespace S1StateTags
@@ -138,6 +141,21 @@ namespace S1EffectTags
 namespace S1PoolingTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Pool_Stage01, "Pool.Stage01");
+	UE_DEFINE_GAMEPLAY_TAG(Pool_DropItem, "Pool.DropItem");
+}
+
+namespace S1DropTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(Drop_Gold, "Drop.Gold");
+	UE_DEFINE_GAMEPLAY_TAG(Drop_Exp, "Drop.Exp");
+}
+
+namespace S1ItemRarityTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(Item_Rarity_Common, "Item.Rarity.Common");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Rarity_Rare, "Item.Rarity.Rare");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Rarity_Unique, "Item.Rarity.Unique");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Rarity_Legendary, "Item.Rarity.Legendary");
 }
 
 namespace S1SetByCallerTags

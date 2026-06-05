@@ -3,6 +3,7 @@
 
 #include "AI/Decorator/BT_Deco_CheckRange.h"
 
+#include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/Pawn.h"
 

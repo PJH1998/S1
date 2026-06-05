@@ -28,6 +28,7 @@ protected:
 public:
 	UBehaviorTree*		GetBehaviorTree()	const { return BehaviorTree; }
 	bool					IsDead()				const { return bIsDead; }
+	FGameplayTag			GetDropTableTag()	const { return DropTableTag; }
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -104,6 +105,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Death")
 	bool bUsePooling = { false };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Drop")
+	FGameplayTag DropTableTag;
 
 private:
 	struct FS1ActiveAttackCollision

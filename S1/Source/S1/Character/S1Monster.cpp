@@ -14,6 +14,7 @@
 #include "Animation/AnimInstance.h"
 #include "S1Define.h"
 #include "S1GameplayTags.h"
+#include "System/S1DropManager.h"
 
 AS1Monster::AS1Monster()
 	: Super()
@@ -222,6 +223,7 @@ void AS1Monster::NotifyDeath()
 		return;
 	}
 	bIsDead = true;
+	// AnimState 갱신
 	if (USkeletalMeshComponent* SkeletalMeshComp = GetMesh())
 	{
 		if (US1AnimInstance_BossBase* BossAnimInstance = Cast<US1AnimInstance_BossBase>(SkeletalMeshComp->GetAnimInstance()))
@@ -229,10 +231,12 @@ void AS1Monster::NotifyDeath()
 			BossAnimInstance->SetDeadAnimState(true);
 		}
 	}
+	// Ability Cancel
 	if (US1AbilitySystemComponent* ASC = Cast<US1AbilitySystemComponent>(AbilitySystemComponent))
 	{
 		ASC->CancelAllAbilities();
 	}
+	// Movement Stop
 	if (AAIController* AIController = Cast<AAIController>(GetController()))
 	{
 		AIController->StopMovement();
@@ -242,6 +246,11 @@ void AS1Monster::NotifyDeath()
 		}
 	}
 	HandleDeathPrepare();
+	// Drop Spawn
+	if (US1DropManager* DropManager = GetWorld()->GetSubsystem<US1DropManager>())
+	{
+		DropManager->HandleMonsterDeath(this);
+	}
 
 	if (AS1AIController* S1AIController = Cast<AS1AIController>(GetController()))
 	{
