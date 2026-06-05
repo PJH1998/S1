@@ -97,6 +97,8 @@ void AS1Player::InitSystem()
 
 	if (AS1PlayerState* PS = GetPlayerState<AS1PlayerState>())
 	{
+		PS->InitPlayerSetFromTable(S1AssetTags::Asset_DataTable, S1DataTableTags::DataTable_PlayerData);
+
 		AbilitySystemComponent = Cast<US1AbilitySystemComponent>(PS->GetAbilitySystemComponent());
 		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 

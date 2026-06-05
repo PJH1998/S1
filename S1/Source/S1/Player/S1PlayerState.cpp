@@ -19,6 +19,7 @@ AS1PlayerState::AS1PlayerState(const FObjectInitializer& ObjectInitializer)
 	DefaultAttribute.BaseDefense = 10.f;
 
 	PlayerSet->InitDefaultAttribute(DefaultAttribute);
+
 }
 
 UAbilitySystemComponent* AS1PlayerState::GetAbilitySystemComponent() const
@@ -34,4 +35,10 @@ US1AbilitySystemComponent* AS1PlayerState::GetS1AbilitySystemComponent() const
 US1PlayerSet* AS1PlayerState::GetS1PlayerSet() const
 {
 	return PlayerSet;
+}
+
+void AS1PlayerState::InitPlayerSetFromTable(const FGameplayTag& AssetTag, const FGameplayTag& TableTag)
+{
+	if (!::IsValid(PlayerSet)) { return; }
+	PlayerSet->InitAttributeFromTable(AssetTag, TableTag);
 }

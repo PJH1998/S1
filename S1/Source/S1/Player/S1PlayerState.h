@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameFramework/PlayerState.h"
+#include "GameplayTagContainer.h"
 #include "S1PlayerState.generated.h"
 
 
@@ -23,6 +24,7 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const;
 	US1AbilitySystemComponent* GetS1AbilitySystemComponent() const;
 	US1PlayerSet* GetS1PlayerSet() const;
+	void InitPlayerSetFromTable(const FGameplayTag& AssetTag, const FGameplayTag& TableTag);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

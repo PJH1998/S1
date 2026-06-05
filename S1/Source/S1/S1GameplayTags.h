@@ -102,6 +102,7 @@ namespace S1AssetTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_AnimData);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Effect);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_PoolingData);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DataTable);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DropItemResource);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DropTable_Boss000);
@@ -163,4 +164,9 @@ namespace S1ItemRarityTags
 namespace S1SetByCallerTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Damage);
+}
+
+namespace S1DataTableTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_PlayerData);
 }
