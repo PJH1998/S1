@@ -7,6 +7,7 @@
 #include "System/S1AssetManager.h"
 #include "S1GameplayTags.h"
 #include "S1LogChannels.h"
+#include "S1Define.h"
 
 void US1PlayerSet::InitAttributeFromTable(const FGameplayTag& AssetTag, const FGameplayTag& TableTag, FName RowName)
 {
@@ -69,6 +70,13 @@ void US1PlayerSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackDat
 		{
 			LevelUp();
 		}
+
+		// Debug macro output. Remove after verifying XP pickup.
+		D(FString::Printf(TEXT("XP %+0.f | Current: %.0f / %.0f | Level: %.0f"),
+			Data.EvaluatedData.Magnitude,
+			GetCurrentXP(),
+			GetMaxXP(),
+			GetLevel()));
 	}
 }
 

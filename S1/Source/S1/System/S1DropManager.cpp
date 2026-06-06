@@ -108,6 +108,7 @@ void US1DropManager::SpawnDropItem(ES1DropItemType DropType, int32 Amount, FGame
 	{
 		return;
 	}
+	const FS1DropItemVisualParams& VisualParams = DropItemResource->FindVisualParams(DropType, RarityTag);
 
 	UWorld* World = GetWorld();
 	if (World == nullptr)
@@ -127,7 +128,7 @@ void US1DropManager::SpawnDropItem(ES1DropItemType DropType, int32 Amount, FGame
 		return;
 	}
 
-	DropItem->InitializeDrop(DropType, Amount, ItemTag, RarityTag, *Resource, OwnerController);
+	DropItem->InitializeDrop(DropType, Amount, ItemTag, RarityTag, *Resource, VisualParams, OwnerController);
 }
 
 const FS1DropItemEntry* US1DropManager::SelectDropItem(const FS1DropPool& DropPool) const

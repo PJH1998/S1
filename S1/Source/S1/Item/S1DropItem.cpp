@@ -10,6 +10,25 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Engine/World.h"
 #include "S1Define.h"
+#include "System/S1ItemManager.h"
+
+namespace
+{
+	const FName BaseTextureParameterName = TEXT("BaseTexture");
+	const FName TintColorParameterName = TEXT("TintColor");
+	const FName EmissiveColorParameterName = TEXT("EmissiveColor");
+	const FName EmissiveIntensityParameterName = TEXT("EmissiveIntensity");
+	const FName MetallicParameterName = TEXT("Metallic");
+	const FName RoughnessParameterName = TEXT("Roughness");
+	const FName NoiseTextureParameterName = TEXT("NoiseTexture");
+	const FName NoiseScaleParameterName = TEXT("NoiseScale");
+	const FName NoisePhaseParameterName = TEXT("NoisePhase");
+	const FName FlashIntensityParameterName = TEXT("FlashIntensity");
+	const FName FlashSpeedParameterName = TEXT("FlashSpeed");
+	const FName FlashWidthParameterName = TEXT("FlashWidth");
+	const FName FlashSoftnessParameterName = TEXT("FlashSoftness");
+	const FName FlashContrastParameterName = TEXT("FlashContrast");
+}
 
 AS1DropItem::AS1DropItem()
 {
@@ -46,6 +65,7 @@ void AS1DropItem::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateDropPresentation(DeltaTime);
+	UpdateFloatingMotion(DeltaTime);
 }
 
 void AS1DropItem::OnSpawnFromPool(FGameplayTag InPoolTag, FVector Location, FRotator Rotation)
@@ -57,20 +77,20 @@ void AS1DropItem::OnReturnToPool()
 {
 	bIsPresenting = false;
 	PresentationElapsedTime = 0.f;
+	FloatingElapsedTime = 0.f;
 	DropType = ES1DropItemType::Item;
 	ItemTag = FGameplayTag();
 	RarityTag = FGameplayTag();
 	Amount = 0;
 	OwnerController.Reset();
 	SetOwner(nullptr);
+	MeshBaseRelativeLocation = FVector::ZeroVector;
 
 	if (MeshComponent)
 	{
 		MeshComponent->SetStaticMesh(nullptr);
-		MeshComponent->SetMaterial(0, nullptr);
 		MeshComponent->SetRelativeLocation(FVector::ZeroVector);
 	}
-	DynamicMaterial = nullptr;
 
 	if (PickupSphere)
 	{
@@ -80,26 +100,27 @@ void AS1DropItem::OnReturnToPool()
 	IS1PoolingInterface::OnReturnToPool();
 }
 
-void AS1DropItem::InitializeDrop(ES1DropItemType InDropType, int32 InAmount, FGameplayTag InItemTag, FGameplayTag InRarityTag, const FS1DropItemResourceEntry& Resource, AController* InOwnerController)
+void AS1DropItem::InitializeDrop(ES1DropItemType InDropType, int32 InAmount, FGameplayTag InItemTag, FGameplayTag InRarityTag, const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams, AController* InOwnerController)
 {
 	DropType = InDropType;
 	ItemTag = InItemTag;
 	RarityTag = InRarityTag;
 	Amount = FMath::Max(InAmount, 0);
+	FloatingElapsedTime = 0.f;
 	OwnerController = InOwnerController;
 	SetOwner(InOwnerController);
 
 	switch (DropType)
 	{
 	case ES1DropItemType::Gold:
-		BindGoldResource(Resource);
+		BindGoldResource(Resource, VisualParams);
 		break;
 	case ES1DropItemType::Exp:
-		BindExpResource(Resource);
+		BindExpResource(Resource, VisualParams);
 		break;
 	case ES1DropItemType::Item:
 	default:
-		BindItemResource(Resource);
+		BindItemResource(Resource, VisualParams);
 		break;
 	}
 
@@ -117,22 +138,22 @@ void AS1DropItem::InitializeDrop(ES1DropItemType InDropType, int32 InAmount, FGa
 	StartDropPresentation();
 }
 
-void AS1DropItem::BindGoldResource(const FS1DropItemResourceEntry& Resource)
+void AS1DropItem::BindGoldResource(const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams)
 {
-	BindBaseResource(Resource);
+	BindBaseResource(Resource, VisualParams);
 }
 
-void AS1DropItem::BindExpResource(const FS1DropItemResourceEntry& Resource)
+void AS1DropItem::BindExpResource(const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams)
 {
-	BindBaseResource(Resource);
+	BindBaseResource(Resource, VisualParams);
 }
 
-void AS1DropItem::BindItemResource(const FS1DropItemResourceEntry& Resource)
+void AS1DropItem::BindItemResource(const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams)
 {
-	BindBaseResource(Resource);
+	BindBaseResource(Resource, VisualParams);
 }
 
-void AS1DropItem::BindBaseResource(const FS1DropItemResourceEntry& Resource)
+void AS1DropItem::BindBaseResource(const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams)
 {
 	if (MeshComponent == nullptr)
 	{
@@ -140,13 +161,51 @@ void AS1DropItem::BindBaseResource(const FS1DropItemResourceEntry& Resource)
 	}
 
 	MeshComponent->SetStaticMesh(Resource.Mesh);
-	MeshComponent->SetRelativeLocation(FVector(0.f, 0.f, Resource.MeshZOffset));
-	DynamicMaterial = Resource.Material ? MeshComponent->CreateDynamicMaterialInstance(0, Resource.Material) : nullptr;
+	MeshBaseRelativeLocation = FVector(0.f, 0.f, Resource.MeshZOffset);
+	MeshComponent->SetRelativeLocation(MeshBaseRelativeLocation);
 
-	if (DynamicMaterial && Resource.Texture)
+	if (Resource.Material == nullptr)
 	{
-		DynamicMaterial->SetTextureParameterValue(TEXT("BaseTexture"), Resource.Texture);
+		MeshComponent->SetMaterial(0, nullptr);
+		DynamicMaterial = nullptr;
+		DynamicMaterialSource = nullptr;
+		return;
 	}
+
+	if (DynamicMaterial == nullptr || DynamicMaterialSource.Get() != Resource.Material.Get())
+	{
+		DynamicMaterial = MeshComponent->CreateDynamicMaterialInstance(0, Resource.Material.Get());
+		DynamicMaterialSource = Resource.Material;
+	}
+	else
+	{
+		MeshComponent->SetMaterial(0, DynamicMaterial);
+	}
+
+	ApplyVisualParams(Resource, VisualParams);
+}
+
+void AS1DropItem::ApplyVisualParams(const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams)
+{
+	if (DynamicMaterial == nullptr)
+	{
+		return;
+	}
+
+	DynamicMaterial->SetTextureParameterValue(BaseTextureParameterName, Resource.Texture.Get());
+	DynamicMaterial->SetVectorParameterValue(TintColorParameterName, VisualParams.TintColor);
+	DynamicMaterial->SetVectorParameterValue(EmissiveColorParameterName, VisualParams.EmissiveColor);
+	DynamicMaterial->SetScalarParameterValue(EmissiveIntensityParameterName, VisualParams.EmissiveIntensity);
+	DynamicMaterial->SetScalarParameterValue(MetallicParameterName, VisualParams.Metallic);
+	DynamicMaterial->SetScalarParameterValue(RoughnessParameterName, VisualParams.Roughness);
+	DynamicMaterial->SetTextureParameterValue(NoiseTextureParameterName, VisualParams.NoiseTexture.Get());
+	DynamicMaterial->SetScalarParameterValue(NoiseScaleParameterName, VisualParams.NoiseScale);
+	DynamicMaterial->SetScalarParameterValue(NoisePhaseParameterName, FMath::FRandRange(0.f, 1000.f));
+	DynamicMaterial->SetScalarParameterValue(FlashIntensityParameterName, VisualParams.FlashIntensity);
+	DynamicMaterial->SetScalarParameterValue(FlashSpeedParameterName, VisualParams.FlashSpeed);
+	DynamicMaterial->SetScalarParameterValue(FlashWidthParameterName, VisualParams.FlashWidth);
+	DynamicMaterial->SetScalarParameterValue(FlashSoftnessParameterName, VisualParams.FlashSoftness);
+	DynamicMaterial->SetScalarParameterValue(FlashContrastParameterName, VisualParams.FlashContrast);
 }
 
 void AS1DropItem::StartDropPresentation()
@@ -180,6 +239,25 @@ void AS1DropItem::UpdateDropPresentation(float DeltaTime)
 		bIsPresenting = false;
 		SetActorLocation(PresentationTargetLocation);
 	}
+}
+
+void AS1DropItem::UpdateFloatingMotion(float DeltaTime)
+{
+	if (bIsPresenting || MeshComponent == nullptr)
+	{
+		return;
+	}
+
+	if (DropType != ES1DropItemType::Item && DropType != ES1DropItemType::Exp)
+	{
+		MeshComponent->SetRelativeLocation(MeshBaseRelativeLocation);
+		return;
+	}
+
+	FloatingElapsedTime += DeltaTime;
+	FVector NewRelativeLocation = MeshBaseRelativeLocation;
+	NewRelativeLocation.Z += FMath::Sin(FloatingElapsedTime * FloatingSpeed) * FloatingAmplitude;
+	MeshComponent->SetRelativeLocation(NewRelativeLocation);
 }
 
 FVector AS1DropItem::CalculateDropTargetLocation() const
@@ -223,7 +301,12 @@ bool AS1DropItem::CanPickup(AActor* OtherActor) const
 
 void AS1DropItem::Pickup()
 {
-	// TODO: Apply Amount to inventory, gold, or exp when reward systems are ready.
+	US1ItemManager* ItemManager = GetWorld() ? GetWorld()->GetSubsystem<US1ItemManager>() : nullptr;
+	if (false == IsValid(ItemManager) || ItemManager->ApplyPickup(OwnerController.Get(), DropType, ItemTag, RarityTag, Amount) == false)
+	{
+		return;
+	}
+
 	if (PoolTag.IsValid())
 	{
 		ReturnSelf();

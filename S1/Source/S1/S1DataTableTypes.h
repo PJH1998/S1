@@ -4,6 +4,7 @@
 
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
+#include "S1GameplayTags.h"
 #include "S1DataTableTypes.generated.h"
 
 // -------------------------------------------------------
@@ -61,4 +62,31 @@ struct FS1PlayerData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MaxXP = 100.f;
+};
+
+USTRUCT(BlueprintType)
+struct FS1ItemData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName ItemName = { TEXT("None") };
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FGameplayTag Rarity = { S1ItemRarityTags::Item_Rarity_Common };
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FGameplayTag ItemType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float BaseHealth = { 10.f };
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float BaseDamage = { 7.f };
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float BaseDefense = { 5.f };
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Price = { 100.f };
 };

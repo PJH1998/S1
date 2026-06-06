@@ -159,12 +159,23 @@ namespace S1DropTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Drop_Exp);
 }
 
+namespace S1ItemTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_Asna01);
+}
+
 namespace S1ItemRarityTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Rarity_Common);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Rarity_Rare);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Rarity_Unique);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Rarity_Legendary);
+}
+
+namespace S1ItemTypeTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Type_Equip);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Type_Inv);
 }
 
 namespace S1SetByCallerTags
@@ -177,4 +188,5 @@ namespace S1DataTableTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_PlayerData);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_MonsterData);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_ItemData);
 }

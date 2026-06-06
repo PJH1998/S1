@@ -38,3 +38,21 @@ const FS1DropItemResourceEntry* US1DropItemResource::FindResource(ES1DropItemTyp
 
 	return RarityMatch != nullptr ? RarityMatch : TypeMatch;
 }
+
+const FS1DropItemVisualParams& US1DropItemResource::FindVisualParams(ES1DropItemType DropType, FGameplayTag RarityTag) const
+{
+	switch (DropType)
+	{
+	case ES1DropItemType::Gold:
+		return GoldVisual;
+	case ES1DropItemType::Exp:
+		return ExpVisual;
+	case ES1DropItemType::Item:
+	default:
+		if (const FS1DropItemVisualParams* RarityVisual = RarityVisuals.Find(RarityTag))
+		{
+			return *RarityVisual;
+		}
+		return DefaultVisual;
+	}
+}

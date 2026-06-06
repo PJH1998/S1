@@ -157,12 +157,23 @@ namespace S1DropTags
 	UE_DEFINE_GAMEPLAY_TAG(Drop_Exp, "Drop.Exp");
 }
 
+namespace S1ItemTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Asna01, "Item.Weapon.Asna01");
+}
+
 namespace S1ItemRarityTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Item_Rarity_Common, "Item.Rarity.Common");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Rarity_Rare, "Item.Rarity.Rare");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Rarity_Unique, "Item.Rarity.Unique");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Rarity_Legendary, "Item.Rarity.Legendary");
+}
+
+namespace S1ItemTypeTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(Item_Type_Equip, "Item.Type.Equip");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Type_Inv, "Item.Type.Inv");
 }
 
 namespace S1SetByCallerTags
@@ -175,4 +186,5 @@ namespace S1DataTableTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(DataTable_PlayerData, "DataTable.PlayerData");
 	UE_DEFINE_GAMEPLAY_TAG(DataTable_MonsterData, "DataTable.MonsterData");
+	UE_DEFINE_GAMEPLAY_TAG(DataTable_ItemData, "DataTable.ItemData");
 }

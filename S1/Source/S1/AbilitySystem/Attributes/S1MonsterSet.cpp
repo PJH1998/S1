@@ -3,10 +3,8 @@
 #include "AbilitySystem/Attributes/S1MonsterSet.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystemComponent.h"
-#include "AbilitySystemBlueprintLibrary.h"
 #include "Character/S1Monster.h"
 #include "Data/S1DataTableData.h"
-#include "Data/S1GameplayEffectData.h"
 #include "S1DataTableTypes.h"
 #include "System/S1AssetManager.h"
 #include "S1GameplayTags.h"
@@ -24,28 +22,6 @@ void US1MonsterSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackDa
 	if (GetHealth() > 0.f)
 	{
 		return;
-	}
-
-	// XP 전달
-	AActor* Killer = Data.EffectSpec.GetContext().GetInstigator();
-	UAbilitySystemComponent* KillerASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Killer);
-	if (::IsValid(KillerASC))
-	{
-		US1GameplayEffectData* GEData = US1AssetManager::GetAssetByTag<US1GameplayEffectData>(S1AssetTags::Asset_GameplayEffect);
-		if (::IsValid(GEData))
-		{
-			TSubclassOf<UGameplayEffect> GainXPClass = GEData->FindEffectClassByTag(S1GameplayEffectTags::GameplayEffect_GainXP);
-			if (nullptr != GainXPClass)
-			{
-				FGameplayEffectContextHandle Context = KillerASC->MakeEffectContext();
-				FGameplayEffectSpecHandle Spec = KillerASC->MakeOutgoingSpec(GainXPClass, 1.f, Context);
-				if (Spec.IsValid())
-				{
-					Spec.Data->SetSetByCallerMagnitude(S1SetByCallerTags::SetByCaller_XP, RewardXP);
-					KillerASC->ApplyGameplayEffectSpecToSelf(*Spec.Data);
-				}
-			}
-		}
 	}
 
 	// 사망 처리

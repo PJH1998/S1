@@ -10,6 +10,7 @@
 
 class AController;
 class UMaterialInstanceDynamic;
+class UMaterialInterface;
 class USceneComponent;
 class USphereComponent;
 class UStaticMeshComponent;
@@ -32,16 +33,18 @@ public:
 	virtual void OnSpawnFromPool(FGameplayTag InPoolTag, FVector Location, FRotator Rotation) override;
 	virtual void OnReturnToPool() override;
 
-	void InitializeDrop(ES1DropItemType InDropType, int32 InAmount, FGameplayTag InItemTag, FGameplayTag InRarityTag, const FS1DropItemResourceEntry& Resource, AController* InOwnerController);
+	void InitializeDrop(ES1DropItemType InDropType, int32 InAmount, FGameplayTag InItemTag, FGameplayTag InRarityTag, const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams, AController* InOwnerController);
 
 protected:
-	void BindGoldResource(const FS1DropItemResourceEntry& Resource);
-	void BindExpResource(const FS1DropItemResourceEntry& Resource);
-	void BindItemResource(const FS1DropItemResourceEntry& Resource);
-	void BindBaseResource(const FS1DropItemResourceEntry& Resource);
+	void BindGoldResource(const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams);
+	void BindExpResource(const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams);
+	void BindItemResource(const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams);
+	void BindBaseResource(const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams);
+	void ApplyVisualParams(const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams);
 
 	void StartDropPresentation();
 	void UpdateDropPresentation(float DeltaTime);
+	void UpdateFloatingMotion(float DeltaTime);
 	FVector CalculateDropTargetLocation() const;
 	bool CanPickup(AActor* OtherActor) const;
 	void Pickup();
@@ -61,6 +64,9 @@ protected:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UMaterialInstanceDynamic> DynamicMaterial;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UMaterialInterface> DynamicMaterialSource;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Drop")
 	float PickupRadius = 120.f;
@@ -84,8 +90,12 @@ private:
 
 	FVector PresentationStartLocation = FVector::ZeroVector;
 	FVector PresentationTargetLocation = FVector::ZeroVector;
+	FVector MeshBaseRelativeLocation = FVector::ZeroVector;
 
 	int32 Amount = 0;
 	float PresentationElapsedTime = 0.f;
+	float FloatingElapsedTime = 0.f;
+	float FloatingAmplitude = 10.f;
+	float FloatingSpeed = 2.5f;
 	bool bIsPresenting = false;
 };
