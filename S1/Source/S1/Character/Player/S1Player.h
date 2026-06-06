@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/S1Character.h"
+#include "Data/S1InputData.h"
 #include "S1Player.generated.h"
 
 class USkeletalMeshComponent;
@@ -39,6 +40,7 @@ public:
 	bool			    GetSprinting();
 	AS1Weapon*		    GetEquippedWeapon()    const { return EquippedWeapon; }
 	US1LockOnComponent* GetLockOnComponent()   const { return LockOnComponent; }
+	const TArray<FS1AbilityInputBinding>& GetAbilityInputBindings() const { return AbilityInputBindings; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -55,6 +57,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	FName WeaponSocketName = FName("w_R_Attach");
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TArray<FS1AbilityInputBinding> AbilityInputBindings;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<US1LockOnComponent> LockOnComponent;

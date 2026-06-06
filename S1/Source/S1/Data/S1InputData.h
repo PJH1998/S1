@@ -21,6 +21,19 @@ struct FS1InputAction
 	TObjectPtr<UInputAction> InputAction = nullptr;
 };
 
+// Player Input Binding 구조체
+USTRUCT()
+struct FS1AbilityInputBinding
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag InputTag;
+
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag AbilityTag;
+};
+
 UCLASS()
 class S1_API US1InputData : public UDataAsset
 {

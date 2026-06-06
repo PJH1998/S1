@@ -4,10 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
+#include "GameplayTagContainer.h"
 #include "S1GameplayAbility_Attack.generated.h"
 
-struct FS1MontageData;
-struct FS1MontageSet;
 class US1AbilityTask_RotateToCamera;
 
 UCLASS()
@@ -21,20 +20,17 @@ public:
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
-	
-	const FS1MontageData* GetMontageData() const;
-	virtual const FS1MontageSet* GetCurrentMontageSet() const; // 기본: index 0
+
+public:
+	// Progression 콤보 어드밴스 시 카메라 회전 갱신
+	virtual void OnProgressionMontageStarted() override;
 
 protected:
-	// 실행할 Montage를 보관 중인 AnimData Asset Tag
-	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	FGameplayTag AnimDataTag;
+	void ResetHitTargets();
+	void StartRotateToCamera();
 
-	// 실행할 Montage Asset Tag
-	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	FGameplayTag MontageTag;
-
-	// 특정 상황에서 재발동 방지를 위한 Tag ( 해당 Tag 부여 후 이후 Tag 삭제 필요 )
+protected:
+	// 특정 상황에서 재발동 방지를 위한 Tag
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
 	FGameplayTag UsedTag;
 
@@ -53,10 +49,6 @@ protected:
 	// US1AbilityTask_RotateToCamera 회전 속도
 	UPROPERTY(EditDefaultsOnly, Category = "Attack", meta = (EditCondition = "bRotateToCamera"))
 	float RotationSpeed = 720.f;
-
-protected:
-	void ResetHitTargets();
-	void StartRotateToCamera();
 
 private:
 	void BindAttackBox();

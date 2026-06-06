@@ -9,6 +9,7 @@
 #include "S1PlayerController.generated.h"
 
 class AS1Player;
+struct FS1AbilityInputBinding;
 
 UCLASS()
 class S1_API AS1PlayerController : public APlayerController
@@ -29,16 +30,19 @@ public:
 private:
 	void OnMove(const FInputActionValue& Value);
 	void OnTurn(const FInputActionValue& Value);
-	void OnAttack(const FInputActionValue& Value);
 	void OnSprint(const FInputActionValue& Value);
-	void OnSkill01(const FInputActionValue& Value);
 	void OnJump(const FInputActionValue& Value);
 	void OnLockOn(const FInputActionValue& Value);
 	void OnChangeLockOnSide(const FInputActionValue& Value);
 	void OnCycleLeft(const FInputActionValue& Value);
 	void OnCycleRight(const FInputActionValue& Value);
 
+	void OnAbilityInput(const FInputActionValue& Value, FGameplayTag AbilityTag);
+	void SetupAbilityInputBindings(const TArray<FS1AbilityInputBinding>& Bindings);
+
 protected:
+	virtual void OnPossess(APawn* InPawn) override;
+
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<AS1Player> S1Player;
 };

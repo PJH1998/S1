@@ -34,7 +34,6 @@ void AS1PlayerController::BeginPlay()
 	{
 		UIManager->Create_RootUI(this);
 	}
-	S1Player = Cast<AS1Player>(GetCharacter());
 }
 
 void AS1PlayerController::SetupInputComponent()
@@ -64,17 +63,6 @@ void AS1PlayerController::SetupInputComponent()
 		}
 #pragma endregion
 
-#pragma region Attack
-		if (const UInputAction* AttackAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Attack))
-		{
-			EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ThisClass::OnAttack);
-		}
-
-		if (const UInputAction* Skill01Action = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Skill01))
-		{
-			EnhancedInputComponent->BindAction(Skill01Action, ETriggerEvent::Started, this, &ThisClass::OnSkill01);
-		}
-#pragma endregion
 
 #pragma region Jump
 		if (const UInputAction* JumpAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Jump))
@@ -122,6 +110,49 @@ void AS1PlayerController::PlayerTick(float DeltaTime)
 	SetControlRotation(FRotator(GetControlRotation().Pitch, ToTarget.Rotation().Yaw, 0.f));
 }
 
+void AS1PlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	S1Player = Cast<AS1Player>(InPawn);
+	if (IsValid(S1Player))
+	{
+		SetupAbilityInputBindings(S1Player->GetAbilityInputBindings());
+	}
+}
+
+void AS1PlayerController::SetupAbilityInputBindings(const TArray<FS1AbilityInputBinding>& Bindings)
+{
+	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent);
+	if (false == IsValid(EIC))
+	{
+		return;
+	}
+
+	const US1InputData* InputData = US1AssetManager::GetAssetByTag<US1InputData>(S1AssetTags::Asset_InputData);
+	if (false == IsValid(InputData))
+	{
+		return;
+	}
+
+	for (const FS1AbilityInputBinding& Binding : Bindings)
+	{
+		if (const UInputAction* Action = InputData->FindInputActionByTag(Binding.InputTag))
+		{
+			EIC->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::OnAbilityInput, Binding.AbilityTag);
+		}
+	}
+}
+
+void AS1PlayerController::OnAbilityInput(const FInputActionValue& Value, FGameplayTag AbilityTag)
+{
+	if (false == IsValid(S1Player))
+	{
+		return;
+	}
+	S1Player->ActivateAbility(AbilityTag);
+}
+
 void AS1PlayerController::HandleGameplayEvent(FGameplayTag EventTag)
 {
 }
@@ -151,11 +182,6 @@ void AS1PlayerController::OnTurn(const FInputActionValue& Value)
 	AddPitchInput(LookVector.Y);
 }
 
-void AS1PlayerController::OnAttack(const FInputActionValue& Value)
-{
-	S1Player->ActivateAbility(S1AbilityTags::Ability_Player_Attack_WeakAttack);
-}
-
 void AS1PlayerController::OnSprint(const FInputActionValue& Value)
 {
 	if (false == IsValid(S1Player))
@@ -164,11 +190,6 @@ void AS1PlayerController::OnSprint(const FInputActionValue& Value)
 	}
 
 	S1Player->SetSprinting(Value.Get<bool>());
-}
-
-void AS1PlayerController::OnSkill01(const FInputActionValue& Value)
-{
-	S1Player->ActivateAbility(S1AbilityTags::Ability_Player_Attack_Skill01);
 }
 
 void AS1PlayerController::OnJump(const FInputActionValue& Value)

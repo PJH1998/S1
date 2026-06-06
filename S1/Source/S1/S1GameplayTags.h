@@ -12,10 +12,13 @@ namespace S1GameplayTags
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Attack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Jump);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Dash);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill02);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill03);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Assault);
+
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LockOn);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_ChangeLockOnSide);
@@ -37,10 +40,15 @@ namespace S1UITags
 
 namespace S1AnimTags
 {
+#pragma region Player
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Weak);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirWeak);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirWeakDive);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Skill01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Dash);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Assault);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirAssault);
+#pragma endregion
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack00);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack01);
@@ -65,6 +73,9 @@ namespace S1AbilityTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill02);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill03);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Assault);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Dash);
 #pragma endregion
 
 #pragma region Boss000
@@ -130,6 +141,8 @@ namespace S1EventTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Landed);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_StartDive);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_CheckDistance);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_MovementStart);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_MovementEnd);
 }
 
 namespace S1EffectTags
