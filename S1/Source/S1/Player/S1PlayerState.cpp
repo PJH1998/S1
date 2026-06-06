@@ -19,7 +19,6 @@ AS1PlayerState::AS1PlayerState(const FObjectInitializer& ObjectInitializer)
 	DefaultAttribute.BaseDefense = 10.f;
 
 	PlayerSet->InitDefaultAttribute(DefaultAttribute);
-
 }
 
 UAbilitySystemComponent* AS1PlayerState::GetAbilitySystemComponent() const

@@ -32,14 +32,6 @@ AS1Boss_000::AS1Boss_000()
 	// AttributeSet
 	AttributeSet = CreateDefaultSubobject<US1BossSet>("AttributeSet");
 
-	//FS1DefaultAttribute DefaultAttribute;
-	//DefaultAttribute.MaxHealth = 100.f;
-	//DefaultAttribute.MaxStamina = 100.f;
-	//DefaultAttribute.BaseDamage = 10.f;
-	//DefaultAttribute.BaseDefense = 10.f;
-	//AttributeSet->InitDefaultAttribute(DefaultAttribute);
-	AttributeSet->InitAttributeFromTable(S1AssetTags::Asset_DataTable, S1DataTableTags::DataTable_MonsterData, TEXT("Boss_000"));
-
 	// UI
 	BossName = TEXT("Cobalt");
 }
@@ -47,6 +39,8 @@ AS1Boss_000::AS1Boss_000()
 void AS1Boss_000::BeginPlay()
 {
 	Super::BeginPlay();
+
+	AttributeSet->InitAttributeFromTable(S1AssetTags::Asset_DataTable, S1DataTableTags::DataTable_MonsterData, TEXT("Boss000"));
 
 	AbilitySystemComponent->AddCharacterAbilities(S1AssetTags::Asset_Ability_Boss000);
 }
