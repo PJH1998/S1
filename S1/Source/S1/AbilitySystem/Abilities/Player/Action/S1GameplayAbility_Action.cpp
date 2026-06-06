@@ -2,9 +2,13 @@
 
 #include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
 #include "AbilitySystem/Task/S1AbilityTask_EarlyExitChecker.h"
+#include "AbilitySystem/Progression/S1MontageProgression.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystemComponent.h"
 #include "Animation/AnimInstance.h"
+#include "Animation/S1AnimInstance.h"
+#include "Data/S1AnimData.h"
+#include "System/S1AssetManager.h"
 
 void US1GameplayAbility_Action::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -38,7 +42,105 @@ void US1GameplayAbility_Action::EndAbility(const FGameplayAbilitySpecHandle Hand
 		}
 	}
 
+	if (IsValid(MontageProgression))
+	{
+		MontageProgression->OnDeactivated();
+	}
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+bool US1GameplayAbility_Action::OnInputReactivated()
+{
+	if (IsValid(MontageProgression))
+	{
+		return MontageProgression->OnInputReactivated();
+	}
+	return false;
+}
+
+bool US1GameplayAbility_Action::OnCrossInput(const FGameplayTagContainer& TargetAbilityTags)
+{
+	if (IsValid(MontageProgression))
+	{
+		return MontageProgression->OnCrossInput(TargetAbilityTags);
+	}
+	return false;
+}
+
+FGameplayTag US1GameplayAbility_Action::GetInputFlushTag() const
+{
+	if (IsValid(MontageProgression))
+	{
+		return MontageProgression->GetInputFlushTag();
+	}
+	return FGameplayTag();
+}
+
+void US1GameplayAbility_Action::RequestEndAbility(bool bWasCancelled)
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, bWasCancelled);
+}
+
+void US1GameplayAbility_Action::RequestReactivateSelf()
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (false == IsValid(ASC))
+	{
+		return;
+	}
+
+	FGameplayTagContainer OwnTags;
+	if (const FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromHandle(CurrentSpecHandle))
+	{
+		OwnTags = Spec->Ability->AbilityTags;
+	}
+
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+
+	if (OwnTags.IsValid())
+	{
+		ASC->TryActivateAbilitiesByTag(OwnTags);
+	}
+}
+
+void US1GameplayAbility_Action::RequestActivateAbilityByTag(const FGameplayTagContainer& Tags)
+{
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		ASC->TryActivateAbilitiesByTag(Tags);
+	}
+}
+
+const FS1MontageData* US1GameplayAbility_Action::GetMontageData() const
+{
+	US1AnimData* AnimData = US1AssetManager::GetAssetByTag<US1AnimData>(AnimDataTag);
+	if (false == IsValid(AnimData))
+	{
+		return nullptr;
+	}
+
+	return AnimData->FindMontageByTag(MontageTag);
+}
+
+const FS1MontageSet* US1GameplayAbility_Action::GetCurrentMontageSet() const
+{
+	if (IsValid(MontageProgression))
+	{
+		return MontageProgression->GetCurrentMontageSet();
+	}
+
+	const FS1MontageData* Data = GetMontageData();
+	if (nullptr == Data || Data->MontageSets.IsEmpty())
+	{
+		return nullptr;
+	}
+	return &Data->MontageSets[0];
+}
+
+US1AnimInstance* US1GameplayAbility_Action::GetAnimInstanceForProgression() const
+{
+	return GetAnimInstance();
 }
 
 void US1GameplayAbility_Action::OnEarlyMoveEventReceived(FGameplayEventData Payload)

@@ -2,17 +2,16 @@
 
 #include "AbilitySystem/Abilities/Attack/S1GameplayAbility_Attack.h"
 #include "S1LogChannels.h"
+#include "AbilitySystem/Progression/S1MontageProgression.h"
 #include "AbilitySystem/Task/S1AbilityTask_RotateToCamera.h"
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/S1AttributeSet.h"
-#include "Data/S1AnimData.h"
 #include "System/S1AssetManager.h"
 #include "Character/Player/S1Player.h"
-
 #include "Weapon/S1Weapon.h"
 #include "Components/BoxComponent.h"
-
 #include "S1GameplayTags.h"
+#include "Data/S1AnimData.h"
 #include "Abilities/GameplayAbilityTargetTypes.h"
 
 US1GameplayAbility_Attack::US1GameplayAbility_Attack(const FObjectInitializer& ObjectInitializer)
@@ -42,6 +41,12 @@ void US1GameplayAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle
 	}
 
 	BindAttackBox();
+
+	if (IsValid(MontageProgression))
+	{
+		MontageProgression->Init(this);
+		MontageProgression->OnActivated();
+	}
 }
 
 void US1GameplayAbility_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -52,26 +57,32 @@ void US1GameplayAbility_Attack::EndAbility(const FGameplayAbilitySpecHandle Hand
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-const FS1MontageData* US1GameplayAbility_Attack::GetMontageData() const
+void US1GameplayAbility_Attack::OnProgressionMontageStarted()
 {
-	US1AnimData* AnimData = US1AssetManager::GetAssetByTag<US1AnimData>(AnimDataTag);
-	if (false == IsValid(AnimData))
+	if (bRotateToCamera)
 	{
-		return nullptr;
+		StartRotateToCamera();
 	}
-
-	return AnimData->FindMontageByTag(MontageTag);
 }
 
-const FS1MontageSet* US1GameplayAbility_Attack::GetCurrentMontageSet() const
+void US1GameplayAbility_Attack::ResetHitTargets()
 {
-	US1AnimData* AnimData = US1AssetManager::GetAssetByTag<US1AnimData>(AnimDataTag);
-	if (false == IsValid(AnimData))
+	HitTargets.Reset();
+}
+
+void US1GameplayAbility_Attack::StartRotateToCamera()
+{
+	if (IsValid(RotateTask))
 	{
-		return nullptr;
+		if (const APlayerController* PC = GetCurrentActorInfo()->PlayerController.Get())
+		{
+			RotateTask->UpdateTargetYaw(PC->GetControlRotation().Yaw);
+		}
+		return;
 	}
 
-	return AnimData->FindMontageSet(MontageTag); // Index default = 0
+	RotateTask = US1AbilityTask_RotateToCamera::RotateToCamera(this, RotationSpeed);
+	RotateTask->ReadyForActivation();
 }
 
 void US1GameplayAbility_Attack::BindAttackBox()
@@ -108,11 +119,6 @@ void US1GameplayAbility_Attack::UnbindAttackBox()
 
 	Weapon->OnHitCollisionEnabled.RemoveAll(this);
 	Weapon->GetAttackBox()->OnComponentBeginOverlap.RemoveDynamic(this, &ThisClass::OnAttackBoxOverlap);
-}
-
-void US1GameplayAbility_Attack::ResetHitTargets()
-{
-	HitTargets.Reset();
 }
 
 void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -169,33 +175,15 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 	TargetData->HitResult.HitObjectHandle = FActorInstanceHandle(OtherActor);
 	TargetDataHandle.Add(TargetData);
 
-	// DamageEffect 항상 적용
 	{
 		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffect);
 		SpecHandle.Data->SetSetByCallerMagnitude(S1SetByCallerTags::SetByCaller_Damage, -FinalDamage);
 		ApplyGameplayEffectSpecToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), SpecHandle, TargetDataHandle);
 	}
 
-	// DebuffEffect 설정 시 추가 적용
 	if (DebuffEffect)
 	{
 		FGameplayEffectSpecHandle DebuffSpecHandle = MakeOutgoingGameplayEffectSpec(DebuffEffect);
 		ApplyGameplayEffectSpecToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), DebuffSpecHandle, TargetDataHandle);
 	}
-}
-
-void US1GameplayAbility_Attack::StartRotateToCamera()
-{
-	if (IsValid(RotateTask))
-	{
-		// 태스크 재생성 없이 목표 Yaw만 갱신
-		if (const APlayerController* PC = GetCurrentActorInfo()->PlayerController.Get())
-		{
-			RotateTask->UpdateTargetYaw(PC->GetControlRotation().Yaw);
-		}
-		return;
-	}
-
-	RotateTask = US1AbilityTask_RotateToCamera::RotateToCamera(this, RotationSpeed);
-	RotateTask->ReadyForActivation();
 }

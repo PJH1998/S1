@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Abilities/Attack/Combo/S1GameplayAbility_ComboAttack.h"
+#include "AbilitySystem/Abilities/Attack/S1GameplayAbility_Attack.h"
 #include "S1GameplayAbility_ComboAttack_Air.generated.h"
 
 UCLASS()
-class S1_API US1GameplayAbility_ComboAttack_Air : public US1GameplayAbility_ComboAttack
+class S1_API US1GameplayAbility_ComboAttack_Air : public US1GameplayAbility_Attack
 {
 	GENERATED_BODY()
 

@@ -10,7 +10,6 @@ void US1GameplayAbility_ComboAttack_Air::ActivateAbility(const FGameplayAbilityS
 
 	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
 	{
-		// 점프 방향 속도 제거 — Root Motion만으로 이동하도록
 		Character->GetCharacterMovement()->Velocity = FVector::ZeroVector;
 	}
 

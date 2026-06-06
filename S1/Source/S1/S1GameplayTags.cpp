@@ -11,10 +11,12 @@ namespace S1GameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Attack, "Input.Action.Attack");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Jump, "Input.Action.Jump");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Dash, "Input.Action.Dash");
 
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Skill01, "Input.Action.Skill01");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Skill02, "Input.Action.Skill02");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Skill03, "Input.Action.Skill03");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Assault, "Input.Action.Assault");
 
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_LockOn,           "Input.Action.LockOn");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_ChangeLockOnSide,  "Input.Action.ChangeLockOnSide");
@@ -45,10 +47,15 @@ namespace S1UIResourceTags
 
 namespace S1AnimTags
 {
+#pragma region Player
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Weak, "Anim.Montage.PRP_Weak");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirWeak, "Anim.Montage.PRP_AirWeak");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirWeakDive, "Anim.Montage.PRP_AirWeakDive");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Skill01, "Anim.Montage.RPR_Skill01");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Dash, "Anim.Montage.RPR_Dash");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Assault, "Anim.Montage.RPR_Assault");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirAssault, "Anim.Montage.RPR_AirAssault");
+#pragma endregion
 
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_Atack00, "Anim.Montage.Boss000.Attack00");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_Atack01, "Anim.Montage.Boss000.Attack01");
@@ -56,6 +63,7 @@ namespace S1AnimTags
 
 namespace S1AbilityTags
 {
+#pragma region Player
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Ground, "Ability.Player.Attack.Ground");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Air, "Ability.Player.Attack.Air");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_WeakAttack, "Ability.Player.Attack.WeakAttack");
@@ -63,6 +71,11 @@ namespace S1AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill01, "Ability.Player.Attack.Skill01");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill02, "Ability.Player.Attack.Skill02");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill03, "Ability.Player.Attack.Skill03");
+
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Assault, "Ability.Player.Attack.Assault");
+
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Dash, "Ability.Player.Dash");
+#pragma endregion
 
 #pragma region Boss000
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Attack00, "Ability.Boss000.Attack00");
@@ -128,6 +141,8 @@ namespace S1EventTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Landed, "Event.Landed");
 	UE_DEFINE_GAMEPLAY_TAG(Event_StartDive, "Event.StartDive");
 	UE_DEFINE_GAMEPLAY_TAG(Event_CheckDistance, "Event.CheckDistance");
+	UE_DEFINE_GAMEPLAY_TAG(Event_MovementStart, "Event.MovementStart");
+	UE_DEFINE_GAMEPLAY_TAG(Event_MovementEnd, "Event.MovementEnd");
 }
 
 namespace S1EffectTags
