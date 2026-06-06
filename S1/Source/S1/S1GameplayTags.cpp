@@ -167,4 +167,5 @@ namespace S1SetByCallerTags
 namespace S1DataTableTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(DataTable_PlayerData, "DataTable.PlayerData");
+	UE_DEFINE_GAMEPLAY_TAG(DataTable_MonsterData, "DataTable.MonsterData");
 }

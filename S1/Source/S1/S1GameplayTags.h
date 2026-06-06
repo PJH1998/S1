@@ -169,4 +169,5 @@ namespace S1SetByCallerTags
 namespace S1DataTableTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_PlayerData);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_MonsterData);
 }

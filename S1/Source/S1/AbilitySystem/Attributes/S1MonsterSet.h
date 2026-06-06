@@ -13,4 +13,7 @@ class S1_API US1MonsterSet : public US1AttributeSet
 
 public:
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+
+public:
+	virtual void InitAttributeFromTable(const FGameplayTag& AssetTag, const FGameplayTag& TableTag, FName RowName = NAME_None) override;
 };

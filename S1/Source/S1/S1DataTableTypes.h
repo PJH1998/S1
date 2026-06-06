@@ -32,3 +32,18 @@
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float BaseDamage = 10.f;
  };
+
+ USTRUCT(BlueprintType)
+	 struct FS1MonsterData : public FTableRowBase
+ {
+	 GENERATED_BODY()
+
+	 UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	 FName Name;
+
+	 UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	 float MaxHealth = { 100.f };
+
+	 UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	 float BaseDamage = { 10.f };
+ };
