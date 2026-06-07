@@ -43,6 +43,8 @@ public:
 	virtual void OnProgressionLoopEnded() {}
 
 	const FS1MontageData*	GetMontageData() const;
+	// 같은 AnimData 에셋에서 다른 MontageTag로 조회 (End 몽타주 등 분기 재생용)
+	const FS1MontageData*	GetMontageDataByTag(FGameplayTag InMontageTag) const;
 	virtual const FS1MontageSet* GetCurrentMontageSet() const;
 
 	// protected인 GetAnimInstance를 Progression에서 호출 가능하도록 노출

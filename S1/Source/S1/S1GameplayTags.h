@@ -46,8 +46,10 @@ namespace S1AnimTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirWeakDive);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Dash);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirDash);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Assault);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirAssault);
+
 #pragma endregion
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack00);

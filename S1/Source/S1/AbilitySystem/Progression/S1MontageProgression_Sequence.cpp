@@ -101,7 +101,8 @@ void US1MontageProgression_Sequence::PlayMontageAtIndex()
 		return;
 	}
 
-	Character->PlayAnimMontage(MontageSet->Montage);
+	Character->PlayAnimMontage(MontageSet->Montage, 1.f, OverrideStartSection);
+	OverrideStartSection = NAME_None;
 
 	US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression();
 	if (IsValid(AnimInst))

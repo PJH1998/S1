@@ -21,7 +21,7 @@ void US1AbilityTask_RotateToCamera::Activate()
 {
 	Super::Activate();
 
-	// 입력 받은 이 순간의 카메라 Yaw 고정
+	// 입력 받은 이 순간의 카메라 회전 고정
 	const APlayerController* PC = Ability->GetCurrentActorInfo()->PlayerController.Get();
 	if (!PC)
 	{
@@ -50,3 +50,4 @@ void US1AbilityTask_RotateToCamera::TickTask(float DeltaTime)
 
 	// 자기 종료 없음 — Ability 종료 시 GAS가 자동으로 태스크를 정리함
 }
+

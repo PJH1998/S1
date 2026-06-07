@@ -50,7 +50,7 @@ void US1MontageProgression_SectionBranch::OnDeactivated()
 	bBranched = false;
 }
 
-void US1MontageProgression_SectionBranch::OnBranchRequested(FName SectionName)
+void US1MontageProgression_SectionBranch::OnBranchRequested(FName InSectionName)
 {
 	if (false == GA.IsValid())
 	{
@@ -75,8 +75,20 @@ void US1MontageProgression_SectionBranch::OnBranchRequested(FName SectionName)
 
 	if (AnimInst->Montage_IsPlaying(MontageSet->Montage))
 	{
-		// Begin 아직 재생 중 → 현재 섹션 끝나면 자연스럽게 연결
-		AnimInst->Montage_SetNextSection(BeginSection, SectionName, MontageSet->Montage);
+		if (InSectionName == DefaultEndSection)
+		{
+			// 기본 연결 섹션 — 점프 없이 자연 진행 (SetNextSection으로 연결 확인만)
+			AnimInst->Montage_SetNextSection(BeginSection, InSectionName, MontageSet->Montage);
+		}
+		else
+		{
+			// 비기본 섹션 → Inertialization + 즉시 점프
+			if (InertializationBlendTime > 0.f)
+			{
+				AnimInst->RequestInertialization(InertializationBlendTime);
+			}
+			AnimInst->Montage_JumpToSection(InSectionName, MontageSet->Montage);
+		}
 	}
 	else
 	{
@@ -88,7 +100,7 @@ void US1MontageProgression_SectionBranch::OnBranchRequested(FName SectionName)
 			return;
 		}
 
-		const float Duration = Character->PlayAnimMontage(MontageSet->Montage, 1.f, SectionName);
+		const float Duration = Character->PlayAnimMontage(MontageSet->Montage, 1.f, InSectionName);
 		if (Duration <= 0.f)
 		{
 			GA->RequestEndAbility(true);
@@ -103,12 +115,6 @@ void US1MontageProgression_SectionBranch::OnBranchRequested(FName SectionName)
 
 void US1MontageProgression_SectionBranch::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	const FS1MontageSet* MontageSet = GetCurrentMontageSet();
-	if (nullptr == MontageSet || Montage != MontageSet->Montage)
-	{
-		return;
-	}
-
 	if (false == bBranched)
 	{
 		// Begin이 분기 요청 전에 종료 — 무시 (OnBranchRequested가 곧 호출됨)

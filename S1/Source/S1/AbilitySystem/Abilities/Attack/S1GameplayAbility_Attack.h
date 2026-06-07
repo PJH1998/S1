@@ -50,6 +50,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Attack", meta = (EditCondition = "bRotateToCamera"))
 	float RotationSpeed = 720.f;
 
+
 private:
 	void BindAttackBox();
 	void UnbindAttackBox();

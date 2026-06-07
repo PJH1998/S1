@@ -29,7 +29,8 @@ public:
 	virtual bool WillHandleAbilityEnd() const { return false; }
 
 	// GA가 외부 조건(이동 종료 등)으로 분기를 요청할 때 호출
-	virtual void OnBranchRequested(FName SectionName) {}
+	// InSectionName: 이동할 섹션 이름 (GA가 직접 결정해서 전달)
+	virtual void OnBranchRequested(FName InSectionName) {}
 
 protected:
 	TWeakObjectPtr<US1GameplayAbility_Action> GA;

@@ -22,6 +22,9 @@ public:
 	virtual FGameplayTag		GetInputFlushTag() const override { return CanNextAttackTag; }
 	virtual const FS1MontageSet* GetCurrentMontageSet() const override;
 
+	// OnActivated 전에 호출 시 해당 섹션부터 재생 (1회성 — 재생 후 자동 리셋)
+	void SetStartSection(FName Section) { OverrideStartSection = Section; }
+
 private:
 	void	PlayMontageAtIndex();
 	bool	TryAdvanceCombo();
@@ -48,4 +51,5 @@ private:
 	FGameplayTag TransitionStateTag;
 
 	int32 CurrentSectionIndex = 0;
+	FName OverrideStartSection = NAME_None;
 };

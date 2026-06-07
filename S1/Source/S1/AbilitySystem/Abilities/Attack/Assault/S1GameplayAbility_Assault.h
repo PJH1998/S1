@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/Attack/S1GameplayAbility_Attack.h"
-#include "GameplayTagContainer.h"
 #include "S1GameplayAbility_Assault.generated.h"
 
 class UAbilityTask_ApplyRootMotionConstantForce;
@@ -27,8 +26,6 @@ private:
 	UFUNCTION()
 	void OnMoveEndReceived(FGameplayEventData Payload);
 
-	FVector ComputeAssaultDirection() const;
-
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Assault")
 	float AssaultSpeed = 2000.f;
@@ -39,12 +36,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Assault")
 	FGameplayTag MoveEndEventTag;
 
+	// 공중/지상 판단 후 Progression에 전달할 섹션명
 	UPROPERTY(EditDefaultsOnly, Category = "Assault|Section")
-	FName AirSection = FName("End_Air");
+	FName AirSectionName;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Assault|Section")
-	FName GroundSection = FName("End_Ground");
+	FName GroundSectionName;
 
 	UPROPERTY()
 	TObjectPtr<UAbilityTask_ApplyRootMotionConstantForce> MoveTask;
+
+	// 버튼 누른 순간(ActivateAbility, Super 전)에 캡처 — RotateToCamera 회전 전 방향 보존
+	FVector CapturedAssaultDirection = FVector::ZeroVector;
 };

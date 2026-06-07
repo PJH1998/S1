@@ -21,6 +21,9 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+	// AnimGraph Inertialization 노드에 블렌드 요청 (섹션/몽타주 전환 시 하드컷 방지)
+	void RequestInertialization(float BlendTime);
+
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<AS1Character> Character;

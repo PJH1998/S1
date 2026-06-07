@@ -12,7 +12,7 @@ class S1_API US1AbilityTask_RotateToCamera : public UAbilityTask
 	GENERATED_BODY()
 
 public:
-	// 공격 입력 시점의 카메라 Yaw를 목표로 회전, 도달 시 자동 종료
+	// 공격 입력 시점의 카메라 Yaw를 목표로 회전
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility"))
 	static US1AbilityTask_RotateToCamera* RotateToCamera(UGameplayAbility* OwningAbility, float RotationSpeed = 720.f);
 
@@ -23,6 +23,6 @@ public:
 	void UpdateTargetYaw(float NewYaw);
 
 private:
-	float RotationSpeed;
-	float TargetYaw;
+	float RotationSpeed = 720.f;
+	float TargetYaw = 0.f;
 };

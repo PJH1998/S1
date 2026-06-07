@@ -53,6 +53,7 @@ namespace S1AnimTags
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirWeakDive, "Anim.Montage.PRP_AirWeakDive");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Skill01, "Anim.Montage.RPR_Skill01");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Dash, "Anim.Montage.RPR_Dash");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirDash, "Anim.Montage.RPR_AirDash");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Assault, "Anim.Montage.RPR_Assault");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirAssault, "Anim.Montage.RPR_AirAssault");
 #pragma endregion

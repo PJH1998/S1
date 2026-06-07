@@ -123,6 +123,17 @@ const FS1MontageData* US1GameplayAbility_Action::GetMontageData() const
 	return AnimData->FindMontageByTag(MontageTag);
 }
 
+const FS1MontageData* US1GameplayAbility_Action::GetMontageDataByTag(FGameplayTag InMontageTag) const
+{
+	US1AnimData* AnimData = US1AssetManager::GetAssetByTag<US1AnimData>(AnimDataTag);
+	if (false == IsValid(AnimData))
+	{
+		return nullptr;
+	}
+
+	return AnimData->FindMontageByTag(InMontageTag);
+}
+
 const FS1MontageSet* US1GameplayAbility_Action::GetCurrentMontageSet() const
 {
 	if (IsValid(MontageProgression))

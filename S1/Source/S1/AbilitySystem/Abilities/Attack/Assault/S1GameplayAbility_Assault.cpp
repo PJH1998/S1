@@ -13,12 +13,20 @@
 
 void US1GameplayAbility_Assault::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
+	// Super 전에 캡처 — Pitch 포함한 카메라 3D 방향 (캐릭터 회전은 안 함)
+	if (const ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	{
+		CapturedAssaultDirection = Character->GetControlRotation().Vector();
+	}
+
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	// Super 이후 GravityScale 설정 (Super 내부에서 1.0으로 복원될 수 있음)
+	// GravityScale 비활성화 + 기존 관성 제거
 	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
 	{
-		Character->GetCharacterMovement()->GravityScale = 0.f;
+		UCharacterMovementComponent* CMC = Character->GetCharacterMovement();
+		CMC->GravityScale = 0.f;
+		CMC->Velocity = FVector::ZeroVector;
 	}
 
 	if (AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo()))
@@ -75,10 +83,16 @@ void US1GameplayAbility_Assault::OnMoveBeginReceived(FGameplayEventData Payload)
 		return;
 	}
 
+	// 점프 등 기존 관성 제거 — ConstantForce가 기존 Velocity에 누적되는 것 방지
+	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	{
+		Character->GetCharacterMovement()->Velocity = FVector::ZeroVector;
+	}
+
 	MoveTask = UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
 		this,
 		NAME_None,
-		ComputeAssaultDirection(),
+		CapturedAssaultDirection,
 		AssaultSpeed,
 		9999.f,
 		false,
@@ -112,20 +126,11 @@ void US1GameplayAbility_Assault::OnMoveEndReceived(FGameplayEventData Payload)
 		{
 			ASC->AddLooseGameplayTag(S1StateTags::State_Air);
 		}
-		MontageProgression->OnBranchRequested(AirSection);
+		MontageProgression->OnBranchRequested(AirSectionName);
 	}
 	else
 	{
-		MontageProgression->OnBranchRequested(GroundSection);
+		MontageProgression->OnBranchRequested(GroundSectionName);
 	}
 }
 
-FVector US1GameplayAbility_Assault::ComputeAssaultDirection() const
-{
-	const ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
-	if (false == IsValid(Character))
-	{
-		return FVector::ForwardVector;
-	}
-	return Character->GetActorForwardVector();
-}
