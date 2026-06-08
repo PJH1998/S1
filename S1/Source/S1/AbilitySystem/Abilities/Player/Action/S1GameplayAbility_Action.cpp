@@ -38,7 +38,10 @@ void US1GameplayAbility_Action::EndAbility(const FGameplayAbilitySpecHandle Hand
 	{
 		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
 		{
-			ASC->RemoveLooseGameplayTag(ActionStateTag);
+			if (ASC->HasMatchingGameplayTag(ActionStateTag))
+			{
+				ASC->RemoveLooseGameplayTag(ActionStateTag);
+			}
 		}
 	}
 

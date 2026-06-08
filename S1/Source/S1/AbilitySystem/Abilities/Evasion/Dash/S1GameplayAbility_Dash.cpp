@@ -1,0 +1,74 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "AbilitySystem/Abilities/Evasion/Dash/S1GameplayAbility_Dash.h"
+#include "AbilitySystem/Progression/S1MontageProgression.h"
+#include "AbilitySystem/Progression/S1MontageProgression_Sequence.h"
+#include "GameFramework/Character.h"
+
+void US1GameplayAbility_Dash::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+{
+	// 방향 캡처 + OrientRotation + MoveBegin/End 바인딩은 Evasion::ActivateAbility에서 처리
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	if (false == CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
+	if (IsValid(MontageProgression))
+	{
+		// 입력 방향에 맞는 섹션부터 재생 (CapturedMoveDirection은 Evasion에서 캡처됨)
+		if (US1MontageProgression_Sequence* SeqProg = Cast<US1MontageProgression_Sequence>(MontageProgression))
+		{
+			SeqProg->SetStartSection(ComputeDirectionalSection());
+		}
+		MontageProgression->Init(this);
+		MontageProgression->OnActivated();
+	}
+}
+
+bool US1GameplayAbility_Dash::OnCrossInput(const FGameplayTagContainer& TargetAbilityTags)
+{
+	if (AttackAbilityGroupTags.IsEmpty())
+	{
+		return false;
+	}
+
+	if (false == TargetAbilityTags.HasAny(AttackAbilityGroupTags))
+	{
+		return false;
+	}
+
+	// 대쉬 중 공격 입력 — 윈도우 조건 없이 즉시 전환
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	return true;
+}
+
+FName US1GameplayAbility_Dash::ComputeDirectionalSection() const
+{
+	const ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+	if (false == IsValid(Character))
+	{
+		return SectionForward;
+	}
+
+	const FVector InputDir = Character->GetLastMovementInputVector();
+	if (InputDir.IsNearlyZero())
+	{
+		return SectionForward;
+	}
+
+	const FVector Forward = Character->GetActorForwardVector();
+	const FVector Right   = Character->GetActorRightVector();
+
+	const float ForwardDot = FVector::DotProduct(InputDir, Forward);
+	const float RightDot   = FVector::DotProduct(InputDir, Right);
+
+	const float Angle = FMath::RadiansToDegrees(FMath::Atan2(RightDot, ForwardDot));
+
+	if (Angle >= -45.f && Angle <= 45.f)  { return SectionForward; }
+	if (Angle > 45.f  && Angle <= 135.f)  { return SectionRight; }
+	if (Angle < -45.f && Angle >= -135.f) { return SectionLeft; }
+	return SectionBack;
+}

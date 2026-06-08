@@ -13,6 +13,7 @@ namespace S1GameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Attack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Jump);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Dash);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Dodge);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill02);
@@ -47,6 +48,7 @@ namespace S1AnimTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Dash);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirDash);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Dodge);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Assault);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirAssault);
 
@@ -78,6 +80,7 @@ namespace S1AbilityTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Assault);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Dash);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Dodge);
 #pragma endregion
 
 #pragma region Boss000
@@ -134,6 +137,7 @@ namespace S1StateTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air_Used_WeakAttack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air_Used_Skill01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Invincible);
 }
 
 namespace S1EventTags
@@ -204,4 +208,10 @@ namespace S1DataTableTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_PlayerData);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_MonsterData);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_ItemData);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_HitLagData);
+}
+
+namespace S1HitLagTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitLag_PerfectDodge);
 }

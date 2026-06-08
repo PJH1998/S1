@@ -25,7 +25,7 @@ public:
 	static AssetType*	GetAssetByTag(const FGameplayTag& AssetTag);
 
 public:
-	static void			Initialize();
+	void				LoadAssetsToLabel(const FGameplayTag& Label, FAsyncLabelLoadCompletedDelegate CompletedDelegate = {});
 
 	static void			LoadAsyncByPath(const FSoftObjectPath& AssetPath, const FGameplayTag& AssetTag, FAsyncLoadCompletedDelegate CompletedDelegate = FAsyncLoadCompletedDelegate());
 	static void			LoadAsyncByTag(const FGameplayTag& AssetTag, FAsyncLoadCompletedDelegate CompletedDelegate = FAsyncLoadCompletedDelegate());
@@ -41,8 +41,6 @@ public:
 	static TWeakPtr<FStreamableHandle> GetActiveLoadHandle();
 
 private:
-	void				LoadAssetsToLabel(const FGameplayTag& Label, FAsyncLabelLoadCompletedDelegate CompletedDelegate = FAsyncLabelLoadCompletedDelegate());
-
 	void				AddLoadedAsset(const FName& AssetName, const FGameplayTag& AssetTag, const UObject* Asset);
 
 private:
