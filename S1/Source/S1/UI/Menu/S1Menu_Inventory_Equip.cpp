@@ -8,6 +8,8 @@
 #include "UI/Menu/S1Inventory_Slot.h"
 #include "UI/Menu/S1Menu_Inventory.h"
 
+#include "S1GameplayTags.h"
+
 void US1Menu_Inventory_Equip::InitializeMenu(US1Menu_Inventory* InOwnerMenu)
 {
 	OwnerMenu = InOwnerMenu;
@@ -39,6 +41,7 @@ void US1Menu_Inventory_Equip::NativeConstruct()
 		}
 	}
 
+	InitializeEquipSlots();
 	RefreshSlots();
 }
 
@@ -50,6 +53,13 @@ void US1Menu_Inventory_Equip::NativeDestruct()
 	}
 
 	Super::NativeDestruct();
+}
+
+void US1Menu_Inventory_Equip::InitializeEquipSlots()
+{
+	RegisterEquipSlot(S1EquipSlotTags::Equip_Type_Weapon, Slot_Weapon);
+	RegisterEquipSlot(S1EquipSlotTags::Equip_Type_Costume, Slot_Costume);
+	RegisterEquipSlot(S1EquipSlotTags::Equip_Type_Accessary, Slot_Accessary);
 }
 
 void US1Menu_Inventory_Equip::OnEquipmentChanged()

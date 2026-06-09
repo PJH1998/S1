@@ -112,7 +112,9 @@ void US1Menu_Inventory_Bag::OnSlotRightClicked(FGameplayTag ItemTag, int32 SlotI
 	}
 
 	const FS1ItemData* ItemData = ItemManager->FindItemData(ItemTag);
-	if (ItemData == nullptr || ItemData->ItemType != S1ItemTypeTags::Item_Type_Equip)
+	if (ItemData == nullptr
+		|| ItemData->ItemType != S1ItemTypeTags::Item_Type_Equip
+		|| false == ItemData->EquipSlot.IsValid())
 	{
 		return;
 	}

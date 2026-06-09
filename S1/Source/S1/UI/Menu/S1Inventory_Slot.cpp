@@ -11,6 +11,53 @@
 #include "System/S1AssetManager.h"
 #include "System/S1ItemManager.h"
 
+void US1Inventory_Slot::NativeConstruct()
+{
+	Super::NativeConstruct();
+	CacheDefaultVisuals();
+}
+
+void US1Inventory_Slot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	if (false == bEffectAnimating || EquippedEffectFrameCount <= 0)
+	{
+		return;
+	}
+
+	EffectFrameTime += InDeltaTime;
+	const float FrameDuration = 1.f / EquippedEffectFrameRate;
+	while (EffectFrameTime >= FrameDuration)
+	{
+		EffectFrameTime -= FrameDuration;
+		CurrentEffectFrame = (CurrentEffectFrame + 1) % EquippedEffectFrameCount;
+		UpdateEffectSpriteFrame(CurrentEffectFrame);
+	}
+}
+
+void US1Inventory_Slot::CacheDefaultVisuals()
+{
+	if (bDefaultVisualsCached)
+	{
+		return;
+	}
+
+	if (Image_BG)
+	{
+		DefaultBGBrush = Image_BG->GetBrush();
+		DefaultBGVisibility = Image_BG->GetVisibility();
+	}
+
+	if (Image_Frame)
+	{
+		DefaultFrameBrush = Image_Frame->GetBrush();
+		DefaultFrameVisibility = Image_Frame->GetVisibility();
+	}
+
+	bDefaultVisualsCached = true;
+}
+
 void US1Inventory_Slot::SetSlotData(FGameplayTag ItemTag, int32 Count, int32 InSlotIndex, bool bShowEquippedEffect)
 {
 	if (CachedItemTag == ItemTag && CachedCount == Count && CachedShowEquippedEffect == bShowEquippedEffect && SlotIndex == InSlotIndex)
@@ -44,7 +91,16 @@ void US1Inventory_Slot::SetSlotData(FGameplayTag ItemTag, int32 Count, int32 InS
 	CachedFrame = UIResource->FindTextureByTag(GetRarityFrameTag(ItemData->Rarity));
 
 	ApplyTexture(Image_BG, CachedBG);
+	if (Image_BG)
+	{
+		Image_BG->SetVisibility(ESlateVisibility::Visible);
+	}
+
 	ApplyTexture(Image_Frame, CachedFrame);
+	if (Image_Frame)
+	{
+		Image_Frame->SetVisibility(ESlateVisibility::Visible);
+	}
 
 	if (CachedIcon)
 	{
@@ -57,8 +113,7 @@ void US1Inventory_Slot::SetSlotData(FGameplayTag ItemTag, int32 Count, int32 InS
 		CachedEffect = UIResource->FindTextureByTag(S1UIResourceTags::UI_Icon_Effect_Equiped);
 		if (CachedEffect)
 		{
-			ApplyTexture(Image_Effect, CachedEffect);
-			Image_Effect->SetVisibility(ESlateVisibility::HitTestInvisible);
+			StartEffectAnimation();
 		}
 	}
 
@@ -102,6 +157,7 @@ FReply US1Inventory_Slot::NativeOnMouseButtonDown(const FGeometry& InGeometry, c
 {
 	if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton && CachedItemTag.IsValid())
 	{
+		OnSlotHoverEnded.Broadcast();
 		OnSlotRightClicked.Broadcast(CachedItemTag, SlotIndex);
 		return FReply::Handled();
 	}
@@ -125,8 +181,21 @@ void US1Inventory_Slot::ReleaseVisuals()
 		Image_Icon->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
+	if (Image_BG)
+	{
+		Image_BG->SetBrush(DefaultBGBrush);
+		Image_BG->SetVisibility(DefaultBGVisibility);
+	}
+
+	if (Image_Frame)
+	{
+		Image_Frame->SetBrush(DefaultFrameBrush);
+		Image_Frame->SetVisibility(DefaultFrameVisibility);
+	}
+
 	if (Image_Effect)
 	{
+		StopEffectAnimation();
 		Image_Effect->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
@@ -144,6 +213,50 @@ void US1Inventory_Slot::ApplyTexture(UImage* Image, UTexture2D* Texture)
 	}
 
 	Image->SetBrushFromTexture(Texture);
+}
+
+void US1Inventory_Slot::StartEffectAnimation()
+{
+	if (Image_Effect == nullptr || CachedEffect == nullptr || EquippedEffectFrameCount <= 0)
+	{
+		return;
+	}
+
+	CurrentEffectFrame = 0;
+	EffectFrameTime = 0.f;
+	bEffectAnimating = true;
+	UpdateEffectSpriteFrame(0);
+	Image_Effect->SetVisibility(ESlateVisibility::HitTestInvisible);
+}
+
+void US1Inventory_Slot::StopEffectAnimation()
+{
+	bEffectAnimating = false;
+	CurrentEffectFrame = 0;
+	EffectFrameTime = 0.f;
+}
+
+void US1Inventory_Slot::UpdateEffectSpriteFrame(int32 FrameIndex)
+{
+	if (Image_Effect == nullptr || CachedEffect == nullptr || EquippedEffectFrameCount <= 0)
+	{
+		return;
+	}
+
+	const int32 ClampedFrame = FMath::Clamp(FrameIndex, 0, EquippedEffectFrameCount - 1);
+	const float InvFrameCount = 1.f / static_cast<float>(EquippedEffectFrameCount);
+	const float VStart = ClampedFrame * InvFrameCount;
+	const float VEnd = (ClampedFrame + 1) * InvFrameCount;
+
+	const float FrameWidth = static_cast<float>(CachedEffect->GetSizeX());
+	const float FrameHeight = static_cast<float>(CachedEffect->GetSizeY()) / static_cast<float>(EquippedEffectFrameCount);
+
+	FSlateBrush Brush = Image_Effect->GetBrush();
+	Brush.SetResourceObject(CachedEffect);
+	Brush.ImageSize = FVector2D(FrameWidth, FrameHeight);
+	Brush.DrawAs = ESlateBrushDrawType::Image;
+	Brush.SetUVRegion(FBox2f(FVector2f(0.f, VStart), FVector2f(1.f, VEnd)));
+	Image_Effect->SetBrush(Brush);
 }
 
 FGameplayTag US1Inventory_Slot::GetRarityBGTag(const FGameplayTag& RarityTag)

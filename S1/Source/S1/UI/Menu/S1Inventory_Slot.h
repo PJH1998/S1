@@ -34,13 +34,21 @@ public:
 	FS1InventorySlotRightClickedSignature OnSlotRightClicked;
 
 protected:
+	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
 private:
 	void ReleaseVisuals();
+	void CacheDefaultVisuals();
 	void ApplyTexture(UImage* Image, UTexture2D* Texture);
+
+	void StartEffectAnimation();
+	void StopEffectAnimation();
+	void UpdateEffectSpriteFrame(int32 FrameIndex);
+
 	static FGameplayTag GetRarityBGTag(const FGameplayTag& RarityTag);
 	static FGameplayTag GetRarityFrameTag(const FGameplayTag& RarityTag);
 
@@ -56,6 +64,12 @@ private:
 
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UImage> Image_Effect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effect", meta = (ClampMin = "1"))
+	int32 EquippedEffectFrameCount = 8;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effect", meta = (ClampMin = "0.01"))
+	float EquippedEffectFrameRate = 12.f;
 
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UTextBlock> Text_Count;
@@ -83,4 +97,14 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UTexture2D> CachedEffect;
+
+	int32 CurrentEffectFrame = 0;
+	float EffectFrameTime = 0.f;
+	bool bEffectAnimating = false;
+
+	FSlateBrush DefaultBGBrush;
+	FSlateBrush DefaultFrameBrush;
+	ESlateVisibility DefaultBGVisibility = ESlateVisibility::Visible;
+	ESlateVisibility DefaultFrameVisibility = ESlateVisibility::Visible;
+	bool bDefaultVisualsCached = false;
 };

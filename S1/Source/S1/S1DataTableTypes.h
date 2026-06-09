@@ -94,6 +94,9 @@ struct FS1ItemData : public FTableRowBase
 	FGameplayTag ItemType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FGameplayTag EquipSlot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float BaseHealth = { 10.f };
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

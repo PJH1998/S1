@@ -39,7 +39,18 @@ private:
 	void OnSlotRightClicked(FGameplayTag ItemTag, int32 SlotIndex);
 
 	void RefreshSlots();
+	void InitializeEquipSlots();
 	AS1PlayerState* GetOwnerPlayerState() const;
+
+private:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<US1Inventory_Slot> Slot_Weapon;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<US1Inventory_Slot> Slot_Costume;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<US1Inventory_Slot> Slot_Accessary;
 
 private:
 	UPROPERTY(Transient)
