@@ -32,8 +32,10 @@ namespace S1UITags
 
 	UE_DEFINE_GAMEPLAY_TAG(UI_Lobby_HUD, "UI.Lobby.HUD");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Lobby_Logo, "UI.Lobby.Logo");
-
 	UE_DEFINE_GAMEPLAY_TAG(UI_Gameplay_HUD, "UI.Gameplay.HUD");
+
+	UE_DEFINE_GAMEPLAY_TAG(UI_Menu_Inventory, "UI.Menu.Inventory");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Menu_ItemInfo, "UI.Menu.ItemInfo");
 }
 
 namespace S1UIResourceTags
@@ -43,6 +45,18 @@ namespace S1UIResourceTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Asna_Skill01, "UI.Tex.Asna.Skill01");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Asna_Skill02, "UI.Tex.Asna.Skill02");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Asna_Skill03, "UI.Tex.Asna.Skill03");
+
+#pragma region Inventory
+	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_BG_Common, "UI.Icon.BG.Common");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_BG_Rare, "UI.Icon.BG.Rare");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_BG_Unique, "UI.Icon.BG.Unique");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_BG_Legendary, "UI.Icon.BG.Legendary");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Frame_Common, "UI.Icon.Frame.Common");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Frame_Rare, "UI.Icon.Frame.Rare");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Frame_Unique, "UI.Icon.Frame.Unique");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Frame_Legendary, "UI.Icon.Frame.Legendary");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Effect_Equiped, "UI.Icon.Effect.Equiped");
+#pragma endregion
 }
 
 namespace S1AnimTags
@@ -190,6 +204,13 @@ namespace S1ItemTypeTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Item_Type_Equip, "Item.Type.Equip");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Type_Inv, "Item.Type.Inv");
+}
+
+namespace S1EquipSlotTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(Equip_Type_Weapon, "Equip.Type.Weapon");
+	UE_DEFINE_GAMEPLAY_TAG(Equip_Type_Costume, "Equip.Type.Costume");
+	UE_DEFINE_GAMEPLAY_TAG(Equip_Type_Accessary, "Equip.Type.Accessary");
 }
 
 namespace S1SetByCallerTags

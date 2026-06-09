@@ -43,6 +43,7 @@ void US1UIManager::Create_RootUI(APlayerController* PC)
 		return;
 	}
 	RootWidget->SetUp_HUD(S1UITags::UI_Gameplay_HUD);
+	RootWidget->ShowMenu(S1UITags::UI_Menu_Inventory);
 
 	RootWidget->AddToViewport();
 

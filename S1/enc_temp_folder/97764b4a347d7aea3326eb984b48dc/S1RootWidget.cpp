@@ -129,7 +129,7 @@ void US1RootWidget::NativeConstruct()
 		}
 	}
 
-	//HideAllMenus();
+	HideAllMenus();
 }
 
 void US1RootWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

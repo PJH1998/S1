@@ -12,6 +12,7 @@
 class US1PlayerSet;
 class US1AbilitySystemComponent;
 class US1InventoryComponent;
+class US1EquipComponent;
 
 UCLASS()
 class S1_API AS1PlayerState : public APlayerState, public IAbilitySystemInterface
@@ -26,6 +27,7 @@ public:
 	US1AbilitySystemComponent* GetS1AbilitySystemComponent() const;
 	US1PlayerSet* GetS1PlayerSet() const;
 	US1InventoryComponent* GetInventoryComponent() const;
+	US1EquipComponent* GetEquipComponent() const;
 	void InitPlayerSetFromTable(const FGameplayTag& AssetTag, const FGameplayTag& TableTag);
 
 protected:
@@ -37,4 +39,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<US1InventoryComponent> InventoryComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<US1EquipComponent> EquipComponent;
 };

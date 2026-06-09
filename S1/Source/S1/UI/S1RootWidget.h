@@ -15,6 +15,8 @@ enum class UI_TYPE { HUD, MENU, POPUP, CURSOR, FADE, END };
 class US1HUD_Lobby;
 class US1Cursor;
 class US1Fade;
+class US1Inventory_ItemInfo;
+class US1Menu_Inventory;
 /**
  * 
  */
@@ -28,10 +30,14 @@ public:
 
 public:
 	void SetUp_HUD(const FGameplayTag& UITag);
+	void ShowMenu(const FGameplayTag& UITag);
+	void HideAllMenus();
 
 	void FadeIn(float InDuration = 1.f);
 	void FadeOut(float InDuration = 1.f);
-	
+
+	US1Inventory_ItemInfo* GetItemInfoWidget() const { return ItemInfoWidget; }
+
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
@@ -54,12 +60,21 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCanvasPanel> CanvasPanel_HUD;
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCanvasPanel> CanvasPanel_Menu;
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCanvasPanel> CanvasPanel_Cursor;
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCanvasPanel> CanvasPanel_Fade;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCanvasPanel> CanvasPanel_Popup;
+
+private:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<US1Menu_Inventory> Menu_Inventory;
 
 private:
 	TObjectPtr<US1Fade> FadeWidget;
+	TObjectPtr<US1Inventory_ItemInfo> ItemInfoWidget;
 
 	TArray<TObjectPtr<UCanvasPanelSlot>> PanelSlots;
 };

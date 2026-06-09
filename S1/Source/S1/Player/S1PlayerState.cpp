@@ -5,6 +5,7 @@
 #include "AbilitySystem/AbilitySystemComponent/Player/S1PlayerAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
 #include "Component/S1InventoryComponent.h"
+#include "Component/S1EquipComponent.h"
 
 AS1PlayerState::AS1PlayerState(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -12,6 +13,7 @@ AS1PlayerState::AS1PlayerState(const FObjectInitializer& ObjectInitializer)
 	AbilitySystemComponent = CreateDefaultSubobject<US1PlayerAbilitySystemComponent>("AbilitySystemComponent");
 	PlayerSet = CreateDefaultSubobject<US1PlayerSet>("PlayerSet");
 	InventoryComponent = CreateDefaultSubobject<US1InventoryComponent>("InventoryComponent");
+	EquipComponent = CreateDefaultSubobject<US1EquipComponent>("EquipComponent");
 
 	//TEMP
 	FS1DefaultAttribute DefaultAttribute;
@@ -41,6 +43,11 @@ US1PlayerSet* AS1PlayerState::GetS1PlayerSet() const
 US1InventoryComponent* AS1PlayerState::GetInventoryComponent() const
 {
 	return InventoryComponent;
+}
+
+US1EquipComponent* AS1PlayerState::GetEquipComponent() const
+{
+	return EquipComponent;
 }
 
 void AS1PlayerState::InitPlayerSetFromTable(const FGameplayTag& AssetTag, const FGameplayTag& TableTag)
