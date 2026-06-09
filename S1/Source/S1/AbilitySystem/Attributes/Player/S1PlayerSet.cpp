@@ -1,13 +1,49 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
+#include "AbilitySystemComponent.h"
 #include "GameplayEffectExtension.h"
 #include "Data/S1DataTableData.h"
 #include "S1DataTableTypes.h"
 #include "System/S1AssetManager.h"
+#include "System/S1HitLagManager.h"
 #include "S1GameplayTags.h"
 #include "S1LogChannels.h"
 #include "S1Define.h"
+
+void US1PlayerSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeChange(Attribute, NewValue);
+
+	if (Attribute != GetHealthAttribute() || NewValue >= GetHealth())
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+	if (nullptr == ASC)
+	{
+		return;
+	}
+
+	if (false == ASC->HasMatchingGameplayTag(S1StateTags::State_Invincible))
+	{
+		return;
+	}
+
+	NewValue = GetHealth();
+
+	UGameInstance* GI = ASC->GetWorld()->GetGameInstance();
+	if (nullptr == GI)
+	{
+		return;
+	}
+
+	if (US1HitLagManager* HitLag = GI->GetSubsystem<US1HitLagManager>())
+	{
+		HitLag->TriggerHitLag(S1HitLagTags::HitLag_PerfectDodge);
+	}
+}
 
 void US1PlayerSet::InitAttributeFromTable(const FGameplayTag& AssetTag, const FGameplayTag& TableTag, FName RowName)
 {

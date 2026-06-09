@@ -21,16 +21,6 @@ US1AssetManager& US1AssetManager::Get()
     return *(NewObject<US1AssetManager>());
 }
 
-void US1AssetManager::Initialize()
-{
-    Get().LoadAssetsToLabel(S1Labels::Label_Preload, FAsyncLabelLoadCompletedDelegate::CreateLambda([]()
-    {
-        // TODO Load Complete
-        LOG(TEXT("Preload Assets Complete"));
-
-    }));
-}
-
 void US1AssetManager::LoadAsyncByPath(const FSoftObjectPath& AssetPath, const FGameplayTag& AssetTag, FAsyncLoadCompletedDelegate CompletedDelegate)
 {
     if (false == UAssetManager::IsInitialized())

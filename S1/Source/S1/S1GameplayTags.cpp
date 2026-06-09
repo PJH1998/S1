@@ -12,6 +12,7 @@ namespace S1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Attack, "Input.Action.Attack");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Jump, "Input.Action.Jump");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Dash, "Input.Action.Dash");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Dodge, "Input.Action.Dodge");
 
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Skill01, "Input.Action.Skill01");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Skill02, "Input.Action.Skill02");
@@ -68,6 +69,7 @@ namespace S1AnimTags
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Skill01, "Anim.Montage.RPR_Skill01");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Dash, "Anim.Montage.RPR_Dash");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirDash, "Anim.Montage.RPR_AirDash");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Dodge, "Anim.Montage.RPR_Dodge");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Assault, "Anim.Montage.RPR_Assault");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirAssault, "Anim.Montage.RPR_AirAssault");
 #pragma endregion
@@ -90,6 +92,7 @@ namespace S1AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Assault, "Ability.Player.Attack.Assault");
 
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Dash, "Ability.Player.Dash");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Dodge, "Ability.Player.Dodge");
 #pragma endregion
 
 #pragma region Boss000
@@ -147,6 +150,7 @@ namespace S1StateTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Air, "State.Air");
 	UE_DEFINE_GAMEPLAY_TAG(State_Air_Used_WeakAttack, "State.Air.Used.WeakAttack");
 	UE_DEFINE_GAMEPLAY_TAG(State_Air_Used_Skill01, "State.Air.Used.Skill01");
+	UE_DEFINE_GAMEPLAY_TAG(State_Invincible, "State.Invincible");
 }
 
 namespace S1EventTags
@@ -224,4 +228,10 @@ namespace S1DataTableTags
 	UE_DEFINE_GAMEPLAY_TAG(DataTable_PlayerData, "DataTable.PlayerData");
 	UE_DEFINE_GAMEPLAY_TAG(DataTable_MonsterData, "DataTable.MonsterData");
 	UE_DEFINE_GAMEPLAY_TAG(DataTable_ItemData, "DataTable.ItemData");
+	UE_DEFINE_GAMEPLAY_TAG(DataTable_HitLagData, "DataTable.HitLagData");
+}
+
+namespace S1HitLagTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(HitLag_PerfectDodge, "HitLag.PerfectDodge");
 }

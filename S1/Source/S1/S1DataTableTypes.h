@@ -23,6 +23,21 @@
 // -------------------------------------------------------
 
 USTRUCT(BlueprintType)
+struct FS1HitLagRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float SlowScale = 0.15f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Duration = 0.2f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bExcludePlayer = true;
+};
+
+USTRUCT(BlueprintType)
 struct FS1MonsterData : public FTableRowBase
 {
 	GENERATED_BODY()
