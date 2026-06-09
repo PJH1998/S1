@@ -18,7 +18,7 @@ void US1AnimNotifyState_Chase::NotifyTick(USkeletalMeshComponent* MeshComp, UAni
 	}
 
 	AS1Monster* Monster = Cast<AS1Monster>(Owner);
-	if (Monster == nullptr)
+	if (Monster == nullptr || Monster->IsDead())
 	{
 		return;
 	}
