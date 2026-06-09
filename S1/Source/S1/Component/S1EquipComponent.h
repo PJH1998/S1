@@ -20,6 +20,7 @@ struct FS1EquippedItem
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FS1EquipmentChangedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FS1ItemEquippedSignature, FGameplayTag, ItemTag);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class S1_API US1EquipComponent : public UActorComponent
@@ -31,12 +32,15 @@ public:
 
 public:
 	bool EquipItem(FGameplayTag ItemTag);
-	bool UnequipItem(FGameplayTag SlotTag);
+	bool UnequipItem(FGameplayTag SlotTag, bool bFromEquipSwap = false);
 	FGameplayTag GetEquippedItemTag(FGameplayTag SlotTag) const;
 	const TArray<FS1EquippedItem>& GetEquippedItems() const { return EquippedItems; }
 
 	UPROPERTY(BlueprintAssignable)
 	FS1EquipmentChangedSignature OnEquipmentChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FS1ItemEquippedSignature OnItemEquipped;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

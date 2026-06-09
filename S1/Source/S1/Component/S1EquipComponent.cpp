@@ -40,7 +40,7 @@ bool US1EquipComponent::EquipItem(FGameplayTag ItemTag)
 	const FGameplayTag SlotTag = ItemData->EquipSlot;
 	if (GetEquippedItemTag(SlotTag).IsValid())
 	{
-		UnequipItem(SlotTag);
+		UnequipItem(SlotTag, true);
 	}
 
 	if (false == InventoryComponent->RemoveItem(ItemTag, 1))
@@ -53,6 +53,7 @@ bool US1EquipComponent::EquipItem(FGameplayTag ItemTag)
 		if (EquippedItem.SlotTag == SlotTag)
 		{
 			EquippedItem.ItemTag = ItemTag;
+			OnItemEquipped.Broadcast(ItemTag);
 			OnEquipmentChanged.Broadcast();
 			return true;
 		}
@@ -64,11 +65,12 @@ bool US1EquipComponent::EquipItem(FGameplayTag ItemTag)
 	EquippedItems.Add(NewEquippedItem);
 
 	// TODO: GAS additive stat GE apply
+	OnItemEquipped.Broadcast(ItemTag);
 	OnEquipmentChanged.Broadcast();
 	return true;
 }
 
-bool US1EquipComponent::UnequipItem(FGameplayTag SlotTag)
+bool US1EquipComponent::UnequipItem(FGameplayTag SlotTag, bool bFromEquipSwap)
 {
 	if (false == SlotTag.IsValid())
 	{
@@ -103,6 +105,11 @@ bool US1EquipComponent::UnequipItem(FGameplayTag SlotTag)
 	}
 
 	// TODO: GAS additive stat GE remove
+	if (false == bFromEquipSwap && SlotTag == S1EquipSlotTags::Equip_Type_Weapon)
+	{
+		OnItemEquipped.Broadcast(FGameplayTag());
+	}
+
 	OnEquipmentChanged.Broadcast();
 	return true;
 }
