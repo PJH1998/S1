@@ -6,6 +6,8 @@
 #include "UI/Cursor/S1Cursor.h"
 #include "UI/Fade/S1Fade.h"
 #include "UI/Lobby/S1HUD_Lobby.h"
+#include "UI/Menu/S1Inventory_ItemInfo.h"
+#include "UI/Menu/S1Menu_Inventory.h"
 #include "Framework/Application/SlateApplication.h"
 
 #include "S1GameplayTags.h"
@@ -16,6 +18,33 @@ US1RootWidget::US1RootWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	PanelSlots.SetNum(static_cast<int32>(UI_TYPE::END));
+}
+
+void US1RootWidget::ShowMenu(const FGameplayTag& UITag)
+{
+	if (UITag == S1UITags::UI_Menu_Inventory && Menu_Inventory)
+	{
+		const ESlateVisibility NewVisibility = Menu_Inventory->IsVisible() ? ESlateVisibility::Collapsed : ESlateVisibility::Visible;
+		Menu_Inventory->SetVisibility(NewVisibility);
+	}
+}
+
+void US1RootWidget::HideAllMenus()
+{
+	if (Menu_Inventory)
+	{
+		Menu_Inventory->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	if (ItemInfoWidget)
+	{
+		ItemInfoWidget->HideInfo();
+	}
+}
+
+bool US1RootWidget::IsInventoryMenuOpen() const
+{
+	return Menu_Inventory && Menu_Inventory->IsVisible();
 }
 
 void US1RootWidget::SetUp_HUD(const FGameplayTag& UITag)
@@ -88,7 +117,28 @@ void US1RootWidget::NativeConstruct()
 			// Fade Delegate
 			FadeWidget->OnFadeFinished.AddDynamic(this, &ThisClass::DeliveFadeFinished);
 		}
+
+		if (CanvasPanel_Popup)
+		{
+			if (TSubclassOf<US1BaseWidget> ItemInfoClass = UIData->FindUserWidgetClassByTag(S1UITags::UI_Menu_ItemInfo))
+			{
+				ItemInfoWidget = Cast<US1Inventory_ItemInfo>(Register_Panel<US1BaseWidget>(UI_TYPE::POPUP, ItemInfoClass, CanvasPanel_Popup));
+				CanvasPanel_Popup->SetVisibility(ESlateVisibility::HitTestInvisible);
+				if (PanelSlots[static_cast<int32>(UI_TYPE::POPUP)] != nullptr)
+				{
+					PanelSlots[static_cast<int32>(UI_TYPE::POPUP)]->SetAutoSize(true);
+					PanelSlots[static_cast<int32>(UI_TYPE::POPUP)]->SetAlignment(FVector2D::ZeroVector);
+				}
+
+				if (ItemInfoWidget)
+				{
+					ItemInfoWidget->HideInfo();
+				}
+			}
+		}
 	}
+
+	HideAllMenus();
 }
 
 void US1RootWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

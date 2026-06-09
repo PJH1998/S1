@@ -37,6 +37,11 @@ private:
 	void OnCycleLeft(const FInputActionValue& Value);
 	void OnCycleRight(const FInputActionValue& Value);
 
+private:
+	void OnInventory(const FInputActionValue& Value);
+	void ApplyInventoryInputMode(bool bOpen);
+	static bool IsPlayerAttackAbility(const FGameplayTag& AbilityTag);
+
 	void OnAbilityInput(const FInputActionValue& Value, FGameplayTag AbilityTag);
 	void SetupAbilityInputBindings(const TArray<FS1AbilityInputBinding>& Bindings);
 

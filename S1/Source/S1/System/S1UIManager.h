@@ -37,6 +37,8 @@ public:
 	void FadeIn(float InDuration = 1.f, TFunction<void()> InCallback = nullptr);
 	void FadeOut(float InDuration = 1.f, TFunction<void()> InCallback = nullptr);
 
+	US1RootWidget* GetRootWidget() const { return RootWidget; }
+
 private:
 	UFUNCTION()
 	void FinishedFade();

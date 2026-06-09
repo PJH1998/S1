@@ -49,6 +49,39 @@ bool US1InventoryComponent::AddItem(FGameplayTag ItemTag, int32 Count)
 	return true;
 }
 
+bool US1InventoryComponent::RemoveItem(FGameplayTag ItemTag, int32 Count)
+{
+	if (false == ItemTag.IsValid() || Count <= 0)
+	{
+		return false;
+	}
+
+	for (int32 Index = 0; Index < ItemStacks.Num(); ++Index)
+	{
+		FS1InventoryItemStack& ItemStack = ItemStacks[Index];
+		if (ItemStack.ItemTag != ItemTag)
+		{
+			continue;
+		}
+
+		if (ItemStack.Count < Count)
+		{
+			return false;
+		}
+
+		ItemStack.Count -= Count;
+		if (ItemStack.Count <= 0)
+		{
+			ItemStacks.RemoveAt(Index);
+		}
+
+		OnInventoryChanged.Broadcast();
+		return true;
+	}
+
+	return false;
+}
+
 int32 US1InventoryComponent::GetItemCount(FGameplayTag ItemTag) const
 {
 	for (const FS1InventoryItemStack& ItemStack : ItemStacks)

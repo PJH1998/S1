@@ -20,11 +20,15 @@ namespace S1GameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill03);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Assault);
 
-
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LockOn);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_ChangeLockOnSide);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LockOnLeft);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LockOnRight);
+
+#pragma region UI
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_UI_Inventory);
+
+#pragma endregion
 }
 
 namespace S1UITags
@@ -35,8 +39,33 @@ namespace S1UITags
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Lobby_HUD);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Lobby_Logo);
-
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Gameplay_HUD);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Menu_Inventory);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Menu_ItemInfo);
+}
+
+namespace S1UIResourceTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Tex_Heal);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Tex_Asna_Skill01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Tex_Asna_Skill02);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Tex_Asna_Skill03);
+
+#pragma region Inventory
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_BG_Common);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_BG_Rare);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_BG_Unique);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_BG_Legendary);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_Frame_Common);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_Frame_Rare);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_Frame_Unique);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_Frame_Legendary);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_Effect_Equiped);
+#pragma endregion
+
 }
 
 namespace S1AnimTags
@@ -58,18 +87,10 @@ namespace S1AnimTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack01);
 }
 
-namespace S1UIResourceTags
-{
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Tex_Heal);
-
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Tex_Asna_Skill01);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Tex_Asna_Skill02);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Tex_Asna_Skill03);
-}
-
 namespace S1AbilityTags
 {
 #pragma region Player
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Ground);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Air);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_WeakAttack);
@@ -195,6 +216,13 @@ namespace S1ItemTypeTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Type_Equip);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Type_Inv);
+}
+
+namespace S1EquipSlotTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Equip_Type_Weapon);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Equip_Type_Costume);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Equip_Type_Accessary);
 }
 
 namespace S1SetByCallerTags

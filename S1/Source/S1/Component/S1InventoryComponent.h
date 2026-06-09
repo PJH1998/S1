@@ -33,6 +33,7 @@ public:
 public:
 	bool AddGold(int32 Amount);
 	bool AddItem(FGameplayTag ItemTag, int32 Count);
+	bool RemoveItem(FGameplayTag ItemTag, int32 Count);
 
 	int32 GetGold() const { return Gold; }
 	const TArray<FS1InventoryItemStack>& GetItemStacks() const { return ItemStacks; }
