@@ -12,6 +12,8 @@
 #include "Component/S1LockOnComponent.h"
 
 #include "System/S1UIManager.h"
+#include "UI/Menu/S1Inventory_ItemInfo.h"
+#include "UI/S1RootWidget.h"
 
 AS1PlayerController::AS1PlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -91,6 +93,12 @@ void AS1PlayerController::SetupInputComponent()
 		}
 #pragma endregion
 
+#pragma region UI
+		if (const UInputAction* InventoryAction = InputData->FindInputActionByTag(S1GameplayTags::Input_UI_Inventory))
+		{
+			EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &ThisClass::OnInventory);
+		}
+#pragma endregion
 	}
 }
 
@@ -144,12 +152,67 @@ void AS1PlayerController::SetupAbilityInputBindings(const TArray<FS1AbilityInput
 	}
 }
 
+void AS1PlayerController::OnInventory(const FInputActionValue& Value)
+{
+	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
+	{
+		if (US1RootWidget* RootWidget = UIManager->GetRootWidget())
+		{
+			RootWidget->ShowMenu(S1UITags::UI_Menu_Inventory);
+			ApplyInventoryInputMode(RootWidget->IsInventoryMenuOpen());
+		}
+	}
+}
+
+void AS1PlayerController::ApplyInventoryInputMode(bool bOpen)
+{
+	if (bOpen)
+	{
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		SetInputMode(InputMode);
+	}
+	else
+	{
+		FInputModeGameOnly InputMode;
+		SetInputMode(InputMode);
+
+		if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
+		{
+			if (US1RootWidget* RootWidget = UIManager->GetRootWidget())
+			{
+				if (US1Inventory_ItemInfo* ItemInfoWidget = RootWidget->GetItemInfoWidget())
+				{
+					ItemInfoWidget->HideInfo();
+				}
+			}
+		}
+	}
+}
+
+bool AS1PlayerController::IsPlayerAttackAbility(const FGameplayTag& AbilityTag)
+{
+	return AbilityTag.IsValid() && AbilityTag.MatchesTag(S1AbilityTags::Ability_Player_Attack);
+}
+
 void AS1PlayerController::OnAbilityInput(const FInputActionValue& Value, FGameplayTag AbilityTag)
 {
 	if (false == IsValid(S1Player))
 	{
 		return;
 	}
+
+	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
+	{
+		if (US1RootWidget* RootWidget = UIManager->GetRootWidget())
+		{
+			if (RootWidget->IsInventoryMenuOpen() && IsPlayerAttackAbility(AbilityTag))
+			{
+				return;
+			}
+		}
+	}
+
 	S1Player->ActivateAbility(AbilityTag);
 }
 

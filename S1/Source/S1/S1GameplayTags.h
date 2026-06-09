@@ -20,11 +20,15 @@ namespace S1GameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill03);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Assault);
 
-
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LockOn);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_ChangeLockOnSide);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LockOnLeft);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LockOnRight);
+
+#pragma region UI
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_UI_Inventory);
+
+#pragma endregion
 }
 
 namespace S1UITags
@@ -86,6 +90,7 @@ namespace S1AnimTags
 namespace S1AbilityTags
 {
 #pragma region Player
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Ground);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Air);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_WeakAttack);

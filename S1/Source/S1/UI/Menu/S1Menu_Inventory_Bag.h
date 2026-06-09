@@ -68,10 +68,10 @@ private:
 	TObjectPtr<UButton> Tab_Other;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
-	int32 MaxSlotCount = 20;
+	int32 MaxSlotCount = 50;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
-	int32 GridColumns = 5;
+	int32 GridColumns = 10;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<US1Inventory_Slot> SlotWidgetClass;

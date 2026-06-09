@@ -22,11 +22,10 @@ US1RootWidget::US1RootWidget(const FObjectInitializer& ObjectInitializer)
 
 void US1RootWidget::ShowMenu(const FGameplayTag& UITag)
 {
-	HideAllMenus();
-
 	if (UITag == S1UITags::UI_Menu_Inventory && Menu_Inventory)
 	{
-		Menu_Inventory->SetVisibility(ESlateVisibility::Visible);
+		const ESlateVisibility NewVisibility = Menu_Inventory->IsVisible() ? ESlateVisibility::Collapsed : ESlateVisibility::Visible;
+		Menu_Inventory->SetVisibility(NewVisibility);
 	}
 }
 
@@ -36,6 +35,16 @@ void US1RootWidget::HideAllMenus()
 	{
 		Menu_Inventory->SetVisibility(ESlateVisibility::Collapsed);
 	}
+
+	if (ItemInfoWidget)
+	{
+		ItemInfoWidget->HideInfo();
+	}
+}
+
+bool US1RootWidget::IsInventoryMenuOpen() const
+{
+	return Menu_Inventory && Menu_Inventory->IsVisible();
 }
 
 void US1RootWidget::SetUp_HUD(const FGameplayTag& UITag)
@@ -129,7 +138,7 @@ void US1RootWidget::NativeConstruct()
 		}
 	}
 
-	//HideAllMenus();
+	HideAllMenus();
 }
 
 void US1RootWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

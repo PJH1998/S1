@@ -22,21 +22,19 @@ void US1Menu_Inventory::NativeConstruct()
 	{
 		Inventory_Bag->InitializeMenu(this);
 	}
-
-	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
-	{
-		if (US1RootWidget* RootWidget = UIManager->GetRootWidget())
-		{
-			ItemInfoWidget = RootWidget->GetItemInfoWidget();
-		}
-	}
 }
 
 void US1Menu_Inventory::HandleSlotHoverStarted(FGameplayTag ItemTag, const FVector2D& ScreenPosition)
 {
 	if (ItemInfoWidget == nullptr)
 	{
-		return;
+		if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
+		{
+			if (US1RootWidget* RootWidget = UIManager->GetRootWidget())
+			{
+				ItemInfoWidget = RootWidget->GetItemInfoWidget();
+			}
+		}
 	}
 
 	ItemInfoWidget->SetItemInfo(ItemTag);

@@ -23,6 +23,11 @@ namespace S1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_ChangeLockOnSide,  "Input.Action.ChangeLockOnSide");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_LockOnLeft,         "Input.Action.LockOnLeft");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_LockOnRight,        "Input.Action.LockOnRight");
+
+#pragma region UI
+	UE_DEFINE_GAMEPLAY_TAG(Input_UI_Inventory, "Input.UI.Inventory");
+
+#pragma endregion
 }
 
 namespace S1UITags
@@ -81,6 +86,7 @@ namespace S1AnimTags
 namespace S1AbilityTags
 {
 #pragma region Player
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack, "Ability.Player.Attack");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Ground, "Ability.Player.Attack.Ground");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Air, "Ability.Player.Attack.Air");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_WeakAttack, "Ability.Player.Attack.WeakAttack");

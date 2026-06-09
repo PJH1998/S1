@@ -32,6 +32,7 @@ public:
 	void SetUp_HUD(const FGameplayTag& UITag);
 	void ShowMenu(const FGameplayTag& UITag);
 	void HideAllMenus();
+	bool IsInventoryMenuOpen() const;
 
 	void FadeIn(float InDuration = 1.f);
 	void FadeOut(float InDuration = 1.f);
