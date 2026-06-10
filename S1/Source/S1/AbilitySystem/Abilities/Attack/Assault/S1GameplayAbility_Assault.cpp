@@ -3,7 +3,6 @@
 #include "AbilitySystem/Abilities/Attack/Assault/S1GameplayAbility_Assault.h"
 #include "AbilitySystem/Progression/S1MontageProgression.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
-#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystemComponent.h"
 #include "Character/Player/S1Player.h"
 #include "GameFramework/Character.h"
@@ -37,19 +36,7 @@ void US1GameplayAbility_Assault::ActivateAbility(const FGameplayAbilitySpecHandl
 		}
 	}
 
-	if (MoveBeginEventTag.IsValid())
-	{
-		UAbilityTask_WaitGameplayEvent* Task = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, MoveBeginEventTag);
-		Task->EventReceived.AddDynamic(this, &ThisClass::OnMoveBeginReceived);
-		Task->ReadyForActivation();
-	}
-
-	if (MoveEndEventTag.IsValid())
-	{
-		UAbilityTask_WaitGameplayEvent* Task = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, MoveEndEventTag);
-		Task->EventReceived.AddDynamic(this, &ThisClass::OnMoveEndReceived);
-		Task->ReadyForActivation();
-	}
+	// Move 이벤트 바인딩은 GA_Action::ActivateAbility에서 처리
 }
 
 void US1GameplayAbility_Assault::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -76,9 +63,15 @@ void US1GameplayAbility_Assault::EndAbility(const FGameplayAbilitySpecHandle Han
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void US1GameplayAbility_Assault::OnMoveBeginReceived(FGameplayEventData Payload)
+void US1GameplayAbility_Assault::OnMoveBeginReceived(const FGameplayEventData* Payload)
 {
 	if (IsValid(MoveTask))
+	{
+		return;
+	}
+
+	const float Impulse = Payload ? Payload->EventMagnitude : 0.f;
+	if (Impulse <= KINDA_SMALL_NUMBER)
 	{
 		return;
 	}
@@ -93,7 +86,7 @@ void US1GameplayAbility_Assault::OnMoveBeginReceived(FGameplayEventData Payload)
 		this,
 		NAME_None,
 		CapturedAssaultDirection,
-		AssaultSpeed,
+		Impulse,
 		9999.f,
 		false,
 		nullptr,
@@ -105,7 +98,7 @@ void US1GameplayAbility_Assault::OnMoveBeginReceived(FGameplayEventData Payload)
 	MoveTask->ReadyForActivation();
 }
 
-void US1GameplayAbility_Assault::OnMoveEndReceived(FGameplayEventData Payload)
+void US1GameplayAbility_Assault::OnMoveEndReceived(const FGameplayEventData* Payload)
 {
 	if (IsValid(MoveTask))
 	{

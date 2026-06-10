@@ -10,6 +10,7 @@
 
 class US1MontageProgression;
 class US1AnimInstance;
+class UAbilityTask_ApplyRootMotionConstantForce;
 struct FS1MontageData;
 struct FS1MontageSet;
 
@@ -80,7 +81,27 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Instanced, Category = "Action|Montage")
 	TObjectPtr<US1MontageProgression> MontageProgression;
 
+	// NotifyState_MoveEvent와 연동 — MoveBegin/End 이벤트 수신 시 OnMoveBeginReceived/OnMoveEndReceived 호출
+	// 서브클래스(GA_Evasion, GA_Assault 등)에서 override하여 동작 커스터마이징
+	UPROPERTY(EditDefaultsOnly, Category = "Action|Move")
+	FGameplayTag MoveBeginEventTag;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Action|Move")
+	FGameplayTag MoveEndEventTag;
+
+	// MoveBegin → ConstantForce 시작 / MoveEnd → 태스크 종료
+	// 서브클래스(GA_Evasion, GA_Assault)에서 override 시 방향/중력 등 커스터마이징
+	virtual void OnMoveBeginReceived(const FGameplayEventData* Payload);
+	virtual void OnMoveEndReceived(const FGameplayEventData* Payload);
+
+	UPROPERTY()
+	TObjectPtr<UAbilityTask_ApplyRootMotionConstantForce> MoveTask;
+
 private:
+	// virtual dispatch를 위한 non-virtual 래퍼 (GenericGameplayEventCallbacks에 저장됨)
+	void InternalMoveBeginCallback(const FGameplayEventData* Payload);
+	void InternalMoveEndCallback(const FGameplayEventData* Payload);
+
 	// 액션 중 상태 태그 (ex. State.Action)
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	FGameplayTag ActionStateTag;

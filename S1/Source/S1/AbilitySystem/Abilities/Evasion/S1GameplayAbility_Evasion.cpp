@@ -2,7 +2,6 @@
 
 #include "AbilitySystem/Abilities/Evasion/S1GameplayAbility_Evasion.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
-#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -19,20 +18,7 @@ void US1GameplayAbility_Evasion::ActivateAbility(const FGameplayAbilitySpecHandl
 	}
 
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	if (MoveBeginEventTag.IsValid())
-	{
-		UAbilityTask_WaitGameplayEvent* BeginTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, MoveBeginEventTag);
-		BeginTask->EventReceived.AddDynamic(this, &ThisClass::OnMoveBeginReceived);
-		BeginTask->ReadyForActivation();
-	}
-
-	if (MoveEndEventTag.IsValid())
-	{
-		UAbilityTask_WaitGameplayEvent* EndTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, MoveEndEventTag);
-		EndTask->EventReceived.AddDynamic(this, &ThisClass::OnMoveEndReceived);
-		EndTask->ReadyForActivation();
-	}
+	// Move 이벤트 바인딩은 GA_Action::ActivateAbility에서 처리
 }
 
 void US1GameplayAbility_Evasion::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -54,9 +40,15 @@ void US1GameplayAbility_Evasion::EndAbility(const FGameplayAbilitySpecHandle Han
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void US1GameplayAbility_Evasion::OnMoveBeginReceived(FGameplayEventData Payload)
+void US1GameplayAbility_Evasion::OnMoveBeginReceived(const FGameplayEventData* Payload)
 {
 	if (IsValid(MoveTask))
+	{
+		return;
+	}
+
+	const float Impulse = Payload ? Payload->EventMagnitude : 0.f;
+	if (Impulse <= KINDA_SMALL_NUMBER)
 	{
 		return;
 	}
@@ -65,7 +57,7 @@ void US1GameplayAbility_Evasion::OnMoveBeginReceived(FGameplayEventData Payload)
 		this,
 		NAME_None,
 		CapturedMoveDirection,
-		MoveSpeed,
+		Impulse,
 		9999.f,
 		false,
 		nullptr,
@@ -85,7 +77,7 @@ void US1GameplayAbility_Evasion::OnMoveBeginReceived(FGameplayEventData Payload)
 	}
 }
 
-void US1GameplayAbility_Evasion::OnMoveEndReceived(FGameplayEventData Payload)
+void US1GameplayAbility_Evasion::OnMoveEndReceived(const FGameplayEventData* Payload)
 {
 	if (IsValid(MoveTask))
 	{

@@ -22,4 +22,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "MoveEvent")
 	FGameplayTag MoveEndEventTag;
+
+	// 이동 속도 — Payload.EventMagnitude로 전달, GA의 OnMoveBeginReceived에서 사용
+	// 0이면 이동 없음
+	UPROPERTY(EditAnywhere, Category = "MoveEvent")
+	float ForwardImpulse = 0.f;
 };

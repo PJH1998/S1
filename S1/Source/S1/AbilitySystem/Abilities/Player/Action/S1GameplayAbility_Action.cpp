@@ -3,6 +3,7 @@
 #include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
 #include "AbilitySystem/Task/S1AbilityTask_EarlyExitChecker.h"
 #include "AbilitySystem/Progression/S1MontageProgression.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystemComponent.h"
 #include "Animation/AnimInstance.h"
@@ -32,6 +33,21 @@ void US1GameplayAbility_Action::ActivateAbility(const FGameplayAbilitySpecHandle
 		Task->EventReceived.AddDynamic(this, &ThisClass::OnEarlyMoveEventReceived);
 		Task->ReadyForActivation();
 	}
+
+	// Move 이벤트 바인딩 — 서브클래스 virtual dispatch를 위해 non-virtual 래퍼 사용
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		if (MoveBeginEventTag.IsValid())
+		{
+			ASC->GenericGameplayEventCallbacks.FindOrAdd(MoveBeginEventTag)
+				.AddUObject(this, &ThisClass::InternalMoveBeginCallback);
+		}
+		if (MoveEndEventTag.IsValid())
+		{
+			ASC->GenericGameplayEventCallbacks.FindOrAdd(MoveEndEventTag)
+				.AddUObject(this, &ThisClass::InternalMoveEndCallback);
+		}
+	}
 }
 
 void US1GameplayAbility_Action::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -50,6 +66,26 @@ void US1GameplayAbility_Action::EndAbility(const FGameplayAbilitySpecHandle Hand
 	if (IsValid(MontageProgression))
 	{
 		MontageProgression->OnDeactivated();
+	}
+
+	// 안전망 — MoveEnd 이벤트 없이 종료된 경우 대비
+	if (IsValid(MoveTask))
+	{
+		MoveTask->EndTask();
+		MoveTask = nullptr;
+	}
+
+	// Move 이벤트 바인딩 해제
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		if (MoveBeginEventTag.IsValid())
+		{
+			ASC->GenericGameplayEventCallbacks.FindOrAdd(MoveBeginEventTag).RemoveAll(this);
+		}
+		if (MoveEndEventTag.IsValid())
+		{
+			ASC->GenericGameplayEventCallbacks.FindOrAdd(MoveEndEventTag).RemoveAll(this);
+		}
 	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
@@ -173,6 +209,70 @@ const FS1MontageSet* US1GameplayAbility_Action::GetCurrentMontageSet() const
 US1AnimInstance* US1GameplayAbility_Action::GetAnimInstanceForProgression() const
 {
 	return GetAnimInstance();
+}
+
+void US1GameplayAbility_Action::OnMoveBeginReceived(const FGameplayEventData* Payload)
+{
+	// 이동 속도는 NotifyState에서 Payload.EventMagnitude로 전달
+	const float Impulse = Payload ? Payload->EventMagnitude : 0.f;
+	if (Impulse <= KINDA_SMALL_NUMBER)
+	{
+		return;
+	}
+
+	if (IsValid(MoveTask))
+	{
+		return;
+	}
+
+	const AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo());
+	if (false == IsValid(Player))
+	{
+		return;
+	}
+
+	const FVector FacingDir = Player->GetActorForwardVector();
+	const FVector InputDir  = Player->GetLastInputDirection();
+
+	// S키 (반대 방향) 누르고 있으면 이동 없음
+	if (InputDir.SizeSquared() > 0.1f && FVector::DotProduct(FacingDir, InputDir) < -0.5f)
+	{
+		return;
+	}
+
+	MoveTask = UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
+		this,
+		NAME_None,
+		FacingDir,
+		Impulse,
+		9999.f,
+		false,
+		nullptr,
+		ERootMotionFinishVelocityMode::SetVelocity,
+		FVector::ZeroVector,
+		0.f,
+		false
+	);
+	MoveTask->ReadyForActivation();
+}
+
+void US1GameplayAbility_Action::OnMoveEndReceived(const FGameplayEventData* Payload)
+{
+	if (IsValid(MoveTask))
+	{
+		MoveTask->EndTask();
+		MoveTask = nullptr;
+	}
+}
+
+void US1GameplayAbility_Action::InternalMoveBeginCallback(const FGameplayEventData* Payload)
+{
+	OnMoveBeginReceived(Payload);
+}
+
+void US1GameplayAbility_Action::InternalMoveEndCallback(const FGameplayEventData* Payload)
+{
+	OnMoveEndReceived(Payload);
 }
 
 void US1GameplayAbility_Action::OnEarlyMoveEventReceived(FGameplayEventData Payload)

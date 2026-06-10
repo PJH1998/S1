@@ -20,6 +20,7 @@ void US1AnimNotifyState_MoveEvent::NotifyBegin(USkeletalMeshComponent* MeshComp,
 	}
 
 	FGameplayEventData Payload;
+	Payload.EventMagnitude = ForwardImpulse;
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Owner, MoveBeginEventTag, Payload);
 }
 
