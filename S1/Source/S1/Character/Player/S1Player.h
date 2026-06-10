@@ -67,6 +67,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	FName WeaponSocketName = FName("w_R_Attach");
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float WeaponLayerBlendTime = 0.25f;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TArray<FS1AbilityInputBinding> AbilityInputBindings;
 
@@ -111,6 +114,16 @@ private:
 	// Jump() 호출 시 GA에 전달할 이벤트 태그
 	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
 	FGameplayTag JumpEventTag;
+
+public:
+	// GA_Action::OnMoveBeginReceived에서 S키(반대 방향) 체크용
+	FVector GetLastInputDirection() const { return LastInputDirection; }
+	// OnMove(Triggered/Completed)에서 설정 — 키 릴리즈 시 ZeroVector로 리셋
+	void SetLastInputDirection(const FVector& InDirection) { LastInputDirection = InDirection; }
+
+private:
+	// 현재 이동 입력 방향 (키 없으면 ZeroVector, OnMove Completed에서 리셋)
+	FVector LastInputDirection = FVector::ZeroVector;
 
 	// Landed() 호출 시 GA에 전달할 이벤트 태그
 	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")

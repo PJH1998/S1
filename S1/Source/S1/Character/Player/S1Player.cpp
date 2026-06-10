@@ -11,6 +11,7 @@
 
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "Animation/Weapon/S1WeaponAnimLayer.h"
+#include "Animation/S1AnimInstance.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Data/S1WeaponData.h"
 #include "System/S1AssetManager.h"
@@ -148,6 +149,11 @@ void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 		if (nullptr != ResolvedAnimLayerClass)
 		{
 			GetMesh()->LinkAnimClassLayers(ResolvedAnimLayerClass);
+
+			if (US1AnimInstance* AnimInst = Cast<US1AnimInstance>(GetMesh()->GetAnimInstance()))
+			{
+				AnimInst->RequestInertialization(WeaponLayerBlendTime);
+			}
 		}
 
 		CurrentWeaponType = NewWeaponType;
