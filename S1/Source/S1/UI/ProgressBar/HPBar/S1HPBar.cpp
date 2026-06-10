@@ -21,8 +21,7 @@ void US1HPBar::NativeConstruct()
 		return;
 	}
 
-	MaxValue = PlayerSet->GetHealth();
-	CurrentValue = MaxValue;
+	SetValue(PlayerSet->GetHealth(), PlayerSet->GetMaxHealth());
 	LerpValue = CurrentValue;
 	LerpSpeed = 25.f;
 }
@@ -36,7 +35,7 @@ void US1HPBar::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		return;
 	}
 
-	CurrentValue = PlayerSet->GetHealth();
+	SetValue(PlayerSet->GetHealth(), PlayerSet->GetMaxHealth());
 
 	if (CurrentValue >= LerpValue)
 	{

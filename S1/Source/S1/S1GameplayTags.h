@@ -9,7 +9,7 @@ namespace S1GameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Move);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Sprint);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Turn);
-	
+
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Attack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Jump);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Dash);
@@ -149,6 +149,7 @@ namespace S1AssetTags
 namespace S1GameplayEffectTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEffect_GainXP);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEffect_ApplyEquip);
 }
 
 namespace S1StateTags
@@ -201,7 +202,7 @@ namespace S1DropTags
 
 namespace S1ItemTags
 {
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_Asna01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_RPR01);
 }
 
 namespace S1ItemRarityTags
@@ -229,6 +230,9 @@ namespace S1SetByCallerTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Damage);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_XP);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Status);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Status_Health);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Status_Damage);
 }
 
 namespace S1DataTableTags

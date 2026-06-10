@@ -8,7 +8,7 @@ namespace S1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Move, "Input.Action.Move");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Sprint, "Input.Action.Sprint");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Turn, "Input.Action.Turn");
-	
+
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Attack, "Input.Action.Attack");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Jump, "Input.Action.Jump");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Dash, "Input.Action.Dash");
@@ -147,6 +147,7 @@ namespace S1AssetTags
 namespace S1GameplayEffectTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEffect_GainXP, "GameplayEffect.GainXP");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayEffect_ApplyEquip, "GameplayEffect.ApplyEquip");
 }
 
 namespace S1StateTags
@@ -199,7 +200,7 @@ namespace S1DropTags
 
 namespace S1ItemTags
 {
-	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Asna01, "Item.Weapon.Asna01");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_RPR01, "Item.Weapon.RPR01");
 }
 
 namespace S1ItemRarityTags
@@ -227,6 +228,9 @@ namespace S1SetByCallerTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Damage, "SetByCaller.Damage");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_XP, "SetByCaller.XP");
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Status, "SetByCaller.Status");
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Status_Health, "SetByCaller.Status.Health");
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Status_Damage, "SetByCaller.Status.Damage");
 }
 
 namespace S1DataTableTags

@@ -4,8 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameplayEffectTypes.h"
 #include "GameplayTagContainer.h"
 #include "S1EquipComponent.generated.h"
+
+class UGameplayEffect;
+
+struct FS1ItemData;
+
+UENUM(BlueprintType)
+enum class ES1EquipSlot : uint8
+{
+	Weapon,
+	Costume,
+	Accessary,
+	MAX UMETA(Hidden)
+};
 
 USTRUCT(BlueprintType)
 struct FS1EquippedItem
@@ -30,6 +44,9 @@ class S1_API US1EquipComponent : public UActorComponent
 public:
 	US1EquipComponent();
 
+protected:
+	virtual void BeginPlay() override;
+
 public:
 	bool EquipItem(FGameplayTag ItemTag);
 	bool UnequipItem(FGameplayTag SlotTag, bool bFromEquipSwap = false);
@@ -43,6 +60,18 @@ public:
 	FS1ItemEquippedSignature OnItemEquipped;
 
 private:
+	TOptional<ES1EquipSlot> GetEquipSlotEnum(FGameplayTag SlotTag) const;
+	FGameplayTag GetEquipSlotTag(ES1EquipSlot Slot) const;
+	bool ApplyEquipGameplayEffect(ES1EquipSlot Slot, const FS1ItemData& ItemData);
+	void RemoveEquipGameplayEffect(ES1EquipSlot Slot);
+
+private:
+	static constexpr int32 EquipSlotCount = static_cast<int32>(ES1EquipSlot::MAX);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TArray<FS1EquippedItem> EquippedItems;
+
+	TArray<FActiveGameplayEffectHandle> EquipEffectHandles;
+
+	TSubclassOf<UGameplayEffect> ApplyEquipEffectClass;
 };

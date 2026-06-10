@@ -3,15 +3,134 @@
 
 #include "Component/S1EquipComponent.h"
 
+#include "AbilitySystemComponent.h"
 #include "Component/S1InventoryComponent.h"
+#include "Data/S1GameplayEffectData.h"
+#include "GameplayEffect.h"
 #include "Player/S1PlayerState.h"
 #include "S1DataTableTypes.h"
 #include "S1GameplayTags.h"
+#include "System/S1AssetManager.h"
 #include "System/S1ItemManager.h"
 
 US1EquipComponent::US1EquipComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	EquipEffectHandles.SetNum(EquipSlotCount);
+}
+
+void US1EquipComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (US1GameplayEffectData* GameplayEffectData = US1AssetManager::GetAssetByTag<US1GameplayEffectData>(S1AssetTags::Asset_GameplayEffect))
+	{
+		ApplyEquipEffectClass = GameplayEffectData->FindEffectClassByTag(S1GameplayEffectTags::GameplayEffect_ApplyEquip);
+	}
+}
+
+TOptional<ES1EquipSlot> US1EquipComponent::GetEquipSlotEnum(FGameplayTag SlotTag) const
+{
+	if (SlotTag == S1EquipSlotTags::Equip_Type_Weapon)
+	{
+		return ES1EquipSlot::Weapon;
+	}
+	if (SlotTag == S1EquipSlotTags::Equip_Type_Costume)
+	{
+		return ES1EquipSlot::Costume;
+	}
+	if (SlotTag == S1EquipSlotTags::Equip_Type_Accessary)
+	{
+		return ES1EquipSlot::Accessary;
+	}
+
+	return TOptional<ES1EquipSlot>();
+}
+
+FGameplayTag US1EquipComponent::GetEquipSlotTag(ES1EquipSlot Slot) const
+{
+	switch (Slot)
+	{
+	case ES1EquipSlot::Weapon:
+		return S1EquipSlotTags::Equip_Type_Weapon;
+	case ES1EquipSlot::Costume:
+		return S1EquipSlotTags::Equip_Type_Costume;
+	case ES1EquipSlot::Accessary:
+		return S1EquipSlotTags::Equip_Type_Accessary;
+	default:
+		return FGameplayTag();
+	}
+}
+
+bool US1EquipComponent::ApplyEquipGameplayEffect(ES1EquipSlot Slot, const FS1ItemData& ItemData)
+{
+	const int32 SlotIndex = static_cast<int32>(Slot);
+	if (SlotIndex < 0 || SlotIndex >= EquipSlotCount)
+	{
+		return false;
+	}
+
+	AS1PlayerState* PlayerState = Cast<AS1PlayerState>(GetOwner());
+	if (PlayerState == nullptr)
+	{
+		return false;
+	}
+
+	UAbilitySystemComponent* AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
+	if (false == IsValid(AbilitySystemComponent))
+	{
+		return false;
+	}
+
+	if (ApplyEquipEffectClass == nullptr)
+	{
+		return false;
+	}
+
+	FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
+	Context.AddSourceObject(this);
+
+	FGameplayEffectSpecHandle Spec = AbilitySystemComponent->MakeOutgoingSpec(ApplyEquipEffectClass, 1.f, Context);
+	if (false == Spec.IsValid())
+	{
+		return false;
+	}
+
+	Spec.Data->SetSetByCallerMagnitude(S1SetByCallerTags::SetByCaller_Status_Health, ItemData.BaseHealth);
+	Spec.Data->SetSetByCallerMagnitude(S1SetByCallerTags::SetByCaller_Status_Damage, ItemData.BaseDamage);
+
+	const FActiveGameplayEffectHandle ActiveHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*Spec.Data);
+	EquipEffectHandles[SlotIndex] = ActiveHandle;
+	return ActiveHandle.IsValid();
+}
+
+void US1EquipComponent::RemoveEquipGameplayEffect(ES1EquipSlot Slot)
+{
+	const int32 SlotIndex = static_cast<int32>(Slot);
+	if (SlotIndex < 0 || SlotIndex >= EquipSlotCount)
+	{
+		return;
+	}
+
+	FActiveGameplayEffectHandle& ActiveHandle = EquipEffectHandles[SlotIndex];
+	if (false == ActiveHandle.IsValid())
+	{
+		return;
+	}
+
+	AS1PlayerState* PlayerState = Cast<AS1PlayerState>(GetOwner());
+	if (PlayerState == nullptr)
+	{
+		ActiveHandle.Invalidate();
+		return;
+	}
+
+	if (UAbilitySystemComponent* AbilitySystemComponent = PlayerState->GetAbilitySystemComponent())
+	{
+		AbilitySystemComponent->RemoveActiveGameplayEffect(ActiveHandle);
+	}
+
+	ActiveHandle.Invalidate();
 }
 
 bool US1EquipComponent::EquipItem(FGameplayTag ItemTag)
@@ -38,6 +157,12 @@ bool US1EquipComponent::EquipItem(FGameplayTag ItemTag)
 	}
 
 	const FGameplayTag SlotTag = ItemData->EquipSlot;
+	const TOptional<ES1EquipSlot> SlotEnum = GetEquipSlotEnum(SlotTag);
+	if (false == SlotEnum.IsSet())
+	{
+		return false;
+	}
+
 	if (GetEquippedItemTag(SlotTag).IsValid())
 	{
 		UnequipItem(SlotTag, true);
@@ -53,6 +178,7 @@ bool US1EquipComponent::EquipItem(FGameplayTag ItemTag)
 		if (EquippedItem.SlotTag == SlotTag)
 		{
 			EquippedItem.ItemTag = ItemTag;
+			ApplyEquipGameplayEffect(SlotEnum.GetValue(), *ItemData);
 			OnItemEquipped.Broadcast(ItemTag);
 			OnEquipmentChanged.Broadcast();
 			return true;
@@ -64,7 +190,7 @@ bool US1EquipComponent::EquipItem(FGameplayTag ItemTag)
 	NewEquippedItem.ItemTag = ItemTag;
 	EquippedItems.Add(NewEquippedItem);
 
-	// TODO: GAS additive stat GE apply
+	ApplyEquipGameplayEffect(SlotEnum.GetValue(), *ItemData);
 	OnItemEquipped.Broadcast(ItemTag);
 	OnEquipmentChanged.Broadcast();
 	return true;
@@ -83,6 +209,12 @@ bool US1EquipComponent::UnequipItem(FGameplayTag SlotTag, bool bFromEquipSwap)
 		return false;
 	}
 
+	const TOptional<ES1EquipSlot> SlotEnum = GetEquipSlotEnum(SlotTag);
+	if (false == SlotEnum.IsSet())
+	{
+		return false;
+	}
+
 	AS1PlayerState* PlayerState = Cast<AS1PlayerState>(GetOwner());
 	if (PlayerState == nullptr)
 	{
@@ -95,6 +227,8 @@ bool US1EquipComponent::UnequipItem(FGameplayTag SlotTag, bool bFromEquipSwap)
 		return false;
 	}
 
+	RemoveEquipGameplayEffect(SlotEnum.GetValue());
+
 	for (int32 Index = 0; Index < EquippedItems.Num(); ++Index)
 	{
 		if (EquippedItems[Index].SlotTag == SlotTag)
@@ -104,7 +238,6 @@ bool US1EquipComponent::UnequipItem(FGameplayTag SlotTag, bool bFromEquipSwap)
 		}
 	}
 
-	// TODO: GAS additive stat GE remove
 	if (false == bFromEquipSwap && SlotTag == S1EquipSlotTags::Equip_Type_Weapon)
 	{
 		OnItemEquipped.Broadcast(FGameplayTag());
