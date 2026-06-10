@@ -22,10 +22,14 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 public:
-	UFUNCTION()
-	void AnimNotify_LoopStart();
+	void OnLoopStartNotify();
 
 	void SetDirectToFall(bool bInDirectToFall) { bDirectToFall = bInDirectToFall; }
+
+	bool  GetSprint()       const { return bSprint; }
+	bool  GetDirectToFall() const { return bDirectToFall; }
+	bool  GetWait()         const { return bWait; }
+	bool  GetRunLoop()      const { return bRunLoop; }
 
 public:
 	UPROPERTY(BlueprintReadOnly)
