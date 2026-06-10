@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/S1GameplayAbility.h"
 #include "GameplayTagContainer.h"
+#include "S1Enums.h"
 #include "S1GameplayAbility_Action.generated.h"
 
 class US1MontageProgression;
@@ -61,9 +62,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Action|Montage")
 	FGameplayTag AnimDataTag;
 
-	// 실행할 Montage Asset Tag
+	// 무기 비의존 기본 Montage Tag
+	// bUseWeaponMontage = true 일 때 MontageTagByWeapon에 현재 무기 타입이 없으면 폴백으로 사용
 	UPROPERTY(EditDefaultsOnly, Category = "Action|Montage")
 	FGameplayTag MontageTag;
+
+	// true: MontageTagByWeapon에서 현재 장착 무기 WeaponType으로 Montage Tag 결정 (플레이어 무기 GA 전용)
+	// false: MontageTag 고정 사용 (Common GA, 몬스터 GA)
+	UPROPERTY(EditDefaultsOnly, Category = "Action|Montage")
+	bool bUseWeaponMontage = false;
+
+	// 무기 종류별 Montage Tag (bUseWeaponMontage = true 일 때만 참조)
+	UPROPERTY(EditDefaultsOnly, Category = "Action|Montage", meta = (EditCondition = "bUseWeaponMontage"))
+	TMap<ES1WeaponType, FGameplayTag> MontageTagByWeapon;
 
 	// 몽타주 진행 전략 — 에디터에서 인라인 선택/편집
 	UPROPERTY(EditDefaultsOnly, Instanced, Category = "Action|Montage")

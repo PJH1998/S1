@@ -5,10 +5,15 @@
 #include "S1Enums.h"
 #include "Camera/S1PlayerCameraComponent.h"
 #include "Component/S1LockOnComponent.h"
+#include "Component/S1EquipComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 #include "AbilitySystem/S1AbilitySystemComponent.h"
+#include "Animation/Weapon/S1WeaponAnimLayer.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Data/S1WeaponData.h"
+#include "System/S1AssetManager.h"
 #include "Weapon/S1Weapon.h"
 #include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
 #include "Player/S1PlayerController.h"
@@ -79,16 +84,74 @@ void AS1Player::PossessedBy(AController* NewController)
 
 	InitSystem();
 
-	if (nullptr == WeaponClass)
+	FGameplayTag InitialTag = FGameplayTag::EmptyTag;
+
+	if (AS1PlayerState* PS = GetPlayerState<AS1PlayerState>())
 	{
-		return;
+		if (US1EquipComponent* EquipComp = PS->GetEquipComponent())
+		{
+			EquipComp->OnItemEquipped.AddDynamic(this, &ThisClass::OnItemEquipped);
+
+			InitialTag = EquipComp->GetEquippedItemTag(S1EquipSlotTags::Equip_Type_Weapon);
+		}
 	}
 
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = this;
-	EquippedWeapon = GetWorld()->SpawnActor<AS1Weapon>(WeaponClass, SpawnParams);
-	EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponSocketName);
-	EquippedWeapon->SetActorRelativeRotation(FRotator(0.f, 0.f, -90.f));
+	// EquipComponent 없으면 기본 무기로 초기화
+	EquipWeapon(InitialTag);
+}
+
+void AS1Player::OnItemEquipped(FGameplayTag ItemTag)
+{
+	EquipWeapon(ItemTag);
+}
+
+void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
+{
+	// ItemTag에 따라 엔트리 결정
+	TSubclassOf<AS1Weapon> ResolvedWeaponClass             = DefaultWeaponClass;
+	TSubclassOf<US1WeaponAnimLayer> ResolvedAnimLayerClass = DefaultAnimLayerClass;
+
+	if (ItemTag.IsValid())
+	{
+		US1WeaponData* WeaponData = US1AssetManager::GetAssetByTag<US1WeaponData>(S1AssetTags::Asset_WeaponData);
+		if (IsValid(WeaponData))
+		{
+			if (const FS1WeaponEntry* Entry = WeaponData->FindEntryByTag(ItemTag))
+			{
+				ResolvedWeaponClass    = Entry->WeaponClass;
+				ResolvedAnimLayerClass = Entry->AnimLayerClass;
+			}
+		}
+	}
+
+	// 무기 BP 교체 — 아이템 변경 시 항상 교체 (외형/히트박스 다를 수 있음)
+	if (IsValid(EquippedWeapon))
+	{
+		EquippedWeapon->Destroy();
+		EquippedWeapon = nullptr;
+	}
+
+	if (nullptr != ResolvedWeaponClass)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		EquippedWeapon = GetWorld()->SpawnActor<AS1Weapon>(ResolvedWeaponClass, SpawnParams);
+		EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponSocketName);
+		EquippedWeapon->SetActorRelativeRotation(FRotator(0.f, 0.f, -90.f));
+	}
+
+	// WeaponType이 달라진 경우에만 AnimLayer 교체
+	const ES1WeaponType NewWeaponType = IsValid(EquippedWeapon) ? EquippedWeapon->GetWeaponType() : ES1WeaponType::None;
+
+	if (NewWeaponType != CurrentWeaponType)
+	{
+		if (nullptr != ResolvedAnimLayerClass)
+		{
+			GetMesh()->LinkAnimClassLayers(ResolvedAnimLayerClass);
+		}
+
+		CurrentWeaponType = NewWeaponType;
+	}
 }
 
 void AS1Player::InitSystem()

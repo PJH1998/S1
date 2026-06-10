@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "S1Enums.h"
 #include "S1Weapon.generated.h"
 
 class USkeletalMeshComponent;
@@ -28,6 +29,7 @@ public:
 
 	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 	UBoxComponent* GetAttackBox() const { return AttackBox; }
+	ES1WeaponType GetWeaponType() const { return WeaponType; }
 
 	FOnS1HitCollisionEnabled OnHitCollisionEnabled;
 
@@ -40,6 +42,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraComponent> TrailComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	ES1WeaponType WeaponType = ES1WeaponType::None;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Trail")
 	FName TipSocketName = TEXT("Tip");

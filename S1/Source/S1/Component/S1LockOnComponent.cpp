@@ -106,19 +106,27 @@ void US1LockOnComponent::ToggleCameraSide()
 
 AActor* US1LockOnComponent::GetCurrentTarget() const
 {
-	if (false == CycleList.IsValidIndex(CurrentIndex)) { return nullptr; }
+	if (false == CycleList.IsValidIndex(CurrentIndex))
+	{
+		return nullptr;
+	}
+
 	return CycleList[CurrentIndex].Target.Get();
 }
 
 FVector US1LockOnComponent::GetLockOnTargetLocation() const
 {
 	AActor* Target = GetCurrentTarget();
-	if (false == ::IsValid(Target)) { return FVector::ZeroVector; }
+	if (false == ::IsValid(Target))
+	{
+		return FVector::ZeroVector;
+	}
 
 	if (Target->Implements<US1LockOnInterface>())
 	{
 		return IS1LockOnInterface::Execute_GetLockOnFocusLocation(Target);
 	}
+
 	return Target->GetActorLocation();
 }
 
@@ -128,8 +136,15 @@ void US1LockOnComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AAc
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor == GetOwner()) { return; }
-	if (false == OtherActor->Implements<US1LockOnInterface>()) { return; }
+	if (OtherActor == GetOwner())
+	{
+		return;
+	}
+
+	if (false == OtherActor->Implements<US1LockOnInterface>())
+	{
+		return;
+	}
 
 	CandidateSet.Add(OtherActor);
 
@@ -169,14 +184,20 @@ void US1LockOnComponent::BuildAndStartCycle(const FRotator& CameraRotation)
 
 	for (const TWeakObjectPtr<AActor>& Weak : CandidateSet)
 	{
-		if (false == Weak.IsValid()) { continue; }
+		if (false == Weak.IsValid())
+		{
+			continue;
+		}
 
 		FS1LockOnEntry Entry  = MakeEntry(Weak.Get());
 		Entry.SignedAngle      = ComputeSignedAngle(Weak.Get());
 		CycleList.Add(Entry);
 	}
 
-	if (CycleList.IsEmpty()) { return; }
+	if (CycleList.IsEmpty())
+	{
+		return;
+	}
 
 	// 카메라 기준 왼쪽(-) → 오른쪽(+) 순 정렬
 	CycleList.Sort([](const FS1LockOnEntry& A, const FS1LockOnEntry& B)

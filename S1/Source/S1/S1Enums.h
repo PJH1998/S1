@@ -26,3 +26,11 @@ enum class ES1LockOnSide : uint8
 	Right = 0 UMETA(DisplayName = "Right"),
 	Left  = 1 UMETA(DisplayName = "Left"),
 };
+
+UENUM(BlueprintType)
+enum class ES1WeaponType : uint8
+{
+	None = 0 UMETA(DisplayName = "None"),
+	RPR  = 1 UMETA(DisplayName = "Rapier"),
+	SWD  = 2 UMETA(DisplayName = "Sword"),
+};

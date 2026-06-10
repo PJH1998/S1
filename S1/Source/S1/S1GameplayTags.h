@@ -70,21 +70,38 @@ namespace S1UIResourceTags
 
 namespace S1AnimTags
 {
-#pragma region Player
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Weak);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirWeak);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirWeakDive);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Skill01);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Dash);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirDash);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Dodge);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Assault);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_AirAssault);
+#pragma region Player_Common
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_Common_Ground_Dash);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_Common_Ground_Dodge);
 
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_Common_Air_Dash);
 #pragma endregion
 
+#pragma region Player_RPR
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Ground_Weak);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Ground_Skill01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Ground_Assault);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Air_Weak);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Air_WeakDive);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Air_Assault);
+#pragma endregion
+
+#pragma region Player_SWD
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Ground_Weak);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Ground_Skill01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Ground_Assault);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Air_Weak);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Air_WeakDive);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Air_Assault);
+#pragma endregion
+
+
+#pragma region Boss000
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack00);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack01);
+#pragma endregion
 }
 
 namespace S1AbilityTags
@@ -100,8 +117,8 @@ namespace S1AbilityTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill03);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Assault);
 
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Dash);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Dodge);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Common_Dash);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Common_Dodge);
 #pragma endregion
 
 #pragma region Boss000
@@ -131,19 +148,40 @@ namespace S1Labels
 
 namespace S1AssetTags
 {
+#pragma region Input
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_InputData);
+#pragma endregion
+
+#pragma region UI
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_UIData);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_UIResource);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Player_Asna);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Boss000);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_AnimData);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Effect);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_PoolingData);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DataTable);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DropItemResource);
+#pragma endregion
 
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DropTable_Boss000);
+#pragma region GameAbilitySystem
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Player);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Boss000);
+
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_GameplayEffect);
+#pragma endregion 
+
+#pragma region Animation
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_AnimData);
+#pragma endregion
+
+#pragma region Effect
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Effect);
+#pragma endregion
+
+#pragma region Datas
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_PoolingData);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DataTable);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DropItemResource);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DropTable_Boss000);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_WeaponData);
+#pragma endregion 
 }
 
 namespace S1GameplayEffectTags
@@ -203,6 +241,15 @@ namespace S1DropTags
 namespace S1ItemTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_RPR01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_RPR02);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_RPR03);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_RPR04);
+
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_SWD01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_SWD02);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_SWD03);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_SWD04);
 }
 
 namespace S1ItemRarityTags

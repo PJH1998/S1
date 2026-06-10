@@ -7,8 +7,10 @@
 #include "AbilitySystemComponent.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/S1AnimInstance.h"
+#include "Character/Player/S1Player.h"
 #include "Data/S1AnimData.h"
 #include "System/S1AssetManager.h"
+#include "Weapon/S1Weapon.h"
 
 void US1GameplayAbility_Action::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -123,7 +125,23 @@ const FS1MontageData* US1GameplayAbility_Action::GetMontageData() const
 		return nullptr;
 	}
 
-	return AnimData->FindMontageByTag(MontageTag);
+	FGameplayTag ResolvedTag = MontageTag;
+
+	if (bUseWeaponMontage)
+	{
+		if (const AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo()))
+		{
+			if (const AS1Weapon* Weapon = Player->GetEquippedWeapon())
+			{
+				if (const FGameplayTag* WeaponTag = MontageTagByWeapon.Find(Weapon->GetWeaponType()))
+				{
+					ResolvedTag = *WeaponTag;
+				}
+			}
+		}
+	}
+
+	return AnimData->FindMontageByTag(ResolvedTag);
 }
 
 const FS1MontageData* US1GameplayAbility_Action::GetMontageDataByTag(FGameplayTag InMontageTag) const
