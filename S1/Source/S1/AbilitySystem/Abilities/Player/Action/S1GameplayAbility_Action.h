@@ -52,6 +52,9 @@ public:
 	// protected인 GetAnimInstance를 Progression에서 호출 가능하도록 노출
 	US1AnimInstance* GetAnimInstanceForProgression() const;
 
+	// 현재 장착 무기 타입 — Progression에서 무기별 분기용
+	ES1WeaponType GetEquippedWeaponType() const;
+
 private:
 	UFUNCTION()
 	void OnEarlyMoveEventReceived(FGameplayEventData Payload);

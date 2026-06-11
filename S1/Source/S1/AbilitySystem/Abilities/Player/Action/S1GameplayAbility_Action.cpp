@@ -137,12 +137,22 @@ void US1GameplayAbility_Action::RequestReactivateSelf()
 		OwnTags = Spec->Ability->AbilityTags;
 	}
 
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-
-	if (OwnTags.IsValid())
+	if (false == OwnTags.IsValid())
 	{
-		ASC->TryActivateAbilitiesByTag(OwnTags);
+		return;
 	}
+
+	// EndAbility 전에 재발동 가능 여부 확인 — Blocked/Required Tag 불충족 시 현재 GA 유지
+	// (ex. 공중 콤보 UsedTag — 확인 없이 끝내면 몽타주 진행 중 GravityScale 등이 복구됨)
+	TArray<FGameplayAbilitySpec*> ActivatableSpecs;
+	ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(OwnTags, ActivatableSpecs);
+	if (ActivatableSpecs.IsEmpty())
+	{
+		return;
+	}
+
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	ASC->TryActivateAbilitiesByTag(OwnTags);
 }
 
 void US1GameplayAbility_Action::RequestActivateAbilityByTag(const FGameplayTagContainer& Tags)
@@ -209,6 +219,19 @@ const FS1MontageSet* US1GameplayAbility_Action::GetCurrentMontageSet() const
 US1AnimInstance* US1GameplayAbility_Action::GetAnimInstanceForProgression() const
 {
 	return GetAnimInstance();
+}
+
+ES1WeaponType US1GameplayAbility_Action::GetEquippedWeaponType() const
+{
+	if (const AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo()))
+	{
+		if (const AS1Weapon* Weapon = Player->GetEquippedWeapon())
+		{
+			return Weapon->GetWeaponType();
+		}
+	}
+
+	return ES1WeaponType::None;
 }
 
 void US1GameplayAbility_Action::OnMoveBeginReceived(const FGameplayEventData* Payload)

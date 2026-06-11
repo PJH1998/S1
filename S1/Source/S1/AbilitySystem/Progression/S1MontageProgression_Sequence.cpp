@@ -135,11 +135,16 @@ bool US1MontageProgression_Sequence::TryAdvanceCombo()
 	int32 NextIndex = CurrentSectionIndex + 1;
 	if (false == MontageData->MontageSets.IsValidIndex(NextIndex))
 	{
-		// 마지막 콤보 → NextAttackAbilityTag로 전이
-		if (NextAttackAbilityTag.IsValid())
+		// 마지막 콤보 → 무기별 NextAttackAbilityTag로 전이
+		if (const FGameplayTag* WeaponTag = NextAttackAbilityTagByWeapon.Find(GA->GetEquippedWeaponType()))
 		{
 			GA->RequestEndAbility(false);
-			GA->RequestActivateAbilityByTag(FGameplayTagContainer(NextAttackAbilityTag));
+			GA->RequestActivateAbilityByTag(FGameplayTagContainer(*WeaponTag));
+		}
+		else
+		{
+			// 미설정 무기 → 자기 자신 재발동 (EndAbility 후 TryActivate — Blocked Tag 검사 통과 필요)
+			GA->RequestReactivateSelf();
 		}
 		return true;
 	}
