@@ -2,7 +2,6 @@
 
 #include "AI/Service/BT_Service_FindTarget.h"
 #include "AI/S1AIController.h"
-#include "Character/Boss/S1BossBase.h"
 #include "Character/S1Monster.h"
 #include "Character/Player/S1Player.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -76,9 +75,9 @@ void UBT_Service_FindTarget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 	}
 	if (bHadTarget != bHasTarget)
 	{
-		if (AS1BossBase* Boss = Cast<AS1BossBase>(LocalPawn))
+		if (AS1Monster* Monster = Cast<AS1Monster>(LocalPawn))
 		{
-			Boss->NotifyHasTargetChanged(bHasTarget);
+			Monster->NotifyHasTargetChanged(bHasTarget);
 		}
 	}
 }

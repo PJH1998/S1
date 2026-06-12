@@ -4,9 +4,10 @@
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/S1AttributeSet.h"
 #include "AI/S1AIController.h"
-#include "Animation/S1AnimInstance_BossBase.h"
+#include "Animation/S1AnimInstance_EnemyLocomotion.h"
 #include "AIController.h"
 #include "Component/S1DeathPresentationComponent.h"
+#include "Component/S1EnemyLocomotionComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -21,6 +22,7 @@ AS1Monster::AS1Monster()
 {
 	AbilitySystemComponent = CreateDefaultSubobject<US1AbilitySystemComponent>("AbilitySystemComponent");
 	DeathPresentationComponent = CreateDefaultSubobject<US1DeathPresentationComponent>(TEXT("DeathPresentationComponent"));
+	EnemyLocomotionComponent = CreateDefaultSubobject<US1EnemyLocomotionComponent>(TEXT("EnemyLocomotionComponent"));
 }
 
 void AS1Monster::BeginPlay()
@@ -46,6 +48,9 @@ void AS1Monster::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	{
 		DeathPresentation->StopPresentation();
 	}
+
+	OnHasTargetChanged.Clear();
+	bHasTarget = false;
 
 	Super::EndPlay(EndPlayReason);
 }
@@ -226,10 +231,14 @@ void AS1Monster::NotifyDeath()
 	// AnimState 갱신
 	if (USkeletalMeshComponent* SkeletalMeshComp = GetMesh())
 	{
-		if (US1AnimInstance_BossBase* BossAnimInstance = Cast<US1AnimInstance_BossBase>(SkeletalMeshComp->GetAnimInstance()))
+		if (US1AnimInstance_EnemyLocomotion* EnemyAnimInstance = Cast<US1AnimInstance_EnemyLocomotion>(SkeletalMeshComp->GetAnimInstance()))
 		{
-			BossAnimInstance->SetDeadAnimState(true);
+			EnemyAnimInstance->SetDeadAnimState(true);
 		}
+	}
+	if (bHasTarget)
+	{
+		NotifyHasTargetChanged(false);
 	}
 	// Ability Cancel
 	if (US1AbilitySystemComponent* ASC = Cast<US1AbilitySystemComponent>(AbilitySystemComponent))
@@ -429,10 +438,10 @@ void AS1Monster::RestoreAliveState()
 		SkeletalMeshComp->bPauseAnims = false;
 		if (UAnimInstance* AnimInstance = SkeletalMeshComp->GetAnimInstance())
 		{
-			if (US1AnimInstance_BossBase* BossAnimInstance = Cast<US1AnimInstance_BossBase>(AnimInstance))
+			if (US1AnimInstance_EnemyLocomotion* EnemyAnimInstance = Cast<US1AnimInstance_EnemyLocomotion>(AnimInstance))
 			{
-				BossAnimInstance->SetDeadAnimState(false);
-				BossAnimInstance->ResetLocomotion();
+				EnemyAnimInstance->SetDeadAnimState(false);
+				EnemyAnimInstance->ResetLocomotion();
 			}
 		}
 	}
@@ -455,6 +464,17 @@ void AS1Monster::Tick(float DeltaTime)
 void AS1Monster::InitSystem()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+}
+
+void AS1Monster::NotifyHasTargetChanged(bool bInHasTarget)
+{
+	if (bHasTarget == bInHasTarget)
+	{
+		return;
+	}
+
+	bHasTarget = bInHasTarget;
+	OnHasTargetChanged.Broadcast(this, bHasTarget);
 }
 
 ES1EnemyTier AS1Monster::GetLockOnTier_Implementation()

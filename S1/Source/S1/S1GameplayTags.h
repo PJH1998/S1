@@ -103,6 +103,10 @@ namespace S1AnimTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack00);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack01);
 #pragma endregion
+
+#pragma region Enemy001
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Enemy001_Attack01);
+#pragma endregion
 }
 
 namespace S1AbilityTags
@@ -126,6 +130,10 @@ namespace S1AbilityTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_Attack00);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_Attack01);
 #pragma endregion
+
+#pragma region Enemy001
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Enemy001_Attack01);
+#pragma endregion
 }
 
 namespace S1MonsterCollisionTags
@@ -143,6 +151,10 @@ namespace S1CooldownTags
 #pragma region Boss000
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss000_Attack00);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss000_Attack01);
+#pragma endregion
+
+#pragma region Enemy001
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Enemy001_Attack01);
 #pragma endregion
 }
 
@@ -165,12 +177,14 @@ namespace S1AssetTags
 #pragma region GameAbilitySystem
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Player);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Boss000);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Enemy001);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_GameplayEffect);
 #pragma endregion 
 
 #pragma region Animation
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_AnimData);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_AnimData_Player_Asna);
 #pragma endregion
 
 #pragma region Effect
@@ -184,6 +198,7 @@ namespace S1AssetTags
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DropItemResource);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DropTable_Boss000);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DropTable_Enemy001);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_WeaponData);
 #pragma endregion 
@@ -239,6 +254,7 @@ namespace S1PoolingTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Pool_Stage01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Pool_DropItem);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Pool_Enemy001);
 }
 
 namespace S1DropTags

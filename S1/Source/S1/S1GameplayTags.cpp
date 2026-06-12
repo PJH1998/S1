@@ -99,6 +99,10 @@ namespace S1AnimTags
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_Atack00, "Anim.Montage.Boss000.Attack00");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_Atack01, "Anim.Montage.Boss000.Attack01");
 #pragma endregion
+
+#pragma region Enemy001
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Enemy001_Attack01, "Anim.Montage.Enemy001.Attack01");
+#pragma endregion
 }
 
 namespace S1AbilityTags
@@ -125,6 +129,10 @@ namespace S1AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Attack00, "Ability.Boss000.Attack00");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Attack01, "Ability.Boss000.Attack01");
 #pragma endregion
+
+#pragma region Enemy001
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy001_Attack01, "Ability.Enemy001.Attack01");
+#pragma endregion
 }
 
 namespace S1MonsterCollisionTags
@@ -142,6 +150,10 @@ namespace S1CooldownTags
 #pragma region Boss000
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_Attack00, "Cooldown.Boss000.Attack00");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_Attack01, "Cooldown.Boss000.Attack01");
+#pragma endregion
+
+#pragma region Enemy001
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Enemy001_Attack01, "Cooldown.Enemy001.Attack01");
 #pragma endregion
 }
 
@@ -167,12 +179,14 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player, "Asset.Ability.Player");
 
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Boss000,"Asset.Ability.Boss000");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Enemy001, "Asset.Ability.Enemy001");
 
 	UE_DEFINE_GAMEPLAY_TAG(Asset_GameplayEffect, "Asset.GameplayEffect");
 #pragma endregion
 
 #pragma region Animation
 	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData, "Asset.AnimData");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData_Player_Asna, "Asset.AnimData.Player.Asna");
 #pragma endregion
 
 #pragma region Effect
@@ -186,6 +200,7 @@ namespace S1AssetTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Asset_DropItemResource, "Asset.DropItemResource");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_DropTable_Boss000, "Asset.DropTable.Boss000");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_DropTable_Enemy001, "Asset.DropTable.Enemy001");
 
 	UE_DEFINE_GAMEPLAY_TAG(Asset_WeaponData, "Asset.WeaponData");
 #pragma endregion 
@@ -244,6 +259,7 @@ namespace S1PoolingTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Pool_Stage01, "Pool.Stage01");
 	UE_DEFINE_GAMEPLAY_TAG(Pool_DropItem, "Pool.DropItem");
+	UE_DEFINE_GAMEPLAY_TAG(Pool_Enemy001, "Pool.Enemy001");
 }
 
 namespace S1DropTags
