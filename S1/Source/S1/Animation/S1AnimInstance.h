@@ -24,6 +24,10 @@ public:
 	// AnimGraph Inertialization 노드에 블렌드 요청 (섹션/몽타주 전환 시 하드컷 방지)
 	void RequestInertialization(float BlendTime);
 
+	float GetGroundSpeed()  const { return GroundSpeed; }
+	bool  GetMove()         const { return bMove; }
+	bool  GetIsFalling()    const { return bIsFalling; }
+
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<AS1Character> Character;

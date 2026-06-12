@@ -50,7 +50,8 @@ void AS1PlayerController::SetupInputComponent()
 #pragma region Move
 		if (const UInputAction* MoveAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Move))
 		{
-			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::OnMove);
+			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered,  this, &ThisClass::OnMove);
+			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed,  this, &ThisClass::OnMoveReleased);
 		}
 
 		if (const UInputAction* TurnAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Turn))
@@ -107,6 +108,16 @@ void AS1PlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 
 	if (false == IsValid(S1Player)) { return; }
+
+	// [TEST] Q: SWD01으로 무기 교체 / E: 기본 무기로 복귀
+	if (WasInputKeyJustPressed(EKeys::Q))
+	{
+		S1Player->OnItemEquipped(S1ItemTags::Item_Weapon_SWD01);
+	}
+	if (WasInputKeyJustPressed(EKeys::E))
+	{
+		S1Player->OnItemEquipped(FGameplayTag());
+	}
 
 	const US1LockOnComponent* LockOnComp = S1Player->GetLockOnComponent();
 	if (false == (LockOnComp && LockOnComp->IsLockedOn())) { return; }
@@ -234,8 +245,20 @@ void AS1PlayerController::OnMove(const FInputActionValue& Value)
 	const FVector ForwardDir = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDir   = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
+	// 합산 방향 저장 — GA_Action::OnMoveBeginReceived에서 S키(반대 방향) 체크용
+	// Triggered마다 갱신, Completed(키 릴리즈)에서 ZeroVector로 리셋
+	S1Player->SetLastInputDirection((ForwardDir * MoveVector.Y + RightDir * MoveVector.X).GetSafeNormal());
+
 	S1Player->AddMovementInput(ForwardDir, MoveVector.Y);
 	S1Player->AddMovementInput(RightDir,   MoveVector.X);
+}
+
+void AS1PlayerController::OnMoveReleased(const FInputActionValue& Value)
+{
+	if (IsValid(S1Player))
+	{
+		S1Player->SetLastInputDirection(FVector::ZeroVector);
+	}
 }
 
 void AS1PlayerController::OnTurn(const FInputActionValue& Value)

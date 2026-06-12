@@ -9,6 +9,14 @@ US1PlayerAnimInstance::US1PlayerAnimInstance(const FObjectInitializer& ObjectIni
 {
 }
 
+void US1PlayerAnimInstance::OnLoopStartNotify()
+{
+	if (bMove)
+	{
+		bRunLoop = true;
+	}
+}
+
 void US1PlayerAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
@@ -48,10 +56,3 @@ void US1PlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 }
 
-void US1PlayerAnimInstance::AnimNotify_LoopStart()
-{
-	if (bMove)
-	{
-		bRunLoop = true;
-	}
-}

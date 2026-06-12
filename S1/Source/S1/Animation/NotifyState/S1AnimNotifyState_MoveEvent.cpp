@@ -20,6 +20,10 @@ void US1AnimNotifyState_MoveEvent::NotifyBegin(USkeletalMeshComponent* MeshComp,
 	}
 
 	FGameplayEventData Payload;
+	if (TotalDuration > KINDA_SMALL_NUMBER)
+	{
+		Payload.EventMagnitude = MoveDistance / TotalDuration;
+	}
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Owner, MoveBeginEventTag, Payload);
 }
 

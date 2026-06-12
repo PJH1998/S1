@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/Progression/S1MontageProgression.h"
 #include "GameplayTagContainer.h"
+#include "S1Enums.h"
 #include "S1MontageProgression_Sequence.generated.h"
 
 class UAbilitySystemComponent;
@@ -38,9 +39,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sequence")
 	FGameplayTag CanNextAttackTag;
 
-	// 마지막 콤보 이후 전환할 AbilityTag
+	// 마지막 콤보 이후 전환할 무기별 AbilityTag (미설정 무기는 자기 재발동)
 	UPROPERTY(EditDefaultsOnly, Category = "Sequence")
-	FGameplayTag NextAttackAbilityTag;
+	TMap<ES1WeaponType, FGameplayTag> NextAttackAbilityTagByWeapon;
 
 	// Cross-combo 허용 그룹
 	UPROPERTY(EditDefaultsOnly, Category = "Sequence")

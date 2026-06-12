@@ -67,20 +67,37 @@ namespace S1UIResourceTags
 
 namespace S1AnimTags
 {
-#pragma region Player
-	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Weak, "Anim.Montage.PRP_Weak");
-	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirWeak, "Anim.Montage.PRP_AirWeak");
-	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirWeakDive, "Anim.Montage.PRP_AirWeakDive");
-	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Skill01, "Anim.Montage.RPR_Skill01");
-	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Dash, "Anim.Montage.RPR_Dash");
-	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirDash, "Anim.Montage.RPR_AirDash");
-	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Dodge, "Anim.Montage.RPR_Dodge");
-	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_Assault, "Anim.Montage.RPR_Assault");
-	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_RPR_AirAssault, "Anim.Montage.RPR_AirAssault");
+#pragma region Player_Common
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_Common_Ground_Dash, "Anim.Montage.Player.Common.Ground.Dash");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_Common_Ground_Dodge, "Anim.Montage.Player.Common.Ground.Dodge");
+
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_Common_Air_Dash, "Anim.Montage.Player.Common.Air.Dash");
 #pragma endregion
 
+#pragma region Player_RPR
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_RPR_Ground_Weak, "Anim.Montage.Player.RPR.Ground.Weak");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_RPR_Ground_Assault, "Anim.Montage.Player.RPR.Ground.Assault");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_RPR_Ground_Skill01, "Anim.Montage.Player.RPR.Ground.Skill01");
+
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_RPR_Air_Weak, "Anim.Montage.Player.RPR.Air.Weak");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_RPR_Air_WeakDive, "Anim.Montage.Player.RPR.Air.WeakDive");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_RPR_Air_Assault, "Anim.Montage.Player.RPR.Air.Assault");
+#pragma endregion
+
+#pragma region Player_SWD
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_SWD_Ground_Weak, "Anim.Montage.Player.SWD.Ground.Weak");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_SWD_Ground_Skill01, "Anim.Montage.Player.SWD.Ground.Skill01");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_SWD_Ground_Assault, "Anim.Montage.Player.SWD.Ground.Assault");
+
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_SWD_Air_Weak, "Anim.Montage.Player.SWD.Air.Weak");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_SWD_Air_WeakDive, "Anim.Montage.Player.SWD.Air.WeakDive");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_SWD_Air_Assault, "Anim.Montage.Player.SWD.Air.Assault");
+#pragma endregion
+
+#pragma region Monster_Boss000
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_Atack00, "Anim.Montage.Boss000.Attack00");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_Atack01, "Anim.Montage.Boss000.Attack01");
+#pragma endregion
 
 #pragma region Enemy001
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Enemy001_Attack01, "Anim.Montage.Enemy001.Attack01");
@@ -89,7 +106,12 @@ namespace S1AnimTags
 
 namespace S1AbilityTags
 {
-#pragma region Player
+#pragma region Player_Common
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Common_Dash, "Ability.Player.Common.Dash");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Common_Dodge, "Ability.Player.Common.Dodge");
+#pragma endregion
+
+#pragma region Player_Attack
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack, "Ability.Player.Attack");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Ground, "Ability.Player.Attack.Ground");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Air, "Ability.Player.Attack.Air");
@@ -100,9 +122,6 @@ namespace S1AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill03, "Ability.Player.Attack.Skill03");
 
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Assault, "Ability.Player.Attack.Assault");
-
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Dash, "Ability.Player.Dash");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Dodge, "Ability.Player.Dodge");
 #pragma endregion
 
 #pragma region Boss000
@@ -141,21 +160,44 @@ namespace S1Labels
 
 namespace S1AssetTags
 {
+#pragma region Input
 	UE_DEFINE_GAMEPLAY_TAG(Asset_InputData, "Asset.InputData");
+#pragma endregion
+
+#pragma region UI
 	UE_DEFINE_GAMEPLAY_TAG(Asset_UIData, "Asset.UIData");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_UIResource, "Asset.UIResource");
-	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player_Asna,"Asset.Ability.Player.Asna");
+#pragma endregion
+
+#pragma region GameAbilitySystem
+
+	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player, "Asset.Ability.Player");
+
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Boss000,"Asset.Ability.Boss000");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Enemy001, "Asset.Ability.Enemy001");
-	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData, "Asset.AnimData");
-	UE_DEFINE_GAMEPLAY_TAG(Asset_Effect, "Asset.Effect");
-	UE_DEFINE_GAMEPLAY_TAG(Asset_PoolingData, "Asset.PoolingData");
-	UE_DEFINE_GAMEPLAY_TAG(Asset_DataTable, "Asset.DataTable");
-	UE_DEFINE_GAMEPLAY_TAG(Asset_DropItemResource, "Asset.DropItemResource");
 
+	UE_DEFINE_GAMEPLAY_TAG(Asset_GameplayEffect, "Asset.GameplayEffect");
+#pragma endregion
+
+#pragma region Animation
+	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData, "Asset.AnimData");
+#pragma endregion
+
+#pragma region Effect
+	UE_DEFINE_GAMEPLAY_TAG(Asset_Effect, "Asset.Effect");
+#pragma endregion
+
+#pragma region Datas
+	UE_DEFINE_GAMEPLAY_TAG(Asset_PoolingData, "Asset.PoolingData");
+
+	UE_DEFINE_GAMEPLAY_TAG(Asset_DataTable, "Asset.DataTable");
+
+	UE_DEFINE_GAMEPLAY_TAG(Asset_DropItemResource, "Asset.DropItemResource");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_DropTable_Boss000, "Asset.DropTable.Boss000");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_DropTable_Enemy001, "Asset.DropTable.Enemy001");
-	UE_DEFINE_GAMEPLAY_TAG(Asset_GameplayEffect, "Asset.GameplayEffect");
+
+	UE_DEFINE_GAMEPLAY_TAG(Asset_WeaponData, "Asset.WeaponData");
+#pragma endregion 
 }
 
 namespace S1GameplayEffectTags
@@ -216,6 +258,14 @@ namespace S1DropTags
 namespace S1ItemTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_RPR01, "Item.Weapon.RPR01");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_RPR02, "Item.Weapon.RPR02");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_RPR03, "Item.Weapon.RPR03");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_RPR04, "Item.Weapon.RPR04");
+
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_SWD01, "Item.Weapon.SWD01");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_SWD02, "Item.Weapon.SWD02");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_SWD03, "Item.Weapon.SWD03");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_SWD04, "Item.Weapon.SWD04");
 }
 
 namespace S1ItemRarityTags

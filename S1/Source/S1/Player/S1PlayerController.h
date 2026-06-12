@@ -29,6 +29,7 @@ public:
 
 private:
 	void OnMove(const FInputActionValue& Value);
+	void OnMoveReleased(const FInputActionValue& Value);
 	void OnTurn(const FInputActionValue& Value);
 	void OnSprint(const FInputActionValue& Value);
 	void OnJump(const FInputActionValue& Value);

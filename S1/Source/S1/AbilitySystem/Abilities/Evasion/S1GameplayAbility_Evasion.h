@@ -6,8 +6,6 @@
 #include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
 #include "S1GameplayAbility_Evasion.generated.h"
 
-class UAbilityTask_ApplyRootMotionConstantForce;
-
 // 회피 계열 GA 공통 베이스 (Dash, Dodge)
 // - CMC OrientRotationToMovement 저장/복원
 // - 카메라 기준 입력 방향 계산
@@ -24,34 +22,16 @@ protected:
 	// 카메라 기준 입력 방향 반환 (입력 없으면 액터 전방)
 	FVector ComputeInputDirection() const;
 
-	// MoveBegin 이벤트 태그 — AnimNotifyState_MoveEvent와 연동
-	UPROPERTY(EditDefaultsOnly, Category = "Evasion|Move")
-	FGameplayTag MoveBeginEventTag;
-
-	// MoveEnd 이벤트 태그 — AnimNotifyState_MoveEvent와 연동
-	UPROPERTY(EditDefaultsOnly, Category = "Evasion|Move")
-	FGameplayTag MoveEndEventTag;
-
 	// true: MoveBegin~MoveEnd 구간 GravityScale=0 (Air 회피용)
 	UPROPERTY(EditDefaultsOnly, Category = "Evasion|Move")
 	bool bControlGravity = false;
 
-	// ConstantForce 이동 속도
-	UPROPERTY(EditDefaultsOnly, Category = "Evasion|Move")
-	float MoveSpeed = 1500.f;
-
 	// ActivateAbility 시 캡처한 이동 방향 (Dodge에서 회전 대상으로도 활용)
 	FVector CapturedMoveDirection = FVector::ZeroVector;
 
+	virtual void OnMoveBeginReceived(const FGameplayEventData* Payload) override;
+	virtual void OnMoveEndReceived(const FGameplayEventData* Payload) override;
+
 private:
-	UFUNCTION()
-	void OnMoveBeginReceived(FGameplayEventData Payload);
-
-	UFUNCTION()
-	void OnMoveEndReceived(FGameplayEventData Payload);
-
-	UPROPERTY()
-	TObjectPtr<UAbilityTask_ApplyRootMotionConstantForce> MoveTask;
-
 	bool bCachedOrientToMovement = true;
 };
