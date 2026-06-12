@@ -48,8 +48,9 @@ private:
 	FGameplayTagContainer CrossComboGroupTags;
 
 	// 전환 조건 태그 — 유효하면 Transition 동작 활성 (비어있으면 일반 콤보)
-	UPROPERTY(EditDefaultsOnly, Category = "Sequence|Transition")
-	FGameplayTag TransitionStateTag;
+	// → 마지막 콤보 RequestReactivateSelf + Air/Ground Blocked/Required Tag 방식으로 대체되어 미사용
+	//UPROPERTY(EditDefaultsOnly, Category = "Sequence|Transition")
+	//FGameplayTag TransitionStateTag;
 
 	int32 CurrentSectionIndex = 0;
 	FName OverrideStartSection = NAME_None;

@@ -25,14 +25,14 @@ bool US1MontageProgression_Sequence::OnInputReactivated()
 		return false;
 	}
 
-	UAbilitySystemComponent* ASC = GA->GetAbilitySystemComponentFromActorInfo();
-
 	// Transition 우선: TransitionStateTag 활성 시 동일 AbilityTag 재발동
-	if (TransitionStateTag.IsValid() && IsValid(ASC) && ASC->HasMatchingGameplayTag(TransitionStateTag))
-	{
-		GA->RequestReactivateSelf();
-		return true;
-	}
+	// → 마지막 콤보 분기(TryAdvanceCombo)의 RequestReactivateSelf + Air/Ground Blocked/Required Tag로 대체
+	//UAbilitySystemComponent* ASC = GA->GetAbilitySystemComponentFromActorInfo();
+	//if (TransitionStateTag.IsValid() && IsValid(ASC) && ASC->HasMatchingGameplayTag(TransitionStateTag))
+	//{
+	//	GA->RequestReactivateSelf();
+	//	return true;
+	//}
 
 	return TryAdvanceCombo();
 }
@@ -164,7 +164,8 @@ bool US1MontageProgression_Sequence::CanNextAction(UAbilitySystemComponent* ASC)
 		return true;
 	}
 
-	return TransitionStateTag.IsValid() && ASC->HasMatchingGameplayTag(TransitionStateTag);
+	//return TransitionStateTag.IsValid() && ASC->HasMatchingGameplayTag(TransitionStateTag);
+	return false;
 }
 
 void US1MontageProgression_Sequence::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)

@@ -19,6 +19,9 @@ public:
 	// 동일 GA 입력이 들어왔을 때 기능 구현 ( 필요시 Overrde )
 	virtual bool		OnInputReactivated() { return false; }
 
+	// GA 활성 중 키 업 수신 ( 필요시 Override ) — HoldLoop 등 홀드 입력 GA용
+	virtual void		OnInputReleased() {}
+
 	// 다른 GA 입력이 들어왔을 때 기능 구현 ( 필요시 Overrde ) / FGameplayTagContainer에 전환 하려는 Ability의 Tag를 모은 후 전달
 	virtual bool		OnCrossInput(const FGameplayTagContainer& TargetAbilityTags) { return false; }
 

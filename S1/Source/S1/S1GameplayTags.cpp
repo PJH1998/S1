@@ -81,6 +81,7 @@ namespace S1AnimTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_RPR_Air_Weak, "Anim.Montage.Player.RPR.Air.Weak");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_RPR_Air_WeakDive, "Anim.Montage.Player.RPR.Air.WeakDive");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_RPR_Air_Skill01, "Anim.Montage.Player.RPR.Air.Skill01");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_RPR_Air_Assault, "Anim.Montage.Player.RPR.Air.Assault");
 #pragma endregion
 
@@ -90,7 +91,7 @@ namespace S1AnimTags
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_SWD_Ground_Assault, "Anim.Montage.Player.SWD.Ground.Assault");
 
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_SWD_Air_Weak, "Anim.Montage.Player.SWD.Air.Weak");
-	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_SWD_Air_WeakDive, "Anim.Montage.Player.SWD.Air.WeakDive");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_SWD_Air_Skill01, "Anim.Montage.Player.SWD.Air.Skill01");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Player_SWD_Air_Assault, "Anim.Montage.Player.SWD.Air.Assault");
 #pragma endregion
 
@@ -133,6 +134,10 @@ namespace S1MonsterCollisionTags
 
 namespace S1CooldownTags
 {
+#pragma region Player
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Player_Ground_Skill01, "Cooldown.Player.Ground.Skill01");
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Player_Air_Attack01, "Cooldown.Player.Air.Skill01");
+#pragma endregion
 
 #pragma region Boss000
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_Attack00, "Cooldown.Boss000.Attack00");
@@ -205,12 +210,19 @@ namespace S1StateTags
 namespace S1EventTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Event_EarlyMove, "Event.EarlyMove");
+
 	UE_DEFINE_GAMEPLAY_TAG(Event_Jump, "Event.Jump");
+
 	UE_DEFINE_GAMEPLAY_TAG(Event_Landed, "Event.Landed");
+
 	UE_DEFINE_GAMEPLAY_TAG(Event_StartDive, "Event.StartDive");
+	UE_DEFINE_GAMEPLAY_TAG(Event_LoopCycle, "Event.LoopCycle");
+
 	UE_DEFINE_GAMEPLAY_TAG(Event_CheckDistance, "Event.CheckDistance");
+
 	UE_DEFINE_GAMEPLAY_TAG(Event_MovementStart, "Event.MovementStart");
 	UE_DEFINE_GAMEPLAY_TAG(Event_MovementEnd, "Event.MovementEnd");
+
 }
 
 namespace S1EffectTags

@@ -252,6 +252,16 @@ void AS1Player::ActivateAbility(const FGameplayTag& AbilityTag)
 	AbilitySystemComponent->ActivateAbility(AbilityTag);
 }
 
+void AS1Player::ReleaseAbility(const FGameplayTag& AbilityTag)
+{
+	if (false == IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	AbilitySystemComponent->ReleaseAbility(AbilityTag);
+}
+
 void AS1Player::AddMovementInput(FVector WorldDirection, float ScaleValue, bool bForce)
 {
 	if (IsValid(AbilitySystemComponent) && AbilitySystemComponent->HasMatchingGameplayTag(ActionStateTag))

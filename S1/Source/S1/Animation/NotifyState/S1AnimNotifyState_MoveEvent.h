@@ -24,7 +24,7 @@ private:
 	FGameplayTag MoveEndEventTag;
 
 	// 이 구간 동안 이동할 거리 — (거리 / 구간 길이) 속도로 변환해 Payload.EventMagnitude로 전달
-	// 짧은 구간이면 빠르게, 긴 구간이면 천천히 같은 거리 이동. 0이면 이동 없음
+	// 짧은 구간이면 빠르게, 긴 구간이면 천천히 같은 거리 이동. 0이면 이동 없음, 음수면 후방 이동
 	UPROPERTY(EditAnywhere, Category = "MoveEvent")
 	float MoveDistance = 0.f;
 };

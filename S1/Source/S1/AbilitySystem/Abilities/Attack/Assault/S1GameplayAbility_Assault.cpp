@@ -71,7 +71,7 @@ void US1GameplayAbility_Assault::OnMoveBeginReceived(const FGameplayEventData* P
 	}
 
 	const float Impulse = Payload ? Payload->EventMagnitude : 0.f;
-	if (Impulse <= KINDA_SMALL_NUMBER)
+	if (FMath::IsNearlyZero(Impulse))
 	{
 		return;
 	}

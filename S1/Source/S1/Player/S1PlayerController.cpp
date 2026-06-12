@@ -159,6 +159,7 @@ void AS1PlayerController::SetupAbilityInputBindings(const TArray<FS1AbilityInput
 		if (const UInputAction* Action = InputData->FindInputActionByTag(Binding.InputTag))
 		{
 			EIC->BindAction(Action, ETriggerEvent::Started, this, &ThisClass::OnAbilityInput, Binding.AbilityTag);
+			EIC->BindAction(Action, ETriggerEvent::Completed, this, &ThisClass::OnAbilityInputReleased, Binding.AbilityTag);
 		}
 	}
 }
@@ -225,6 +226,17 @@ void AS1PlayerController::OnAbilityInput(const FInputActionValue& Value, FGamepl
 	}
 
 	S1Player->ActivateAbility(AbilityTag);
+}
+
+void AS1PlayerController::OnAbilityInputReleased(const FInputActionValue& Value, FGameplayTag AbilityTag)
+{
+	// 릴리즈는 UI 상태와 무관하게 항상 전달 — 홀드 중 메뉴가 열려도 GA가 키 업을 놓치지 않도록
+	if (false == IsValid(S1Player))
+	{
+		return;
+	}
+
+	S1Player->ReleaseAbility(AbilityTag);
 }
 
 void AS1PlayerController::HandleGameplayEvent(FGameplayTag EventTag)

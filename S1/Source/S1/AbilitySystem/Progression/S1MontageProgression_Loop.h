@@ -25,7 +25,7 @@ private:
 	UFUNCTION()
 	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
-private:
+protected:
 	// Loop 종료 트리거 이벤트 태그
 	UPROPERTY(EditDefaultsOnly, Category = "Loop")
 	FGameplayTag LoopEndEventTag;

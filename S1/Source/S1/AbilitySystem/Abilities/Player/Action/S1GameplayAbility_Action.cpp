@@ -100,6 +100,14 @@ bool US1GameplayAbility_Action::OnInputReactivated()
 	return false;
 }
 
+void US1GameplayAbility_Action::OnInputReleased()
+{
+	if (IsValid(MontageProgression))
+	{
+		MontageProgression->OnInputReleased();
+	}
+}
+
 bool US1GameplayAbility_Action::OnCrossInput(const FGameplayTagContainer& TargetAbilityTags)
 {
 	if (IsValid(MontageProgression))
@@ -236,9 +244,9 @@ ES1WeaponType US1GameplayAbility_Action::GetEquippedWeaponType() const
 
 void US1GameplayAbility_Action::OnMoveBeginReceived(const FGameplayEventData* Payload)
 {
-	// 이동 속도는 NotifyState에서 Payload.EventMagnitude로 전달
+	// 이동 속도는 NotifyState에서 Payload.EventMagnitude로 전달 (음수 = 후방 이동)
 	const float Impulse = Payload ? Payload->EventMagnitude : 0.f;
-	if (Impulse <= KINDA_SMALL_NUMBER)
+	if (FMath::IsNearlyZero(Impulse))
 	{
 		return;
 	}
@@ -274,7 +282,7 @@ void US1GameplayAbility_Action::OnMoveBeginReceived(const FGameplayEventData* Pa
 		ERootMotionFinishVelocityMode::SetVelocity,
 		FVector::ZeroVector,
 		0.f,
-		false
+		true	// bEnableGravity — XY만 루트모션이 덮고 Z는 물리(런치/중력)에 위임
 	);
 	MoveTask->ReadyForActivation();
 }

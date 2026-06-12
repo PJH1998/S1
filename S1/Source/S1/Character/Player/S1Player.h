@@ -38,6 +38,7 @@ public:
 	virtual void	InitSystem() override;
 
 	void			    ActivateAbility(const FGameplayTag& AbilityTag);
+	void			    ReleaseAbility(const FGameplayTag& AbilityTag);
 	void			    SetSprinting(bool bInSprint);
 	bool			    GetSprinting();
 	AS1Weapon*		    GetEquippedWeapon()    const { return EquippedWeapon; }

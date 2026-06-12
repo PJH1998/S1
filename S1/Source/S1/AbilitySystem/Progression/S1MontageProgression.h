@@ -20,6 +20,7 @@ public:
 	virtual void				OnActivated() {}
 	virtual void				OnDeactivated() {}
 	virtual bool				OnInputReactivated() { return false; }
+	virtual void				OnInputReleased() {}
 	virtual bool				OnCrossInput(const FGameplayTagContainer& TargetAbilityTags) { return false; }
 	virtual FGameplayTag		GetInputFlushTag() const { return FGameplayTag(); }
 	virtual const FS1MontageSet* GetCurrentMontageSet() const;

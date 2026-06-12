@@ -44,6 +44,7 @@ private:
 	static bool IsPlayerAttackAbility(const FGameplayTag& AbilityTag);
 
 	void OnAbilityInput(const FInputActionValue& Value, FGameplayTag AbilityTag);
+	void OnAbilityInputReleased(const FInputActionValue& Value, FGameplayTag AbilityTag);
 	void SetupAbilityInputBindings(const TArray<FS1AbilityInputBinding>& Bindings);
 
 protected:

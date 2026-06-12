@@ -44,6 +44,30 @@ void US1AbilitySystemComponent::RemoveCharacterAbilities(const FGameplayTag& Ass
 	GroupToSpecHandles.Remove(AssetTag);
 }
 
+void US1AbilitySystemComponent::ReleaseAbility(const FGameplayTag& AbilityTag)
+{
+	TArray<FGameplayAbilitySpecHandle>* Handles = TagToSpecHandles.Find(AbilityTag);
+	if (nullptr == Handles)
+	{
+		return;
+	}
+
+	for (auto& Handle : *Handles)
+	{
+		FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(Handle);
+		if (nullptr == Spec || false == Spec->IsActive())
+		{
+			continue;
+		}
+
+		if (US1GameplayAbility* GA = Cast<US1GameplayAbility>(Spec->GetPrimaryInstance()))
+		{
+			GA->OnInputReleased();
+		}
+		return;
+	}
+}
+
 bool US1AbilitySystemComponent::ActivateAbility(const FGameplayTag& AbilityTag)
 {
 	TArray<FGameplayAbilitySpecHandle>* Handles = TagToSpecHandles.Find(AbilityTag);

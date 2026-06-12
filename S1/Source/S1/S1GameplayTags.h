@@ -84,6 +84,7 @@ namespace S1AnimTags
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Air_Weak);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Air_WeakDive);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Air_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Air_Assault);
 #pragma endregion
 
@@ -93,7 +94,7 @@ namespace S1AnimTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Ground_Assault);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Air_Weak);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Air_WeakDive);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Air_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Air_Assault);
 #pragma endregion
 
@@ -134,6 +135,10 @@ namespace S1MonsterCollisionTags
 
 namespace S1CooldownTags
 {
+#pragma region Player
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Player_Ground_Skill01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Player_Air_Attack01);
+#pragma endregion
 
 #pragma region Boss000
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss000_Attack00);
@@ -205,8 +210,12 @@ namespace S1EventTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_EarlyMove);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Jump);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Landed);
+
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_StartDive);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_LoopCycle);
+
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_CheckDistance);
+
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_MovementStart);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_MovementEnd);
 }

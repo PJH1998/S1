@@ -30,6 +30,7 @@ protected:
 
 public:
 	virtual bool			OnInputReactivated() override;
+	virtual void			OnInputReleased() override;
 	virtual bool			OnCrossInput(const FGameplayTagContainer& TargetAbilityTags) override;
 	virtual FGameplayTag	GetInputFlushTag() const override;
 
