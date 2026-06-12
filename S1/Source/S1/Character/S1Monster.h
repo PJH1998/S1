@@ -10,8 +10,11 @@
 class UBehaviorTree;
 class UAnimMontage;
 class US1DeathPresentationComponent;
+class US1EnemyLocomotionComponent;
 class UGameplayEffect;
 class UPrimitiveComponent;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMonsterHasTargetChangedDelegate, AS1Monster*, Monster, bool, bHasTarget);
 
 UCLASS()
 class S1_API AS1Monster : public AS1Character, public IS1PoolingInterface, public IS1LockOnInterface
@@ -28,7 +31,7 @@ protected:
 public:
 	UBehaviorTree*		GetBehaviorTree()	const { return BehaviorTree; }
 	bool					IsDead()				const { return bIsDead; }
-	FGameplayTag			GetDropTableTag()	const { return DropTableTag; }
+	FGameplayTag		GetDropTableTag()	const { return DropTableTag; }
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -49,6 +52,13 @@ public:
 	void EnableAttackCollision(const FGameplayTag& CollisionTag, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio);
 	void DisableAttackCollision(const FGameplayTag& CollisionTag);
 	bool ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio);
+
+	void NotifyHasTargetChanged(bool bInHasTarget);
+	US1EnemyLocomotionComponent* GetLocomotionComponent() const { return EnemyLocomotionComponent; }
+
+public:
+	UPROPERTY(BlueprintAssignable)
+	FMonsterHasTargetChangedDelegate OnHasTargetChanged;
 
 public:
 	/** 사망 시 이동·캡슐 OFF. NotifyDeath에서 호출. */
@@ -94,6 +104,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Death")
 	TObjectPtr<US1DeathPresentationComponent> DeathPresentationComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Locomotion")
+	TObjectPtr<US1EnemyLocomotionComponent> EnemyLocomotionComponent;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AttackCollision")
 	FGameplayTagContainer AttackCollisionTags;
 
@@ -117,6 +130,7 @@ private:
 	};
 
 	bool bIsDead = { false };
+	bool bHasTarget = { false };
 	bool bDeathPoseFrozen = { false };
 	bool bDeathPresentationStarted = { false };
 

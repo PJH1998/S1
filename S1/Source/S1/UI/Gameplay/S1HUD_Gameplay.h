@@ -7,6 +7,7 @@
 #include "S1HUD_Gameplay.generated.h"
 
 class AS1BossBase;
+class AS1Monster;
 class US1BossStatus;
 class UWidgetAnimation;
 /**
@@ -33,7 +34,7 @@ private:
 
 private:
 	UFUNCTION()
-	void HandleBossHasTargetChanged(AS1BossBase* InBoss, bool bInHasTarget);
+	void HandleBossHasTargetChanged(AS1Monster* InMonster, bool bInHasTarget);
 
 	UFUNCTION()
 	void HandleHideAnimationFinished();

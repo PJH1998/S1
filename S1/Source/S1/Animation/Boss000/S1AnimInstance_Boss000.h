@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/S1AnimInstance_BossBase.h"
+#include "Animation/S1AnimInstance_EnemyLocomotion.h"
 #include "S1AnimInstance_Boss000.generated.h"
 
 UCLASS()
-class S1_API US1AnimInstance_Boss000 : public US1AnimInstance_BossBase
+class S1_API US1AnimInstance_Boss000 : public US1AnimInstance_EnemyLocomotion
 {
 	GENERATED_BODY()
 

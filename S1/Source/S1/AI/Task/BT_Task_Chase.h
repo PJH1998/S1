@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/S1AnimInstance_BossBase.h"
+#include "Animation/S1AnimInstance_EnemyLocomotion.h"
 #include "BehaviorTree/BTTaskNode.h"
 #include "BT_Task_Chase.generated.h"
 
@@ -31,7 +31,7 @@ private:
 	FBlackboardKeySelector IsChasingKey;
 
 	UPROPERTY(EditAnywhere, Category = "Chase")
-	EBossLocomotionMode LocomotionMode = EBossLocomotionMode::Run;
+	EEnemyLocomotionMode LocomotionMode = EEnemyLocomotionMode::Run;
 
 	bool bTaskFinished = false;
 };

@@ -122,15 +122,21 @@ void US1HUD_Gameplay::HideBossUI(AS1BossBase* InBoss)
 	}
 }
 
-void US1HUD_Gameplay::HandleBossHasTargetChanged(AS1BossBase* InBoss, bool bInHasTarget)
+void US1HUD_Gameplay::HandleBossHasTargetChanged(AS1Monster* InMonster, bool bInHasTarget)
 {
+	AS1BossBase* Boss = Cast<AS1BossBase>(InMonster);
+	if (Boss == nullptr)
+	{
+		return;
+	}
+
 	if (bInHasTarget)
 	{
-		ShowBossUI(InBoss);
+		ShowBossUI(Boss);
 	}
 	else
 	{
-		HideBossUI(InBoss);
+		HideBossUI(Boss);
 	}
 }
 

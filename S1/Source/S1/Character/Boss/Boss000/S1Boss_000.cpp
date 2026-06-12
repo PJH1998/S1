@@ -7,6 +7,7 @@
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "S1GameplayTags.h"
 
+#include "Component/S1DeathPresentationComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -34,6 +35,12 @@ AS1Boss_000::AS1Boss_000()
 
 	// UI
 	BossName = TEXT("Cobalt");
+
+	if (DeathPresentationComponent)
+	{
+		DeathPresentationComponent->PresentationMode = EDeathPresentation::AlphaFade;
+		DeathPresentationComponent->FadeDuration = 2.f;
+	}
 }
 
 void AS1Boss_000::BeginPlay()

@@ -2,12 +2,11 @@
 
 #include "AI/Task/BT_Task_Chase.h"
 #include "AIController.h"
-#include "Animation/S1AnimInstance_BossBase.h"
+#include "Animation/S1AnimInstance_EnemyLocomotion.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
-#include "Character/Boss/S1BossBase.h"
 #include "Character/S1Monster.h"
-#include "Component/S1BossLocomotionComponent.h"
+#include "Component/S1EnemyLocomotionComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
 UBT_Task_Chase::UBT_Task_Chase()
@@ -39,19 +38,16 @@ EBTNodeResult::Type UBT_Task_Chase::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 		return EBTNodeResult::Failed;
 	}
 	APawn* Pawn = AIController->GetPawn();
-	if (AS1Monster* Monster = Cast<AS1Monster>(Pawn))
-	{
-		if (Monster->IsDead())
-		{
-			return EBTNodeResult::Failed;
-		}
-	}
-	AS1BossBase* Boss = Cast<AS1BossBase>(Pawn);
-	if (Boss == nullptr)
+	AS1Monster* Monster = Cast<AS1Monster>(Pawn);
+	if (Monster == nullptr)
 	{
 		return EBTNodeResult::Failed;
 	}
-	US1BossLocomotionComponent* LocomotionComponent = Boss->GetLocomotionComponent();
+	if (Monster->IsDead())
+	{
+		return EBTNodeResult::Failed;
+	}
+	US1EnemyLocomotionComponent* LocomotionComponent = Monster->GetLocomotionComponent();
 	if (LocomotionComponent == nullptr)
 	{
 		return EBTNodeResult::Failed;
@@ -89,8 +85,8 @@ void UBT_Task_Chase::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
-	AS1BossBase* Boss = Cast<AS1BossBase>(AIController->GetPawn());
-	US1BossLocomotionComponent* LocomotionComponent = Boss ? Boss->GetLocomotionComponent() : nullptr;
+	AS1Monster* Monster = Cast<AS1Monster>(AIController->GetPawn());
+	US1EnemyLocomotionComponent* LocomotionComponent = Monster ? Monster->GetLocomotionComponent() : nullptr;
 	if (LocomotionComponent == nullptr)
 	{
 		bTaskFinished = true;
@@ -98,13 +94,13 @@ void UBT_Task_Chase::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
-	if (LocomotionComponent->GetApproachState() == EBossApproachState::Stopping)
+	if (LocomotionComponent->GetApproachState() == EEnemyApproachState::Stopping)
 	{
-		if (USkeletalMeshComponent* Mesh = Boss->GetMesh())
+		if (USkeletalMeshComponent* Mesh = Monster->GetMesh())
 		{
-			if (US1AnimInstance_BossBase* AnimInstance = Cast<US1AnimInstance_BossBase>(Mesh->GetAnimInstance()))
+			if (US1AnimInstance_EnemyLocomotion* AnimInstance = Cast<US1AnimInstance_EnemyLocomotion>(Mesh->GetAnimInstance()))
 			{
-				if (AnimInstance->LocomotionMode == EBossLocomotionMode::None)
+				if (AnimInstance->LocomotionMode == EEnemyLocomotionMode::None)
 				{
 					LocomotionComponent->NotifyLocomotionStopFinished();
 				}
@@ -118,7 +114,7 @@ void UBT_Task_Chase::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		return;
 	}
-	if (LocomotionComponent->GetApproachState() == EBossApproachState::Idle)
+	if (LocomotionComponent->GetApproachState() == EEnemyApproachState::Idle)
 	{
 		bTaskFinished = true;
 		SetIsChasing(OwnerComp, false);
@@ -130,9 +126,9 @@ EBTNodeResult::Type UBT_Task_Chase::AbortTask(UBehaviorTreeComponent& OwnerComp,
 {
 	if (AAIController* AIController = OwnerComp.GetAIOwner())
 	{
-		if (AS1BossBase* Boss = Cast<AS1BossBase>(AIController->GetPawn()))
+		if (AS1Monster* Monster = Cast<AS1Monster>(AIController->GetPawn()))
 		{
-			if (US1BossLocomotionComponent* LocomotionComponent = Boss->GetLocomotionComponent())
+			if (US1EnemyLocomotionComponent* LocomotionComponent = Monster->GetLocomotionComponent())
 			{
 				LocomotionComponent->AbortApproach(true);
 			}
