@@ -34,3 +34,12 @@ enum class ES1WeaponType : uint8
 	RPR  = 1 UMETA(DisplayName = "Rapier"),
 	SWD  = 2 UMETA(DisplayName = "Sword"),
 };
+
+UENUM(BlueprintType)
+enum class ES1Direction : uint8
+{
+	Forward = 0 UMETA(DisplayName = "Forward"),
+	Back    = 1 UMETA(DisplayName = "Back"),
+	Left    = 2 UMETA(DisplayName = "Left"),
+	Right   = 3 UMETA(DisplayName = "Right"),
+};

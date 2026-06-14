@@ -6,6 +6,20 @@
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "S1PlayerAbilitySystemComponent.generated.h"
 
+// 통합 쿨다운 태그 1개에 대응하는 Ground/Air 변형 쿨다운 태그 묶음
+USTRUCT()
+struct FS1CooldownVariantSet
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag GroundCooldownTag;
+
+	// 비어있으면 공중에서도 Ground 쿨다운 반환 (Air 변형 없는 스킬)
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag AirCooldownTag;
+};
+
 UCLASS()
 class S1_API US1PlayerAbilitySystemComponent : public US1AbilitySystemComponent
 {
@@ -13,6 +27,11 @@ class S1_API US1PlayerAbilitySystemComponent : public US1AbilitySystemComponent
 
 public:
 	virtual bool ActivateAbility(const FGameplayTag& AbilityTag) override;
+
+	// UI용 쿨타임 조회 — 통합 태그를 받아 현재 상태(State.Air)에 맞는 변형 쿨다운의 남은 시간/총 시간 반환
+	// return: 쿨타임 진행 중이면 true (false면 사용 가능 상태, Out 값은 0)
+	UFUNCTION(BlueprintPure, Category = "Cooldown")
+	bool GetSkillCooldown(const FGameplayTag& UnifiedCooldownTag, float& OutRemainingTime, float& OutDuration) const;
 
 private:
 	// FlushTag — 활성 GA의 GetInputFlushTag()로 결정 (에디터 설정 불필요)

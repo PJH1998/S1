@@ -1,0 +1,70 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "AbilitySystem/Progression/S1MontageProgression.h"
+#include "GameplayTagContainer.h"
+#include "S1MontageProgression_Loop.generated.h"
+
+// 몽타주 기반: StartMontage → LoopMontage (반복) → EndMontage
+// 사이클 감지: OnLoopMontageEnded → OnLoopCycleCompleted() → ShouldExitLoop()
+// 탈출: LoopEndEventTag 이벤트 수신 or 키업(OnInputReleased) → ExitLoop()
+// BlendOut=0 필수 (Start/Loop 몽타주) — 기본값 0.25면 idle 비침
+UCLASS()
+class S1_API US1MontageProgression_Loop : public US1MontageProgression
+{
+	GENERATED_BODY()
+
+public:
+	virtual void		 OnActivated() override;
+	virtual void		 OnDeactivated() override;
+	virtual bool		 OnInputReactivated() override;
+	virtual bool		 OnCrossInput(const FGameplayTagContainer& TargetAbilityTags) override;
+	virtual FGameplayTag GetInputFlushTag() const override { return CanNextAttackTag; }
+	virtual bool		 WillHandleAbilityEnd() const override { return true; }
+
+protected:
+	virtual void OnLoopCycleCompleted() {}
+	virtual bool ShouldExitLoop() const { return false; }
+
+	// TargetEnd가 nullptr이면 EndMontage 사용
+	// bImmediate=true면 LoopMontage 즉시 중단 후 End 재생, false면 현재 Loop 끝난 후 End 재생
+	void ExitLoop(UAnimMontage* TargetEnd = nullptr, bool bImmediate = false);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Montage")
+	TObjectPtr<UAnimMontage> StartMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Montage")
+	TObjectPtr<UAnimMontage> LoopMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Montage")
+	TObjectPtr<UAnimMontage> EndMontage;
+
+	// 외부 이벤트로 즉시 탈출 (선택 — 비워두면 키업/MaxCount로만 탈출)
+	UPROPERTY(EditDefaultsOnly, Category = "Loop")
+	FGameplayTag LoopEndEventTag;
+
+	// Loop 재시작 시 Inertialization 블렌드 시간 (0이면 비활성)
+	UPROPERTY(EditDefaultsOnly, Category = "Loop")
+	float LoopInertializationBlendTime = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Loop|CrossCombo")
+	FGameplayTag CanNextAttackTag;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Loop|CrossCombo")
+	FGameplayTagContainer CrossComboGroupTags;
+
+	bool bEndRequested = false;
+
+private:
+	void PlayLoopMontage();
+	void PlayEndMontage();
+
+	UFUNCTION() void OnStartMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	UFUNCTION() void OnLoopMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	UFUNCTION() void OnEndMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	UFUNCTION() void OnLoopEndEventReceived(FGameplayEventData Payload);
+
+	TObjectPtr<UAnimMontage> CurrentEndMontage;
+};

@@ -119,11 +119,11 @@ void US1GameplayAbility_Assault::OnMoveEndReceived(const FGameplayEventData* Pay
 		{
 			ASC->AddLooseGameplayTag(S1StateTags::State_Air);
 		}
-		MontageProgression->OnBranchRequested(AirSectionName);
+		MontageProgression->OnBranchRequested(AirEndTag);
 	}
 	else
 	{
-		MontageProgression->OnBranchRequested(GroundSectionName);
+		MontageProgression->OnBranchRequested(GroundEndTag);
 	}
 }
 

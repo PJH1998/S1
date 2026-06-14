@@ -62,6 +62,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Default")
 	TSubclassOf<US1WeaponAnimLayer> DefaultAnimLayerClass;
 
+	// 무기 없을 때(기본 상태) 부여할 GA 그룹 태그
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Default")
+	FGameplayTag DefaultWeaponAbilitiesTag;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TObjectPtr<AS1Weapon> EquippedWeapon;
 
@@ -84,12 +88,15 @@ protected:
 	TObjectPtr<US1PlayerCameraComponent> Camera;
 
 private:
-	// 전체 GA (Commons + Attacks) — 게임 시작 시 1회 등록
+	// 무기 무관 기본 GA (Dash, Dodge 등) — 게임 시작 시 1회 등록
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
-	FGameplayTag CharacterAbilitiesTag;
+	FGameplayTag DefaultAbilitiesTag;
 
 	// 현재 장착된 무기의 WeaponType — 같은 타입 재장착 시 AnimLayer 교체 건너뜀
 	ES1WeaponType CurrentWeaponType = ES1WeaponType::None;
+
+	// 현재 부여 중인 무기 GA 그룹 태그 (회수 시 사용)
+	FGameplayTag CurrentWeaponAbilitiesTag;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<AS1PlayerController> PlayerController;

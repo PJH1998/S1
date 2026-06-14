@@ -9,9 +9,6 @@
 #include "Animation/AnimInstance.h"
 #include "Animation/S1AnimInstance.h"
 #include "Character/Player/S1Player.h"
-#include "Data/S1AnimData.h"
-#include "System/S1AssetManager.h"
-#include "Weapon/S1Weapon.h"
 
 void US1GameplayAbility_Action::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -171,75 +168,9 @@ void US1GameplayAbility_Action::RequestActivateAbilityByTag(const FGameplayTagCo
 	}
 }
 
-const FS1MontageData* US1GameplayAbility_Action::GetMontageData() const
-{
-	US1AnimData* AnimData = US1AssetManager::GetAssetByTag<US1AnimData>(AnimDataTag);
-	if (false == IsValid(AnimData))
-	{
-		return nullptr;
-	}
-
-	FGameplayTag ResolvedTag = MontageTag;
-
-	if (bUseWeaponMontage)
-	{
-		if (const AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo()))
-		{
-			if (const AS1Weapon* Weapon = Player->GetEquippedWeapon())
-			{
-				if (const FGameplayTag* WeaponTag = MontageTagByWeapon.Find(Weapon->GetWeaponType()))
-				{
-					ResolvedTag = *WeaponTag;
-				}
-			}
-		}
-	}
-
-	return AnimData->FindMontageByTag(ResolvedTag);
-}
-
-const FS1MontageData* US1GameplayAbility_Action::GetMontageDataByTag(FGameplayTag InMontageTag) const
-{
-	US1AnimData* AnimData = US1AssetManager::GetAssetByTag<US1AnimData>(AnimDataTag);
-	if (false == IsValid(AnimData))
-	{
-		return nullptr;
-	}
-
-	return AnimData->FindMontageByTag(InMontageTag);
-}
-
-const FS1MontageSet* US1GameplayAbility_Action::GetCurrentMontageSet() const
-{
-	if (IsValid(MontageProgression))
-	{
-		return MontageProgression->GetCurrentMontageSet();
-	}
-
-	const FS1MontageData* Data = GetMontageData();
-	if (nullptr == Data || Data->MontageSets.IsEmpty())
-	{
-		return nullptr;
-	}
-	return &Data->MontageSets[0];
-}
-
 US1AnimInstance* US1GameplayAbility_Action::GetAnimInstanceForProgression() const
 {
 	return GetAnimInstance();
-}
-
-ES1WeaponType US1GameplayAbility_Action::GetEquippedWeaponType() const
-{
-	if (const AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo()))
-	{
-		if (const AS1Weapon* Weapon = Player->GetEquippedWeapon())
-		{
-			return Weapon->GetWeaponType();
-		}
-	}
-
-	return ES1WeaponType::None;
 }
 
 void US1GameplayAbility_Action::OnMoveBeginReceived(const FGameplayEventData* Payload)

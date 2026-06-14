@@ -100,6 +100,11 @@ bool US1PlayerAbilitySystemComponent::ActivateAbility(const FGameplayTag& Abilit
 	return bActivated;
 }
 
+bool US1PlayerAbilitySystemComponent::GetSkillCooldown(const FGameplayTag& UnifiedCooldownTag, float& OutRemainingTime, float& OutDuration) const
+{
+	return false;
+}
+
 void US1PlayerAbilitySystemComponent::QueueAbility(const FGameplayTag& AbilityTag, const FGameplayTag& FlushTag)
 {
 	ClearQueue();

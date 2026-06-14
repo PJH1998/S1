@@ -18,6 +18,10 @@ struct FS1WeaponEntry
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<US1WeaponAnimLayer> AnimLayerClass;
+
+	// 이 무기 장착 시 부여할 GA 그룹 태그 (AbilityData PDA 키)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag WeaponAbilitiesTag;
 };
 
 UCLASS()

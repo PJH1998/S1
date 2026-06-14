@@ -76,7 +76,7 @@ void AS1Player::BeginPlay()
 		return;
 	}
 
-	AbilitySystemComponent->AddCharacterAbilities(CharacterAbilitiesTag);
+	AbilitySystemComponent->AddCharacterAbilities(DefaultAbilitiesTag);
 }
 
 void AS1Player::PossessedBy(AController* NewController)
@@ -111,6 +111,7 @@ void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 	// ItemTag에 따라 엔트리 결정
 	TSubclassOf<AS1Weapon> ResolvedWeaponClass             = DefaultWeaponClass;
 	TSubclassOf<US1WeaponAnimLayer> ResolvedAnimLayerClass = DefaultAnimLayerClass;
+	FGameplayTag ResolvedWeaponAbilitiesTag                 = DefaultWeaponAbilitiesTag;
 
 	if (ItemTag.IsValid())
 	{
@@ -119,8 +120,9 @@ void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 		{
 			if (const FS1WeaponEntry* Entry = WeaponData->FindEntryByTag(ItemTag))
 			{
-				ResolvedWeaponClass    = Entry->WeaponClass;
-				ResolvedAnimLayerClass = Entry->AnimLayerClass;
+				ResolvedWeaponClass        = Entry->WeaponClass;
+				ResolvedAnimLayerClass     = Entry->AnimLayerClass;
+				ResolvedWeaponAbilitiesTag = Entry->WeaponAbilitiesTag;
 			}
 		}
 	}
@@ -157,6 +159,22 @@ void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 		}
 
 		CurrentWeaponType = NewWeaponType;
+	}
+
+	// 무기 GA 교체 — 이전 무기 GA 회수 후 새 무기 GA 부여
+	if (IsValid(AbilitySystemComponent))
+	{
+		if (CurrentWeaponAbilitiesTag.IsValid())
+		{
+			AbilitySystemComponent->RemoveCharacterAbilities(CurrentWeaponAbilitiesTag);
+		}
+
+		if (ResolvedWeaponAbilitiesTag.IsValid())
+		{
+			AbilitySystemComponent->AddCharacterAbilities(ResolvedWeaponAbilitiesTag);
+		}
+
+		CurrentWeaponAbilitiesTag = ResolvedWeaponAbilitiesTag;
 	}
 }
 

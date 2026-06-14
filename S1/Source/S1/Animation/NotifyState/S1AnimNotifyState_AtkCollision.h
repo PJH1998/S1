@@ -14,4 +14,9 @@ class S1_API US1AnimNotifyState_AtkCollision : public UAnimNotifyState
 public:
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
+
+private:
+	// 이 히트 윈도우의 공격 배율 — AttribSet.BaseDamage * AtkScale * Progression.GetDamageMultiplier()
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	float AtkScale = 1.0f;
 };

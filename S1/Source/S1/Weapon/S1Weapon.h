@@ -21,8 +21,10 @@ class S1_API AS1Weapon : public AActor
 public:
 	AS1Weapon();
 
-	void EnableHitCollision();
+	void EnableHitCollision(float InAtkScale = 1.0f);
 	void DisableHitCollision();
+
+	float GetCurrentAtkScale() const { return CurrentAtkScale; }
 
 	void EnableTrail();
 	void DisableTrail();
@@ -48,4 +50,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Trail")
 	FName TipSocketName = TEXT("Tip");
+
+private:
+	float CurrentAtkScale = 1.0f;
 };

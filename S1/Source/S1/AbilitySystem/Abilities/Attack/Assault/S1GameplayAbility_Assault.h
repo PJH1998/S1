@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/Attack/S1GameplayAbility_Attack.h"
+#include "GameplayTagContainer.h"
 #include "S1GameplayAbility_Assault.generated.h"
 
 // 카메라 방향 대쉬 공격 — 이동은 몽타주 NotifyState(MoveEvent)가 제어
@@ -22,12 +23,12 @@ protected:
 	virtual void OnMoveEndReceived(const FGameplayEventData* Payload) override;
 
 private:
-	// 공중/지상 판단 후 Progression에 전달할 섹션명
-	UPROPERTY(EditDefaultsOnly, Category = "Assault|Section")
-	FName AirSectionName;
+	// 공중/지상 판단 후 Progression의 EndMontages에서 조회할 키 태그
+	UPROPERTY(EditDefaultsOnly, Category = "Assault|Branch")
+	FGameplayTag AirEndTag;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Assault|Section")
-	FName GroundSectionName;
+	UPROPERTY(EditDefaultsOnly, Category = "Assault|Branch")
+	FGameplayTag GroundEndTag;
 
 	// 버튼 누른 순간(ActivateAbility, Super 전)에 캡처 — RotateToCamera 회전 전 방향 보존
 	FVector CapturedAssaultDirection = FVector::ZeroVector;

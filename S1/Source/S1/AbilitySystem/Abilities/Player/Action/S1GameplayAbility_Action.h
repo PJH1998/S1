@@ -5,14 +5,11 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/S1GameplayAbility.h"
 #include "GameplayTagContainer.h"
-#include "S1Enums.h"
 #include "S1GameplayAbility_Action.generated.h"
 
 class US1MontageProgression;
 class US1AnimInstance;
 class UAbilityTask_ApplyRootMotionConstantForce;
-struct FS1MontageData;
-struct FS1MontageSet;
 
 // 액션 중 상태(State.Action) 관리 + EarlyMove(이동/점프 입력 시 조기 종료) 공통 베이스
 // Attack, Dash, Dodge 등 액션 GA의 부모 클래스
@@ -45,16 +42,8 @@ public:
 	// Loop 종료 직전 훅 (e.g. GA_LoopAttack_Dive: 중력 리셋)
 	virtual void OnProgressionLoopEnded() {}
 
-	const FS1MontageData*	GetMontageData() const;
-	// 같은 AnimData 에셋에서 다른 MontageTag로 조회 (End 몽타주 등 분기 재생용)
-	const FS1MontageData*	GetMontageDataByTag(FGameplayTag InMontageTag) const;
-	virtual const FS1MontageSet* GetCurrentMontageSet() const;
-
 	// protected인 GetAnimInstance를 Progression에서 호출 가능하도록 노출
 	US1AnimInstance* GetAnimInstanceForProgression() const;
-
-	// 현재 장착 무기 타입 — Progression에서 무기별 분기용
-	ES1WeaponType GetEquippedWeaponType() const;
 
 private:
 	UFUNCTION()
@@ -63,24 +52,6 @@ private:
 	void OnEarlyMoveTriggered();
 
 protected:
-	// 실행할 Montage를 보관 중인 AnimData Asset Tag
-	UPROPERTY(EditDefaultsOnly, Category = "Action|Montage")
-	FGameplayTag AnimDataTag;
-
-	// 무기 비의존 기본 Montage Tag
-	// bUseWeaponMontage = true 일 때 MontageTagByWeapon에 현재 무기 타입이 없으면 폴백으로 사용
-	UPROPERTY(EditDefaultsOnly, Category = "Action|Montage")
-	FGameplayTag MontageTag;
-
-	// true: MontageTagByWeapon에서 현재 장착 무기 WeaponType으로 Montage Tag 결정 (플레이어 무기 GA 전용)
-	// false: MontageTag 고정 사용 (Common GA, 몬스터 GA)
-	UPROPERTY(EditDefaultsOnly, Category = "Action|Montage")
-	bool bUseWeaponMontage = false;
-
-	// 무기 종류별 Montage Tag (bUseWeaponMontage = true 일 때만 참조)
-	UPROPERTY(EditDefaultsOnly, Category = "Action|Montage", meta = (EditCondition = "bUseWeaponMontage"))
-	TMap<ES1WeaponType, FGameplayTag> MontageTagByWeapon;
-
 	// 몽타주 진행 전략 — 에디터에서 인라인 선택/편집
 	UPROPERTY(EditDefaultsOnly, Instanced, Category = "Action|Montage")
 	TObjectPtr<US1MontageProgression> MontageProgression;

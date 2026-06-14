@@ -7,7 +7,6 @@
 #include "S1MontageProgression.generated.h"
 
 class US1GameplayAbility_Action;
-struct FS1MontageSet;
 
 UCLASS(Abstract, EditInlineNew)
 class S1_API US1MontageProgression : public UObject
@@ -17,21 +16,21 @@ class S1_API US1MontageProgression : public UObject
 public:
 	void Init(US1GameplayAbility_Action* InGA);
 
-	virtual void				OnActivated() {}
-	virtual void				OnDeactivated() {}
-	virtual bool				OnInputReactivated() { return false; }
-	virtual void				OnInputReleased() {}
-	virtual bool				OnCrossInput(const FGameplayTagContainer& TargetAbilityTags) { return false; }
-	virtual FGameplayTag		GetInputFlushTag() const { return FGameplayTag(); }
-	virtual const FS1MontageSet* GetCurrentMontageSet() const;
+	virtual void			OnActivated() {}
+	virtual void			OnDeactivated() {}
+	virtual bool			OnInputReactivated() { return false; }
+	virtual void			OnInputReleased() {}
+	virtual bool			OnCrossInput(const FGameplayTagContainer& TargetAbilityTags) { return false; }
+	virtual FGameplayTag	GetInputFlushTag() const { return FGameplayTag(); }
 
-	// true면 Progression이 GA 종료를 직접 처리 (e.g. Landing: 몽타주 끝날 때 EndAbility)
-	// false면 GA가 대쉬 Task 종료 시점에 EndAbility
+	// AtkCollision 배율 × Hold 배율 합산 — 기본 1.0, 서브클래스에서 override
+	virtual float GetDamageMultiplier() const { return 1.0f; }
+
 	virtual bool WillHandleAbilityEnd() const { return false; }
 
 	// GA가 외부 조건(이동 종료 등)으로 분기를 요청할 때 호출
-	// InSectionName: 이동할 섹션 이름 (GA가 직접 결정해서 전달)
-	virtual void OnBranchRequested(FName InSectionName) {}
+	// InKey: EndMontages 맵의 키 (GA가 직접 결정해서 전달)
+	virtual void OnBranchRequested(FGameplayTag InKey) {}
 
 protected:
 	TWeakObjectPtr<US1GameplayAbility_Action> GA;

@@ -21,10 +21,11 @@ AS1Weapon::AS1Weapon()
 	TrailComponent->bAutoActivate = false;
 }
 
-void AS1Weapon::EnableHitCollision()
+void AS1Weapon::EnableHitCollision(float InAtkScale)
 {
 	if (IsValid(AttackBox))
 	{
+		CurrentAtkScale = InAtkScale;
 		OnHitCollisionEnabled.Broadcast();
 		AttackBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}

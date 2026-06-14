@@ -7,7 +7,6 @@
 #include "S1GA_Enemy.generated.h"
 
 struct FS1MontageData;
-struct FS1MontageSet;
 class UAnimMontage;
 class UGameplayEffect;
 /**
@@ -22,7 +21,7 @@ public:
 	US1GA_Enemy(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 public:
-	const FS1MontageSet* GetMontage() const;
+	const FS1MontageData* GetMontage() const;
 	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 protected:

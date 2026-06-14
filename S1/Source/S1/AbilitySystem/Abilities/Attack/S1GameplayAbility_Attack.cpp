@@ -11,7 +11,6 @@
 #include "Weapon/S1Weapon.h"
 #include "Components/BoxComponent.h"
 #include "S1GameplayTags.h"
-#include "Data/S1AnimData.h"
 #include "Abilities/GameplayAbilityTargetTypes.h"
 
 US1GameplayAbility_Attack::US1GameplayAbility_Attack(const FObjectInitializer& ObjectInitializer)
@@ -141,18 +140,6 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 	LOG(TEXT("[AttackHit] Actor: %s | Channel: %d"),
 		*OtherActor->GetName(), (int32)OtherComp->GetCollisionObjectType());
 
-	const FS1MontageSet* MontageSet = GetCurrentMontageSet();
-	if (nullptr == MontageSet)
-	{
-		return;
-	}
-
-	if (false == MontageSet->bAttackMontage)
-	{
-		LOG_WARNING(TEXT("US1GameplayAbility_Attack: MontageSet is not configured as AttackMontage. Check AnimData setup."));
-		return;
-	}
-
 	if (nullptr == DamageEffect)
 	{
 		return;
@@ -165,10 +152,15 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 		return;
 	}
 
-	float FinalDamage = AttribSet->GetBaseDamage() * MontageSet->DamageRatio;
+	AS1Player* DamagePlayer = Cast<AS1Player>(AvatarActor);
+	AS1Weapon* DamageWeapon = IsValid(DamagePlayer) ? DamagePlayer->GetEquippedWeapon() : nullptr;
 
-	LOG(TEXT("[AttackDamage] Target: %s | Base: %.1f | Ratio: %.2f | Final: %.1f"),
-		*OtherActor->GetName(), AttribSet->GetBaseDamage(), MontageSet->DamageRatio, FinalDamage);
+	const float AtkScale = IsValid(DamageWeapon) ? DamageWeapon->GetCurrentAtkScale() : 1.0f;
+	const float DmgMult  = IsValid(MontageProgression) ? MontageProgression->GetDamageMultiplier() : 1.0f;
+	const float FinalDamage = AttribSet->GetBaseDamage() * AtkScale * DmgMult;
+
+	LOG(TEXT("[AttackDamage] Target: %s | Base: %.1f | AtkScale: %.2f | DmgMult: %.2f | Final: %.1f"),
+		*OtherActor->GetName(), AttribSet->GetBaseDamage(), AtkScale, DmgMult, FinalDamage);
 
 	FGameplayAbilityTargetDataHandle TargetDataHandle;
 	FGameplayAbilityTargetData_SingleTargetHit* TargetData = new FGameplayAbilityTargetData_SingleTargetHit();

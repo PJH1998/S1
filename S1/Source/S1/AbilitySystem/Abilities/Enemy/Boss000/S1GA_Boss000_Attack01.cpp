@@ -23,7 +23,7 @@ void US1GA_Boss000_Attack01::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 		return;
 	}
 
-	const FS1MontageSet* MontageSet = GetMontage();
+	const FS1MontageData* MontageSet = GetMontage();
 	if (nullptr == MontageSet || nullptr == MontageSet->Montage)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);

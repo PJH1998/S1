@@ -62,7 +62,7 @@ void US1GA_Enemy::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, bInterrupted);
 }
 
-const FS1MontageSet* US1GA_Enemy::GetMontage() const
+const FS1MontageData* US1GA_Enemy::GetMontage() const
 {
 	US1AnimData* AnimData = US1AssetManager::GetAssetByTag<US1AnimData>(AnimDataTag);
 	if (nullptr == AnimData)
@@ -70,5 +70,5 @@ const FS1MontageSet* US1GA_Enemy::GetMontage() const
 		return nullptr;
 	}
 
-	return AnimData->FindMontageSet(MontageTag, 0);
+	return AnimData->FindMontageByTag(MontageTag);
 }

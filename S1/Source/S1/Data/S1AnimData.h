@@ -7,22 +7,6 @@
 #include "S1AnimData.generated.h"
 
 class UAnimMontage;
-class UGameplayEffect;
-
-USTRUCT(BlueprintType)
-struct FS1MontageSet
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UAnimMontage> Montage;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool bAttackMontage = false;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (EditCondition = "bAttackMontage", EditConditionHides))
-	float DamageRatio = 1.f;
-};
 
 USTRUCT(BlueprintType)
 struct FS1MontageData
@@ -30,7 +14,12 @@ struct FS1MontageData
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<FS1MontageSet> MontageSets;
+	TObjectPtr<UAnimMontage> Montage;
+
+	// _Sequence 전용: 콤보 섹션 순서 (e.g. ["Hit1", "Hit2", "Hit3"])
+	// _Loop / _HoldLoop 계열은 비워둠 — 섹션명을 Progression UPROPERTY로 직접 관리
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<FName> SectionNames;
 };
 
 UCLASS()
@@ -40,7 +29,6 @@ class S1_API US1AnimData : public UDataAsset
 
 public:
 	const FS1MontageData* FindMontageByTag(const FGameplayTag& MontageTag) const;
-	const FS1MontageSet* FindMontageSet(const FGameplayTag& MontageTag, int32 Index = 0) const;
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anim")

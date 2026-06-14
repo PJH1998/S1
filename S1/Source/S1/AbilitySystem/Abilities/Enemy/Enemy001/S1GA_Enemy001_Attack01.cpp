@@ -28,7 +28,7 @@ void US1GA_Enemy001_Attack01::ActivateAbility(const FGameplayAbilitySpecHandle H
 		return;
 	}
 
-	const FS1MontageSet* MontageSet = GetMontage();
+	const FS1MontageData* MontageSet = GetMontage();
 	if (nullptr == MontageSet || nullptr == MontageSet->Montage)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
