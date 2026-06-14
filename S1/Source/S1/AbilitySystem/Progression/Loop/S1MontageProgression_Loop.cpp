@@ -11,6 +11,7 @@
 void US1MontageProgression_Loop::OnActivated()
 {
 	bEndRequested  = false;
+	bInLoopPhase   = false;
 	CurrentEndMontage = EndMontage;
 
 	if (false == GA.IsValid())
@@ -99,6 +100,7 @@ void US1MontageProgression_Loop::OnDeactivated()
 	}
 
 	bEndRequested     = false;
+	bInLoopPhase      = false;
 	CurrentEndMontage = nullptr;
 }
 
@@ -151,17 +153,17 @@ void US1MontageProgression_Loop::ExitLoop(UAnimMontage* TargetEnd, bool bImmedia
 	bEndRequested     = true;
 	CurrentEndMontage = IsValid(TargetEnd) ? TargetEnd : EndMontage.Get();
 
-	if (bImmediate)
+	if (bImmediate && bInLoopPhase)
 	{
+		// Loop 단계에서만 즉시 중단 — Start 재생 중엔 LoopStart Notify가 처리
 		US1AnimInstance* AnimInst = GA.IsValid() ? GA->GetAnimInstanceForProgression() : nullptr;
 		if (IsValid(AnimInst))
 		{
-			AnimInst->Montage_Stop(0.0f, StartMontage);
 			AnimInst->Montage_Stop(0.0f, LoopMontage);
 		}
 		PlayEndMontage();
 	}
-	// else: OnLoopMontageEnded / OnStartMontageEnded 에서 처리
+	// else: LoopStart Notify or OnLoopMontageBlendingOut 에서 처리
 }
 
 void US1MontageProgression_Loop::PlayLoopMontage()
@@ -184,6 +186,8 @@ void US1MontageProgression_Loop::PlayLoopMontage()
 		GA->RequestEndAbility(true);
 		return;
 	}
+
+	bInLoopPhase = true;
 
 	if (LoopCycleEventTag.IsValid())
 	{

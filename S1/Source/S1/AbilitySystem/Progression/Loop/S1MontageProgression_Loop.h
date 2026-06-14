@@ -67,7 +67,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Loop|CrossCombo")
 	FGameplayTagContainer CrossComboGroupTags;
 
-	bool bEndRequested = false;
+	bool bEndRequested  = false;
+	bool bInLoopPhase   = false;
 
 private:
 	void PlayLoopMontage();
