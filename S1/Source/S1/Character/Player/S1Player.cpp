@@ -106,6 +106,17 @@ void AS1Player::OnItemEquipped(FGameplayTag ItemTag)
 	EquipWeapon(ItemTag);
 }
 
+FGameplayTag AS1Player::AppendGenderSuffix(const FGameplayTag& BaseTag) const
+{
+	if (false == BaseTag.IsValid())
+	{
+		return BaseTag;
+	}
+
+	const TCHAR* Suffix = (Gender == EPlayerGender::Female) ? TEXT(".Female") : TEXT(".Male");
+	return FGameplayTag::RequestGameplayTag(FName(*(BaseTag.GetTagName().ToString() + Suffix)));
+}
+
 void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 {
 	// ItemTag에 따라 엔트리 결정
@@ -126,6 +137,8 @@ void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 			}
 		}
 	}
+
+	ResolvedWeaponAbilitiesTag = AppendGenderSuffix(ResolvedWeaponAbilitiesTag);
 
 	// 무기 BP 교체 — 아이템 변경 시 항상 교체 (외형/히트박스 다를 수 있음)
 	if (IsValid(EquippedWeapon))

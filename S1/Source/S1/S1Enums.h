@@ -36,6 +36,13 @@ enum class ES1WeaponType : uint8
 };
 
 UENUM(BlueprintType)
+enum class EPlayerGender : uint8
+{
+	Male   = 0 UMETA(DisplayName = "Male"),
+	Female = 1 UMETA(DisplayName = "Female"),
+};
+
+UENUM(BlueprintType)
 enum class ES1Direction : uint8
 {
 	Forward = 0 UMETA(DisplayName = "Forward"),

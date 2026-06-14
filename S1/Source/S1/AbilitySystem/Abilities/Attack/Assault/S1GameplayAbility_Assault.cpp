@@ -18,6 +18,8 @@ void US1GameplayAbility_Assault::ActivateAbility(const FGameplayAbilitySpecHandl
 		CapturedAssaultDirection = Character->GetControlRotation().Vector();
 	}
 
+	bBranchRequested = false;
+
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	// GravityScale 비활성화 + 기존 관성 제거
@@ -100,6 +102,13 @@ void US1GameplayAbility_Assault::OnMoveBeginReceived(const FGameplayEventData* P
 
 void US1GameplayAbility_Assault::OnMoveEndReceived(const FGameplayEventData* Payload)
 {
+	// PlayAnimMontage(EndMontage)가 BeginMontage를 중단할 때 MoveEvent NotifyEnd가 동기 재발화됨 → 중복 차단
+	if (bBranchRequested)
+	{
+		return;
+	}
+	bBranchRequested = true;
+
 	if (IsValid(MoveTask))
 	{
 		MoveTask->EndTask();

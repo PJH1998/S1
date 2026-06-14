@@ -30,6 +30,9 @@ protected:
 	virtual void OnLoopCycleCompleted() {}
 	virtual bool ShouldExitLoop() const { return false; }
 
+	// ShouldExitLoop() true 시 재생할 End 몽타주 — nullptr이면 EndMontage 사용
+	virtual UAnimMontage* GetAutoExitMontage() const { return nullptr; }
+
 	// TargetEnd가 nullptr이면 EndMontage 사용
 	// bImmediate=true면 LoopMontage 즉시 중단 후 End 재생, false면 현재 Loop 끝난 후 End 재생
 	void ExitLoop(UAnimMontage* TargetEnd = nullptr, bool bImmediate = false);

@@ -287,7 +287,15 @@ void US1MontageProgression_Loop::OnLoopMontageBlendingOut(UAnimMontage* Montage,
 
 	if (bEndRequested || ShouldExitLoop())
 	{
-		bEndRequested = true;
+		if (false == bEndRequested)
+		{
+			bEndRequested     = true;
+			CurrentEndMontage = GetAutoExitMontage();
+			if (false == IsValid(CurrentEndMontage))
+			{
+				CurrentEndMontage = EndMontage.Get();
+			}
+		}
 		PlayEndMontage();
 	}
 	else
@@ -339,7 +347,15 @@ void US1MontageProgression_Loop::OnLoopCycleEventReceived(const FGameplayEventDa
 
 	if (bEndRequested || ShouldExitLoop())
 	{
-		bEndRequested = true;
+		if (false == bEndRequested)
+		{
+			bEndRequested     = true;
+			CurrentEndMontage = GetAutoExitMontage();
+			if (false == IsValid(CurrentEndMontage))
+			{
+				CurrentEndMontage = EndMontage.Get();
+			}
+		}
 		PlayEndMontage();
 	}
 	else

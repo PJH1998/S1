@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "AbilitySystem/Progression/Loop/Repeat/S1MontageProgression_RepeatLoopScaled.h"
+#include "AbilitySystem/Progression/Loop/Repeat/Scale/S1MontageProgression_RepeatLoopScaled.h"
 
 void US1MontageProgression_RepeatLoopScaled::OnActivated()
 {

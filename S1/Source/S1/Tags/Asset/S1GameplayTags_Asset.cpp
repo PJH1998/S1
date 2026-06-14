@@ -19,9 +19,9 @@ namespace S1AssetTags
 #pragma endregion
 
 #pragma region GameAbilitySystem
-	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player_Default, "Asset.Ability.Player.Default");
-	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player_RPR,     "Asset.Ability.Player.RPR");
-	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player_SWD,     "Asset.Ability.Player.SWD");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player_Default_Female, "Asset.Ability.Player.Default.Female");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player_RPR_Female, "Asset.Ability.Player.RPR.Female");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player_SWD_Female, "Asset.Ability.Player.SWD.Female");
 
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Boss000,  "Asset.Ability.Boss000");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Enemy001, "Asset.Ability.Enemy001");
@@ -31,7 +31,6 @@ namespace S1AssetTags
 
 #pragma region Animation
 	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData,             "Asset.AnimData");
-	UE_DEFINE_GAMEPLAY_TAG(Asset_AnimData_Player_Asna, "Asset.AnimData.Player.Asna");
 #pragma endregion
 
 #pragma region Effect

@@ -55,6 +55,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> FaceMesh;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Character")
+	EPlayerGender Gender = EPlayerGender::Female;
+
 	// 장착 무기 없을 때 사용하는 기본값 (캐릭터 BP별로 설정)
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Default")
 	TSubclassOf<AS1Weapon> DefaultWeaponClass;
@@ -118,6 +121,9 @@ private:
 	FGameplayTag AirStateTag;
 
 	void EquipWeapon(const FGameplayTag& ItemTag);
+
+	// BaseTag에 성별 접미사를 붙여 반환 (e.g. "Asset.Ability.Player.SWD" → "Asset.Ability.Player.SWD.Female")
+	FGameplayTag AppendGenderSuffix(const FGameplayTag& BaseTag) const;
 
 	// Jump() 호출 시 GA에 전달할 이벤트 태그
 	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")

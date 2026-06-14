@@ -32,4 +32,7 @@ private:
 
 	// 버튼 누른 순간(ActivateAbility, Super 전)에 캡처 — RotateToCamera 회전 전 방향 보존
 	FVector CapturedAssaultDirection = FVector::ZeroVector;
+
+	// PlayAnimMontage(EndMontage)가 BeginMontage NotifyEnd를 동기 호출 시 중복 발화 방지
+	bool bBranchRequested = false;
 };

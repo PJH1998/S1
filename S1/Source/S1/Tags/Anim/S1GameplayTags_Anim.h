@@ -6,37 +6,17 @@
 
 namespace S1AnimTags
 {
-#pragma region RPR_Assault_Branch
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Assault_End_Air);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_RPR_Assault_End_Ground);
+#pragma region Assault_Branch
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Female_RPR_AssaultEnd_Air);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Female_RPR_AssaultEnd_Ground);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Female_SWD_AssaultEnd_Air);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Female_SWD_AssaultEnd_Ground);
 #pragma endregion
 
-#pragma region Player_Common
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_Common_Ground_Dash);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_Common_Ground_Dodge);
-
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_Common_Air_Dash);
-#pragma endregion
-
-#pragma region Player_RPR
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Ground_Weak);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Ground_Skill01);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Ground_Assault);
-
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Air_Weak);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Air_WeakDive);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Air_Skill01);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_RPR_Air_Assault);
-#pragma endregion
-
-#pragma region Player_SWD
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Ground_Weak);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Ground_Skill01);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Ground_Assault);
-
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Air_Weak);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Air_Skill01);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Player_SWD_Air_Assault);
+#pragma region SWD_Skill_Branch
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Female_SWD_Skill02_End_Weak);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Female_SWD_Skill02_End_Strong);
 #pragma endregion
 
 #pragma region Boss000
