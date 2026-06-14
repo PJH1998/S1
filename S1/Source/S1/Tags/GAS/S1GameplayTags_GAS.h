@@ -78,7 +78,6 @@ namespace S1EventTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_LoopStart);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_LoopCycle);
 
-
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_CheckDistance);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_MovementStart);

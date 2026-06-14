@@ -17,6 +17,8 @@ class S1_API US1MontageProgression_Loop : public US1MontageProgression
 	GENERATED_BODY()
 
 public:
+	US1MontageProgression_Loop();
+
 	virtual void		 OnActivated() override;
 	virtual void		 OnDeactivated() override;
 	virtual bool		 OnInputReactivated() override;

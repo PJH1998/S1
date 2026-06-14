@@ -1,12 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Progression/Loop/S1MontageProgression_Loop.h"
+#include "Tags/GAS/S1GameplayTags_GAS.h"
 #include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystemComponent.h"
 #include "Animation/S1AnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+
+US1MontageProgression_Loop::US1MontageProgression_Loop()
+{
+	LoopStartEventTag = S1EventTags::Event_LoopStart;
+	LoopCycleEventTag = S1EventTags::Event_LoopCycle;
+}
 
 void US1MontageProgression_Loop::OnActivated()
 {

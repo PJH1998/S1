@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
+#include "Tags/GAS/S1GameplayTags_GAS.h"
 #include "AbilitySystem/Task/S1AbilityTask_EarlyExitChecker.h"
 #include "AbilitySystem/Progression/S1MontageProgression.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
@@ -9,6 +10,16 @@
 #include "Animation/AnimInstance.h"
 #include "Animation/S1AnimInstance.h"
 #include "Character/Player/S1Player.h"
+
+US1GameplayAbility_Action::US1GameplayAbility_Action(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	ActionStateTag    = S1StateTags::State_Action;
+	MoveBeginEventTag = S1EventTags::Event_MovementStart;
+	MoveEndEventTag   = S1EventTags::Event_MovementEnd;
+	EarlyMoveEventTag = S1EventTags::Event_EarlyMove;
+	JumpEventTag      = S1EventTags::Event_Jump;
+}
 
 void US1GameplayAbility_Action::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
