@@ -41,6 +41,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 	TObjectPtr<UAnimMontage> EndMontage;
 
+	// Start → Loop 전환 이벤트 (StartMontage 끝 프레임에 AnimNotify로 전달)
+	// notify 발화 시점에 LoopMontage 시작 → 팝 없음 + 이전 notify(StartDive 등) 보장
+	// 비워두면: BlendingOut 폴백 (StartMontage BlendOut > 0 필요)
+	UPROPERTY(EditDefaultsOnly, Category = "Loop")
+	FGameplayTag LoopStartEventTag;
+
+	// Loop → Loop/End 전환 이벤트 (LoopMontage 끝 직전 AnimNotify로 전달)
+	// 발화 시점에 count 증가 + 키업/MaxCount 체크 → Loop or End 즉시 시작 → 팝 없음
+	// 비워두면: BlendingOut 폴백 (LoopMontage BlendOut > 0 필요)
+	UPROPERTY(EditDefaultsOnly, Category = "Loop")
+	FGameplayTag LoopCycleEventTag;
+
 	// 외부 이벤트로 즉시 탈출 (선택 — 비워두면 키업/MaxCount로만 탈출)
 	UPROPERTY(EditDefaultsOnly, Category = "Loop")
 	FGameplayTag LoopEndEventTag;
@@ -61,9 +73,11 @@ private:
 	void PlayLoopMontage();
 	void PlayEndMontage();
 
-	UFUNCTION() void OnStartMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-	UFUNCTION() void OnLoopMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	UFUNCTION() void OnStartMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
+	UFUNCTION() void OnLoopMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
 	UFUNCTION() void OnEndMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	void OnLoopStartEventReceived(const FGameplayEventData* Payload);
+	void OnLoopCycleEventReceived(const FGameplayEventData* Payload);
 	UFUNCTION() void OnLoopEndEventReceived(FGameplayEventData Payload);
 
 	TObjectPtr<UAnimMontage> CurrentEndMontage;

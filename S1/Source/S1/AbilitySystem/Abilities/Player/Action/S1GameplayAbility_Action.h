@@ -39,6 +39,9 @@ public:
 	// 콤보 어드밴스 시 서브클래스 훅 (e.g. GA_Attack: 카메라 회전 갱신)
 	virtual void OnProgressionMontageStarted() {}
 
+	// Loop 시작 훅 (e.g. GA_LoopAttack_Dive: 하강 중력 적용)
+	virtual void OnProgressionLoopStarted() {}
+
 	// Loop 종료 직전 훅 (e.g. GA_LoopAttack_Dive: 중력 리셋)
 	virtual void OnProgressionLoopEnded() {}
 

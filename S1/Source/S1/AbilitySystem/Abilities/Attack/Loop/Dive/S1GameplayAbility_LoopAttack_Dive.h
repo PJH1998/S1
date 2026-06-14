@@ -15,18 +15,13 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
+	// LoopStart 이벤트 수신 시 호출 — 하강 중력 적용
+	virtual void OnProgressionLoopStarted() override;
+
 	// Loop 종료 직전 호출 — 중력 리셋 후 End 섹션 진입
 	virtual void OnProgressionLoopEnded() override;
 
 private:
-	UFUNCTION()
-	void OnDiveStart(FGameplayEventData Payload);
-
-private:
-	// 하강 시작 이벤트 태그 (AnimNotify에서 발생)
-	UPROPERTY(EditDefaultsOnly, Category = "Dive")
-	FGameplayTag DiveEventTag;
-
 	// Start 구간 중력 (0 = 공중 정지)
 	UPROPERTY(EditDefaultsOnly, Category = "Dive")
 	float StartGravityScale = 0.f;

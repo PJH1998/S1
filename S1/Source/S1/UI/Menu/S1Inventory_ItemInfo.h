@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UI/S1BaseWidget.h"
 #include "S1Inventory_ItemInfo.generated.h"
 

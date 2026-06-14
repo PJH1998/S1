@@ -73,7 +73,7 @@ namespace S1EventTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_Jump,      "Event.Jump");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Landed,    "Event.Landed");
 
-	UE_DEFINE_GAMEPLAY_TAG(Event_StartDive, "Event.StartDive");
+	UE_DEFINE_GAMEPLAY_TAG(Event_LoopStart, "Event.LoopStart");
 	UE_DEFINE_GAMEPLAY_TAG(Event_LoopCycle, "Event.LoopCycle");
 
 	UE_DEFINE_GAMEPLAY_TAG(Event_CheckDistance, "Event.CheckDistance");
