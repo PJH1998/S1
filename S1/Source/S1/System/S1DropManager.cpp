@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "System/S1DropManager.h"
@@ -7,7 +7,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerController.h"
 #include "Item/S1DropItem.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 #include "System/S1AssetManager.h"
 #include "System/S1PoolingManager.h"
 

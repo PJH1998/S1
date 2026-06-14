@@ -1,10 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 #include "S1DataTableTypes.generated.h"
 
 // -------------------------------------------------------

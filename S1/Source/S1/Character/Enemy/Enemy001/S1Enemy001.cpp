@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Character/Enemy/Enemy001/S1Enemy001.h"
 
@@ -8,7 +8,7 @@
 #include "Component/S1DeathPresentationComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 
 AS1Enemy001::AS1Enemy001()
 	: Super()

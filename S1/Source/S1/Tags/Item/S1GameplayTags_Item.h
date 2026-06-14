@@ -1,0 +1,45 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "NativeGameplayTags.h"
+
+namespace S1DropTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Drop_Gold);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Drop_Exp);
+}
+
+namespace S1ItemTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_RPR01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_RPR02);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_RPR03);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_RPR04);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_SWD01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_SWD02);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_SWD03);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Weapon_SWD04);
+}
+
+namespace S1ItemRarityTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Rarity_Common);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Rarity_Rare);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Rarity_Unique);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Rarity_Legendary);
+}
+
+namespace S1ItemTypeTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Type_Equip);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Type_Inv);
+}
+
+namespace S1EquipSlotTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Equip_Type_Weapon);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Equip_Type_Costume);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Equip_Type_Accessary);
+}

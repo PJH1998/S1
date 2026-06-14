@@ -1,11 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Character/Boss/Boss000/S1Boss_000.h"
 
 #include "AbilitySystem/Attributes/S1BossSet.h"
 #include "AbilitySystem/S1AbilitySystemComponent.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 
 #include "Component/S1DeathPresentationComponent.h"
 #include "Components/CapsuleComponent.h"

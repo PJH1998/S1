@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "System/S1ItemManager.h"
@@ -11,7 +11,7 @@
 #include "GameplayEffect.h"
 #include "Player/S1PlayerState.h"
 #include "S1DataTableTypes.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 #include "System/S1AssetManager.h"
 
 bool US1ItemManager::ApplyPickup(AController* OwnerController, ES1DropItemType DropType, FGameplayTag ItemTag, FGameplayTag RarityTag, int32 Amount)

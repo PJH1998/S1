@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "AbilitySystem/Abilities/Enemy/Enemy001/S1GA_Enemy001_Attack01.h"
@@ -8,7 +8,7 @@
 #include "Animation/AnimInstance.h"
 #include "Character/S1Monster.h"
 #include "Data/S1AnimData.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 
 US1GA_Enemy001_Attack01::US1GA_Enemy001_Attack01(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

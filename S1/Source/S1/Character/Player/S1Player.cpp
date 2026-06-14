@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Character/Player/S1Player.h"
@@ -19,7 +19,7 @@
 #include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
 #include "Player/S1PlayerController.h"
 #include "Player/S1PlayerState.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 
 AS1Player::AS1Player()
 {

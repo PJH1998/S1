@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "Character/S1Monster.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/S1AbilitySystemComponent.h"
@@ -14,7 +14,7 @@
 #include "GameplayEffect.h"
 #include "Animation/AnimInstance.h"
 #include "S1Define.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 #include "System/S1DropManager.h"
 
 AS1Monster::AS1Monster()

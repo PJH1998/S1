@@ -1,9 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "S1GameInstance.h"
 #include "S1AssetManager.h"
 #include "S1HitLagManager.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 #include "S1LogChannels.h"
 
 US1GameInstance::US1GameInstance(const FObjectInitializer& ObjectInitializer)

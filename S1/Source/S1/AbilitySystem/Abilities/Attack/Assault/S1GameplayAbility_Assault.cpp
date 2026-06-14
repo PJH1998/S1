@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Abilities/Attack/Assault/S1GameplayAbility_Assault.h"
 #include "AbilitySystem/Progression/S1MontageProgression.h"
@@ -7,7 +7,7 @@
 #include "Character/Player/S1Player.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 #include "Weapon/S1Weapon.h"
 
 void US1GameplayAbility_Assault::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

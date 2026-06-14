@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Abilities/Attack/S1GameplayAbility_Attack.h"
 #include "S1LogChannels.h"
@@ -10,7 +10,7 @@
 #include "Character/Player/S1Player.h"
 #include "Weapon/S1Weapon.h"
 #include "Components/BoxComponent.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 #include "Abilities/GameplayAbilityTargetTypes.h"
 
 US1GameplayAbility_Attack::US1GameplayAbility_Attack(const FObjectInitializer& ObjectInitializer)

@@ -1,10 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "System/S1HitLagManager.h"
 #include "Data/S1DataTableData.h"
 #include "System/S1AssetManager.h"
 #include "S1DataTableTypes.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 #include "GameFramework/WorldSettings.h"
 #include "S1LogChannels.h"
 

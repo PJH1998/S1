@@ -1,9 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "System/S1UIManager.h"
 #include "UI/S1RootWidget.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 #include "System/S1AssetManager.h"
 #include "Data/S1UIData.h"
 

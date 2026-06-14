@@ -1,9 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/S1GameplayAbility.h"
 #include "System/S1AssetManager.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 #include "Data/S1AbilityData.h"
 
 void US1AbilitySystemComponent::AddCharacterAbilities(const FGameplayTag& AssetTag)

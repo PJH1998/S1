@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UI/Menu/S1Menu_Inventory_Bag.h"
 
@@ -9,7 +9,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Player/S1PlayerState.h"
 #include "S1DataTableTypes.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 #include "System/S1ItemManager.h"
 #include "UI/Menu/S1Inventory_Slot.h"
 #include "UI/Menu/S1Menu_Inventory.h"

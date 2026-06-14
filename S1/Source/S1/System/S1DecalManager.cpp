@@ -1,11 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "System/S1DecalManager.h"
 #include "Data/S1EffectData.h"
 #include "Effect/Decal/S1Decal.h"
 #include "Engine/World.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 #include "System/S1AssetManager.h"
 
 US1DecalManager* US1DecalManager::Get(const UObject* WorldContextObject)

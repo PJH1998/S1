@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UI/Menu/S1Menu_Inventory_Equip.h"
 
@@ -8,7 +8,7 @@
 #include "UI/Menu/S1Inventory_Slot.h"
 #include "UI/Menu/S1Menu_Inventory.h"
 
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 
 void US1Menu_Inventory_Equip::InitializeMenu(US1Menu_Inventory* InOwnerMenu)
 {

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
 #include "AbilitySystemComponent.h"
@@ -7,7 +7,7 @@
 #include "S1DataTableTypes.h"
 #include "System/S1AssetManager.h"
 #include "System/S1HitLagManager.h"
-#include "S1GameplayTags.h"
+#include "Tags/S1GameplayTags.h"
 #include "S1LogChannels.h"
 #include "S1Define.h"
 
