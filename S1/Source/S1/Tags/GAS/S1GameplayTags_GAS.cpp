@@ -67,6 +67,13 @@ namespace S1StateTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Invincible,          "State.Invincible");
 }
 
+namespace S1HitType
+{
+	UE_DEFINE_GAMEPLAY_TAG(HitType_Weak,	"HitType.Weak");
+	UE_DEFINE_GAMEPLAY_TAG(HitType_Strong,	"HitType.Strong");
+	UE_DEFINE_GAMEPLAY_TAG(HitType_ToAir,	"HitType.ToAir");
+}
+
 namespace S1EventTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Event_EarlyMove, "Event.EarlyMove");

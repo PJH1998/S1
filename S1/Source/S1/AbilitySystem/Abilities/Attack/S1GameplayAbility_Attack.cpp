@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Abilities/Attack/S1GameplayAbility_Attack.h"
 #include "S1LogChannels.h"
@@ -122,6 +122,9 @@ void US1GameplayAbility_Attack::UnbindAttackBox()
 
 void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	LOG(TEXT("[Overlap] OtherActor: %s | HitTargets: %d"),
+		*OtherActor->GetName(), HitTargets.Num());
+
 	AActor* AvatarActor = GetAvatarActorFromActorInfo();
 	if (false == IsValid(OtherActor) || OtherActor == AvatarActor)
 	{
@@ -155,9 +158,10 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 	AS1Player* DamagePlayer = Cast<AS1Player>(AvatarActor);
 	AS1Weapon* DamageWeapon = IsValid(DamagePlayer) ? DamagePlayer->GetEquippedWeapon() : nullptr;
 
-	const float AtkScale = IsValid(DamageWeapon) ? DamageWeapon->GetCurrentAtkScale() : 1.0f;
-	const float DmgMult  = IsValid(MontageProgression) ? MontageProgression->GetDamageMultiplier() : 1.0f;
-	const float FinalDamage = AttribSet->GetBaseDamage() * AtkScale * DmgMult;
+	const float        AtkScale       = IsValid(DamageWeapon) ? DamageWeapon->GetCurrentAtkScale()       : 1.0f;
+	const FGameplayTag HitStrengthTag = IsValid(DamageWeapon) ? DamageWeapon->GetCurrentHitStrengthTag() : FGameplayTag();
+	const float DmgMult               = IsValid(MontageProgression) ? MontageProgression->GetDamageMultiplier() : 1.0f;
+	const float FinalDamage           = AttribSet->GetBaseDamage() * AtkScale * DmgMult;
 
 	LOG(TEXT("[AttackDamage] Target: %s | Base: %.1f | AtkScale: %.2f | DmgMult: %.2f | Final: %.1f"),
 		*OtherActor->GetName(), AttribSet->GetBaseDamage(), AtkScale, DmgMult, FinalDamage);
@@ -170,6 +174,10 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 	{
 		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffect);
 		SpecHandle.Data->SetSetByCallerMagnitude(S1SetByCallerTags::SetByCaller_Damage, -FinalDamage);
+		if (HitStrengthTag.IsValid())
+		{
+			SpecHandle.Data->AppendDynamicAssetTags(FGameplayTagContainer(HitStrengthTag));
+		}
 		ApplyGameplayEffectSpecToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), SpecHandle, TargetDataHandle);
 	}
 

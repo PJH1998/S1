@@ -4,6 +4,11 @@
 
 void US1MontageProgression_RepeatLoopBranch::OnInputReleased()
 {
+	if (bMinOneLoop && LoopCount < 1)
+	{
+		bPendingKeyRelease = true;
+		return;
+	}
 	ExitLoop(SelectEndMontage(), bImmediateExitOnKeyUp);
 }
 

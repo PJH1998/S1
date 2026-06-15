@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
+#include "GameplayTagContainer.h"
 #include "S1AnimNotifyState_AtkCollision.generated.h"
 
 UCLASS()
@@ -19,4 +20,8 @@ private:
 	// 이 히트 윈도우의 공격 배율 — AttribSet.BaseDamage * AtkScale * Progression.GetDamageMultiplier()
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	float AtkScale = 1.0f;
+
+	// 피격 강도 태그 — 타겟 피격 GA 선택에 사용 (e.g. HitType.Weak / HitType.Strong)
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	FGameplayTag HitStrengthTag;
 };

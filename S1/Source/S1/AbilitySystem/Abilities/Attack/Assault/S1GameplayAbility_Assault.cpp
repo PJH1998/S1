@@ -30,15 +30,8 @@ void US1GameplayAbility_Assault::ActivateAbility(const FGameplayAbilitySpecHandl
 		CMC->Velocity = FVector::ZeroVector;
 	}
 
-	if (AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo()))
-	{
-		if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
-		{
-			Weapon->EnableHitCollision();
-		}
-	}
-
 	// Move 이벤트 바인딩은 GA_Action::ActivateAbility에서 처리
+	// 히트 콜리전은 이동 구간(OnMoveBeginReceived)에서만 활성화
 }
 
 void US1GameplayAbility_Assault::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -52,14 +45,6 @@ void US1GameplayAbility_Assault::EndAbility(const FGameplayAbilitySpecHandle Han
 	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
 	{
 		Character->GetCharacterMovement()->GravityScale = 1.f;
-	}
-
-	if (AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo()))
-	{
-		if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
-		{
-			Weapon->DisableHitCollision();
-		}
 	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
@@ -76,6 +61,15 @@ void US1GameplayAbility_Assault::OnMoveBeginReceived(const FGameplayEventData* P
 	if (FMath::IsNearlyZero(Impulse))
 	{
 		return;
+	}
+
+	// 이동 구간 시작 — 히트 콜리전 활성화
+	if (AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo()))
+	{
+		if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
+		{
+			Weapon->EnableHitCollision(AssaultAtkScale, AssaultHitStrengthTag);
+		}
 	}
 
 	// 점프 등 기존 관성 제거 — ConstantForce가 기존 Velocity에 누적되는 것 방지
@@ -108,6 +102,15 @@ void US1GameplayAbility_Assault::OnMoveEndReceived(const FGameplayEventData* Pay
 		return;
 	}
 	bBranchRequested = true;
+
+	// 이동 구간 종료 — 히트 콜리전 비활성화
+	if (AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo()))
+	{
+		if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
+		{
+			Weapon->DisableHitCollision();
+		}
+	}
 
 	if (IsValid(MoveTask))
 	{

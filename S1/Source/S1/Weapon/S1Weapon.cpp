@@ -4,6 +4,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "NiagaraComponent.h"
+#include "S1LogChannels.h"
 
 AS1Weapon::AS1Weapon()
 {
@@ -21,13 +22,18 @@ AS1Weapon::AS1Weapon()
 	TrailComponent->bAutoActivate = false;
 }
 
-void AS1Weapon::EnableHitCollision(float InAtkScale)
+void AS1Weapon::EnableHitCollision(float InAtkScale, FGameplayTag InHitStrengthTag)
 {
 	if (IsValid(AttackBox))
 	{
-		CurrentAtkScale = InAtkScale;
+		CurrentAtkScale       = InAtkScale;
+		CurrentHitStrengthTag = InHitStrengthTag;
 		OnHitCollisionEnabled.Broadcast();
+		AttackBox->SetGenerateOverlapEvents(true);
 		AttackBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+		LOG(TEXT("[HitCollision] Enabled | AtkScale: %.2f | Tag: %s"),
+			InAtkScale, *InHitStrengthTag.ToString());
 	}
 }
 
