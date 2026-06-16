@@ -17,6 +17,7 @@
 #include "S1Define.h"
 #include "Tags/S1GameplayTags.h"
 #include "System/S1DropManager.h"
+#include "System/S1MonsterManager.h"
 
 AS1Monster::AS1Monster()
 	: Super()
@@ -32,10 +33,20 @@ void AS1Monster::BeginPlay()
 	Super::BeginPlay();
 	InitSystem();
 	InitializeAttackCollisions();
+
+	if (US1MonsterManager* MonsterManager = GetWorld()->GetSubsystem<US1MonsterManager>())
+	{
+		MonsterManager->RegisterMonster(this);
+	}
 }
 
 void AS1Monster::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	if (US1MonsterManager* MonsterManager = GetWorld()->GetSubsystem<US1MonsterManager>())
+	{
+		MonsterManager->UnregisterMonster(this);
+	}
+
 	UninitializeAttackCollisions();
 	ActiveAttackCollisions.Empty();
 	AttackCollisionHitActors.Empty();
@@ -397,11 +408,21 @@ void AS1Monster::OnSpawnFromPool(FGameplayTag InPoolTag, FVector Location, FRota
 {
 	IS1PoolingInterface::OnSpawnFromPool(InPoolTag, Location, Rotation);
 	ResetForPoolSpawn();
+
+	if (US1MonsterManager* MonsterManager = GetWorld()->GetSubsystem<US1MonsterManager>())
+	{
+		MonsterManager->RegisterMonster(this);
+	}
 }
 
 // 풀에 넣을 때(IS1PoolingInterface). 연출 중단 후 Hidden·충돌 OFF.
 void AS1Monster::OnReturnToPool()
 {
+	if (US1MonsterManager* MonsterManager = GetWorld()->GetSubsystem<US1MonsterManager>())
+	{
+		MonsterManager->UnregisterMonster(this);
+	}
+
 	UnbindDeathPresentation();
 	if (US1DeathPresentationComponent* DeathPresentation = GetDeathPresentationComponent())
 	{

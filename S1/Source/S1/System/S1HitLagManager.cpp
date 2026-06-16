@@ -42,6 +42,39 @@ void US1HitLagManager::BuildCache()
 	}
 }
 
+void US1HitLagManager::ApplyTimeDilation(const FS1HitLagRow& Row)
+{
+	UWorld* World = GetGameInstance()->GetWorld();
+	if (nullptr == World)
+	{
+		return;
+	}
+
+	// 진행 중인 HitLag 즉시 복원 후 새로 적용
+	if (World->GetTimerManager().IsTimerActive(RestoreTimer))
+	{
+		World->GetTimerManager().ClearTimer(RestoreTimer);
+		RestoreTimeDilation();
+	}
+
+	// SlowScale = 0 이면 극소값으로 대체 (WorldTimeDilation = 0 시 플레이어 CustomTimeDilation 분모 0 문제)
+	const float EffectiveScale = FMath::IsNearlyZero(Row.SlowScale) ? 0.0001f : Row.SlowScale;
+
+	bCurrentExcludePlayer = Row.bExcludePlayer;
+	World->GetWorldSettings()->TimeDilation = EffectiveScale;
+
+	if (Row.bExcludePlayer)
+	{
+		if (APlayerController* PC = World->GetFirstPlayerController())
+		{
+			if (APawn* Pawn = PC->GetPawn())
+			{
+				Pawn->CustomTimeDilation = 1.f / EffectiveScale;
+			}
+		}
+	}
+}
+
 void US1HitLagManager::TriggerHitLag(FGameplayTag HitLagTag)
 {
 	const FS1HitLagRow* Row = CachedConfigs.Find(HitLagTag);
@@ -57,35 +90,42 @@ void US1HitLagManager::TriggerHitLag(FGameplayTag HitLagTag)
 		return;
 	}
 
-	// 진행 중인 HitLag 즉시 복원 후 새로 적용
-	if (World->GetTimerManager().IsTimerActive(RestoreTimer))
-	{
-		World->GetTimerManager().ClearTimer(RestoreTimer);
-		RestoreTimeDilation();
-	}
+	ApplyTimeDilation(*Row);
 
-	bCurrentExcludePlayer = Row->bExcludePlayer;
-	World->GetWorldSettings()->TimeDilation = Row->SlowScale;
-
-	if (Row->bExcludePlayer)
-	{
-		if (APlayerController* PC = World->GetFirstPlayerController())
-		{
-			if (APawn* Pawn = PC->GetPawn())
-			{
-				Pawn->CustomTimeDilation = 1.f / Row->SlowScale;
-			}
-		}
-	}
+	const float EffectiveScale = FMath::IsNearlyZero(Row->SlowScale) ? 0.0001f : Row->SlowScale;
 
 	// Duration은 실제 시간 기준 → 게임 타임 변환
 	World->GetTimerManager().SetTimer(
 		RestoreTimer,
 		this,
 		&ThisClass::RestoreTimeDilation,
-		Row->Duration * Row->SlowScale,
+		Row->Duration * EffectiveScale,
 		false
 	);
+}
+
+void US1HitLagManager::TriggerHitLagManual(FGameplayTag HitLagTag)
+{
+	const FS1HitLagRow* Row = CachedConfigs.Find(HitLagTag);
+	if (nullptr == Row)
+	{
+		LOG_WARNING(TEXT("HitLagManager: No config for tag [%s]"), *HitLagTag.ToString());
+		return;
+	}
+
+	ApplyTimeDilation(*Row);
+}
+
+void US1HitLagManager::ReleaseHitLag()
+{
+	UWorld* World = GetGameInstance()->GetWorld();
+	if (nullptr == World)
+	{
+		return;
+	}
+
+	World->GetTimerManager().ClearTimer(RestoreTimer);
+	RestoreTimeDilation();
 }
 
 void US1HitLagManager::RestoreTimeDilation()

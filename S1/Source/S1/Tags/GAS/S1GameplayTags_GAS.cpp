@@ -11,16 +11,17 @@ namespace S1AbilityTags
 	#pragma endregion
 
 	#pragma region Attack
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack,                "Ability.Player.Attack");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Ground,         "Ability.Player.Attack.Ground");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Air,            "Ability.Player.Attack.Air");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_WeakAttack,     "Ability.Player.Attack.WeakAttack");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_WeakAttackDive, "Ability.Player.Attack.WeakAttackDive");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill01,        "Ability.Player.Attack.Skill01");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill02,        "Ability.Player.Attack.Skill02");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill03,        "Ability.Player.Attack.Skill03");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill04,        "Ability.Player.Attack.Skill04");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Assault,        "Ability.Player.Attack.Assault");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack,					"Ability.Player.Attack");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Ground,			"Ability.Player.Attack.Ground");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Air,				"Ability.Player.Attack.Air");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_WeakAttack,		"Ability.Player.Attack.WeakAttack");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_WeakAttackDive,	"Ability.Player.Attack.WeakAttackDive");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill01,			"Ability.Player.Attack.Skill01");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill02,			"Ability.Player.Attack.Skill02");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill03,			"Ability.Player.Attack.Skill03");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill04,			"Ability.Player.Attack.Skill04");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Assault,			"Ability.Player.Attack.Assault");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Ultimiate,			"Ability.Player.Attack.Ultimiate");
 	#pragma endregion
 #pragma endregion
 

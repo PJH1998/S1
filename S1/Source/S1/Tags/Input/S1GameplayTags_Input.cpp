@@ -21,10 +21,12 @@ namespace S1GameplayTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Assault, "Input.Action.Assault");
 
-	UE_DEFINE_GAMEPLAY_TAG(Input_Action_LockOn,           "Input.Action.LockOn");
-	UE_DEFINE_GAMEPLAY_TAG(Input_Action_ChangeLockOnSide,  "Input.Action.ChangeLockOnSide");
-	UE_DEFINE_GAMEPLAY_TAG(Input_Action_LockOnLeft,        "Input.Action.LockOnLeft");
-	UE_DEFINE_GAMEPLAY_TAG(Input_Action_LockOnRight,       "Input.Action.LockOnRight");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Ultimate, "Input.Action.Ultimate");
+
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_LockOn,				"Input.Action.LockOn");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_ChangeLockOnSide,	"Input.Action.ChangeLockOnSide");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_LockOnLeft,			"Input.Action.LockOnLeft");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_LockOnRight,		"Input.Action.LockOnRight");
 #pragma endregion
 
 #pragma region UI

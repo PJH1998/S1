@@ -16,8 +16,11 @@ class S1_API US1HitLagManager : public UGameInstanceSubsystem
 public:
 	void BuildCache();
 	void TriggerHitLag(FGameplayTag HitLagTag);
+	void TriggerHitLagManual(FGameplayTag HitLagTag);
+	void ReleaseHitLag();
 
 private:
+	void ApplyTimeDilation(const FS1HitLagRow& Row);
 	void RestoreTimeDilation();
 
 	TMap<FGameplayTag, FS1HitLagRow> CachedConfigs;

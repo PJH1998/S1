@@ -31,7 +31,7 @@ protected:
 
 public:
 	UBehaviorTree*		GetBehaviorTree()	const { return BehaviorTree; }
-	bool					IsDead()				const { return bIsDead; }
+	bool				IsDead()				const { return bIsDead; }
 	FGameplayTag		GetDropTableTag()	const { return DropTableTag; }
 
 public:

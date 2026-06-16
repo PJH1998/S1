@@ -23,6 +23,7 @@ namespace S1AbilityTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill03);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill04);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Assault);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Ultimate);
 	#pragma endregion
 #pragma endregion
 

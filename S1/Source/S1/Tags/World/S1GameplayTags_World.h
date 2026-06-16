@@ -34,4 +34,5 @@ namespace S1MonsterCollisionTags
 namespace S1HitLagTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitLag_PerfectDodge);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitLag_Ultimate);
 }

@@ -26,6 +26,8 @@ public class S1 : ModuleRules
             "UMG",
             "Slate",
             "SlateCore",
+            "LevelSequence",
+            "MovieScene",
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "AIModule", "NavigationSystem" });

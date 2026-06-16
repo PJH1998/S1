@@ -32,4 +32,5 @@ namespace S1MonsterCollisionTags
 namespace S1HitLagTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(HitLag_PerfectDodge, "HitLag.PerfectDodge");
+	UE_DEFINE_GAMEPLAY_TAG(HitLag_Ultimate, "HitLag.Ultimate");
 }
