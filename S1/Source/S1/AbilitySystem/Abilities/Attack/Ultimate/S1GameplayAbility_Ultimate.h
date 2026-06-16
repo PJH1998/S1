@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
+#include "AbilitySystem/Abilities/Attack/S1GameplayAbility_Attack.h"
 #include "S1GameplayAbility_Ultimate.generated.h"
 
 class ULevelSequence;
@@ -12,8 +12,9 @@ class ALevelSequenceActor;
 class AS1Monster;
 
 // 궁극기 컷씬 — 몬스터 개별 정지(CustomTimeDilation) + Level Sequence(카메라) 동시 재생, 종료 시 정리
+// Attack 상속 — 무기 콜리전(AttackBox)/HitTargets/MontageProgression 재생을 그대로 재사용
 UCLASS()
-class S1_API US1GameplayAbility_Ultimate : public US1GameplayAbility_Action
+class S1_API US1GameplayAbility_Ultimate : public US1GameplayAbility_Attack
 {
 	GENERATED_BODY()
 

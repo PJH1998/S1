@@ -1,11 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "AbilitySystem/Abilities/Ultimate/S1GameplayAbility_Ultimate.h"
+#include "AbilitySystem/Abilities/Attack/Ultimate/S1GameplayAbility_Ultimate.h"
 #include "Character/S1Monster.h"
 #include "System/S1MonsterManager.h"
 #include "LevelSequence.h"
 #include "LevelSequencePlayer.h"
 #include "LevelSequenceActor.h"
+#include "DefaultLevelSequenceInstanceData.h"
 #include "MovieSceneTimeController.h"
 #include "GameFramework/Character.h"
 #include "Engine/World.h"
@@ -109,9 +110,16 @@ void US1GameplayAbility_Ultimate::PlayCutscene()
 
 	SequencePlayer->SetTimeController(MakeShared<FMovieSceneTimeController_PlatformClock>());
 
-	// Sequencer의 "PlayerAnchor" Tag 바인딩을 스폰 대신 실제 플레이어로 대체
+	// Sequencer의 "PlayerAnchor" Tag 바인딩을 스폰 대신 실제 플레이어로 대체 — Attach 트랙(계속 따라가기) 카메라용
 	// (스폰/바인딩 해석 전에 호출해야 함 — Play() 이전)
 	SequenceActor->SetBindingByTag(PlayerBindingTag, { Character });
+
+	// 시작 시점의 플레이어 위치/회전을 1회 캡처해서 원점 기준 카메라 좌표에 오프셋으로 적용
+	// (Attach 트랙 없는 카메라용 — 시작 위치만 맞추고 이후엔 카메라 자체 키프레임으로 독립 이동/회전)
+	UDefaultLevelSequenceInstanceData* InstanceData = NewObject<UDefaultLevelSequenceInstanceData>(SequenceActor);
+	InstanceData->TransformOrigin = Character->GetActorTransform();
+	SequenceActor->DefaultInstanceData = InstanceData;
+	SequenceActor->bOverrideInstanceData = true;
 
 	SequencePlayer->OnFinished.AddDynamic(this, &ThisClass::OnCutsceneFinished);
 
