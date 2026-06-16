@@ -9,6 +9,7 @@
 #include "Character/S1Monster.h"
 #include "Component/S1EnemyLocomotionComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "S1LogChannels.h"
 
 UBT_Task_Turn::UBT_Task_Turn()
 {
@@ -44,6 +45,33 @@ FName UBT_Task_Turn::GetTurnSectionForDirection(EEnemyTurnDirection Direction) c
 	default:
 		return NAME_None;
 	}
+}
+
+FName UBT_Task_Turn::ResolveTurnSectionName(const UAnimMontage* Montage, FName RequestedSection) const
+{
+	if (Montage == nullptr || RequestedSection.IsNone())
+	{
+		return NAME_None;
+	}
+
+	if (Montage->IsValidSectionName(RequestedSection))
+	{
+		return RequestedSection;
+	}
+
+	const FName PrefixedSection(*FString::Printf(TEXT("Turn_%s"), *RequestedSection.ToString()));
+	if (Montage->IsValidSectionName(PrefixedSection))
+	{
+		return PrefixedSection;
+	}
+
+	LOG_WARNING(
+		TEXT("Turn montage section not found. Montage=[%s], Requested=[%s], Fallback=[%s]"),
+		*Montage->GetName(),
+		*RequestedSection.ToString(),
+		*PrefixedSection.ToString());
+
+	return NAME_None;
 }
 
 EBTNodeResult::Type UBT_Task_Turn::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -109,10 +137,20 @@ EBTNodeResult::Type UBT_Task_Turn::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 		return EBTNodeResult::Failed;
 	}
 
+	const FName ResolvedTurnSection = ResolveTurnSectionName(TurnMontage, TurnSection);
+	if (ResolvedTurnSection.IsNone())
+	{
+		return EBTNodeResult::Failed;
+	}
+
 	AIController->StopMovement();
 
-	if (!AnimInstance->PlayTurnMontage(TurnMontage, TurnSection))
+	if (!AnimInstance->PlayTurnMontage(TurnMontage, ResolvedTurnSection))
 	{
+		LOG_WARNING(
+			TEXT("Failed to play turn montage. Montage=[%s], Section=[%s]"),
+			*TurnMontage->GetName(),
+			*ResolvedTurnSection.ToString());
 		return EBTNodeResult::Failed;
 	}
 

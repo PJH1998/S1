@@ -25,6 +25,7 @@ protected:
 private:
 	void SetIsTurning(UBehaviorTreeComponent& OwnerComp, bool bIsInTurning) const;
 	FName GetTurnSectionForDirection(EEnemyTurnDirection Direction) const;
+	FName ResolveTurnSectionName(const UAnimMontage* Montage, FName RequestedSection) const;
 
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector TargetKey;
