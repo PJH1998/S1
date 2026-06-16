@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameplayTagContainer.h"
 #include "S1Enums.h"
 #include "S1Weapon.generated.h"
 
@@ -21,10 +22,11 @@ class S1_API AS1Weapon : public AActor
 public:
 	AS1Weapon();
 
-	void EnableHitCollision(float InAtkScale = 1.0f);
+	void EnableHitCollision(float InAtkScale = 1.0f, FGameplayTag InHitStrengthTag = FGameplayTag());
 	void DisableHitCollision();
 
-	float GetCurrentAtkScale() const { return CurrentAtkScale; }
+	float        GetCurrentAtkScale()       const { return CurrentAtkScale; }
+	FGameplayTag GetCurrentHitStrengthTag() const { return CurrentHitStrengthTag; }
 
 	void EnableTrail();
 	void DisableTrail();
@@ -52,5 +54,6 @@ protected:
 	FName TipSocketName = TEXT("Tip");
 
 private:
-	float CurrentAtkScale = 1.0f;
+	float        CurrentAtkScale       = 1.0f;
+	FGameplayTag CurrentHitStrengthTag;
 };

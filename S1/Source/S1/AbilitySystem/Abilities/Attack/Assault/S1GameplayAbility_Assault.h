@@ -30,6 +30,14 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Assault|Branch")
 	FGameplayTag GroundEndTag;
 
+	// 이동 구간 히트 강도 태그 — PostGE에서 피격 반응 선택에 사용
+	UPROPERTY(EditDefaultsOnly, Category = "Assault")
+	FGameplayTag AssaultHitStrengthTag;
+
+	// 이동 구간 공격 배율
+	UPROPERTY(EditDefaultsOnly, Category = "Assault")
+	float AssaultAtkScale = 1.0f;
+
 	// 버튼 누른 순간(ActivateAbility, Super 전)에 캡처 — RotateToCamera 회전 전 방향 보존
 	FVector CapturedAssaultDirection = FVector::ZeroVector;
 

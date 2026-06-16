@@ -81,6 +81,13 @@ namespace S1StateTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_GetUp);
 }
 
+namespace S1HitType
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Weak);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Strong);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_ToAir);
+}
+
 namespace S1EventTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_EarlyMove);

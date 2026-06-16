@@ -32,5 +32,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "RepeatLoop")
 	bool bImmediateExitOnKeyUp = false;
 
-	int32 LoopCount = 0;
+	// true: 키업이 첫 루프 사이클 완료 전에 들어오면 한 사이클 완료 후 탈출
+	UPROPERTY(EditDefaultsOnly, Category = "RepeatLoop")
+	bool bMinOneLoop = false;
+
+	int32 LoopCount          = 0;
+	bool  bPendingKeyRelease = false;
 };

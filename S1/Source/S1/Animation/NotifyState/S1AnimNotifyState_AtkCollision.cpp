@@ -20,7 +20,7 @@ void US1AnimNotifyState_AtkCollision::NotifyBegin(USkeletalMeshComponent* MeshCo
 		return;
 	}
 
-	Weapon->EnableHitCollision(AtkScale);
+	Weapon->EnableHitCollision(AtkScale, HitStrengthTag);
 }
 
 void US1AnimNotifyState_AtkCollision::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
