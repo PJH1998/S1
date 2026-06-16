@@ -59,11 +59,11 @@ namespace S1GameplayEffectTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEffect_ApplyEquip);
 }
 
-namespace S1HitTags
+namespace S1HitType
 {
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Hit_Type_Weak);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Hit_Type_Strong);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Hit_Type_Launch);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Weak);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Strong);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_ToAir);
 }
 
 namespace S1StateTags
@@ -74,18 +74,12 @@ namespace S1StateTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air_Used_WeakAttack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air_Used_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Invincible);
+
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attacking);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_React);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_Launch);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_Knockdown);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_GetUp);
-}
-
-namespace S1HitType
-{
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Weak);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Strong);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_ToAir);
 }
 
 namespace S1EventTags

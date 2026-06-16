@@ -7,12 +7,15 @@
 #include "AI/S1AIController.h"
 #include "AIController.h"
 #include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "Character/S1Monster.h"
 #include "Component/S1EnemyLocomotionComponent.h"
+#include "Animation/S1AnimInstance_EnemyLocomotion.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Tags/S1GameplayTags.h"
+#include "S1Define.h"
 
 UBT_Task_HitReact::UBT_Task_HitReact()
 {
@@ -24,6 +27,8 @@ UBT_Task_HitReact::UBT_Task_HitReact()
 EBTNodeResult::Type UBT_Task_HitReact::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	bTaskFinished = false;
+	bGetUpTransitionStarted = false;
+	LaunchLoopElapsedTime = 0.f;
 	CurrentPhase = EHitReactPhase::None;
 	ActiveMontage = nullptr;
 	CachedOwnerComp = &OwnerComp;
@@ -62,6 +67,9 @@ EBTNodeResult::Type UBT_Task_HitReact::ExecuteTask(UBehaviorTreeComponent& Owner
 	{
 		return EBTNodeResult::Failed;
 	}
+
+	// Debug
+	D(FString::Printf(TEXT("[HitReactTask] HitTypeValue: %d"), HitTypeValue));
 
 	if (HitType == ES1HitReactType::Launch)
 	{
@@ -121,13 +129,25 @@ void UBT_Task_HitReact::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	if (CurrentPhase == EHitReactPhase::LaunchLoop)
 	{
+		LaunchLoopElapsedTime += DeltaSeconds;
+		const bool bLaunchLoopTimedOut = LaunchLoopElapsedTime >= MaxLaunchLoopDuration;
 		if (UCharacterMovementComponent* Movement = Monster->GetCharacterMovement())
 		{
-			if (Movement->IsMovingOnGround())
+			if (Movement->IsMovingOnGround() || bLaunchLoopTimedOut)
 			{
 				AdvanceLaunchPhase(Monster);
 			}
 		}
+		else if (bLaunchLoopTimedOut)
+		{
+			AdvanceLaunchPhase(Monster);
+		}
+		return;
+	}
+
+	if (CurrentPhase == EHitReactPhase::LaunchEnd)
+	{
+		UpdateLaunchEndPhase(Monster);
 		return;
 	}
 
@@ -165,6 +185,8 @@ EBTNodeResult::Type UBT_Task_HitReact::AbortTask(UBehaviorTreeComponent& OwnerCo
 	}
 
 	bTaskFinished = true;
+	bGetUpTransitionStarted = false;
+	LaunchLoopElapsedTime = 0.f;
 	CurrentPhase = EHitReactPhase::None;
 	ActiveMontage = nullptr;
 	CachedOwnerComp = nullptr;
@@ -258,6 +280,17 @@ bool UBT_Task_HitReact::PrepareForHitReact(AS1Monster* Monster, UAbilitySystemCo
 		}
 	}
 
+	if (USkeletalMeshComponent* Mesh = Monster->GetMesh())
+	{
+		if (US1AnimInstance_EnemyLocomotion* AnimInstance = Cast<US1AnimInstance_EnemyLocomotion>(Mesh->GetAnimInstance()))
+		{
+			if (AnimInstance->IsPlayingTurnMontage())
+			{
+				AnimInstance->StopTurnMontage();
+			}
+		}
+	}
+
 	if (AAIController* AIController = Cast<AAIController>(Monster->GetController()))
 	{
 		AIController->StopMovement();
@@ -266,6 +299,11 @@ bool UBT_Task_HitReact::PrepareForHitReact(AS1Monster* Monster, UAbilitySystemCo
 	if (US1AbilitySystemComponent* S1ASC = Cast<US1AbilitySystemComponent>(ASC))
 	{
 		S1ASC->CancelAllAbilities();
+	}
+
+	if (UAnimInstance* AnimInstance = Monster->GetMesh() ? Monster->GetMesh()->GetAnimInstance() : nullptr)
+	{
+		AnimInstance->StopAllMontages(0.f);
 	}
 
 	return true;
@@ -320,6 +358,10 @@ bool UBT_Task_HitReact::StartLaunchPhase(AS1Monster* Monster, EHitReactPhase Pha
 	}
 
 	CurrentPhase = Phase;
+	if (CurrentPhase == EHitReactPhase::LaunchLoop)
+	{
+		LaunchLoopElapsedTime = 0.f;
+	}
 	ActiveMontage = Montage;
 
 	UAnimInstance* AnimInstance = Monster->GetMesh() ? Monster->GetMesh()->GetAnimInstance() : nullptr;
@@ -358,6 +400,99 @@ bool UBT_Task_HitReact::StartLaunchPhase(AS1Monster* Monster, EHitReactPhase Pha
 	return true;
 }
 
+bool UBT_Task_HitReact::StartGetUpPhase(AS1Monster* Monster)
+{
+	if (bGetUpTransitionStarted)
+	{
+		return true;
+	}
+
+	UAnimMontage* GetUpMontage = HitMontages.GetUp.Get();
+	if (nullptr == Monster || nullptr == GetUpMontage)
+	{
+		return false;
+	}
+
+	UAnimInstance* AnimInstance = Monster->GetMesh() ? Monster->GetMesh()->GetAnimInstance() : nullptr;
+	if (nullptr == AnimInstance)
+	{
+		return false;
+	}
+
+	bGetUpTransitionStarted = true;
+
+	if (UAnimMontage* LaunchMontage = HitMontages.LaunchMontage.Get())
+	{
+		if (AnimInstance->Montage_IsPlaying(LaunchMontage))
+		{
+			AnimInstance->Montage_Stop(0.f, LaunchMontage);
+		}
+	}
+
+	if (UAbilitySystemComponent* ASC = CachedASC.Get())
+	{
+		RemovePhaseStateTag(ASC, CurrentPhase);
+		AddPhaseStateTag(ASC, EHitReactPhase::GetUp);
+	}
+
+	CurrentPhase = EHitReactPhase::GetUp;
+	ActiveMontage = GetUpMontage;
+
+	const float Duration = AnimInstance->Montage_Play(
+		GetUpMontage,
+		1.f,
+		EMontagePlayReturnType::MontageLength,
+		0.f);
+
+	return Duration > 0.f;
+}
+
+void UBT_Task_HitReact::UpdateLaunchEndPhase(AS1Monster* Monster)
+{
+	if (bGetUpTransitionStarted || nullptr == Monster)
+	{
+		return;
+	}
+
+	UAnimMontage* LaunchMontage = HitMontages.LaunchMontage.Get();
+	UAnimInstance* AnimInstance = Monster->GetMesh() ? Monster->GetMesh()->GetAnimInstance() : nullptr;
+	if (nullptr == LaunchMontage || nullptr == AnimInstance)
+	{
+		StartGetUpPhase(Monster);
+		return;
+	}
+
+	if (false == AnimInstance->Montage_IsPlaying(LaunchMontage))
+	{
+		StartGetUpPhase(Monster);
+		return;
+	}
+
+	const FName EndSection = HitMontages.LaunchEndSection;
+	if (EndSection.IsNone())
+	{
+		StartGetUpPhase(Monster);
+		return;
+	}
+
+	const int32 EndSectionIndex = LaunchMontage->GetSectionIndex(EndSection);
+	if (EndSectionIndex == INDEX_NONE)
+	{
+		StartGetUpPhase(Monster);
+		return;
+	}
+
+	const float SectionStartTime = LaunchMontage->GetAnimCompositeSection(EndSectionIndex).GetTime();
+	const float SectionLength = LaunchMontage->GetSectionLength(EndSectionIndex);
+	const float SectionEndTime = SectionStartTime + SectionLength;
+	const float CurrentPosition = AnimInstance->Montage_GetPosition(LaunchMontage);
+
+	if (CurrentPosition >= SectionEndTime - 0.05f)
+	{
+		StartGetUpPhase(Monster);
+	}
+}
+
 void UBT_Task_HitReact::AdvanceLaunchPhase(AS1Monster* Monster)
 {
 	switch (CurrentPhase)
@@ -370,9 +505,6 @@ void UBT_Task_HitReact::AdvanceLaunchPhase(AS1Monster* Monster)
 		break;
 	case EHitReactPhase::LaunchLoop:
 		StartLaunchPhase(Monster, EHitReactPhase::LaunchEnd);
-		break;
-	case EHitReactPhase::LaunchEnd:
-		StartLaunchPhase(Monster, EHitReactPhase::GetUp);
 		break;
 	default:
 		break;
@@ -398,6 +530,8 @@ void UBT_Task_HitReact::FinishHitReact(UBehaviorTreeComponent& OwnerComp, EBTNod
 	}
 
 	bTaskFinished = true;
+	bGetUpTransitionStarted = false;
+	LaunchLoopElapsedTime = 0.f;
 	CurrentPhase = EHitReactPhase::None;
 	ActiveMontage = nullptr;
 	CachedOwnerComp = nullptr;
@@ -466,6 +600,10 @@ void UBT_Task_HitReact::ConfigureLaunchSections(UAnimInstance* AnimInstance) con
 	AnimInstance->Montage_SetNextSection(
 		HitMontages.LaunchLoopSection,
 		HitMontages.LaunchLoopSection,
+		LaunchMontage);
+	AnimInstance->Montage_SetNextSection(
+		HitMontages.LaunchEndSection,
+		HitMontages.LaunchEndSection,
 		LaunchMontage);
 }
 
@@ -566,7 +704,10 @@ void UBT_Task_HitReact::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	case EHitReactPhase::LaunchLoop:
 		break;
 	case EHitReactPhase::LaunchEnd:
-		StartLaunchPhase(Monster, EHitReactPhase::GetUp);
+		if (false == bGetUpTransitionStarted)
+		{
+			StartGetUpPhase(Monster);
+		}
 		break;
 	default:
 		break;

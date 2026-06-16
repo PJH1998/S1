@@ -6,7 +6,6 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/S1Monster.h"
 #include "BrainComponent.h"
-#include "S1Enums.h"
 
 AS1AIController::AS1AIController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -61,20 +60,6 @@ void AS1AIController::SetHitReactRequest(ES1HitReactType HitType, ES1Direction H
 		return;
 	}
 
-	if (PendingHitReactKeyName != NAME_None)
-	{
-		if (BlackboardComponent->GetValueAsBool(PendingHitReactKeyName) && HitTypeKeyName != NAME_None)
-		{
-			const uint8 ExistingType = BlackboardComponent->GetValueAsEnum(HitTypeKeyName);
-			if (static_cast<uint8>(HitType) < ExistingType)
-			{
-				return;
-			}
-		}
-
-		BlackboardComponent->SetValueAsBool(PendingHitReactKeyName, true);
-	}
-
 	if (HitTypeKeyName != NAME_None)
 	{
 		BlackboardComponent->SetValueAsEnum(HitTypeKeyName, static_cast<uint8>(HitType));
@@ -88,6 +73,20 @@ void AS1AIController::SetHitReactRequest(ES1HitReactType HitType, ES1Direction H
 	if (HitAttackerKeyName != NAME_None)
 	{
 		BlackboardComponent->SetValueAsObject(HitAttackerKeyName, Attacker);
+	}
+
+	if (PendingHitReactKeyName != NAME_None)
+	{
+		if (BlackboardComponent->GetValueAsBool(PendingHitReactKeyName) && HitTypeKeyName != NAME_None)
+		{
+			const uint8 ExistingType = BlackboardComponent->GetValueAsEnum(HitTypeKeyName);
+			if (static_cast<uint8>(HitType) < ExistingType)
+			{
+				return;
+			}
+		}
+
+		BlackboardComponent->SetValueAsBool(PendingHitReactKeyName, true);
 	}
 }
 

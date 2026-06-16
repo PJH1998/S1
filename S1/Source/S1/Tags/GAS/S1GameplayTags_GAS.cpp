@@ -57,13 +57,6 @@ namespace S1GameplayEffectTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEffect_ApplyEquip, "GameplayEffect.ApplyEquip");
 }
 
-namespace S1HitTags
-{
-	UE_DEFINE_GAMEPLAY_TAG(Hit_Type_Weak,   "Hit.Type.Weak");
-	UE_DEFINE_GAMEPLAY_TAG(Hit_Type_Strong, "Hit.Type.Strong");
-	UE_DEFINE_GAMEPLAY_TAG(Hit_Type_Launch, "Hit.Type.Launch");
-}
-
 namespace S1StateTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(State_Action,              "State.Action");

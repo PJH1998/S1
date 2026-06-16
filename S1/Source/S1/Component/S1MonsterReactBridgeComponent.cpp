@@ -109,21 +109,22 @@ ES1HitReactType US1MonsterReactBridgeComponent::ParseHitTypeFromSpec(const FGame
 {
 	FGameplayTagContainer AllTags;
 	AllTags.AppendTags(Spec.DynamicGrantedTags);
-	AllTags.AppendTags(Spec.GetDynamicAssetTags());
+	const FGameplayTagContainer& DynamicAssetTags = Spec.GetDynamicAssetTags();
+	AllTags.AppendTags(DynamicAssetTags);
 	if (nullptr != Spec.Def)
 	{
 		AllTags.AppendTags(Spec.Def->GetGrantedTags());
 	}
 
-	if (AllTags.HasTag(S1HitTags::Hit_Type_Launch))
+	if (AllTags.HasTag(S1HitType::HitType_ToAir))
 	{
 		return ES1HitReactType::Launch;
 	}
-	if (AllTags.HasTag(S1HitTags::Hit_Type_Strong))
+	if (AllTags.HasTag(S1HitType::HitType_Strong))
 	{
 		return ES1HitReactType::Strong;
 	}
-	if (AllTags.HasTag(S1HitTags::Hit_Type_Weak))
+	if (AllTags.HasTag(S1HitType::HitType_Weak))
 	{
 		return ES1HitReactType::Weak;
 	}

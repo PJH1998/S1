@@ -44,7 +44,9 @@ private:
 	bool PrepareForHitReact(AS1Monster* Monster, UAbilitySystemComponent* ASC) const;
 	bool StartGroundHit(AS1Monster* Monster, ES1HitReactType HitType, ES1Direction HitDirection);
 	bool StartLaunchPhase(AS1Monster* Monster, EHitReactPhase Phase);
+	bool StartGetUpPhase(AS1Monster* Monster);
 	void AdvanceLaunchPhase(AS1Monster* Monster);
+	void UpdateLaunchEndPhase(AS1Monster* Monster);
 	void FinishHitReact(UBehaviorTreeComponent& OwnerComp, EBTNodeResult::Type Result);
 	UAnimMontage* ResolveGroundMontage(ES1HitReactType HitType, ES1Direction HitDirection) const;
 	FName ResolveLaunchSection(EHitReactPhase Phase) const;
@@ -67,7 +69,12 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Hit|Animation")
 	FS1HitReactMontages HitMontages;
 
+	UPROPERTY(EditAnywhere, Category = "Hit|Launch")
+	float MaxLaunchLoopDuration = 2.f;
+
 	bool bTaskFinished = false;
+	bool bGetUpTransitionStarted = false;
+	float LaunchLoopElapsedTime = 0.f;
 	EHitReactPhase CurrentPhase = EHitReactPhase::None;
 	TObjectPtr<UAnimMontage> ActiveMontage;
 	TWeakObjectPtr<UBehaviorTreeComponent> CachedOwnerComp;

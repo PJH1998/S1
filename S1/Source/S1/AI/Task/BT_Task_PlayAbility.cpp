@@ -48,6 +48,7 @@ EBTNodeResult::Type UBT_Task_PlayAbility::ExecuteTask(UBehaviorTreeComponent& Ow
 	AbilityEndedDelegateHandle = ASC->OnAbilityEnded.AddUObject(this, &UBT_Task_PlayAbility::OnAbilityEnded);
 	if (ASC->ActivateAbility(AbilityTag) == false)
 	{
+		ClearAbilityEndedDelegate();
 		return EBTNodeResult::Failed;
 	}
 	return EBTNodeResult::InProgress;
@@ -55,7 +56,12 @@ EBTNodeResult::Type UBT_Task_PlayAbility::ExecuteTask(UBehaviorTreeComponent& Ow
 
 EBTNodeResult::Type UBT_Task_PlayAbility::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	US1AbilitySystemComponent* ASC = CachedAbilitySystemComponent;
 	ClearAbilityEndedDelegate();
+	if (ASC)
+	{
+		ASC->CancelAllAbilities();
+	}
 	return EBTNodeResult::Aborted;
 }
 
