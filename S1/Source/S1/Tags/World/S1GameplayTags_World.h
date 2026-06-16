@@ -28,6 +28,7 @@ namespace S1EffectTags
 
 namespace S1MonsterCollisionTags
 {
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Collision_Attack_Head);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Collision_Attack_Right);
 }
 

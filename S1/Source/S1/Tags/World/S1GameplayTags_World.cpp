@@ -26,6 +26,7 @@ namespace S1EffectTags
 
 namespace S1MonsterCollisionTags
 {
+	UE_DEFINE_GAMEPLAY_TAG(Collision_Attack_Head, "Collision.Attack.Head");
 	UE_DEFINE_GAMEPLAY_TAG(Collision_Attack_Right, "Collision.Attack.Right");
 }
 

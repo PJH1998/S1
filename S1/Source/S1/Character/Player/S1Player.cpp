@@ -12,6 +12,7 @@
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "Animation/Weapon/S1WeaponAnimLayer.h"
 #include "Animation/S1AnimInstance.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Data/S1WeaponData.h"
 #include "System/S1AssetManager.h"
@@ -29,6 +30,8 @@ AS1Player::AS1Player()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;  
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 480.f, 0.f);
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Player"));
+
 	//BodyMesh
 	USkeletalMeshComponent* BodyMesh = GetMesh();
 	BodyMesh->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90.f), FRotator(0.f, -90.f, 0.f));
