@@ -6,6 +6,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/S1Monster.h"
 #include "BrainComponent.h"
+#include "S1Enums.h"
 
 AS1AIController::AS1AIController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -52,6 +53,70 @@ void AS1AIController::SetBlackboardIsDead(bool bInIsDead)
 	}
 }
 
+void AS1AIController::SetHitReactRequest(ES1HitReactType HitType, ES1Direction HitDirection, AActor* Attacker)
+{
+	UBlackboardComponent* BlackboardComponent = GetBlackboardComponent();
+	if (nullptr == BlackboardComponent)
+	{
+		return;
+	}
+
+	if (PendingHitReactKeyName != NAME_None)
+	{
+		if (BlackboardComponent->GetValueAsBool(PendingHitReactKeyName) && HitTypeKeyName != NAME_None)
+		{
+			const uint8 ExistingType = BlackboardComponent->GetValueAsEnum(HitTypeKeyName);
+			if (static_cast<uint8>(HitType) < ExistingType)
+			{
+				return;
+			}
+		}
+
+		BlackboardComponent->SetValueAsBool(PendingHitReactKeyName, true);
+	}
+
+	if (HitTypeKeyName != NAME_None)
+	{
+		BlackboardComponent->SetValueAsEnum(HitTypeKeyName, static_cast<uint8>(HitType));
+	}
+
+	if (HitDirectionKeyName != NAME_None)
+	{
+		BlackboardComponent->SetValueAsEnum(HitDirectionKeyName, static_cast<uint8>(HitDirection));
+	}
+
+	if (HitAttackerKeyName != NAME_None)
+	{
+		BlackboardComponent->SetValueAsObject(HitAttackerKeyName, Attacker);
+	}
+}
+
+void AS1AIController::ClearHitReactRequest()
+{
+	UBlackboardComponent* BlackboardComponent = GetBlackboardComponent();
+	if (nullptr == BlackboardComponent)
+	{
+		return;
+	}
+
+	if (PendingHitReactKeyName != NAME_None)
+	{
+		BlackboardComponent->SetValueAsBool(PendingHitReactKeyName, false);
+	}
+	if (HitTypeKeyName != NAME_None)
+	{
+		BlackboardComponent->ClearValue(HitTypeKeyName);
+	}
+	if (HitDirectionKeyName != NAME_None)
+	{
+		BlackboardComponent->ClearValue(HitDirectionKeyName);
+	}
+	if (HitAttackerKeyName != NAME_None)
+	{
+		BlackboardComponent->ClearValue(HitAttackerKeyName);
+	}
+}
+
 void AS1AIController::StopAIForDeath()
 {
 	if (UBehaviorTreeComponent* BehaviorTreeComponent = Cast<UBehaviorTreeComponent>(BrainComponent))
@@ -79,6 +144,7 @@ void AS1AIController::ResetBlackboardForSpawn()
 	if (UBlackboardComponent* BlackboardComponent = GetBlackboardComponent())
 	{
 		SetBlackboardIsDead(false);
+		ClearHitReactRequest();
 		if (TargetKeyName != NAME_None)
 		{
 			BlackboardComponent->ClearValue(TargetKeyName);

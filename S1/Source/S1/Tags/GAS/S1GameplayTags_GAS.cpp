@@ -57,6 +57,13 @@ namespace S1GameplayEffectTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEffect_ApplyEquip, "GameplayEffect.ApplyEquip");
 }
 
+namespace S1HitTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(Hit_Type_Weak,   "Hit.Type.Weak");
+	UE_DEFINE_GAMEPLAY_TAG(Hit_Type_Strong, "Hit.Type.Strong");
+	UE_DEFINE_GAMEPLAY_TAG(Hit_Type_Launch, "Hit.Type.Launch");
+}
+
 namespace S1StateTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(State_Action,              "State.Action");
@@ -65,6 +72,11 @@ namespace S1StateTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Air_Used_WeakAttack, "State.Air.Used.WeakAttack");
 	UE_DEFINE_GAMEPLAY_TAG(State_Air_Used_Skill01,    "State.Air.Used.Skill01");
 	UE_DEFINE_GAMEPLAY_TAG(State_Invincible,          "State.Invincible");
+	UE_DEFINE_GAMEPLAY_TAG(State_Enemy_Attacking,     "State.Enemy.Attacking");
+	UE_DEFINE_GAMEPLAY_TAG(State_Hit_React,           "State.Hit.React");
+	UE_DEFINE_GAMEPLAY_TAG(State_Hit_Launch,          "State.Hit.Launch");
+	UE_DEFINE_GAMEPLAY_TAG(State_Hit_Knockdown,       "State.Hit.Knockdown");
+	UE_DEFINE_GAMEPLAY_TAG(State_Hit_GetUp,           "State.Hit.GetUp");
 }
 
 namespace S1EventTags

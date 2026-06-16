@@ -3,8 +3,10 @@
 
 #include "AbilitySystem/Abilities/Enemy/S1GA_Enemy.h"
 
+#include "AbilitySystemComponent.h"
 #include "System/S1AssetManager.h"
 #include "Data/S1AnimData.h"
+#include "Tags/S1GameplayTags.h"
 
 US1GA_Enemy::US1GA_Enemy(const FObjectInitializer& ObjectInitializer)
 {
@@ -15,16 +17,25 @@ void US1GA_Enemy::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	// Cooldown
 	if (CommitAbility(Handle, ActorInfo, ActivationInfo) == false)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		ASC->AddLooseGameplayTag(S1StateTags::State_Enemy_Attacking);
+	}
 }
 
 void US1GA_Enemy::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		ASC->RemoveLooseGameplayTag(S1StateTags::State_Enemy_Attacking);
+	}
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
 	ActiveMontage = nullptr;

@@ -50,3 +50,12 @@ enum class ES1Direction : uint8
 	Left    = 2 UMETA(DisplayName = "Left"),
 	Right   = 3 UMETA(DisplayName = "Right"),
 };
+
+UENUM(BlueprintType)
+enum class ES1HitReactType : uint8
+{
+	None    = 0 UMETA(DisplayName = "None"),
+	Weak    = 1 UMETA(DisplayName = "Weak"),
+	Strong  = 2 UMETA(DisplayName = "Strong"),
+	Launch  = 3 UMETA(DisplayName = "Launch"),
+};

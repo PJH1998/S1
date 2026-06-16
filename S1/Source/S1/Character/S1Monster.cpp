@@ -8,6 +8,7 @@
 #include "AIController.h"
 #include "Component/S1DeathPresentationComponent.h"
 #include "Component/S1EnemyLocomotionComponent.h"
+#include "Component/S1MonsterReactBridgeComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -23,6 +24,7 @@ AS1Monster::AS1Monster()
 	AbilitySystemComponent = CreateDefaultSubobject<US1AbilitySystemComponent>("AbilitySystemComponent");
 	DeathPresentationComponent = CreateDefaultSubobject<US1DeathPresentationComponent>(TEXT("DeathPresentationComponent"));
 	EnemyLocomotionComponent = CreateDefaultSubobject<US1EnemyLocomotionComponent>(TEXT("EnemyLocomotionComponent"));
+	ReactBridgeComponent = CreateDefaultSubobject<US1MonsterReactBridgeComponent>(TEXT("ReactBridgeComponent"));
 }
 
 void AS1Monster::BeginPlay()
@@ -244,6 +246,10 @@ void AS1Monster::NotifyDeath()
 	if (US1AbilitySystemComponent* ASC = Cast<US1AbilitySystemComponent>(AbilitySystemComponent))
 	{
 		ASC->CancelAllAbilities();
+		ASC->RemoveLooseGameplayTag(S1StateTags::State_Hit_React);
+		ASC->RemoveLooseGameplayTag(S1StateTags::State_Hit_Launch);
+		ASC->RemoveLooseGameplayTag(S1StateTags::State_Hit_Knockdown);
+		ASC->RemoveLooseGameplayTag(S1StateTags::State_Hit_GetUp);
 	}
 	// Movement Stop
 	if (AAIController* AIController = Cast<AAIController>(GetController()))
@@ -263,6 +269,7 @@ void AS1Monster::NotifyDeath()
 
 	if (AS1AIController* S1AIController = Cast<AS1AIController>(GetController()))
 	{
+		S1AIController->ClearHitReactRequest();
 		S1AIController->StopAIForDeath();
 	}
 }

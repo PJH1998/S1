@@ -11,6 +11,7 @@ class UBehaviorTree;
 class UAnimMontage;
 class US1DeathPresentationComponent;
 class US1EnemyLocomotionComponent;
+class US1MonsterReactBridgeComponent;
 class UGameplayEffect;
 class UPrimitiveComponent;
 
@@ -106,6 +107,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Locomotion")
 	TObjectPtr<US1EnemyLocomotionComponent> EnemyLocomotionComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HitReact")
+	TObjectPtr<US1MonsterReactBridgeComponent> ReactBridgeComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AttackCollision")
 	FGameplayTagContainer AttackCollisionTags;

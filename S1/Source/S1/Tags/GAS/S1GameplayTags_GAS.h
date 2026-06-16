@@ -59,6 +59,13 @@ namespace S1GameplayEffectTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEffect_ApplyEquip);
 }
 
+namespace S1HitTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Hit_Type_Weak);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Hit_Type_Strong);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Hit_Type_Launch);
+}
+
 namespace S1StateTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Action);
@@ -67,6 +74,11 @@ namespace S1StateTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air_Used_WeakAttack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air_Used_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Invincible);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attacking);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_React);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_Launch);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_Knockdown);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_GetUp);
 }
 
 namespace S1EventTags
