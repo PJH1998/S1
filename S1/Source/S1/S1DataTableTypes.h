@@ -43,6 +43,9 @@ struct FS1MonsterData : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FText MonsterName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MaxHealth = 100.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

@@ -46,6 +46,8 @@ public:
 	FS1InventoryChangedSignature OnInventoryChanged;
 
 private:
+	bool IsStackableItem(FGameplayTag ItemTag) const;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	int32 Gold = 0;
 

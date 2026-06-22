@@ -33,7 +33,10 @@ protected:
 public:
 	UBehaviorTree*		GetBehaviorTree()	const { return BehaviorTree; }
 	bool				IsDead()				const { return bIsDead; }
+	bool				HasTarget()				const { return bHasTarget; }
 	FGameplayTag		GetDropTableTag()	const { return DropTableTag; }
+	const FText&		GetMonsterName()	const { return MonsterName; }
+	void				SetMonsterName(const FText& InMonsterName) { MonsterName = InMonsterName; }
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -54,7 +57,7 @@ public:
 
 	void EnableAttackCollision(const FGameplayTag& CollisionTag, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio);
 	void DisableAttackCollision(const FGameplayTag& CollisionTag);
-	bool ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio);
+	bool ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio, const FHitResult& HitResult);
 
 	void NotifyHasTargetChanged(bool bInHasTarget);
 	US1EnemyLocomotionComponent* GetLocomotionComponent() const { return EnemyLocomotionComponent; }
@@ -131,6 +134,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Drop")
 	FGameplayTag DropTableTag;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Monster")
+	FText MonsterName;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawn")
 	TObjectPtr<UAnimMontage> SpawnMontage;

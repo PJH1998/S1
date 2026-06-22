@@ -8,6 +8,7 @@
 #include "AIController.h"
 #include "Component/S1DeathPresentationComponent.h"
 #include "Component/S1EnemyLocomotionComponent.h"
+#include "Component/S1MonsterHPBarComponent.h"
 #include "Component/S1MonsterReactBridgeComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/PrimitiveComponent.h"
@@ -130,7 +131,7 @@ void AS1Monster::DisableAttackCollision(const FGameplayTag& CollisionTag)
 	AttackCollisionHitActors.Remove(CollisionTag);
 }
 
-bool AS1Monster::ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio)
+bool AS1Monster::ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio, const FHitResult& HitResult)
 {
 	if (false == IsValid(TargetActor) || TargetActor == this || DamageEffect == nullptr)
 	{
@@ -153,6 +154,7 @@ bool AS1Monster::ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEff
 	const float FinalDamage = AttribSet->GetBaseDamage() * DamageRatio;
 	FGameplayEffectContextHandle EffectContext = SourceASC->MakeEffectContext();
 	EffectContext.AddSourceObject(this);
+	EffectContext.AddHitResult(HitResult, true);
 
 	FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffect, 1.f, EffectContext);
 	if (false == SpecHandle.IsValid())
@@ -262,7 +264,7 @@ void AS1Monster::OnAttackCollisionBeginOverlap(UPrimitiveComponent* OverlappedCo
 	}
 
 	HitActors.Add(OtherActor);
-	ApplyAttackDamage(OtherActor, ActiveCollision->DamageEffect, ActiveCollision->DamageRatio);
+	ApplyAttackDamage(OtherActor, ActiveCollision->DamageEffect, ActiveCollision->DamageRatio, SweepResult);
 }
 
 // HP 0: bIsDeadAnim·물리·BT 정지. 데스 재생·연출 타이밍은 ABP + AnimNotify.
@@ -468,6 +470,12 @@ void AS1Monster::OnReturnToPool()
 void AS1Monster::ResetForPoolSpawn()
 {
 	RestoreAliveState();
+
+	if (US1MonsterHPBarComponent* HPBarComponent = FindComponentByClass<US1MonsterHPBarComponent>())
+	{
+		HPBarComponent->ResetForPoolSpawn();
+	}
+
 	if (AS1AIController* S1AIController = Cast<AS1AIController>(GetController()))
 	{
 		S1AIController->ResetBlackboardForSpawn();
@@ -481,6 +489,7 @@ void AS1Monster::RestoreAliveState()
 	bIsDead = false;
 	bDeathPoseFrozen = false;
 	bDeathPresentationStarted = false;
+	bHasTarget = false;
 	SetActorHiddenInGame(false);
 	if (US1AttributeSet* MonsterAttributeSet = Cast<US1AttributeSet>(AttributeSet))
 	{
@@ -497,6 +506,7 @@ void AS1Monster::RestoreAliveState()
 	if (USkeletalMeshComponent* SkeletalMeshComp = GetMesh())
 	{
 		SkeletalMeshComp->bPauseAnims = false;
+		SkeletalMeshComp->InitAnim(true);
 		if (UAnimInstance* AnimInstance = SkeletalMeshComp->GetAnimInstance())
 		{
 			if (US1AnimInstance_EnemyLocomotion* EnemyAnimInstance = Cast<US1AnimInstance_EnemyLocomotion>(AnimInstance))
