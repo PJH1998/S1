@@ -16,6 +16,7 @@ class UGameplayEffect;
 class UPrimitiveComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMonsterHasTargetChangedDelegate, AS1Monster*, Monster, bool, bHasTarget);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMonsterReturnedToPoolDelegate, AS1Monster*, Monster);
 
 UCLASS()
 class S1_API AS1Monster : public AS1Character, public IS1PoolingInterface, public IS1LockOnInterface
@@ -49,6 +50,7 @@ public:
 	virtual void NotifyDeath();
 
 	void PlayAnimation(UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
+	void PlaySpawnAnimation();
 
 	void EnableAttackCollision(const FGameplayTag& CollisionTag, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio);
 	void DisableAttackCollision(const FGameplayTag& CollisionTag);
@@ -60,6 +62,9 @@ public:
 public:
 	UPROPERTY(BlueprintAssignable)
 	FMonsterHasTargetChangedDelegate OnHasTargetChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FMonsterReturnedToPoolDelegate OnReturnedToPool;
 
 public:
 	/** 사망 시 이동·캡슐 OFF. NotifyDeath에서 호출. */
@@ -89,6 +94,7 @@ protected:
 	void RestoreAliveState();
 
 	void UnbindDeathPresentation();
+	void ResumeAIAfterSpawnAnimation();
 
 protected:
 	void InitializeAttackCollisions();
@@ -125,6 +131,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Drop")
 	FGameplayTag DropTableTag;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawn")
+	TObjectPtr<UAnimMontage> SpawnMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawn", meta = (ClampMin = "0.0"))
+	float SpawnAnimationPlayRate = 1.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawn")
+	bool bBlockAIWhileSpawnAnimation = true;
 
 private:
 	struct FS1ActiveAttackCollision

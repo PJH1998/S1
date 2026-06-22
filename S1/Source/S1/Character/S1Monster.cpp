@@ -73,6 +73,38 @@ void AS1Monster::PlayAnimation(UAnimMontage* AnimMontage, float InPlayRate, FNam
 	PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
 }
 
+void AS1Monster::PlaySpawnAnimation()
+{
+	UAnimMontage* MontageToPlay = SpawnMontage.Get();
+	if (MontageToPlay == nullptr)
+	{
+		return;
+	}
+
+	if (bBlockAIWhileSpawnAnimation)
+	{
+		if (AAIController* AIController = Cast<AAIController>(GetController()))
+		{
+			AIController->StopMovement();
+			if (AS1AIController* S1AIController = Cast<AS1AIController>(AIController))
+			{
+				S1AIController->StopAIForDeath();
+			}
+		}
+	}
+
+	const float PlayRate = FMath::Max(SpawnAnimationPlayRate, KINDA_SMALL_NUMBER);
+	const float Duration = PlayAnimMontage(MontageToPlay, PlayRate);
+	if (bBlockAIWhileSpawnAnimation == false || Duration <= 0.f)
+	{
+		ResumeAIAfterSpawnAnimation();
+		return;
+	}
+
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &ThisClass::ResumeAIAfterSpawnAnimation, Duration, false);
+}
+
 void AS1Monster::EnableAttackCollision(const FGameplayTag& CollisionTag, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio)
 {
 	UPrimitiveComponent* CollisionComponent = FindAttackCollisionComponent(CollisionTag);
@@ -428,6 +460,7 @@ void AS1Monster::OnReturnToPool()
 	{
 		DeathPresentation->StopPresentation();
 	}
+	OnReturnedToPool.Broadcast(this);
 	IS1PoolingInterface::OnReturnToPool();
 }
 
@@ -481,6 +514,20 @@ void AS1Monster::UnbindDeathPresentation()
 	if (US1DeathPresentationComponent* DeathPresentation = GetDeathPresentationComponent())
 	{
 		DeathPresentation->OnPresentationComplete.RemoveDynamic(this, &AS1Monster::HandleDeathPresentationFinished);
+	}
+}
+
+void AS1Monster::ResumeAIAfterSpawnAnimation()
+{
+	if (bIsDead)
+	{
+		return;
+	}
+
+	if (AS1AIController* S1AIController = Cast<AS1AIController>(GetController()))
+	{
+		S1AIController->ResetBlackboardForSpawn();
+		S1AIController->ResumeAIAfterRevive();
 	}
 }
 
