@@ -32,6 +32,9 @@ void AS1PlayerController::BeginPlay()
 		}
 	}
 
+	// Server일 때 UI 생성 가드
+	if (!IsLocalController() || GetNetMode() == NM_DedicatedServer) return;
+
 	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
 	{
 		UIManager->Create_RootUI(this);

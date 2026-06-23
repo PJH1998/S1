@@ -49,7 +49,10 @@ void AS1Boss_000::BeginPlay()
 
 	AttributeSet->InitAttributeFromTable(S1AssetTags::Asset_DataTable, S1DataTableTags::DataTable_MonsterData, TEXT("Boss000"));
 
-	AbilitySystemComponent->AddCharacterAbilities(S1AssetTags::Asset_Ability_Boss000);
+	if (HasAuthority())
+	{
+		AbilitySystemComponent->AddCharacterAbilities(S1AssetTags::Asset_Ability_Boss000);
+	}
 }
 
 void AS1Boss_000::Tick(float DeltaTime)

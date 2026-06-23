@@ -26,6 +26,11 @@ EBTNodeResult::Type UBT_Task_PlayAbility::ExecuteTask(UBehaviorTreeComponent& Ow
 		return EBTNodeResult::Failed;
 	}
 	APawn* Pawn = AIController->GetPawn();
+	if (Pawn == nullptr || false == Pawn->HasAuthority())
+	{
+		return EBTNodeResult::Failed;
+	}
+
 	if (AS1Monster* Monster = Cast<AS1Monster>(Pawn))
 	{
 		if (Monster->IsDead())

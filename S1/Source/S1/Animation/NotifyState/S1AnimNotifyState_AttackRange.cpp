@@ -120,6 +120,11 @@ void US1AnimNotifyState_AttackRange::ApplyRangeDamage(USkeletalMeshComponent* Me
 		return;
 	}
 
+	if (false == Monster->HasAuthority())
+	{
+		return;
+	}
+
 	UWorld* World = Monster->GetWorld();
 	if (World == nullptr)
 	{

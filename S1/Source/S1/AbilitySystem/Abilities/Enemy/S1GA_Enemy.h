@@ -30,6 +30,13 @@ protected:
 
 	virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
 	virtual const FGameplayTagContainer* GetCooldownTags() const override;
+	bool PlayAttackMontage(UAnimMontage* Montage, float PlayRate = 1.f, FName StartSectionName = NAME_None);
+
+	UFUNCTION()
+	void HandleAttackMontageCompleted();
+
+	UFUNCTION()
+	void HandleAttackMontageInterrupted();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")

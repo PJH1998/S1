@@ -13,14 +13,17 @@
 
 void US1DropManager::HandleMonsterDeath(AS1Monster* DeadMonster)
 {
+	UWorld* World = GetWorld();
+	if (World == nullptr || World->GetAuthGameMode() == nullptr)
+	{
+		return;
+	}
+
 	TArray<AController*> RewardOwners;
 
-	if (UWorld* World = GetWorld())
+	if (APlayerController* PlayerController = World->GetFirstPlayerController())
 	{
-		if (APlayerController* PlayerController = World->GetFirstPlayerController())
-		{
-			RewardOwners.Add(PlayerController);
-		}
+		RewardOwners.Add(PlayerController);
 	}
 
 	HandleMonsterDeathForOwners(DeadMonster, RewardOwners);
@@ -28,6 +31,12 @@ void US1DropManager::HandleMonsterDeath(AS1Monster* DeadMonster)
 
 void US1DropManager::HandleMonsterDeathForOwners(AS1Monster* DeadMonster, const TArray<AController*>& RewardOwners)
 {
+	UWorld* World = GetWorld();
+	if (World == nullptr || World->GetAuthGameMode() == nullptr)
+	{
+		return;
+	}
+
 	if (false == IsValid(DeadMonster) || false == DeadMonster->GetDropTableTag().IsValid())
 	{
 		return;
@@ -97,6 +106,12 @@ void US1DropManager::SpawnDropItem(ES1DropItemType DropType, int32 Amount, FGame
 		return;
 	}
 
+	UWorld* World = GetWorld();
+	if (World == nullptr || World->GetAuthGameMode() == nullptr)
+	{
+		return;
+	}
+
 	US1DropItemResource* DropItemResource = US1AssetManager::GetAssetByTag<US1DropItemResource>(S1AssetTags::Asset_DropItemResource);
 	if (false == IsValid(DropItemResource))
 	{
@@ -109,12 +124,6 @@ void US1DropManager::SpawnDropItem(ES1DropItemType DropType, int32 Amount, FGame
 		return;
 	}
 	const FS1DropItemVisualParams& VisualParams = DropItemResource->FindVisualParams(DropType, RarityTag);
-
-	UWorld* World = GetWorld();
-	if (World == nullptr)
-	{
-		return;
-	}
 
 	US1PoolingManager* PoolingManager = World->GetSubsystem<US1PoolingManager>();
 	if (false == IsValid(PoolingManager))

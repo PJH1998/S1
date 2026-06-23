@@ -7,6 +7,7 @@
 #include "Data/S1DataTableData.h"
 #include "Data/S1GameplayEffectData.h"
 #include "Engine/DataTable.h"
+#include "Engine/World.h"
 #include "GameFramework/Controller.h"
 #include "GameplayEffect.h"
 #include "Player/S1PlayerState.h"
@@ -16,6 +17,12 @@
 
 bool US1ItemManager::ApplyPickup(AController* OwnerController, ES1DropItemType DropType, FGameplayTag ItemTag, FGameplayTag RarityTag, int32 Amount)
 {
+	UWorld* World = GetWorld();
+	if (World == nullptr || World->GetAuthGameMode() == nullptr)
+	{
+		return false;
+	}
+
 	AS1PlayerState* PlayerState = GetS1PlayerState(OwnerController);
 	if (false == IsValid(PlayerState) || Amount <= 0)
 	{

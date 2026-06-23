@@ -28,6 +28,16 @@ void AS1MonsterSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (false == HasAuthority())
+	{
+		if (DetectionSphere)
+		{
+			DetectionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			DetectionSphere->SetGenerateOverlapEvents(false);
+		}
+		return;
+	}
+
 	if (DetectionSphere)
 	{
 		DetectionSphere->SetSphereRadius(DetectionRadius);
@@ -56,12 +66,22 @@ void AS1MonsterSpawner::OnConstruction(const FTransform& Transform)
 
 void AS1MonsterSpawner::ActivateSpawner()
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	bHasActivated = true;
 	SpawnAllAvailableSlots();
 }
 
 void AS1MonsterSpawner::OnDetectionSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	if (IsPlayerActor(OtherActor) == false)
 	{
 		return;
@@ -80,6 +100,11 @@ void AS1MonsterSpawner::OnDetectionSphereBeginOverlap(UPrimitiveComponent* Overl
 
 void AS1MonsterSpawner::OnDetectionSphereEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	if (IsPlayerActor(OtherActor))
 	{
 		OverlappingPlayers.Remove(OtherActor);
@@ -88,6 +113,11 @@ void AS1MonsterSpawner::OnDetectionSphereEndOverlap(UPrimitiveComponent* Overlap
 
 void AS1MonsterSpawner::OnMonsterReturnedToPool(AS1Monster* Monster)
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	if (false == IsValid(Monster))
 	{
 		return;
@@ -119,6 +149,11 @@ void AS1MonsterSpawner::SpawnAllAvailableSlots()
 
 void AS1MonsterSpawner::SpawnSlot(int32 SlotIndex)
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	if (SpawnSlots.IsValidIndex(SlotIndex) == false || CanSpawnByRange() == false)
 	{
 		return;
@@ -164,6 +199,11 @@ void AS1MonsterSpawner::SpawnSlot(int32 SlotIndex)
 
 void AS1MonsterSpawner::ScheduleRespawn(int32 SlotIndex)
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	if (SpawnSlots.IsValidIndex(SlotIndex) == false)
 	{
 		return;
@@ -186,6 +226,11 @@ void AS1MonsterSpawner::ScheduleRespawn(int32 SlotIndex)
 
 void AS1MonsterSpawner::HandleRespawnTimerElapsed(int32 SlotIndex)
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	if (SpawnSlots.IsValidIndex(SlotIndex) == false)
 	{
 		return;
@@ -203,6 +248,11 @@ void AS1MonsterSpawner::HandleRespawnTimerElapsed(int32 SlotIndex)
 
 void AS1MonsterSpawner::SpawnPendingSlots()
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	for (int32 SlotIndex = 0; SlotIndex < SpawnSlots.Num(); ++SlotIndex)
 	{
 		if (SpawnSlots[SlotIndex].bPendingRespawn)

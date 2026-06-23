@@ -46,5 +46,8 @@ void AS1Enemy001::BeginPlay()
 
 	AttributeSet->InitAttributeFromTable(S1AssetTags::Asset_DataTable, S1DataTableTags::DataTable_MonsterData, TEXT("Enemy001"));
 
-	AbilitySystemComponent->AddCharacterAbilities(S1AssetTags::Asset_Ability_Enemy001);
+	if (HasAuthority())
+	{
+		AbilitySystemComponent->AddCharacterAbilities(S1AssetTags::Asset_Ability_Enemy001);
+	}
 }

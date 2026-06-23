@@ -4,12 +4,18 @@
 #include "System/S1AssetManager.h"
 #include "System/S1WorldSettings.h"
 #include "Data/S1PoolingData.h"
+#include "Engine/World.h"
 #include "Interface/S1PoolingInterface.h"
 #include "S1LogChannels.h"
 
 void US1PoolingManager::OnWorldBeginPlay(UWorld& InWorld)
 {
 	Super::OnWorldBeginPlay(InWorld);
+
+	if (InWorld.GetAuthGameMode() == nullptr)
+	{
+		return;
+	}
 
 	AS1WorldSettings* WS = Cast<AS1WorldSettings>(InWorld.GetWorldSettings());
 	if (false == IsValid(WS) || false == WS->PoolAssetTag.IsValid() || false == WS->PoolWorldTag.IsValid())
