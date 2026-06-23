@@ -14,7 +14,11 @@ void US1HPBar::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	PlayerSet = Cast<AS1PlayerState>(GetOwningPlayerState())->GetS1PlayerSet();
+	if (AS1PlayerState* PS = Cast<AS1PlayerState>(GetOwningPlayerState()))
+	{
+		PlayerSet = PS->GetS1PlayerSet();
+	}
+	
 	if (PlayerSet == nullptr)
 	{
 		UE_LOG(LogWindows, Error, TEXT("Can't Search PlayerSet"));

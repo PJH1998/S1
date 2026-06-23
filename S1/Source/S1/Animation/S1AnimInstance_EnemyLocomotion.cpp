@@ -105,6 +105,18 @@ void US1AnimInstance_EnemyLocomotion::ResetLocomotion()
 	bLocomotionLoop = false;
 }
 
+void US1AnimInstance_EnemyLocomotion::ApplyReplicatedLocomotionState(EEnemyLocomotionMode Mode, EEnemyLocomotionPhase Phase, bool bInLocomotionLoop)
+{
+	if (bIsDeadAnim)
+	{
+		return;
+	}
+
+	LocomotionMode = Mode;
+	LocomotionPhase = Phase;
+	bLocomotionLoop = bInLocomotionLoop;
+}
+
 void US1AnimInstance_EnemyLocomotion::SetDeadAnimState(bool bInDead)
 {
 	bIsDeadAnim = bInDead;
@@ -128,6 +140,14 @@ void US1AnimInstance_EnemyLocomotion::AnimNotify_LocomotionLoopStart()
 	}
 	bLocomotionLoop = true;
 	LocomotionPhase = EEnemyLocomotionPhase::Loop;
+
+	if (AS1Monster* Monster = Cast<AS1Monster>(GetOwningActor()))
+	{
+		if (Monster->HasAuthority())
+		{
+			Monster->SetReplicatedLocomotionState(LocomotionMode, LocomotionPhase, bLocomotionLoop);
+		}
+	}
 }
 
 void US1AnimInstance_EnemyLocomotion::AnimNotify_LocomotionEndFinished()
@@ -140,9 +160,14 @@ void US1AnimInstance_EnemyLocomotion::AnimNotify_LocomotionEndFinished()
 	ResetLocomotion();
 	if (AS1Monster* Monster = Cast<AS1Monster>(GetOwningActor()))
 	{
-		if (US1EnemyLocomotionComponent* LocomotionComponent = Monster->GetLocomotionComponent())
+		if (Monster->HasAuthority())
 		{
-			LocomotionComponent->NotifyLocomotionStopFinished();
+			Monster->SetReplicatedLocomotionState(EEnemyLocomotionMode::None, EEnemyLocomotionPhase::None, false);
+
+			if (US1EnemyLocomotionComponent* LocomotionComponent = Monster->GetLocomotionComponent())
+			{
+				LocomotionComponent->NotifyLocomotionStopFinished();
+			}
 		}
 	}
 }

@@ -9,8 +9,11 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Engine/World.h"
+#include "Net/UnrealNetwork.h"
 #include "S1Define.h"
+#include "System/S1AssetManager.h"
 #include "System/S1ItemManager.h"
+#include "Tags/S1GameplayTags.h"
 
 namespace
 {
@@ -60,6 +63,17 @@ void AS1DropItem::BeginPlay()
 	PickupSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnPickupSphereBeginOverlap);
 }
 
+void AS1DropItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AS1DropItem, DropType);
+	DOREPLIFETIME(AS1DropItem, ItemTag);
+	DOREPLIFETIME(AS1DropItem, RarityTag);
+	DOREPLIFETIME(AS1DropItem, OwnerController);
+	DOREPLIFETIME(AS1DropItem, Amount);
+}
+
 void AS1DropItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -82,7 +96,7 @@ void AS1DropItem::OnReturnToPool()
 	ItemTag = FGameplayTag();
 	RarityTag = FGameplayTag();
 	Amount = 0;
-	OwnerController.Reset();
+	OwnerController = nullptr;
 	SetOwner(nullptr);
 	MeshBaseRelativeLocation = FVector::ZeroVector;
 
@@ -98,6 +112,7 @@ void AS1DropItem::OnReturnToPool()
 	}
 
 	IS1PoolingInterface::OnReturnToPool();
+	ForceNetUpdate();
 }
 
 void AS1DropItem::InitializeDrop(ES1DropItemType InDropType, int32 InAmount, FGameplayTag InItemTag, FGameplayTag InRarityTag, const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams, AController* InOwnerController)
@@ -136,6 +151,7 @@ void AS1DropItem::InitializeDrop(ES1DropItemType InDropType, int32 InAmount, FGa
 	}
 
 	StartDropPresentation();
+	ForceNetUpdate();
 }
 
 void AS1DropItem::BindGoldResource(const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams)
@@ -296,13 +312,18 @@ bool AS1DropItem::CanPickup(AActor* OtherActor) const
 	}
 
 	AController* OtherController = Pawn->GetController();
-	return OwnerController.IsValid() == false || OwnerController.Get() == OtherController;
+	return OwnerController == nullptr || OwnerController == OtherController;
 }
 
 void AS1DropItem::Pickup()
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	US1ItemManager* ItemManager = GetWorld() ? GetWorld()->GetSubsystem<US1ItemManager>() : nullptr;
-	if (false == IsValid(ItemManager) || ItemManager->ApplyPickup(OwnerController.Get(), DropType, ItemTag, RarityTag, Amount) == false)
+	if (false == IsValid(ItemManager) || ItemManager->ApplyPickup(OwnerController, DropType, ItemTag, RarityTag, Amount) == false)
 	{
 		return;
 	}
@@ -316,8 +337,61 @@ void AS1DropItem::Pickup()
 	Destroy();
 }
 
+void AS1DropItem::ApplyReplicatedDropState()
+{
+	if (Amount <= 0)
+	{
+		return;
+	}
+
+	US1DropItemResource* DropItemResource = US1AssetManager::GetAssetByTag<US1DropItemResource>(S1AssetTags::Asset_DropItemResource);
+	if (false == IsValid(DropItemResource))
+	{
+		return;
+	}
+
+	const FS1DropItemResourceEntry* Resource = DropItemResource->FindResource(DropType, ItemTag, RarityTag);
+	if (Resource == nullptr)
+	{
+		return;
+	}
+
+	const FS1DropItemVisualParams& VisualParams = DropItemResource->FindVisualParams(DropType, RarityTag);
+	switch (DropType)
+	{
+	case ES1DropItemType::Gold:
+		BindGoldResource(*Resource, VisualParams);
+		break;
+	case ES1DropItemType::Exp:
+		BindExpResource(*Resource, VisualParams);
+		break;
+	case ES1DropItemType::Item:
+	default:
+		BindItemResource(*Resource, VisualParams);
+		break;
+	}
+
+	if (PickupSphere)
+	{
+		PickupSphere->SetSphereRadius(PickupRadius);
+		PickupSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+
+	StartDropPresentation();
+}
+
+void AS1DropItem::OnRep_DropState()
+{
+	ApplyReplicatedDropState();
+}
+
 void AS1DropItem::OnPickupSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	if (CanPickup(OtherActor))
 	{
 		Pickup();

@@ -44,10 +44,7 @@ void US1GA_Boss000_Attack01::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 		return;
 	}
 
-	ActiveMontage = MontageSet->Montage;
-
-	const float Duration = Monster->PlayAnimMontage(ActiveMontage, 1.f, StartSection);
-	if (Duration <= 0.f)
+	if (PlayAttackMontage(MontageSet->Montage, 1.f, StartSection) == false)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
@@ -55,10 +52,6 @@ void US1GA_Boss000_Attack01::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 
 	AnimInstance->Montage_SetNextSection(StartSection, LoopSection, ActiveMontage);
 	AnimInstance->Montage_SetNextSection(LoopSection, EndSection, ActiveMontage);
-
-	FOnMontageEnded EndDelegate;
-	EndDelegate.BindUObject(this, &ThisClass::OnMontageEnded);
-	AnimInstance->Montage_SetEndDelegate(EndDelegate, ActiveMontage);
 
 	if (CheckDistanceEventTag.IsValid())
 	{

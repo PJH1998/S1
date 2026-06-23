@@ -18,11 +18,23 @@ UBT_Service_FindTarget::UBT_Service_FindTarget()
 void UBT_Service_FindTarget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
-	APawn* LocalPawn = OwnerComp.GetAIOwner()->GetPawn();
+	AAIController* AIController = OwnerComp.GetAIOwner();
+	if (AIController == nullptr)
+	{
+		return;
+	}
+
+	APawn* LocalPawn = AIController->GetPawn();
 	if (LocalPawn == nullptr)
 	{
 		return;
 	}
+
+	if (false == LocalPawn->HasAuthority())
+	{
+		return;
+	}
+
 	if (AS1Monster* Monster = Cast<AS1Monster>(LocalPawn))
 	{
 		if (Monster->IsDead())

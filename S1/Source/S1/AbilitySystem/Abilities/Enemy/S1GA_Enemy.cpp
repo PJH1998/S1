@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Abilities/Enemy/S1GA_Enemy.h"
 
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystemComponent.h"
 #include "System/S1AssetManager.h"
 #include "Data/S1AnimData.h"
@@ -11,6 +12,7 @@
 US1GA_Enemy::US1GA_Enemy(const FObjectInitializer& ObjectInitializer)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
 }
 
 void US1GA_Enemy::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -61,6 +63,46 @@ void US1GA_Enemy::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const F
 const FGameplayTagContainer* US1GA_Enemy::GetCooldownTags() const
 {
 	return &CooldownTags;
+}
+
+bool US1GA_Enemy::PlayAttackMontage(UAnimMontage* Montage, float PlayRate, FName StartSectionName)
+{
+	if (Montage == nullptr)
+	{
+		return false;
+	}
+
+	ActiveMontage = Montage;
+
+	UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+		this,
+		NAME_None,
+		Montage,
+		PlayRate,
+		StartSectionName);
+
+	if (MontageTask == nullptr)
+	{
+		ActiveMontage = nullptr;
+		return false;
+	}
+
+	MontageTask->OnCompleted.AddDynamic(this, &ThisClass::HandleAttackMontageCompleted);
+	MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::HandleAttackMontageInterrupted);
+	MontageTask->OnCancelled.AddDynamic(this, &ThisClass::HandleAttackMontageInterrupted);
+	MontageTask->ReadyForActivation();
+
+	return true;
+}
+
+void US1GA_Enemy::HandleAttackMontageCompleted()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+void US1GA_Enemy::HandleAttackMontageInterrupted()
+{
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
 void US1GA_Enemy::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)

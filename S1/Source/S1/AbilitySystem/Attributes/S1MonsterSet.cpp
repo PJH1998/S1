@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "Character/S1Monster.h"
 #include "Data/S1DataTableData.h"
+#include "Engine/World.h"
 #include "S1DataTableTypes.h"
 #include "System/S1AssetManager.h"
 #include "System/S1CombatFeedbackSubsystem.h"
@@ -49,10 +50,13 @@ void US1MonsterSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackDa
 
 		if (UWorld* World = Monster->GetWorld())
 		{
-			if (US1CombatFeedbackSubsystem* CombatFeedback = World->GetSubsystem<US1CombatFeedbackSubsystem>())
+			if (World->GetNetMode() != NM_DedicatedServer)
 			{
-				const int32 Damage = FMath::RoundToInt(FMath::Abs(Data.EvaluatedData.Magnitude));
-				CombatFeedback->ShowDamageNumber(Damage, DamageLocation);
+				if (US1CombatFeedbackSubsystem* CombatFeedback = World->GetSubsystem<US1CombatFeedbackSubsystem>())
+				{
+					const int32 Damage = FMath::RoundToInt(FMath::Abs(Data.EvaluatedData.Magnitude));
+					CombatFeedback->ShowDamageNumber(Damage, DamageLocation);
+				}
 			}
 		}
 	}

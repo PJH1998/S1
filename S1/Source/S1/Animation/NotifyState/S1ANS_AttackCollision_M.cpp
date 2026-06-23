@@ -17,6 +17,11 @@ void US1ANS_AttackCollision_M::NotifyBegin(USkeletalMeshComponent* MeshComp, UAn
 
 	if (AS1Monster* Monster = Cast<AS1Monster>(MeshComp->GetOwner()))
 	{
+		if (false == Monster->HasAuthority())
+		{
+			return;
+		}
+
 		Monster->EnableAttackCollision(CollisionTag, DamageEffect, DamageRatio);
 	}
 }
@@ -32,6 +37,11 @@ void US1ANS_AttackCollision_M::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnim
 
 	if (AS1Monster* Monster = Cast<AS1Monster>(MeshComp->GetOwner()))
 	{
+		if (false == Monster->HasAuthority())
+		{
+			return;
+		}
+
 		Monster->DisableAttackCollision(CollisionTag);
 	}
 }

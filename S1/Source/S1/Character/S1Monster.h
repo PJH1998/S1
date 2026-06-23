@@ -2,10 +2,13 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Character/S1Character.h"
+#include "Animation/S1AnimInstance_EnemyLocomotion.h"
 #include "GameplayTagContainer.h"
 #include "Interface/S1PoolingInterface.h"
 #include "Interface/S1LockOnInterface.h"
 #include "S1Monster.generated.h"
+
+class FLifetimeProperty;
 
 class UBehaviorTree;
 class UAnimMontage;
@@ -29,6 +32,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
 	UBehaviorTree*		GetBehaviorTree()	const { return BehaviorTree; }
@@ -61,6 +65,9 @@ public:
 
 	void NotifyHasTargetChanged(bool bInHasTarget);
 	US1EnemyLocomotionComponent* GetLocomotionComponent() const { return EnemyLocomotionComponent; }
+
+	/** 서버 전용: Locomotion ABP 상태를 클라이언트에 복제한다. */
+	void SetReplicatedLocomotionState(EEnemyLocomotionMode Mode, EEnemyLocomotionPhase Phase, bool bInLocomotionLoop);
 
 public:
 	UPROPERTY(BlueprintAssignable)
@@ -110,6 +117,15 @@ protected:
 	UFUNCTION()
 	void HandleDeathPresentationFinished();
 
+	UFUNCTION()
+	void OnRep_IsDead();
+
+	UFUNCTION()
+	void OnRep_HasTarget();
+
+	UFUNCTION()
+	void OnRep_ReplicatedLocomotionState();
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Death")
 	TObjectPtr<US1DeathPresentationComponent> DeathPresentationComponent;
@@ -154,8 +170,21 @@ private:
 		float DamageRatio = 1.f;
 	};
 
+	UPROPERTY(ReplicatedUsing = OnRep_IsDead)
 	bool bIsDead = { false };
+
+	UPROPERTY(ReplicatedUsing = OnRep_HasTarget)
 	bool bHasTarget = { false };
+
+	UPROPERTY(ReplicatedUsing = OnRep_ReplicatedLocomotionState)
+	EEnemyLocomotionMode ReplicatedLocomotionMode = EEnemyLocomotionMode::None;
+
+	UPROPERTY(ReplicatedUsing = OnRep_ReplicatedLocomotionState)
+	EEnemyLocomotionPhase ReplicatedLocomotionPhase = EEnemyLocomotionPhase::None;
+
+	UPROPERTY(ReplicatedUsing = OnRep_ReplicatedLocomotionState)
+	bool bReplicatedLocomotionLoop = false;
+
 	bool bDeathPoseFrozen = { false };
 	bool bDeathPresentationStarted = { false };
 

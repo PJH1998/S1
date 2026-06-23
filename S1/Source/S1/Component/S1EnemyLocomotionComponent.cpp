@@ -18,6 +18,15 @@ US1EnemyLocomotionComponent::US1EnemyLocomotionComponent()
 void US1EnemyLocomotionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (AS1Monster* Monster = GetMonsterOwner())
+	{
+		if (false == Monster->HasAuthority())
+		{
+			SetComponentTickEnabled(false);
+			return;
+		}
+	}
+
 	if (ApproachState == EEnemyApproachState::Approaching)
 	{
 		TickApproach(DeltaTime);
@@ -26,6 +35,14 @@ void US1EnemyLocomotionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 
 bool US1EnemyLocomotionComponent::StartApproach(AActor* Target, EEnemyLocomotionMode Mode)
 {
+	if (AS1Monster* Monster = GetMonsterOwner())
+	{
+		if (false == Monster->HasAuthority())
+		{
+			return false;
+		}
+	}
+
 	if (Target == nullptr || IsMoveLocomotionMode(Mode) == false)
 	{
 		return false;
@@ -56,6 +73,7 @@ bool US1EnemyLocomotionComponent::StartApproach(AActor* Target, EEnemyLocomotion
 	CachedMaxWalkSpeed = Movement->MaxWalkSpeed;
 	Movement->MaxWalkSpeed = FMath::Max(50.f, GetTargetMoveSpeed() * 0.15f);
 	AnimInstance->BeginApproach(Mode);
+	SyncReplicatedLocomotionState();
 
 	const EPathFollowingRequestResult::Type MoveResult = AIController->MoveToActor(Target, MoveAcceptRadius);
 	if (MoveResult == EPathFollowingRequestResult::Failed)
@@ -90,6 +108,8 @@ void US1EnemyLocomotionComponent::AbortApproach(bool bInstantReset)
 			AnimInstance->RequestStop();
 		}
 	}
+
+	SyncReplicatedLocomotionState();
 
 	ApproachTarget = nullptr;
 	ApproachState = EEnemyApproachState::Idle;
@@ -205,6 +225,7 @@ void US1EnemyLocomotionComponent::BeginStop()
 	if (US1AnimInstance_EnemyLocomotion* AnimInstance = GetEnemyAnimInstance())
 	{
 		AnimInstance->RequestStop();
+		SyncReplicatedLocomotionState();
 	}
 }
 
@@ -263,4 +284,18 @@ float US1EnemyLocomotionComponent::GetTargetMoveSpeed() const
 bool US1EnemyLocomotionComponent::IsMoveLocomotionMode(EEnemyLocomotionMode Mode) const
 {
 	return Mode == EEnemyLocomotionMode::Walk || Mode == EEnemyLocomotionMode::Run;
+}
+
+void US1EnemyLocomotionComponent::SyncReplicatedLocomotionState()
+{
+	AS1Monster* Monster = GetMonsterOwner();
+	if (Monster == nullptr || false == Monster->HasAuthority())
+	{
+		return;
+	}
+
+	if (US1AnimInstance_EnemyLocomotion* AnimInstance = GetEnemyAnimInstance())
+	{
+		Monster->SetReplicatedLocomotionState(AnimInstance->LocomotionMode, AnimInstance->LocomotionPhase, AnimInstance->bLocomotionLoop);
+	}
 }

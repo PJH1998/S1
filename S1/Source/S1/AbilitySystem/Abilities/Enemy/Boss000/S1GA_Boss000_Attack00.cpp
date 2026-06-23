@@ -38,13 +38,11 @@ void US1GA_Boss000_Attack00::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	}
 
 	// Animation
-	ActiveMontage = MontageSet->Montage;
-	Monster->PlayAnimation(ActiveMontage);
-
-	// Delegate
-	FOnMontageEnded EndDelegate;
-	EndDelegate.BindUObject(this, &US1GA_Enemy::OnMontageEnded);
-	AnimInstance->Montage_SetEndDelegate(EndDelegate, ActiveMontage);
+	if (PlayAttackMontage(MontageSet->Montage) == false)
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
 }
 
 void US1GA_Boss000_Attack00::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)

@@ -8,6 +8,8 @@
 #include "Interface/S1PoolingInterface.h"
 #include "S1DropItem.generated.h"
 
+class FLifetimeProperty;
+
 class AController;
 class UMaterialInstanceDynamic;
 class UMaterialInterface;
@@ -26,6 +28,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -48,6 +51,10 @@ protected:
 	FVector CalculateDropTargetLocation() const;
 	bool CanPickup(AActor* OtherActor) const;
 	void Pickup();
+	void ApplyReplicatedDropState();
+
+	UFUNCTION()
+	void OnRep_DropState();
 
 	UFUNCTION()
 	void OnPickupSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -81,17 +88,23 @@ protected:
 	float PresentationHeight = { 300.f };
 
 private:
+	UPROPERTY(ReplicatedUsing = OnRep_DropState)
 	ES1DropItemType DropType = ES1DropItemType::Item;
 
+	UPROPERTY(ReplicatedUsing = OnRep_DropState)
 	FGameplayTag ItemTag;
+
+	UPROPERTY(ReplicatedUsing = OnRep_DropState)
 	FGameplayTag RarityTag;
 
-	TWeakObjectPtr<AController> OwnerController;
+	UPROPERTY(Replicated)
+	TObjectPtr<AController> OwnerController;
 
 	FVector PresentationStartLocation = FVector::ZeroVector;
 	FVector PresentationTargetLocation = FVector::ZeroVector;
 	FVector MeshBaseRelativeLocation = FVector::ZeroVector;
 
+	UPROPERTY(ReplicatedUsing = OnRep_DropState)
 	int32 Amount = 0;
 	float PresentationElapsedTime = 0.f;
 	float FloatingElapsedTime = 0.f;

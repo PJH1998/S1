@@ -50,6 +50,7 @@ public:
 	bool IsPlayingTurnMontage() const;
 	void RequestStop();
 	void ResetLocomotion();
+	void ApplyReplicatedLocomotionState(EEnemyLocomotionMode Mode, EEnemyLocomotionPhase Phase, bool bInLocomotionLoop);
 	void SetDeadAnimState(bool bInDead);
 	bool IsLocomotionEndPlaying() const;
 

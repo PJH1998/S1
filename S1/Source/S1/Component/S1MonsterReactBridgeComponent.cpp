@@ -74,6 +74,11 @@ void US1MonsterReactBridgeComponent::OnGameplayEffectApplied(
 		return;
 	}
 
+	if (false == Monster->HasAuthority())
+	{
+		return;
+	}
+
 	const ES1HitReactType HitType = ParseHitTypeFromSpec(Spec);
 	if (HitType == ES1HitReactType::None)
 	{

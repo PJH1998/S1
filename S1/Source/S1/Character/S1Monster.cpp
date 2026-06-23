@@ -15,6 +15,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameplayEffect.h"
 #include "Animation/AnimInstance.h"
+#include "Net/UnrealNetwork.h"
 #include "S1Define.h"
 #include "Tags/S1GameplayTags.h"
 #include "System/S1DropManager.h"
@@ -23,6 +24,9 @@
 AS1Monster::AS1Monster()
 	: Super()
 {
+	bReplicates = true;
+	SetReplicateMovement(true);
+
 	AbilitySystemComponent = CreateDefaultSubobject<US1AbilitySystemComponent>("AbilitySystemComponent");
 	DeathPresentationComponent = CreateDefaultSubobject<US1DeathPresentationComponent>(TEXT("DeathPresentationComponent"));
 	EnemyLocomotionComponent = CreateDefaultSubobject<US1EnemyLocomotionComponent>(TEXT("EnemyLocomotionComponent"));
@@ -69,6 +73,53 @@ void AS1Monster::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+void AS1Monster::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AS1Monster, bIsDead);
+	DOREPLIFETIME(AS1Monster, bHasTarget);
+	DOREPLIFETIME(AS1Monster, ReplicatedLocomotionMode);
+	DOREPLIFETIME(AS1Monster, ReplicatedLocomotionPhase);
+	DOREPLIFETIME(AS1Monster, bReplicatedLocomotionLoop);
+}
+
+void AS1Monster::SetReplicatedLocomotionState(EEnemyLocomotionMode Mode, EEnemyLocomotionPhase Phase, bool bInLocomotionLoop)
+{
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
+	if (ReplicatedLocomotionMode == Mode
+		&& ReplicatedLocomotionPhase == Phase
+		&& bReplicatedLocomotionLoop == bInLocomotionLoop)
+	{
+		return;
+	}
+
+	ReplicatedLocomotionMode = Mode;
+	ReplicatedLocomotionPhase = Phase;
+	bReplicatedLocomotionLoop = bInLocomotionLoop;
+	ForceNetUpdate();
+}
+
+void AS1Monster::OnRep_ReplicatedLocomotionState()
+{
+	if (HasAuthority())
+	{
+		return;
+	}
+
+	if (USkeletalMeshComponent* SkeletalMeshComp = GetMesh())
+	{
+		if (US1AnimInstance_EnemyLocomotion* EnemyAnimInstance = Cast<US1AnimInstance_EnemyLocomotion>(SkeletalMeshComp->GetAnimInstance()))
+		{
+			EnemyAnimInstance->ApplyReplicatedLocomotionState(ReplicatedLocomotionMode, ReplicatedLocomotionPhase, bReplicatedLocomotionLoop);
+		}
+	}
+}
+
 void AS1Monster::PlayAnimation(UAnimMontage* AnimMontage, float InPlayRate, FName StartSectionName)
 {
 	PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
@@ -108,6 +159,11 @@ void AS1Monster::PlaySpawnAnimation()
 
 void AS1Monster::EnableAttackCollision(const FGameplayTag& CollisionTag, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio)
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	UPrimitiveComponent* CollisionComponent = FindAttackCollisionComponent(CollisionTag);
 	if (CollisionComponent == nullptr)
 	{
@@ -122,6 +178,11 @@ void AS1Monster::EnableAttackCollision(const FGameplayTag& CollisionTag, TSubcla
 
 void AS1Monster::DisableAttackCollision(const FGameplayTag& CollisionTag)
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	if (UPrimitiveComponent* CollisionComponent = FindAttackCollisionComponent(CollisionTag))
 	{
 		CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -133,6 +194,11 @@ void AS1Monster::DisableAttackCollision(const FGameplayTag& CollisionTag)
 
 bool AS1Monster::ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio, const FHitResult& HitResult)
 {
+	if (false == HasAuthority())
+	{
+		return false;
+	}
+
 	if (false == IsValid(TargetActor) || TargetActor == this || DamageEffect == nullptr)
 	{
 		return false;
@@ -223,6 +289,11 @@ UPrimitiveComponent* AS1Monster::FindAttackCollisionComponent(const FGameplayTag
 
 void AS1Monster::OnAttackCollisionBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	if (bIsDead || false == IsValid(OtherActor) || OtherActor == this || OtherComp == nullptr)
 	{
 		return;
@@ -270,6 +341,11 @@ void AS1Monster::OnAttackCollisionBeginOverlap(UPrimitiveComponent* OverlappedCo
 // HP 0: bIsDeadAnim·물리·BT 정지. 데스 재생·연출 타이밍은 ABP + AnimNotify.
 void AS1Monster::NotifyDeath()
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	if (bIsDead)
 	{
 		return;
@@ -317,6 +393,8 @@ void AS1Monster::NotifyDeath()
 		S1AIController->ClearHitReactRequest();
 		S1AIController->StopAIForDeath();
 	}
+
+	ForceNetUpdate();
 }
 
 void AS1Monster::HandleDeathPrepare()
@@ -411,7 +489,7 @@ void AS1Monster::HandleDeathPresentationFinished()
 void AS1Monster::OnDeathPresentationComplete()
 {
 	UnbindDeathPresentation();
-	if (bUsePooling)
+	if (bUsePooling && HasAuthority())
 	{
 		ReturnSelf();
 	}
@@ -420,6 +498,11 @@ void AS1Monster::OnDeathPresentationComplete()
 // 보스 등 같은 액터 리스폰: 사망 상태·연출·AI·스탯을 살아 있는 상태로 되돌린다.
 void AS1Monster::ReviveForRespawn()
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	if (bIsDead == false)
 	{
 		return;
@@ -435,6 +518,8 @@ void AS1Monster::ReviveForRespawn()
 		S1AIController->ResetBlackboardForSpawn();
 		S1AIController->ResumeAIAfterRevive();
 	}
+
+	ForceNetUpdate();
 }
 
 // 풀에서 꺼낼 때(IS1PoolingInterface). 위치/표시 복구 후 ResetForPoolSpawn.
@@ -447,6 +532,8 @@ void AS1Monster::OnSpawnFromPool(FGameplayTag InPoolTag, FVector Location, FRota
 	{
 		MonsterManager->RegisterMonster(this);
 	}
+
+	ForceNetUpdate();
 }
 
 // 풀에 넣을 때(IS1PoolingInterface). 연출 중단 후 Hidden·충돌 OFF.
@@ -464,6 +551,7 @@ void AS1Monster::OnReturnToPool()
 	}
 	OnReturnedToPool.Broadcast(this);
 	IS1PoolingInterface::OnReturnToPool();
+	ForceNetUpdate();
 }
 
 // 풀 재사용 직전: 살아 있는 상태 복구 + AI 블랙보드/BT 재개.
@@ -516,6 +604,8 @@ void AS1Monster::RestoreAliveState()
 			}
 		}
 	}
+
+	SetReplicatedLocomotionState(EEnemyLocomotionMode::None, EEnemyLocomotionPhase::None, false);
 }
 
 // DeathPresentation 완료 델리게이트 바인딩 해제(풀/리스폰/재사망 시 중복 방지).
@@ -548,17 +638,50 @@ void AS1Monster::Tick(float DeltaTime)
 
 void AS1Monster::InitSystem()
 {
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 }
 
 void AS1Monster::NotifyHasTargetChanged(bool bInHasTarget)
 {
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
 	if (bHasTarget == bInHasTarget)
 	{
 		return;
 	}
 
 	bHasTarget = bInHasTarget;
+	OnHasTargetChanged.Broadcast(this, bHasTarget);
+	ForceNetUpdate();
+}
+
+void AS1Monster::OnRep_IsDead()
+{
+	if (bIsDead)
+	{
+		if (USkeletalMeshComponent* SkeletalMeshComp = GetMesh())
+		{
+			if (US1AnimInstance_EnemyLocomotion* EnemyAnimInstance = Cast<US1AnimInstance_EnemyLocomotion>(SkeletalMeshComp->GetAnimInstance()))
+			{
+				EnemyAnimInstance->SetDeadAnimState(true);
+			}
+		}
+
+		HandleDeathPrepare();
+		BeginDeathPresentation();
+		return;
+	}
+
+	RestoreAliveState();
+}
+
+void AS1Monster::OnRep_HasTarget()
+{
 	OnHasTargetChanged.Broadcast(this, bHasTarget);
 }
 

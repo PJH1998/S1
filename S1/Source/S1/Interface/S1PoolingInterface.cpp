@@ -14,6 +14,7 @@ void IS1PoolingInterface::OnSpawnFromPool(FGameplayTag InPoolTag, FVector Locati
 		Self->SetActorHiddenInGame(false);
 		Self->SetActorEnableCollision(true);
 		Self->SetActorTickEnabled(true);
+		Self->ForceNetUpdate();
 	}
 }
 
@@ -24,6 +25,7 @@ void IS1PoolingInterface::OnReturnToPool()
 		Self->SetActorHiddenInGame(true);
 		Self->SetActorEnableCollision(false);
 		Self->SetActorTickEnabled(false);
+		Self->ForceNetUpdate();
 	}
 }
 

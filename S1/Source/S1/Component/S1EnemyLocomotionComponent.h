@@ -53,6 +53,7 @@ private:
 	US1AnimInstance_EnemyLocomotion* GetEnemyAnimInstance() const;
 	float GetTargetMoveSpeed() const;
 	bool IsMoveLocomotionMode(EEnemyLocomotionMode Mode) const;
+	void SyncReplicatedLocomotionState();
 
 	UPROPERTY(EditAnywhere, Category = "Locomotion|Approach", meta = (ClampMin = "0.0"))
 	float ChaseStopDistance = { 500.f };
