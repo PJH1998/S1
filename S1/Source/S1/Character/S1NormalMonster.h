@@ -6,6 +6,8 @@
 #include "Character/S1Monster.h"
 #include "S1NormalMonster.generated.h"
 
+class US1MonsterHPBarComponent;
+
 UCLASS()
 class S1_API AS1NormalMonster : public AS1Monster
 {
@@ -13,4 +15,8 @@ class S1_API AS1NormalMonster : public AS1Monster
 
 public:
 	AS1NormalMonster();
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HPBar")
+	TObjectPtr<US1MonsterHPBarComponent> MonsterHPBarComponent;
 };

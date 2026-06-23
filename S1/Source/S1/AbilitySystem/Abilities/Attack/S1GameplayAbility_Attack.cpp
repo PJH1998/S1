@@ -168,11 +168,15 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 
 	FGameplayAbilityTargetDataHandle TargetDataHandle;
 	FGameplayAbilityTargetData_SingleTargetHit* TargetData = new FGameplayAbilityTargetData_SingleTargetHit();
-	TargetData->HitResult.HitObjectHandle = FActorInstanceHandle(OtherActor);
+	FHitResult DamageHitResult = SweepResult;
+	DamageHitResult.HitObjectHandle = FActorInstanceHandle(OtherActor);
+	DamageHitResult.Component = OtherComp;
+	TargetData->HitResult = DamageHitResult;
 	TargetDataHandle.Add(TargetData);
 
 	{
 		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffect);
+		SpecHandle.Data->GetContext().AddHitResult(DamageHitResult, true);
 		SpecHandle.Data->SetSetByCallerMagnitude(S1SetByCallerTags::SetByCaller_Damage, -FinalDamage);
 		if (HitStrengthTag.IsValid())
 		{

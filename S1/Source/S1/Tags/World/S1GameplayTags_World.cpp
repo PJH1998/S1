@@ -22,6 +22,10 @@ namespace S1EffectTags
 #pragma region Impact
 	UE_DEFINE_GAMEPLAY_TAG(Effect_Impact, "Effect.Impact");
 #pragma endregion
+
+#pragma region DamageNumber
+	UE_DEFINE_GAMEPLAY_TAG(Effect_DamageNumber, "Effect.DamageNumber");
+#pragma endregion
 }
 
 namespace S1MonsterCollisionTags

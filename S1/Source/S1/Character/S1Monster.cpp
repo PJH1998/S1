@@ -8,6 +8,7 @@
 #include "AIController.h"
 #include "Component/S1DeathPresentationComponent.h"
 #include "Component/S1EnemyLocomotionComponent.h"
+#include "Component/S1MonsterHPBarComponent.h"
 #include "Component/S1MonsterReactBridgeComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/PrimitiveComponent.h"
@@ -73,6 +74,38 @@ void AS1Monster::PlayAnimation(UAnimMontage* AnimMontage, float InPlayRate, FNam
 	PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
 }
 
+void AS1Monster::PlaySpawnAnimation()
+{
+	UAnimMontage* MontageToPlay = SpawnMontage.Get();
+	if (MontageToPlay == nullptr)
+	{
+		return;
+	}
+
+	if (bBlockAIWhileSpawnAnimation)
+	{
+		if (AAIController* AIController = Cast<AAIController>(GetController()))
+		{
+			AIController->StopMovement();
+			if (AS1AIController* S1AIController = Cast<AS1AIController>(AIController))
+			{
+				S1AIController->StopAIForDeath();
+			}
+		}
+	}
+
+	const float PlayRate = FMath::Max(SpawnAnimationPlayRate, KINDA_SMALL_NUMBER);
+	const float Duration = PlayAnimMontage(MontageToPlay, PlayRate);
+	if (bBlockAIWhileSpawnAnimation == false || Duration <= 0.f)
+	{
+		ResumeAIAfterSpawnAnimation();
+		return;
+	}
+
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &ThisClass::ResumeAIAfterSpawnAnimation, Duration, false);
+}
+
 void AS1Monster::EnableAttackCollision(const FGameplayTag& CollisionTag, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio)
 {
 	UPrimitiveComponent* CollisionComponent = FindAttackCollisionComponent(CollisionTag);
@@ -98,7 +131,7 @@ void AS1Monster::DisableAttackCollision(const FGameplayTag& CollisionTag)
 	AttackCollisionHitActors.Remove(CollisionTag);
 }
 
-bool AS1Monster::ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio)
+bool AS1Monster::ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio, const FHitResult& HitResult)
 {
 	if (false == IsValid(TargetActor) || TargetActor == this || DamageEffect == nullptr)
 	{
@@ -121,6 +154,7 @@ bool AS1Monster::ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEff
 	const float FinalDamage = AttribSet->GetBaseDamage() * DamageRatio;
 	FGameplayEffectContextHandle EffectContext = SourceASC->MakeEffectContext();
 	EffectContext.AddSourceObject(this);
+	EffectContext.AddHitResult(HitResult, true);
 
 	FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffect, 1.f, EffectContext);
 	if (false == SpecHandle.IsValid())
@@ -230,7 +264,7 @@ void AS1Monster::OnAttackCollisionBeginOverlap(UPrimitiveComponent* OverlappedCo
 	}
 
 	HitActors.Add(OtherActor);
-	ApplyAttackDamage(OtherActor, ActiveCollision->DamageEffect, ActiveCollision->DamageRatio);
+	ApplyAttackDamage(OtherActor, ActiveCollision->DamageEffect, ActiveCollision->DamageRatio, SweepResult);
 }
 
 // HP 0: bIsDeadAnim·물리·BT 정지. 데스 재생·연출 타이밍은 ABP + AnimNotify.
@@ -428,6 +462,7 @@ void AS1Monster::OnReturnToPool()
 	{
 		DeathPresentation->StopPresentation();
 	}
+	OnReturnedToPool.Broadcast(this);
 	IS1PoolingInterface::OnReturnToPool();
 }
 
@@ -435,6 +470,12 @@ void AS1Monster::OnReturnToPool()
 void AS1Monster::ResetForPoolSpawn()
 {
 	RestoreAliveState();
+
+	if (US1MonsterHPBarComponent* HPBarComponent = FindComponentByClass<US1MonsterHPBarComponent>())
+	{
+		HPBarComponent->ResetForPoolSpawn();
+	}
+
 	if (AS1AIController* S1AIController = Cast<AS1AIController>(GetController()))
 	{
 		S1AIController->ResetBlackboardForSpawn();
@@ -448,6 +489,7 @@ void AS1Monster::RestoreAliveState()
 	bIsDead = false;
 	bDeathPoseFrozen = false;
 	bDeathPresentationStarted = false;
+	bHasTarget = false;
 	SetActorHiddenInGame(false);
 	if (US1AttributeSet* MonsterAttributeSet = Cast<US1AttributeSet>(AttributeSet))
 	{
@@ -464,6 +506,7 @@ void AS1Monster::RestoreAliveState()
 	if (USkeletalMeshComponent* SkeletalMeshComp = GetMesh())
 	{
 		SkeletalMeshComp->bPauseAnims = false;
+		SkeletalMeshComp->InitAnim(true);
 		if (UAnimInstance* AnimInstance = SkeletalMeshComp->GetAnimInstance())
 		{
 			if (US1AnimInstance_EnemyLocomotion* EnemyAnimInstance = Cast<US1AnimInstance_EnemyLocomotion>(AnimInstance))
@@ -481,6 +524,20 @@ void AS1Monster::UnbindDeathPresentation()
 	if (US1DeathPresentationComponent* DeathPresentation = GetDeathPresentationComponent())
 	{
 		DeathPresentation->OnPresentationComplete.RemoveDynamic(this, &AS1Monster::HandleDeathPresentationFinished);
+	}
+}
+
+void AS1Monster::ResumeAIAfterSpawnAnimation()
+{
+	if (bIsDead)
+	{
+		return;
+	}
+
+	if (AS1AIController* S1AIController = Cast<AS1AIController>(GetController()))
+	{
+		S1AIController->ResetBlackboardForSpawn();
+		S1AIController->ResumeAIAfterRevive();
 	}
 }
 
