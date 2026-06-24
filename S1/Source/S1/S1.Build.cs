@@ -28,6 +28,7 @@ public class S1 : ModuleRules
             "SlateCore",
             "LevelSequence",
             "MovieScene",
+            "CinematicCamera",
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "AIModule", "NavigationSystem" });
