@@ -6,6 +6,14 @@
 #include "Character/Boss/S1BossBase.h"
 #include "S1Boss_000.generated.h"
 
+// 보스가 노출하는 무기. SKM_Boss000은 검/도끼를 한 메쉬에 모두 포함하므로 한쪽만 보이게 토글한다.
+UENUM(BlueprintType)
+enum class EBossWeapon : uint8
+{
+	Axe,    // 1페이즈
+	Sword,  // 2페이즈
+};
+
 /*
 [BOSS] Cobalt
  */
@@ -17,6 +25,11 @@ class S1_API AS1Boss_000 : public AS1BossBase
 public:
 	AS1Boss_000();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	// 노출 무기 전환(서버 권위). 페이즈 전환 지점(어빌리티/AI)에서 호출한다.
+	void SetActiveWeapon(EBossWeapon NewWeapon);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -24,6 +37,16 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	UFUNCTION()
+	void OnRep_ActiveWeapon();
+
+	// ActiveWeapon 값에 맞춰 무기 메쉬를 표시/숨김(서버·클라 공용).
+	void UpdateWeaponVisibility();
+
+	// 기본값 Axe(1페이즈)
+	UPROPERTY(ReplicatedUsing = OnRep_ActiveWeapon)
+	EBossWeapon ActiveWeapon = EBossWeapon::Axe;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Movement|Chase")
 	float DefaultMaxWalkSpeed = 600.f;
 

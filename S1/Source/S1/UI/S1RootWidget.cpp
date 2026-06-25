@@ -96,7 +96,7 @@ void US1RootWidget::NativeConstruct()
 		if (TSubclassOf<US1BaseWidget> CursorClass = UIData->FindUserWidgetClassByTag(S1UITags::UI_Cursor))
 		{
 			Register_Panel<US1BaseWidget>(UI_TYPE::CURSOR, CursorClass, CanvasPanel_Cursor);
-			CanvasPanel_Cursor->SetVisibility(ESlateVisibility::HitTestInvisible);
+			CanvasPanel_Cursor->SetVisibility(ESlateVisibility::Collapsed);
 			if (PanelSlots[static_cast<int32>(UI_TYPE::CURSOR)] != nullptr)
 			{
 				PanelSlots[static_cast<int32>(UI_TYPE::CURSOR)]->SetAlignment(FVector2D(0.5f, 0.5f));
@@ -156,11 +156,28 @@ void US1RootWidget::NativeDestruct()
 	}
 }
 
+void US1RootWidget::SetCursorVisible(bool bVisible)
+{
+	bCursorVisible = bVisible;
+
+	if (CanvasPanel_Cursor)
+	{
+		CanvasPanel_Cursor->SetVisibility(bVisible ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
+	}
+}
+
 void US1RootWidget::UpdateMousePosition(const FGeometry& MyGeometry)
 {
 	APlayerController* PlayerController = GetOwningPlayer();
 	if (PlayerController == nullptr)
 	{
+		return;
+	}
+
+	// 커서가 숨겨진 평소 상태에서는 화면 중앙에 고정, 보이는 동안에만 마우스를 따라간다.
+	if (false == bCursorVisible)
+	{
+		PanelSlots[static_cast<int32>(UI_TYPE::CURSOR)]->SetPosition(MyGeometry.GetLocalSize() * 0.5f);
 		return;
 	}
 

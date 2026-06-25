@@ -37,6 +37,8 @@ public:
 	void FadeIn(float InDuration = 1.f);
 	void FadeOut(float InDuration = 1.f);
 
+	void SetCursorVisible(bool bVisible);
+
 	US1Inventory_ItemInfo* GetItemInfoWidget() const { return ItemInfoWidget; }
 
 protected:
@@ -76,6 +78,8 @@ private:
 private:
 	TObjectPtr<US1Fade> FadeWidget;
 	TObjectPtr<US1Inventory_ItemInfo> ItemInfoWidget;
+
+	bool bCursorVisible = false;
 
 	TArray<TObjectPtr<UCanvasPanelSlot>> PanelSlots;
 };

@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Character/Boss/Boss000/S1Boss_000.h"
@@ -9,7 +9,44 @@
 
 #include "Component/S1DeathPresentationComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "Rendering/SkeletalMeshRenderData.h"
+
+namespace
+{
+	// 검/도끼가 둘 다 오른손이라 본을 접어 숨길 수 없으므로 머티리얼 섹션 단위로 숨긴다.
+	// SKM_Boss000의 무기 머티리얼 슬롯 이름.
+	const FName SwordMaterialSlot = TEXT("M_BOSS000_00_00_Sword");
+	const FName AxeMaterialSlot   = TEXT("M_BOSS000_00_Ax");
+
+	// 지정한 머티리얼 슬롯을 쓰는 LOD0 섹션들을 표시/숨김 처리한다.
+	void SetWeaponSectionVisible(USkeletalMeshComponent* MeshComp, FName MaterialSlot, bool bVisible)
+	{
+		const int32 MaterialIndex = MeshComp->GetMaterialIndex(MaterialSlot);
+		if (INDEX_NONE == MaterialIndex)
+		{
+			return;
+		}
+
+		FSkeletalMeshRenderData* RenderData = MeshComp->GetSkeletalMeshRenderData();
+		if (nullptr == RenderData || false == RenderData->LODRenderData.IsValidIndex(0))
+		{
+			return;
+		}
+
+		const int32 LODIndex = 0;
+		const TArray<FSkelMeshRenderSection>& Sections = RenderData->LODRenderData[LODIndex].RenderSections;
+		for (int32 SectionIndex = 0; SectionIndex < Sections.Num(); ++SectionIndex)
+		{
+			if (Sections[SectionIndex].MaterialIndex == MaterialIndex)
+			{
+				MeshComp->ShowMaterialSection(MaterialIndex, SectionIndex, bVisible, LODIndex);
+			}
+		}
+	}
+}
 
 AS1Boss_000::AS1Boss_000()
 	: Super()
@@ -53,6 +90,48 @@ void AS1Boss_000::BeginPlay()
 	{
 		AbilitySystemComponent->AddCharacterAbilities(S1AssetTags::Asset_Ability_Boss000);
 	}
+
+	// 스폰 시 기본(도끼/1페이즈) 상태 적용. 복제된 ActiveWeapon은 OnRep으로 별도 반영된다.
+	UpdateWeaponVisibility();
+}
+
+void AS1Boss_000::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AS1Boss_000, ActiveWeapon);
+}
+
+void AS1Boss_000::SetActiveWeapon(EBossWeapon NewWeapon)
+{
+	if (false == HasAuthority() || ActiveWeapon == NewWeapon)
+	{
+		return;
+	}
+
+	ActiveWeapon = NewWeapon;
+	UpdateWeaponVisibility();   // OnRep은 서버에서 안 불리므로 서버에도 즉시 반영
+	ForceNetUpdate();
+}
+
+void AS1Boss_000::OnRep_ActiveWeapon()
+{
+	UpdateWeaponVisibility();
+}
+
+void AS1Boss_000::UpdateWeaponVisibility()
+{
+	USkeletalMeshComponent* MeshComp = GetMesh();
+	if (nullptr == MeshComp)
+	{
+		return;
+	}
+
+	const bool bShowAxe = (ActiveWeapon == EBossWeapon::Axe);
+
+	// 활성 무기는 표시, 비활성 무기는 숨긴다.
+	SetWeaponSectionVisible(MeshComp, AxeMaterialSlot, bShowAxe);
+	SetWeaponSectionVisible(MeshComp, SwordMaterialSlot, !bShowAxe);
 }
 
 void AS1Boss_000::Tick(float DeltaTime)

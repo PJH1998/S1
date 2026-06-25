@@ -33,5 +33,6 @@ namespace S1GameplayTags
 
 #pragma region UI
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_UI_Inventory);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_UI_FreeCursor);
 #pragma endregion
 }

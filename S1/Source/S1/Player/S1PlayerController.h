@@ -40,7 +40,9 @@ private:
 
 private:
 	void OnInventory(const FInputActionValue& Value);
-	void ApplyInventoryInputMode(bool bOpen);
+	void OnFreeCursorPressed(const FInputActionValue& Value);
+	void OnFreeCursorReleased(const FInputActionValue& Value);
+	void SetCursorMode(bool bEnable);
 	static bool IsPlayerAttackAbility(const FGameplayTag& AbilityTag);
 
 	void OnAbilityInput(const FInputActionValue& Value, FGameplayTag AbilityTag);
@@ -52,4 +54,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<AS1Player> S1Player;
+
+	// 커서 모드(인벤토리 열림 또는 Alt 홀드): 커서 표시 + 마우스 자유 + 카메라 회전 멈춤.
+	bool bCursorMode = false;
 };

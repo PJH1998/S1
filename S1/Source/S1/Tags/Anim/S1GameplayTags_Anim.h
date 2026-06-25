@@ -22,6 +22,7 @@ namespace S1AnimTags
 #pragma region Boss000
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack00);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_RotateAttack);
 #pragma endregion
 
 #pragma region Enemy001

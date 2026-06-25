@@ -30,6 +30,7 @@ namespace S1AbilityTags
 #pragma region Boss000
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_Attack00);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_Attack01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_RotateAttack);
 #pragma endregion
 
 #pragma region Enemy001
@@ -47,6 +48,7 @@ namespace S1CooldownTags
 #pragma region Boss000
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss000_Attack00);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss000_Attack01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss000_RotateAttack);
 #pragma endregion
 
 #pragma region Enemy001

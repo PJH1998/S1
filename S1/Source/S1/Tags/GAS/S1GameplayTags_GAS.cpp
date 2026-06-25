@@ -28,6 +28,7 @@ namespace S1AbilityTags
 #pragma region Boss000
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Attack00, "Ability.Boss000.Attack00");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Attack01, "Ability.Boss000.Attack01");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_RotateAttack, "Ability.Boss000.RotateAttack");
 #pragma endregion
 
 #pragma region Enemy001
@@ -45,6 +46,7 @@ namespace S1CooldownTags
 #pragma region Boss000
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_Attack00, "Cooldown.Boss000.Attack00");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_Attack01, "Cooldown.Boss000.Attack01");
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_RotateAttack, "Cooldown.Boss000.RotateAttack");
 #pragma endregion
 
 #pragma region Enemy001

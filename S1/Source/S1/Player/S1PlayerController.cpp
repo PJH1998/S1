@@ -4,6 +4,7 @@
 #include "Player/S1PlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Engine/GameViewportClient.h"
 
 #include "Tags/S1GameplayTags.h"
 #include "System/S1AssetManager.h"
@@ -102,6 +103,12 @@ void AS1PlayerController::SetupInputComponent()
 		{
 			EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &ThisClass::OnInventory);
 		}
+
+		if (const UInputAction* FreeCursorAction = InputData->FindInputActionByTag(S1GameplayTags::Input_UI_FreeCursor))
+		{
+			EnhancedInputComponent->BindAction(FreeCursorAction, ETriggerEvent::Started, this, &ThisClass::OnFreeCursorPressed);
+			EnhancedInputComponent->BindAction(FreeCursorAction, ETriggerEvent::Completed, this, &ThisClass::OnFreeCursorReleased);
+		}
 #pragma endregion
 	}
 }
@@ -174,32 +181,83 @@ void AS1PlayerController::OnInventory(const FInputActionValue& Value)
 		if (US1RootWidget* RootWidget = UIManager->GetRootWidget())
 		{
 			RootWidget->ShowMenu(S1UITags::UI_Menu_Inventory);
-			ApplyInventoryInputMode(RootWidget->IsInventoryMenuOpen());
+			SetCursorMode(RootWidget->IsInventoryMenuOpen());
 		}
 	}
 }
 
-void AS1PlayerController::ApplyInventoryInputMode(bool bOpen)
+void AS1PlayerController::OnFreeCursorPressed(const FInputActionValue& Value)
 {
-	if (bOpen)
+	// 인벤토리가 열려 있으면 그 상태가 우선 — Alt 입력 무시.
+	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
 	{
+		if (US1RootWidget* RootWidget = UIManager->GetRootWidget())
+		{
+			if (RootWidget->IsInventoryMenuOpen())
+			{
+				return;
+			}
+		}
+	}
+
+	SetCursorMode(true);
+}
+
+void AS1PlayerController::OnFreeCursorReleased(const FInputActionValue& Value)
+{
+	// 인벤토리가 열려 있으면 Alt를 떼도 커서를 닫지 않는다.
+	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
+	{
+		if (US1RootWidget* RootWidget = UIManager->GetRootWidget())
+		{
+			if (RootWidget->IsInventoryMenuOpen())
+			{
+				return;
+			}
+		}
+	}
+
+	SetCursorMode(false);
+}
+
+void AS1PlayerController::SetCursorMode(bool bEnable)
+{
+	bCursorMode = bEnable;
+
+	US1UIManager* UIManager = SUBSYSTEM(US1UIManager);
+	US1RootWidget* RootWidget = UIManager ? UIManager->GetRootWidget() : nullptr;
+
+	if (bEnable)
+	{
+		// 커서가 화면 중앙에서 나타나도록 마우스를 중앙으로 재배치.
+		if (UGameViewportClient* ViewportClient = GetWorld() ? GetWorld()->GetGameViewport() : nullptr)
+		{
+			FVector2D ViewportSize;
+			ViewportClient->GetViewportSize(ViewportSize);
+			SetMouseLocation(static_cast<int32>(ViewportSize.X * 0.5f), static_cast<int32>(ViewportSize.Y * 0.5f));
+		}
+
 		FInputModeGameAndUI InputMode;
 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		SetInputMode(InputMode);
+
+		if (RootWidget)
+		{
+			RootWidget->SetCursorVisible(true);
+		}
 	}
 	else
 	{
 		FInputModeGameOnly InputMode;
 		SetInputMode(InputMode);
 
-		if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
+		if (RootWidget)
 		{
-			if (US1RootWidget* RootWidget = UIManager->GetRootWidget())
+			RootWidget->SetCursorVisible(false);
+
+			if (US1Inventory_ItemInfo* ItemInfoWidget = RootWidget->GetItemInfoWidget())
 			{
-				if (US1Inventory_ItemInfo* ItemInfoWidget = RootWidget->GetItemInfoWidget())
-				{
-					ItemInfoWidget->HideInfo();
-				}
+				ItemInfoWidget->HideInfo();
 			}
 		}
 	}
@@ -278,6 +336,12 @@ void AS1PlayerController::OnMoveReleased(const FInputActionValue& Value)
 
 void AS1PlayerController::OnTurn(const FInputActionValue& Value)
 {
+	// 커서 모드(인벤토리/Alt)에서는 마우스로 카메라를 회전시키지 않는다.
+	if (bCursorMode)
+	{
+		return;
+	}
+
 	const FVector2D LookVector = Value.Get<FVector2D>();
 	AddYawInput(LookVector.X);
 	AddPitchInput(LookVector.Y);
