@@ -23,6 +23,7 @@ namespace S1AnimTags
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_Atack00, "Anim.Montage.Boss000.Attack00");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_Atack01, "Anim.Montage.Boss000.Attack01");
 	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_RotateAttack, "Anim.Montage.Boss000.RotateAttack");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Boss000_JumpAttack, "Anim.Montage.Boss000.JumpAttack");
 #pragma endregion
 
 #pragma region Enemy001

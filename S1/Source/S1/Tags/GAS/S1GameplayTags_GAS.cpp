@@ -30,6 +30,7 @@ namespace S1AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Attack00, "Ability.Boss000.Attack00");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Attack01, "Ability.Boss000.Attack01");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_RotateAttack, "Ability.Boss000.RotateAttack");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_JumpAttack, "Ability.Boss000.JumpAttack");
 #pragma endregion
 
 #pragma region Enemy001
@@ -48,6 +49,7 @@ namespace S1CooldownTags
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_Attack00, "Cooldown.Boss000.Attack00");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_Attack01, "Cooldown.Boss000.Attack01");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_RotateAttack, "Cooldown.Boss000.RotateAttack");
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_JumpAttack, "Cooldown.Boss000.JumpAttack");
 #pragma endregion
 
 #pragma region Enemy001
@@ -70,6 +72,7 @@ namespace S1StateTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Air_Used_Skill01,    "State.Air.Used.Skill01");
 	UE_DEFINE_GAMEPLAY_TAG(State_Invincible,          "State.Invincible");
 	UE_DEFINE_GAMEPLAY_TAG(State_Enemy_Attacking,     "State.Enemy.Attacking");
+	UE_DEFINE_GAMEPLAY_TAG(State_Enemy_Air,           "State.Enemy.Air");
 	UE_DEFINE_GAMEPLAY_TAG(State_Hit_React,           "State.Hit.React");
 	UE_DEFINE_GAMEPLAY_TAG(State_Hit_Launch,          "State.Hit.Launch");
 	UE_DEFINE_GAMEPLAY_TAG(State_Hit_Knockdown,       "State.Hit.Knockdown");
@@ -88,6 +91,9 @@ namespace S1EventTags
 	UE_DEFINE_GAMEPLAY_TAG(Event_EarlyMove, "Event.EarlyMove");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Jump,      "Event.Jump");
 	UE_DEFINE_GAMEPLAY_TAG(Event_Landed,    "Event.Landed");
+
+	UE_DEFINE_GAMEPLAY_TAG(Event_Enemy_Apex,   "Event.Enemy.Apex");
+	UE_DEFINE_GAMEPLAY_TAG(Event_Enemy_Landed, "Event.Enemy.Landed");
 
 	UE_DEFINE_GAMEPLAY_TAG(Event_LoopStart, "Event.LoopStart");
 	UE_DEFINE_GAMEPLAY_TAG(Event_LoopCycle, "Event.LoopCycle");

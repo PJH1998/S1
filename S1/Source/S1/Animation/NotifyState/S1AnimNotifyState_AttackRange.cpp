@@ -103,7 +103,7 @@ FS1AttackRangeDecalRequest US1AnimNotifyState_AttackRange::MakeRequest(USkeletal
 	Request.Angle = Angle;
 	Request.Width = Width;
 	Request.Length = Length;
-	Request.Duration = TotalDuration;
+	Request.Duration = bUseCustomDuration ? CustomDuration : TotalDuration;
 	Request.ProjectionDepth = bProjectToGround ? FMath::Min(ProjectionDepth, 64.f) : ProjectionDepth;
 	Request.Color = Color;
 

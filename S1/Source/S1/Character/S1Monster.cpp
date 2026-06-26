@@ -634,6 +634,59 @@ void AS1Monster::ResumeAIAfterSpawnAnimation()
 void AS1Monster::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// 점프 상승 중 정점 도달 감지(서버). 상승 구간은 결정론적이라 높이 임계값으로 판별.
+	if (bApexPending && HasAuthority())
+	{
+		const bool bReachedHeight = (GetActorLocation().Z >= TargetApexZ);
+		const bool bDescending = (GetVelocity().Z <= 0.f);
+		if (bReachedHeight || bDescending)
+		{
+			bApexPending = false;
+
+			if (IsValid(AbilitySystemComponent))
+			{
+				FGameplayEventData EventData;
+				AbilitySystemComponent->HandleGameplayEvent(S1EventTags::Event_Enemy_Apex, &EventData);
+			}
+		}
+	}
+}
+
+bool AS1Monster::IsAirborne() const
+{
+	const UCharacterMovementComponent* Movement = GetCharacterMovement();
+	return IsValid(Movement) && Movement->IsFalling();
+}
+
+void AS1Monster::EnterAirborneState(float ApexHeight)
+{
+	if (false == HasAuthority() || false == IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	AirborneStartZ = GetActorLocation().Z;
+	TargetApexZ = AirborneStartZ + ApexHeight;
+	bApexPending = true;
+
+	AbilitySystemComponent->AddLooseGameplayTag(S1StateTags::State_Enemy_Air);
+}
+
+void AS1Monster::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	if (false == HasAuthority() || false == IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	bApexPending = false;
+	AbilitySystemComponent->RemoveLooseGameplayTag(S1StateTags::State_Enemy_Air);
+
+	FGameplayEventData EventData;
+	AbilitySystemComponent->HandleGameplayEvent(S1EventTags::Event_Enemy_Landed, &EventData);
 }
 
 void AS1Monster::InitSystem()

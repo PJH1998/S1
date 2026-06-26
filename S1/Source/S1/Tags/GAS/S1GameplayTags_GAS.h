@@ -32,6 +32,7 @@ namespace S1AbilityTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_Attack00);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_Attack01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_RotateAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_JumpAttack);
 #pragma endregion
 
 #pragma region Enemy001
@@ -50,6 +51,7 @@ namespace S1CooldownTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss000_Attack00);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss000_Attack01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss000_RotateAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Boss000_JumpAttack);
 #pragma endregion
 
 #pragma region Enemy001
@@ -80,6 +82,7 @@ namespace S1StateTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Invincible);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Attacking);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Enemy_Air);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_React);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_Launch);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_Knockdown);
@@ -91,6 +94,9 @@ namespace S1EventTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_EarlyMove);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Jump);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Landed);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Enemy_Apex);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Enemy_Landed);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_LoopStart);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_LoopCycle);
