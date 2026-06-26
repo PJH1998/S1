@@ -9,6 +9,7 @@ namespace S1PoolingTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Pool_Stage01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Pool_DropItem);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Pool_Enemy001);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Pool_Decal_AttackRange);
 }
 
 namespace S1EffectTags

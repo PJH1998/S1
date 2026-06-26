@@ -28,6 +28,7 @@ namespace S1AbilityTags
 #pragma endregion
 
 #pragma region Boss000
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_Encounter);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_Attack00);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_Attack01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Boss000_RotateAttack);

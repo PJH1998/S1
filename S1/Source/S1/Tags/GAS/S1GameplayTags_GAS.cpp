@@ -26,6 +26,7 @@ namespace S1AbilityTags
 #pragma endregion
 
 #pragma region Boss000
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Encounter, "Ability.Boss000.Encounter");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Attack00, "Ability.Boss000.Attack00");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Attack01, "Ability.Boss000.Attack01");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_RotateAttack, "Ability.Boss000.RotateAttack");

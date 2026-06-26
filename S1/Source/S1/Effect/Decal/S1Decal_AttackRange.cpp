@@ -20,6 +20,12 @@ bool AS1Decal_AttackRange::UpdateDecal(float DeltaTime)
 		return true;
 	}
 
+	// 머티리얼 준비 전까진 노출/타이머 진행을 보류한다(콜드 캐시 첫 렌더 깜빡임 방지).
+	if (false == TryReveal())
+	{
+		return false;
+	}
+
 	if (Request.Duration <= 0.f)
 	{
 		ApplyMaterialParameters(1.f);

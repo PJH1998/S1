@@ -2,11 +2,9 @@
 
 
 #include "System/S1DecalManager.h"
-#include "Data/S1EffectData.h"
 #include "Effect/Decal/S1Decal.h"
 #include "Engine/World.h"
-#include "Tags/S1GameplayTags.h"
-#include "System/S1AssetManager.h"
+#include "System/S1PoolingManager.h"
 
 US1DecalManager* US1DecalManager::Get(const UObject* WorldContextObject)
 {
@@ -42,7 +40,8 @@ void US1DecalManager::Tick(float DeltaTime)
 
 		if (Decal->UpdateDecal(DeltaTime))
 		{
-			ReleaseDecal(Decal);
+			ActiveDecals.RemoveAtSwap(Index);
+			Decal->ReturnSelf();
 		}
 	}
 }
@@ -52,109 +51,32 @@ TStatId US1DecalManager::GetStatId() const
 	RETURN_QUICK_DECLARE_CYCLE_STAT(US1DecalManager, STATGROUP_Tickables);
 }
 
-AS1Decal_AttackRange* US1DecalManager::ShowAttackRangeDecal(const FS1AttackRangeDecalRequest& Request)
+AS1Decal* US1DecalManager::ShowDecal(FGameplayTag PoolTag, const FVector& Location, const FRotator& Rotation)
 {
-	TSubclassOf<AS1Decal_AttackRange> DecalClass = GetAttackRangeDecalClass();
-	if (DecalClass == nullptr)
+	UWorld* World = GetWorld();
+	if (World == nullptr)
 	{
-		DecalClass = AS1Decal_AttackRange::StaticClass();
+		return nullptr;
 	}
 
-	AS1Decal_AttackRange* Decal = Cast<AS1Decal_AttackRange>(AcquireDecal(DecalClass));
+	US1PoolingManager* PoolingManager = World->GetSubsystem<US1PoolingManager>();
+	if (PoolingManager == nullptr)
+	{
+		return nullptr;
+	}
+
+	AS1Decal* Decal = Cast<AS1Decal>(PoolingManager->SpawnFromPool(PoolTag, Location, Rotation));
 	if (Decal == nullptr)
 	{
 		return nullptr;
 	}
 
-	Decal->ShowAttackRange(Request);
 	ActiveDecals.AddUnique(Decal);
 
 	return Decal;
 }
 
-TSubclassOf<AS1Decal_AttackRange> US1DecalManager::GetAttackRangeDecalClass() const
-{
-	const US1EffectData* EffectData = US1AssetManager::GetAssetByTag<US1EffectData>(S1AssetTags::Asset_Effect);
-	if (EffectData == nullptr)
-	{
-		return nullptr;
-	}
-
-	const TSubclassOf<AS1Effect> EffectClass = EffectData->FindEffectClassByTag(S1EffectTags::Effect_Decal_AttackRange);
-	if (EffectClass == nullptr)
-	{
-		return nullptr;
-	}
-
-	if (false == EffectClass->IsChildOf(AS1Decal_AttackRange::StaticClass()))
-	{
-		UE_LOG(LogWindows, Error, TEXT("EffectClass [%s] is not child of AS1Decal_AttackRange."), *EffectClass->GetName());
-		return nullptr;
-	}
-
-	return TSubclassOf<AS1Decal_AttackRange>(EffectClass.Get());
-}
-
 void US1DecalManager::HideDecal(AS1Decal* Decal)
-{
-	ReleaseDecal(Decal);
-}
-
-void US1DecalManager::Clear()
-{
-	for (AS1Decal* Decal : ActiveDecals)
-	{
-		if (IsValid(Decal))
-		{
-			Decal->Destroy();
-		}
-	}
-	ActiveDecals.Reset();
-
-	for (TPair<TSubclassOf<AS1Decal>, TArray<TWeakObjectPtr<AS1Decal>>>& PoolPair : InactiveDecalPools)
-	{
-		for (TWeakObjectPtr<AS1Decal>& DecalPtr : PoolPair.Value)
-		{
-			if (AS1Decal* Decal = DecalPtr.Get())
-			{
-				Decal->Destroy();
-			}
-		}
-	}
-	InactiveDecalPools.Reset();
-}
-
-AS1Decal* US1DecalManager::AcquireDecal(TSubclassOf<AS1Decal> DecalClass)
-{
-	if (DecalClass == nullptr || GetWorld() == nullptr)
-	{
-		return nullptr;
-	}
-
-	TArray<TWeakObjectPtr<AS1Decal>>& Pool = InactiveDecalPools.FindOrAdd(DecalClass);
-	while (Pool.Num() > 0)
-	{
-		TWeakObjectPtr<AS1Decal> DecalPtr = Pool.Pop(EAllowShrinking::No);
-		if (AS1Decal* Decal = DecalPtr.Get())
-		{
-			return Decal;
-		}
-	}
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = nullptr;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	AS1Decal* NewDecal = GetWorld()->SpawnActor<AS1Decal>(DecalClass, FTransform::Identity, SpawnParams);
-	if (NewDecal)
-	{
-		NewDecal->HideDecal();
-	}
-
-	return NewDecal;
-}
-
-void US1DecalManager::ReleaseDecal(AS1Decal* Decal)
 {
 	if (Decal == nullptr)
 	{
@@ -168,6 +90,12 @@ void US1DecalManager::ReleaseDecal(AS1Decal* Decal)
 		return;
 	}
 
-	Decal->HideDecal();
-	InactiveDecalPools.FindOrAdd(Decal->GetClass()).Add(Decal);
+	// 풀 반납은 PoolingManager 소유. ReturnSelf -> OnReturnToPool(HideDecal)로 정리됨.
+	Decal->ReturnSelf();
+}
+
+void US1DecalManager::Clear()
+{
+	// 풀 액터의 파괴는 PoolingManager가 소유한다. 여기서는 활성 추적만 비운다.
+	ActiveDecals.Reset();
 }

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
-#include "Effect/Decal/S1Decal_AttackRange.h"
+#include "GameplayTagContainer.h"
 #include "S1DecalManager.generated.h"
 
 class AS1Decal;
@@ -24,7 +24,7 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Decal")
-	AS1Decal_AttackRange* ShowAttackRangeDecal(const FS1AttackRangeDecalRequest& Request);
+	AS1Decal* ShowDecal(FGameplayTag PoolTag, const FVector& Location, const FRotator& Rotation);
 
 	UFUNCTION(BlueprintCallable, Category = "Decal")
 	void HideDecal(AS1Decal* Decal);
@@ -33,13 +33,6 @@ public:
 	void Clear();
 
 private:
-	TSubclassOf<AS1Decal_AttackRange> GetAttackRangeDecalClass() const;
-	AS1Decal* AcquireDecal(TSubclassOf<AS1Decal> DecalClass);
-	void ReleaseDecal(AS1Decal* Decal);
-
-private:
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<AS1Decal>> ActiveDecals;
-
-	TMap<TSubclassOf<AS1Decal>, TArray<TWeakObjectPtr<AS1Decal>>> InactiveDecalPools;
 };

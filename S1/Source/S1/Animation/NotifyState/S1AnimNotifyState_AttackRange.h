@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
+#include "GameplayTagContainer.h"
 #include "Effect/Decal/S1Decal_AttackRange.h"
 #include "S1AnimNotifyState_AttackRange.generated.h"
 
@@ -27,6 +28,9 @@ private:
 	void AddHitActor(USkeletalMeshComponent* MeshComp, AActor* TargetActor);
 
 private:
+	UPROPERTY(EditAnywhere, Category = "AttackRange|Pool")
+	FGameplayTag DecalPoolTag;
+
 	UPROPERTY(EditAnywhere, Category = "AttackRange|Shape")
 	ES1AttackRangeDecalShape Shape = ES1AttackRangeDecalShape::Cone;
 

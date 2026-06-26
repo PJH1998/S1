@@ -7,6 +7,7 @@ namespace S1PoolingTags
 	UE_DEFINE_GAMEPLAY_TAG(Pool_Stage01,  "Pool.Stage01");
 	UE_DEFINE_GAMEPLAY_TAG(Pool_DropItem, "Pool.DropItem");
 	UE_DEFINE_GAMEPLAY_TAG(Pool_Enemy001, "Pool.Enemy001");
+	UE_DEFINE_GAMEPLAY_TAG(Pool_Decal_AttackRange, "Pool.Decal.AttackRange");
 }
 
 namespace S1EffectTags

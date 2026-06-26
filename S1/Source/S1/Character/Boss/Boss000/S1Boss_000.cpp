@@ -67,6 +67,14 @@ AS1Boss_000::AS1Boss_000()
 	// Mesh
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -400.f), FRotator(0.f, -90.f, 0.f));
 
+	// Shield — 왼손에 부착. 소켓 지정 없이 메쉬 루트에 붙이고, BeginPlay에서 Leader Pose로 본을 구동한다.
+	// (메쉬 에셋은 BP_Boss_000에서 지정)
+	ShieldMesh = CreateDefaultSubobject<USkeletalMeshComponent>("ShieldMesh");
+	ShieldMesh->SetupAttachment(GetMesh());
+	// Leader Pose follower는 자체 포즈를 평가하지 않아 바운드가 손을 따라가지 못한다.
+	// 부모(보스) 메쉬의 바운드를 그대로 써서 컬링으로 인한 깜빡임을 막는다.
+	ShieldMesh->bUseAttachParentBound = true;
+
 	// AttributeSet
 	AttributeSet = CreateDefaultSubobject<US1BossSet>("AttributeSet");
 
@@ -89,6 +97,12 @@ void AS1Boss_000::BeginPlay()
 	if (HasAuthority())
 	{
 		AbilitySystemComponent->AddCharacterAbilities(S1AssetTags::Asset_Ability_Boss000);
+	}
+
+	// 방패가 BP에서 지정된 경우 Leader Pose 연결 — 방패 w_L_Attach 본이 보스 손 w_L_Attach를 따라간다.
+	if (ShieldMesh && ShieldMesh->GetSkeletalMeshAsset())
+	{
+		ShieldMesh->SetLeaderPoseComponent(GetMesh());
 	}
 
 	// 스폰 시 기본(도끼/1페이즈) 상태 적용. 복제된 ActiveWeapon은 OnRep으로 별도 반영된다.
@@ -132,6 +146,12 @@ void AS1Boss_000::UpdateWeaponVisibility()
 	// 활성 무기는 표시, 비활성 무기는 숨긴다.
 	SetWeaponSectionVisible(MeshComp, AxeMaterialSlot, bShowAxe);
 	SetWeaponSectionVisible(MeshComp, SwordMaterialSlot, !bShowAxe);
+
+	// 방패는 1페이즈(Axe)에서만 든다. 2페이즈(Sword)로 넘어가면 숨긴다.
+	if (ShieldMesh)
+	{
+		ShieldMesh->SetVisibility(bShowAxe, /*bPropagateToChildren*/ true);
+	}
 }
 
 void AS1Boss_000::Tick(float DeltaTime)

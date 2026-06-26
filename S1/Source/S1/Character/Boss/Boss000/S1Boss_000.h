@@ -6,6 +6,8 @@
 #include "Character/Boss/S1BossBase.h"
 #include "S1Boss_000.generated.h"
 
+class USkeletalMeshComponent;
+
 // 보스가 노출하는 무기. SKM_Boss000은 검/도끼를 한 메쉬에 모두 포함하므로 한쪽만 보이게 토글한다.
 UENUM(BlueprintType)
 enum class EBossWeapon : uint8
@@ -42,6 +44,10 @@ private:
 
 	// ActiveWeapon 값에 맞춰 무기 메쉬를 표시/숨김(서버·클라 공용).
 	void UpdateWeaponVisibility();
+
+	// 왼손(w_L_Attach)에 부착하는 방패. Leader Pose로 보스 본을 따라가며, 1페이즈(Axe)에서만 표시.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USkeletalMeshComponent> ShieldMesh;
 
 	// 기본값 Axe(1페이즈)
 	UPROPERTY(ReplicatedUsing = OnRep_ActiveWeapon)

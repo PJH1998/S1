@@ -6,7 +6,9 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
 #include "Engine/OverlapResult.h"
+#include "GameplayEffect.h"
 #include "S1Define.h"
+#include "Effect/Decal/S1Decal.h"
 #include "System/S1DecalManager.h"
 
 void US1AnimNotifyState_AttackRange::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
@@ -25,10 +27,11 @@ void US1AnimNotifyState_AttackRange::NotifyBegin(USkeletalMeshComponent* MeshCom
 	}
 
 	FS1AttackRangeDecalRequest Request = MakeRequest(MeshComp, TotalDuration);
-	AS1Decal_AttackRange* Decal = DecalManager->ShowAttackRangeDecal(Request);
-	if (Decal)
+	AS1Decal* Decal = DecalManager->ShowDecal(DecalPoolTag, Request.Location, Request.Rotation);
+	if (AS1Decal_AttackRange* AttackRangeDecal = Cast<AS1Decal_AttackRange>(Decal))
 	{
-		ActiveDecals.FindOrAdd(MeshComp) = Decal;
+		AttackRangeDecal->ShowAttackRange(Request);
+		ActiveDecals.FindOrAdd(MeshComp) = AttackRangeDecal;
 	}
 
 	HitActors.FindOrAdd(MeshComp).Reset();
