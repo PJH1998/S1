@@ -122,10 +122,16 @@ void US1GameplayAbility_Attack::UnbindAttackBox()
 
 void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	// 데미지 적용은 서버 권위에서만
+	AActor* AvatarActor = GetAvatarActorFromActorInfo();
+	if (false == IsValid(AvatarActor) || false == AvatarActor->HasAuthority())
+	{
+		return;
+	}
+
 	LOG(TEXT("[Overlap] OtherActor: %s | HitTargets: %d"),
 		*OtherActor->GetName(), HitTargets.Num());
 
-	AActor* AvatarActor = GetAvatarActorFromActorInfo();
 	if (false == IsValid(OtherActor) || OtherActor == AvatarActor)
 	{
 		return;

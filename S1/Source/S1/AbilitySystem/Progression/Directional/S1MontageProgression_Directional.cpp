@@ -3,7 +3,6 @@
 #include "AbilitySystem/Progression/Directional/S1MontageProgression_Directional.h"
 #include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
 #include "Animation/S1AnimInstance.h"
-#include "GameFramework/Character.h"
 
 void US1MontageProgression_Directional::OnActivated()
 {
@@ -23,14 +22,8 @@ void US1MontageProgression_Directional::OnActivated()
 
 	ActiveMontage = *Found;
 
-	ACharacter* Character = Cast<ACharacter>(GA->GetAvatarActorFromActorInfo());
-	if (false == IsValid(Character))
-	{
-		GA->RequestEndAbility(true);
-		return;
-	}
-
-	const float Duration = Character->PlayAnimMontage(ActiveMontage);
+	// ASC 경유 재생 → 클라 복제
+	const float Duration = GA->PlayAbilityMontage(ActiveMontage);
 	if (Duration <= 0.f)
 	{
 		GA->RequestEndAbility(true);

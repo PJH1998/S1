@@ -5,10 +5,7 @@
 #include "S1GameplayAbility_Ultimate.generated.h"
 
 class ULevelSequence;
-class ULevelSequencePlayer;
-class ALevelSequenceActor;
 class AS1Monster;
-class ACineCameraActor;
 
 UCLASS()
 class S1_API US1GameplayAbility_Ultimate : public US1GameplayAbility_Attack
@@ -23,20 +20,13 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 private:
-	void PlayCutscene();
-
-	// 시퀀스가 스폰한 CineCamera를 찾아 진입 블렌드 (스폰 평가 지연 대비 1회 재시도)
-	void TryBlendToCineCamera();
-	ACineCameraActor* FindSequenceCineCamera() const;
-
+	// 몬스터 프리즈는 서버 권위 (전체 몬스터)
 	void FreezeMonsters(UWorld* World);
 	void UnfreezeMonsters();
 
-	// 시네캠이 살아있는 동안(종료 직전) 게임플레이로 복귀 블렌드 시작
-	void StartExitBlend();
-
-	UFUNCTION() void OnCutsceneFinished();
-	void OnBlendOutComplete();
+	// 시퀀스 길이만큼 프리즈 유지 후 종료 (컷씬 비주얼은 시전 클라가 처리)
+	void  OnServerCutsceneComplete();
+	float ComputeSequenceDurationSeconds() const;
 
 	void DoEndAbility(const FGameplayAbilitySpecHandle& Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo& ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled);
 
@@ -57,21 +47,11 @@ protected:
 	float ExitBlendTime = 0.5f;
 
 private:
-	UPROPERTY() TObjectPtr<ULevelSequencePlayer> SequencePlayer;
-	UPROPERTY() TObjectPtr<ALevelSequenceActor>  SequenceActor;
-
-	// 시퀀스가 스폰한 카메라 (Spawnable, When Finished=Keep State) — 종료 시 직접 파괴
-	UPROPERTY() TObjectPtr<ACineCameraActor>     CineCamera;
-
-	// 컷씬 시작~복귀 블렌드 완료까지 true — EndAbility defer 게이트
+	// 컷씬 진행 중 true — 몽타주가 먼저 끝나도 EndAbility를 defer (서버 타이머가 최종 종료)
 	bool bCutsceneActive = false;
-	// 카메라 진입 블렌드 재시도 1회 가드
-	bool bCameraBlendRetried = false;
-	// 복귀 블렌드 중복 시작 가드 (타이머 + OnFinished 폴백)
-	bool bExitBlendStarted = false;
 
-	FTimerHandle ExitBlendTimerHandle;
-	FTimerHandle BlendOutTimerHandle;
+	// 서버 프리즈 유지 타이머
+	FTimerHandle CutsceneServerTimer;
 
 	TArray<TWeakObjectPtr<AS1Monster>> FrozenMonsters;
 };

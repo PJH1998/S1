@@ -143,6 +143,20 @@ void AS1PlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
+	// 서버(리슨 호스트 로컬 플레이어 포함) — 원격 클라는 여기 도달 안 함
+	InitPawnInput(InPawn);
+}
+
+void AS1PlayerController::AcknowledgePossession(APawn* P)
+{
+	Super::AcknowledgePossession(P);
+
+	// 원격 클라(소유) — 입력 바인딩은 InputComponent가 있는 클라에서 해야 동작
+	InitPawnInput(P);
+}
+
+void AS1PlayerController::InitPawnInput(APawn* InPawn)
+{
 	S1Player = Cast<AS1Player>(InPawn);
 	if (IsValid(S1Player))
 	{

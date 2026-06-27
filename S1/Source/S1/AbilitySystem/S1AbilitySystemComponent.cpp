@@ -5,6 +5,15 @@
 #include "System/S1AssetManager.h"
 #include "Tags/S1GameplayTags.h"
 #include "Data/S1AbilityData.h"
+#include "Net/UnrealNetwork.h"
+
+void US1AbilitySystemComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// 소유 클라만 — LocalPredicted 활성화 조회에만 필요
+	DOREPLIFETIME_CONDITION(US1AbilitySystemComponent, ReplicatedTagSpecs, COND_OwnerOnly);
+}
 
 void US1AbilitySystemComponent::AddCharacterAbilities(const FGameplayTag& AssetTag)
 {
@@ -19,6 +28,12 @@ void US1AbilitySystemComponent::AddCharacterAbilities(const FGameplayTag& AssetT
 
 		GroupHandles.Add(Handle);
 		TagToSpecHandles.FindOrAdd(AbilitySet.AbilityTag).Add(Handle);
+
+		// 소유 클라 복제용 매핑 기록
+		FS1AbilityTagSpec TagSpec;
+		TagSpec.Tag = AbilitySet.AbilityTag;
+		TagSpec.Handle = Handle;
+		ReplicatedTagSpecs.Add(TagSpec);
 	}
 }
 
@@ -29,6 +44,12 @@ void US1AbilitySystemComponent::RemoveCharacterAbilities(const FGameplayTag& Ass
 	{
 		return;
 	}
+
+	// 복제 매핑에서 이 그룹의 핸들 제거
+	ReplicatedTagSpecs.RemoveAll([GroupHandles](const FS1AbilityTagSpec& Entry)
+	{
+		return GroupHandles->Contains(Entry.Handle);
+	});
 
 	for (auto& Handle : *GroupHandles)
 	{
@@ -42,6 +63,22 @@ void US1AbilitySystemComponent::RemoveCharacterAbilities(const FGameplayTag& Ass
 	}
 
 	GroupToSpecHandles.Remove(AssetTag);
+}
+
+void US1AbilitySystemComponent::OnRep_ReplicatedTagSpecs()
+{
+	// 클라: 서버가 복제한 매핑으로 TagToSpecHandles 재구성
+	RebuildTagToSpecHandlesFromReplicated();
+}
+
+void US1AbilitySystemComponent::RebuildTagToSpecHandlesFromReplicated()
+{
+	TagToSpecHandles.Reset();
+
+	for (const FS1AbilityTagSpec& Entry : ReplicatedTagSpecs)
+	{
+		TagToSpecHandles.FindOrAdd(Entry.Tag).Add(Entry.Handle);
+	}
 }
 
 void US1AbilitySystemComponent::ReleaseAbility(const FGameplayTag& AbilityTag)
@@ -66,6 +103,31 @@ void US1AbilitySystemComponent::ReleaseAbility(const FGameplayTag& AbilityTag)
 		}
 		return;
 	}
+}
+
+bool US1AbilitySystemComponent::IsAbilityPredicted(const FGameplayTag& AbilityTag)
+{
+	TArray<FGameplayAbilitySpecHandle>* Handles = TagToSpecHandles.Find(AbilityTag);
+	if (nullptr == Handles)
+	{
+		return false;
+	}
+
+	for (auto& Handle : *Handles)
+	{
+		FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(Handle);
+		if (nullptr == Spec || nullptr == Spec->Ability)
+		{
+			continue;
+		}
+
+		if (EGameplayAbilityNetExecutionPolicy::LocalPredicted == Spec->Ability->GetNetExecutionPolicy())
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool US1AbilitySystemComponent::ActivateAbility(const FGameplayTag& AbilityTag)

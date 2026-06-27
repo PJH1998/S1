@@ -6,8 +6,8 @@
 
 void US1AnimNotifyState_Air::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
-	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);	// SetTag(true) — Tag는 에디터에서 State.Air로 설정
-
+	// Super(SetTag) 미호출 — State.Air는 AS1Player::OnMovementModeChanged(CMC Falling 기준)가 단일 관리
+	// (노티파이가 태그를 추가하고 제거 안 하면 OnMovementModeChanged와 충돌해 태그가 안 풀림)
 	if (ACharacter* Character = Cast<ACharacter>(MeshComp->GetOwner()))
 	{
 		Character->LaunchCharacter(FVector(0.f, 0.f, AdditionalLaunchZ), false, true);

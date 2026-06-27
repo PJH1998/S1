@@ -69,6 +69,10 @@ public:
 	/** 서버 전용: Locomotion ABP 상태를 클라이언트에 복제한다. */
 	void SetReplicatedLocomotionState(EEnemyLocomotionMode Mode, EEnemyLocomotionPhase Phase, bool bInLocomotionLoop);
 
+	/** 시간 정지(궁극기 등) — 서버에서 호출, 전체 클라에 CustomTimeDilation 적용해 애니메이션까지 정지 */
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSetTimeFrozen(bool bFrozen);
+
 public:
 	UPROPERTY(BlueprintAssignable)
 	FMonsterHasTargetChangedDelegate OnHasTargetChanged;

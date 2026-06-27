@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Abilities/Attack/Air/S1GameplayAbility_Attack_Air.h"
+#include "AbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -12,6 +13,19 @@ void US1GameplayAbility_Attack_Air::ActivateAbility(const FGameplayAbilitySpecHa
 	{
 		Character->GetCharacterMovement()->Velocity = FVector::ZeroVector;
 	}
+
+	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("Authority=%d Local=%d Role=%d"),
+		Character->HasAuthority(),
+		Character->IsLocallyControlled(),
+		(int32)Character->GetLocalRole());
+
+	FGameplayTagContainer Tags;
+	GetAbilitySystemComponentFromActorInfo()->GetOwnedGameplayTags(Tags);
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *Tags.ToStringSimple());
 
 	// Super 내부에서 이전 몽타주 Stop → NotifyEnd(GravityScale=1.0)가 동기 실행되므로 반드시 이후에 설정
 	SetGravityScale(AirGravityScale);

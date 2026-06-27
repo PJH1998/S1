@@ -9,6 +9,10 @@
 US1GameplayAbility::US1GameplayAbility(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	// 서버 권위 실행 (적 GA와 동일 패턴) — 입력은 클라가 Server RPC로 전달, 로직은 서버에서만
+	// 소유 클라 몽타주 가시성은 AS1Character::MulticastPlayMontage로 보완
+	InstancingPolicy   = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
 }
 
 bool US1GameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
@@ -35,7 +39,7 @@ void US1GameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 
 void US1GameplayAbility::SetGravityScale(float Scale)
 {
-	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+	AS1Character* Character = Cast<AS1Character>(GetAvatarActorFromActorInfo());
 	if (false == IsValid(Character))
 	{
 		return;
@@ -48,7 +52,8 @@ void US1GameplayAbility::SetGravityScale(float Scale)
 		bGravityScaleSaved = true;
 	}
 
-	Character->GetCharacterMovement()->GravityScale = Scale;
+	// 복제 경유 — 소유 클라 CMC 예측이 서버와 일치 (호버 덜덜 방지)
+	Character->SetReplicatedGravityScale(Scale);
 }
 
 void US1GameplayAbility::ResetGravityScale()
@@ -58,9 +63,9 @@ void US1GameplayAbility::ResetGravityScale()
 		return;
 	}
 
-	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	if (AS1Character* Character = Cast<AS1Character>(GetAvatarActorFromActorInfo()))
 	{
-		Character->GetCharacterMovement()->GravityScale = PrevGravityScale;
+		Character->SetReplicatedGravityScale(PrevGravityScale);
 		bGravityScaleSaved = false;
 	}
 }

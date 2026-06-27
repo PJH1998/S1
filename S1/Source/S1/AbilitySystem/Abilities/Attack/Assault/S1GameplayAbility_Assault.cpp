@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Abilities/Attack/Assault/S1GameplayAbility_Assault.h"
 #include "AbilitySystem/Progression/S1MontageProgression.h"
@@ -9,6 +9,21 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Tags/S1GameplayTags.h"
 #include "Weapon/S1Weapon.h"
+
+US1GameplayAbility_Assault::US1GameplayAbility_Assault()
+{
+	// 루트모션 이동 예측을 위해 LocalPredicted — AbilityTask_ApplyRootMotion이 소유 클라에서 예측 실행
+	// ⚠️ §39: BP에 저장된 값이 C++ 기본값을 이김 → GA_Assault BP Class Defaults에서도 Local Predicted 설정 필요
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+
+	// 자체 중력 제어(ActivateAbility에서 GravityScale=0) → 이동 루트모션은 중력 비관여
+	bMoveEnableGravity = false;
+}
+
+FVector US1GameplayAbility_Assault::GetCapturedMoveDirection() const
+{
+	return CapturedAssaultDirection;
+}
 
 void US1GameplayAbility_Assault::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -22,15 +37,14 @@ void US1GameplayAbility_Assault::ActivateAbility(const FGameplayAbilitySpecHandl
 
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	// GravityScale 비활성화 + 기존 관성 제거
+	// GravityScale 비활성화(복제 경유) + 기존 관성 제거
+	SetGravityScale(0.f);
 	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
 	{
-		UCharacterMovementComponent* CMC = Character->GetCharacterMovement();
-		CMC->GravityScale = 0.f;
-		CMC->Velocity = FVector::ZeroVector;
+		Character->GetCharacterMovement()->Velocity = FVector::ZeroVector;
 	}
 
-	// Move 이벤트 바인딩은 GA_Action::ActivateAbility에서 처리
+	// 이동(루트모션)은 GA_Action::PlayAbilityMontage→ApplyMontageRootMotion가 활성화 시점(예측 스코프)에 처리
 	// 히트 콜리전은 이동 구간(OnMoveBeginReceived)에서만 활성화
 }
 
@@ -42,28 +56,15 @@ void US1GameplayAbility_Assault::EndAbility(const FGameplayAbilitySpecHandle Han
 		MoveTask = nullptr;
 	}
 
-	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
-	{
-		Character->GetCharacterMovement()->GravityScale = 1.f;
-	}
+	ResetGravityScale();
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void US1GameplayAbility_Assault::OnMoveBeginReceived(const FGameplayEventData* Payload)
 {
-	if (IsValid(MoveTask))
-	{
-		return;
-	}
-
-	const float Impulse = Payload ? Payload->EventMagnitude : 0.f;
-	if (FMath::IsNearlyZero(Impulse))
-	{
-		return;
-	}
-
-	// 이동 구간 시작 — 히트 콜리전 활성화
+	// 이동(루트모션)은 활성화 시점에 ApplyMontageRootMotion가 이미 생성(방향은 GetCapturedMoveDirection 3D override)
+	// 여기선 히트 콜리전만 (서버 권위) — 이동 구간에만 활성화
 	if (AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo()))
 	{
 		if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
@@ -71,27 +72,6 @@ void US1GameplayAbility_Assault::OnMoveBeginReceived(const FGameplayEventData* P
 			Weapon->EnableHitCollision(AssaultAtkScale, AssaultHitStrengthTag);
 		}
 	}
-
-	// 점프 등 기존 관성 제거 — ConstantForce가 기존 Velocity에 누적되는 것 방지
-	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
-	{
-		Character->GetCharacterMovement()->Velocity = FVector::ZeroVector;
-	}
-
-	MoveTask = UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
-		this,
-		NAME_None,
-		CapturedAssaultDirection,
-		Impulse,
-		9999.f,
-		false,
-		nullptr,
-		ERootMotionFinishVelocityMode::SetVelocity,
-		FVector::ZeroVector,
-		0.f,
-		false
-	);
-	MoveTask->ReadyForActivation();
 }
 
 void US1GameplayAbility_Assault::OnMoveEndReceived(const FGameplayEventData* Payload)
@@ -104,18 +84,13 @@ void US1GameplayAbility_Assault::OnMoveEndReceived(const FGameplayEventData* Pay
 	bBranchRequested = true;
 
 	// 이동 구간 종료 — 히트 콜리전 비활성화
+	// (루트모션 task는 유한 Duration으로 스스로 종료 — 여기서 끊으면 클라/서버 타이밍 desync)
 	if (AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo()))
 	{
 		if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
 		{
 			Weapon->DisableHitCollision();
 		}
-	}
-
-	if (IsValid(MoveTask))
-	{
-		MoveTask->EndTask();
-		MoveTask = nullptr;
 	}
 
 	if (false == IsValid(MontageProgression))

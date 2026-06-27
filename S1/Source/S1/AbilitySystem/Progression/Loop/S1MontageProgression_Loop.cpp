@@ -43,7 +43,7 @@ void US1MontageProgression_Loop::OnActivated()
 
 	if (IsValid(StartMontage))
 	{
-		const float Duration = Character->PlayAnimMontage(StartMontage);
+		const float Duration = GA->PlayAbilityMontage(StartMontage);
 		if (Duration <= 0.f)
 		{
 			GA->RequestEndAbility(true);
@@ -180,14 +180,7 @@ void US1MontageProgression_Loop::PlayLoopMontage()
 		return;
 	}
 
-	ACharacter* Character = Cast<ACharacter>(GA->GetAvatarActorFromActorInfo());
-	if (false == IsValid(Character))
-	{
-		GA->RequestEndAbility(true);
-		return;
-	}
-
-	const float Duration = Character->PlayAnimMontage(LoopMontage);
+	const float Duration = GA->PlayAbilityMontage(LoopMontage);
 	if (Duration <= 0.f)
 	{
 		GA->RequestEndAbility(true);
@@ -234,14 +227,7 @@ void US1MontageProgression_Loop::PlayEndMontage()
 		return;
 	}
 
-	ACharacter* Character = Cast<ACharacter>(GA->GetAvatarActorFromActorInfo());
-	if (false == IsValid(Character))
-	{
-		GA->RequestEndAbility(true);
-		return;
-	}
-
-	const float Duration = Character->PlayAnimMontage(CurrentEndMontage);
+	const float Duration = GA->PlayAbilityMontage(CurrentEndMontage);
 	if (Duration <= 0.f)
 	{
 		GA->RequestEndAbility(true);

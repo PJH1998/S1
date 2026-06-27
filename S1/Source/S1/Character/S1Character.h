@@ -10,6 +10,8 @@
 
 class US1AbilitySystemComponent;
 class US1AttributeSet;
+class UAnimMontage;
+class FLifetimeProperty;
 
 UCLASS()
 class S1_API AS1Character : public ACharacter, public IAbilitySystemInterface
@@ -31,6 +33,24 @@ public:
 public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void InitSystem();
+
+	// 서버 권위 GA의 몽타주를 전체 클라(소유자 포함)에서 재생 — ASC 복제는 소유 클라를 스킵하므로 Multicast 사용
+	// 서버에서도 동기 실행되어 Progression의 종료/섹션 델리게이트가 서버에서 정상 동작
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlayMontage(UAnimMontage* Montage, float Rate, FName StartSection);
+
+	// GravityScale을 복제해서 설정 — 서버 권위 GA가 중력을 바꿔도 소유 클라 CMC 예측이 일치(호버 덜덜 방지)
+	// 서버에서 호출. 전체 클라(소유자 포함)에 복제되어 OnRep에서 CMC에 적용
+	void SetReplicatedGravityScale(float Scale);
+
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION()
+	void OnRep_GravityScale();
+
+	UPROPERTY(ReplicatedUsing = OnRep_GravityScale)
+	float RepGravityScale = 1.f;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

@@ -5,6 +5,16 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+US1GameplayAbility_Evasion::US1GameplayAbility_Evasion()
+{
+	// 이동 루트모션 예측 — AbilityTask_ApplyRootMotion이 소유 클라에서 예측 실행
+	// ⚠️ §39: BP에 저장된 값이 C++ 기본값을 이김 → GA_Dash/GA_Dodge BP Class Defaults에서도 Local Predicted 설정 필요
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+
+	// 자체 중력 제어 — 이동 루트모션이 Z까지 Override(=구간 중 부유) → 공중 회피 float를 LaunchCharacter 없이 처리
+	bMoveEnableGravity = false;
+}
+
 void US1GameplayAbility_Evasion::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	// Super 전 — 몽타주 시작 전 방향 캡처 + 회전 제어권 확보
@@ -30,70 +40,24 @@ void US1GameplayAbility_Evasion::EndAbility(const FGameplayAbilitySpecHandle Han
 		MoveTask = nullptr;
 	}
 
+	// 복제 경유로 중력 복구
+	ResetGravityScale();
+
 	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
 	{
-		UCharacterMovementComponent* CMC = Character->GetCharacterMovement();
-		CMC->GravityScale = 1.f;
-		CMC->bOrientRotationToMovement = bCachedOrientToMovement;
+		Character->GetCharacterMovement()->bOrientRotationToMovement = bCachedOrientToMovement;
 	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void US1GameplayAbility_Evasion::OnMoveBeginReceived(const FGameplayEventData* Payload)
+FVector US1GameplayAbility_Evasion::GetCapturedMoveDirection() const
 {
-	if (IsValid(MoveTask))
+	if (false == CapturedMoveDirection.IsNearlyZero())
 	{
-		return;
+		return CapturedMoveDirection;
 	}
-
-	const float Impulse = Payload ? Payload->EventMagnitude : 0.f;
-	if (FMath::IsNearlyZero(Impulse))
-	{
-		return;
-	}
-
-	MoveTask = UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
-		this,
-		NAME_None,
-		CapturedMoveDirection,
-		Impulse,
-		9999.f,
-		false,
-		nullptr,
-		ERootMotionFinishVelocityMode::SetVelocity,
-		FVector::ZeroVector,
-		0.f,
-		false
-	);
-	MoveTask->ReadyForActivation();
-
-	if (bControlGravity)
-	{
-		if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
-		{
-			Character->GetCharacterMovement()->GravityScale = 0.f;
-		}
-	}
-}
-
-void US1GameplayAbility_Evasion::OnMoveEndReceived(const FGameplayEventData* Payload)
-{
-	if (IsValid(MoveTask))
-	{
-		MoveTask->EndTask();
-		MoveTask = nullptr;
-	}
-
-	if (bControlGravity)
-	{
-		if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
-		{
-			UCharacterMovementComponent* CMC = Character->GetCharacterMovement();
-			Character->LaunchCharacter(CapturedMoveDirection * CMC->MaxWalkSpeed, true, false);
-			CMC->GravityScale = 1.f;
-		}
-	}
+	return Super::GetCapturedMoveDirection();
 }
 
 FVector US1GameplayAbility_Evasion::ComputeInputDirection() const
@@ -104,13 +68,20 @@ FVector US1GameplayAbility_Evasion::ComputeInputDirection() const
 		return FVector::ForwardVector;
 	}
 
-	FVector InputDir = Character->GetLastMovementInputVector();
-	if (InputDir.IsNearlyZero())
+	// 입력 방향은 CMC Acceleration에서 — GetLastMovementInputVector()는 로컬 입력 개념이라
+	// 서버의 autonomous proxy에서 항상 0 → 서버가 정면(ActorForward)으로 폴백 → 클라(입력방향) 예측과
+	// 불일치하여 서버 권위 보정으로 정면 스냅. Acceleration은 ServerMove로 서버에 복제되어 클라/서버 일치
+	FVector InputDir = FVector::ZeroVector;
+	if (const UCharacterMovementComponent* CMC = Character->GetCharacterMovement())
 	{
-		InputDir = Character->GetActorForwardVector();
+		InputDir = CMC->GetCurrentAcceleration();
 	}
 
 	InputDir.Z = 0.f;
+	if (InputDir.IsNearlyZero())
+	{
+		return Character->GetActorForwardVector();
+	}
 	return InputDir.GetSafeNormal();
 }
 

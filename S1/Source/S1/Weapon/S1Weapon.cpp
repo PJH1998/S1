@@ -10,6 +10,9 @@ AS1Weapon::AS1Weapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	// 서버에서 스폰·부착 → 모든 클라에 복제 (부착 정보 포함)
+	bReplicates = true;
+
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("WeaponMesh");
 	SetRootComponent(WeaponMesh);
 

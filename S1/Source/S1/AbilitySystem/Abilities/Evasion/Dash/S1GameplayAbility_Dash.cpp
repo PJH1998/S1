@@ -4,6 +4,7 @@
 #include "AbilitySystem/Progression/S1MontageProgression.h"
 #include "AbilitySystem/Progression/Directional/S1MontageProgression_Directional.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void US1GameplayAbility_Dash::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -52,7 +53,10 @@ ES1Direction US1GameplayAbility_Dash::ComputeDirection() const
 		return ES1Direction::Forward;
 	}
 
-	const FVector InputDir = Character->GetLastMovementInputVector();
+	// 입력 방향은 CMC Acceleration에서 — GetLastMovementInputVector()는 서버 autonomous proxy에서 0이라
+	// 클라/서버가 다른 방향 애니를 선택(시뮬프록시 불일치). Acceleration은 ServerMove로 복제되어 일치
+	const UCharacterMovementComponent* CMC = Character->GetCharacterMovement();
+	const FVector InputDir = CMC ? CMC->GetCurrentAcceleration() : FVector::ZeroVector;
 	if (InputDir.IsNearlyZero())
 	{
 		return ES1Direction::Forward;

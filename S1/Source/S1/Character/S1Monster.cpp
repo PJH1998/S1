@@ -104,6 +104,12 @@ void AS1Monster::SetReplicatedLocomotionState(EEnemyLocomotionMode Mode, EEnemyL
 	ForceNetUpdate();
 }
 
+void AS1Monster::MulticastSetTimeFrozen_Implementation(bool bFrozen)
+{
+	// 서버 호출 → 전체 클라(+서버)에서 실행. CustomTimeDilation=0이면 AnimInstance 틱 델타도 0 → 몽타주/로코모션 정지
+	CustomTimeDilation = bFrozen ? 0.f : 1.f;
+}
+
 void AS1Monster::OnRep_ReplicatedLocomotionState()
 {
 	if (HasAuthority())
