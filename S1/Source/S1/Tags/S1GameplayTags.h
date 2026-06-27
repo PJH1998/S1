@@ -9,3 +9,4 @@
 #include "Tags/Asset/S1GameplayTags_Asset.h"
 #include "Tags/Item/S1GameplayTags_Item.h"
 #include "Tags/World/S1GameplayTags_World.h"
+#include "Tags/Gimmick/S1GameplayTags_Gimmick.h"

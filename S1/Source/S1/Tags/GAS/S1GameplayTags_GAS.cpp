@@ -31,6 +31,7 @@ namespace S1AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_Attack01, "Ability.Boss000.Attack01");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_RotateAttack, "Ability.Boss000.RotateAttack");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_JumpAttack, "Ability.Boss000.JumpAttack");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Boss000_WallKick, "Ability.Boss000.WallKick");
 #pragma endregion
 
 #pragma region Enemy001
@@ -50,6 +51,7 @@ namespace S1CooldownTags
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_Attack01, "Cooldown.Boss000.Attack01");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_RotateAttack, "Cooldown.Boss000.RotateAttack");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_JumpAttack, "Cooldown.Boss000.JumpAttack");
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Boss000_Wallkick, "Cooldown.Boss000.Wallkick");
 #pragma endregion
 
 #pragma region Enemy001
