@@ -6,6 +6,8 @@
 #include "Animation/AnimInstance.h"
 #include "Character/S1Monster.h"
 #include "Data/S1AnimData.h"
+#include "System/S1GimmickManager.h"
+#include "Tags/Gimmick/S1GameplayTags_Gimmick.h"
 
 US1GA_Boss000_Encounter::US1GA_Boss000_Encounter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -28,6 +30,15 @@ void US1GA_Boss000_Encounter::ActivateAbility(const FGameplayAbilitySpecHandle H
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
+	}
+
+	// 인카운터(보스전 시작) 시 부서진 기둥들을 원상 복구한다(서버 전용).
+	if (Monster->HasAuthority())
+	{
+		if (US1GimmickManager* GimmickManager = Monster->GetWorld()->GetSubsystem<US1GimmickManager>())
+		{
+			GimmickManager->ResetGimmicks(S1GimmickTags::Gimmick_Boss000_Pillar);
+		}
 	}
 
 	UAnimInstance* AnimInstance = Monster->GetMesh()->GetAnimInstance();

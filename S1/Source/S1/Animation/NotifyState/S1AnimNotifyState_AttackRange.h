@@ -67,6 +67,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = "AttackRange|Visual")
 	FLinearColor Color = FLinearColor(1.f, 0.f, 0.f, 0.65f);
 
+	// true면 데칼 채움 시간을 노티 타임라인 길이 대신 CustomDuration으로 사용
+	// (예: 루프 섹션을 가로질러 실제 체공시간에 맞출 때).
+	UPROPERTY(EditAnywhere, Category = "AttackRange|Visual")
+	bool bUseCustomDuration = false;
+
+	UPROPERTY(EditAnywhere, Category = "AttackRange|Visual", meta = (EditCondition = "bUseCustomDuration", ClampMin = "0.0"))
+	float CustomDuration = 1.f;
+
 	UPROPERTY(EditAnywhere, Category = "AttackRange|Damage")
 	bool bApplyDamage = false;
 

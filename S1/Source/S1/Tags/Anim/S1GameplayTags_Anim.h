@@ -24,6 +24,13 @@ namespace S1AnimTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack00);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Atack01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_RotateAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_JumpAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_WallKick_Start);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_WallKick_Move);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_SlashThrough);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_PhaseTransition);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Guard_01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Boss000_Guard_02);
 #pragma endregion
 
 #pragma region Enemy001

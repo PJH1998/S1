@@ -114,6 +114,7 @@ void AS1Boss_000::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AS1Boss_000, ActiveWeapon);
+	DOREPLIFETIME(AS1Boss_000, bWeaponHidden);
 }
 
 void AS1Boss_000::SetActiveWeapon(EBossWeapon NewWeapon)
@@ -128,7 +129,24 @@ void AS1Boss_000::SetActiveWeapon(EBossWeapon NewWeapon)
 	ForceNetUpdate();
 }
 
+void AS1Boss_000::SetWeaponHidden(bool bInHidden)
+{
+	if (false == HasAuthority() || bWeaponHidden == bInHidden)
+	{
+		return;
+	}
+
+	bWeaponHidden = bInHidden;
+	UpdateWeaponVisibility();   // OnRep은 서버에서 안 불리므로 서버에도 즉시 반영
+	ForceNetUpdate();
+}
+
 void AS1Boss_000::OnRep_ActiveWeapon()
+{
+	UpdateWeaponVisibility();
+}
+
+void AS1Boss_000::OnRep_WeaponHidden()
 {
 	UpdateWeaponVisibility();
 }
@@ -141,13 +159,15 @@ void AS1Boss_000::UpdateWeaponVisibility()
 		return;
 	}
 
-	const bool bShowAxe = (ActiveWeapon == EBossWeapon::Axe);
+	// 페이즈 전환 던지기~뽑기 구간: 무기·방패 전부 숨김.
+	const bool bShowAxe = (false == bWeaponHidden) && (ActiveWeapon == EBossWeapon::Axe);
+	const bool bShowSword = (false == bWeaponHidden) && (ActiveWeapon == EBossWeapon::Sword);
 
 	// 활성 무기는 표시, 비활성 무기는 숨긴다.
 	SetWeaponSectionVisible(MeshComp, AxeMaterialSlot, bShowAxe);
-	SetWeaponSectionVisible(MeshComp, SwordMaterialSlot, !bShowAxe);
+	SetWeaponSectionVisible(MeshComp, SwordMaterialSlot, bShowSword);
 
-	// 방패는 1페이즈(Axe)에서만 든다. 2페이즈(Sword)로 넘어가면 숨긴다.
+	// 방패는 1페이즈(Axe)에서만 든다. 2페이즈(Sword)로 넘어가거나 숨김 구간이면 숨긴다.
 	if (ShieldMesh)
 	{
 		ShieldMesh->SetVisibility(bShowAxe, /*bPropagateToChildren*/ true);

@@ -33,6 +33,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void Landed(const FHitResult& Hit) override;
 
 public:
 	UBehaviorTree*		GetBehaviorTree()	const { return BehaviorTree; }
@@ -68,6 +69,14 @@ public:
 
 	/** 서버 전용: Locomotion ABP 상태를 클라이언트에 복제한다. */
 	void SetReplicatedLocomotionState(EEnemyLocomotionMode Mode, EEnemyLocomotionPhase Phase, bool bInLocomotionLoop);
+
+	/** 공용 공중 판별: 현재 낙하(공중) 중인지. 다른 패턴/BT에서도 사용. */
+	UFUNCTION(BlueprintPure, Category = "Movement")
+	bool IsAirborne() const;
+
+	/** 점프 발사 직후 호출(서버). 시작 높이 기록 + 정점 감지 무장 + State.Enemy.Air 부여.
+	 *  ApexHeight: 시작점 대비 목표 정점 높이. Tick에서 이 높이 도달 시 Event.Enemy.Apex 전송. */
+	void EnterAirborneState(float ApexHeight);
 
 	/** 시간 정지(궁극기 등) — 서버에서 호출, 전체 클라에 CustomTimeDilation 적용해 애니메이션까지 정지 */
 	UFUNCTION(NetMulticast, Reliable)
@@ -191,6 +200,11 @@ private:
 
 	bool bDeathPoseFrozen = { false };
 	bool bDeathPresentationStarted = { false };
+
+	/** 공중 점프 상태(서버 Tick에서 정점 감지용). */
+	bool bApexPending = { false };
+	float AirborneStartZ = { 0.f };
+	float TargetApexZ = { 0.f };
 
 	TMap<FGameplayTag, FS1ActiveAttackCollision> ActiveAttackCollisions;
 	TMap<FGameplayTag, TArray<TWeakObjectPtr<AActor>>> AttackCollisionHitActors;
