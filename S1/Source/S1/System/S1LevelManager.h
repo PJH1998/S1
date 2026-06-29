@@ -23,6 +23,10 @@ public:
 	void			LoadResources();
 
 private:
+	// 서버 권위에서만 seamless travel — 클라 호출 시 무시
+	void			ServerTravelTo(const FName& MapName);
+
+private:
 	bool			bIsLoading = false;
 	FName			LoadLevelName;
 	FGameplayTag	LoadAssetLabel;

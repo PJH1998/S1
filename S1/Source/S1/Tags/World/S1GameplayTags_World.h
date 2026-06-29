@@ -42,3 +42,9 @@ namespace S1HitLagTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitLag_PerfectDodge);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitLag_Ultimate);
 }
+
+namespace S1CharacterTag
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Charcter_Select_Asna);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Charcter_Select_Kirito);
+}

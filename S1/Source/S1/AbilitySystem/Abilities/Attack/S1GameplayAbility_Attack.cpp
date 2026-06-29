@@ -17,6 +17,10 @@ US1GameplayAbility_Attack::US1GameplayAbility_Attack(const FObjectInitializer& O
 	: Super(ObjectInitializer)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+
+	// 모든 공격은 RootMotion/노티파이 이동을 포함 → 소유 클라 예측 필요 (§40 이동 GA 전환)
+	// ⚠️ BP 저장값이 C++을 덮으므로 각 공격 BP Class Defaults에도 Local Predicted 설정 필요
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 }
 
 void US1GameplayAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

@@ -30,6 +30,20 @@ public:
 	US1EquipComponent* GetEquipComponent() const;
 	void InitPlayerSetFromTable(const FGameplayTag& AssetTag, const FGameplayTag& TableTag);
 
+	void SetSelectedCharacterTag(const FGameplayTag& InTag);
+	FGameplayTag GetSelectedCharacterTag() const { return SelectedCharacterTag; }
+
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	// Seamless Travel: 구 PS → 신 PS 복사
+	virtual void CopyProperties(APlayerState* PlayerState) override;
+	// Non-Seamless (재접속): inactive 상태에서 신 PS 로 복원
+	virtual void OverrideWith(APlayerState* PlayerState) override;
+
+private:
+	UPROPERTY(Replicated)
+	FGameplayTag SelectedCharacterTag;
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<US1AbilitySystemComponent> AbilitySystemComponent;
