@@ -28,6 +28,7 @@ class S1_API US1Menu_Inventory_Bag : public US1BaseWidget
 
 public:
 	void InitializeMenu(US1Menu_Inventory* InOwnerMenu);
+	void HandleShown();
 
 protected:
 	virtual void NativeConstruct() override;
@@ -54,6 +55,7 @@ private:
 
 	void RefreshSlots();
 	void EnsureSlotsCreated();
+	void EnsureInventoryBound();
 	bool PassesTabFilter(const FGameplayTag& ItemType) const;
 	AS1PlayerState* GetOwnerPlayerState() const;
 

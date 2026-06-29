@@ -72,6 +72,7 @@ void AS1DropItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AS1DropItem, RarityTag);
 	DOREPLIFETIME(AS1DropItem, OwnerController);
 	DOREPLIFETIME(AS1DropItem, Amount);
+	DOREPLIFETIME(AS1DropItem, ReplicatedSpawnLocation);
 }
 
 void AS1DropItem::Tick(float DeltaTime)
@@ -96,6 +97,7 @@ void AS1DropItem::OnReturnToPool()
 	ItemTag = FGameplayTag();
 	RarityTag = FGameplayTag();
 	Amount = 0;
+	ReplicatedSpawnLocation = FVector::ZeroVector;
 	OwnerController = nullptr;
 	SetOwner(nullptr);
 	MeshBaseRelativeLocation = FVector::ZeroVector;
@@ -122,6 +124,7 @@ void AS1DropItem::InitializeDrop(ES1DropItemType InDropType, int32 InAmount, FGa
 	RarityTag = InRarityTag;
 	Amount = FMath::Max(InAmount, 0);
 	FloatingElapsedTime = 0.f;
+	ReplicatedSpawnLocation = GetActorLocation();
 	OwnerController = InOwnerController;
 	SetOwner(InOwnerController);
 
@@ -377,6 +380,11 @@ void AS1DropItem::ApplyReplicatedDropState()
 		PickupSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
 
+	// 클라이언트는 서버 기준 스폰 위치로 Actor를 맞춘 뒤 프레젠테이션 시작
+	if (ReplicatedSpawnLocation != FVector::ZeroVector)
+	{
+		SetActorLocation(ReplicatedSpawnLocation);
+	}
 	StartDropPresentation();
 }
 

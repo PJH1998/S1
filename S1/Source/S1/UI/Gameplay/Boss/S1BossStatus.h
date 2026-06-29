@@ -39,6 +39,7 @@ private:
 
 private:
 	float LerpValue = { 100.f };
+	float PrevHealthForDamageNumber = -1.f;
 
 	FName LerpRatioParameterName = TEXT("LerpRatio");
 	FName CurrentColorParameterName = TEXT("CurrentColor");

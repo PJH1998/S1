@@ -20,6 +20,16 @@ void US1AnimNotifyState_AttackRange::NotifyBegin(USkeletalMeshComponent* MeshCom
 		return;
 	}
 
+	HitActors.FindOrAdd(MeshComp).Reset();
+
+	// 데칼은 클라이언트 전용 비주얼 — 데디케이티드 서버에서는 스킵
+	AActor* OwnerActor = MeshComp->GetOwner();
+	const bool bIsDedicatedServer = OwnerActor && OwnerActor->GetNetMode() == NM_DedicatedServer;
+	if (bIsDedicatedServer)
+	{
+		return;
+	}
+
 	US1DecalManager* DecalManager = US1DecalManager::Get(MeshComp);
 	if (DecalManager == nullptr)
 	{
@@ -33,8 +43,6 @@ void US1AnimNotifyState_AttackRange::NotifyBegin(USkeletalMeshComponent* MeshCom
 		AttackRangeDecal->ShowAttackRange(Request);
 		ActiveDecals.FindOrAdd(MeshComp) = AttackRangeDecal;
 	}
-
-	HitActors.FindOrAdd(MeshComp).Reset();
 }
 
 void US1AnimNotifyState_AttackRange::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
@@ -47,6 +55,15 @@ void US1AnimNotifyState_AttackRange::NotifyEnd(USkeletalMeshComponent* MeshComp,
 	}
 
 	ApplyRangeDamage(MeshComp);
+	HitActors.Remove(MeshComp);
+
+	// 데칼은 클라이언트 전용 — 데디케이티드 서버에서는 스킵
+	AActor* OwnerActor = MeshComp->GetOwner();
+	const bool bIsDedicatedServer = OwnerActor && OwnerActor->GetNetMode() == NM_DedicatedServer;
+	if (bIsDedicatedServer)
+	{
+		return;
+	}
 
 	TWeakObjectPtr<AS1Decal_AttackRange> DecalPtr;
 	if (ActiveDecals.RemoveAndCopyValue(MeshComp, DecalPtr))
@@ -59,8 +76,6 @@ void US1AnimNotifyState_AttackRange::NotifyEnd(USkeletalMeshComponent* MeshComp,
 			}
 		}
 	}
-
-	HitActors.Remove(MeshComp);
 }
 
 FS1AttackRangeDecalRequest US1AnimNotifyState_AttackRange::MakeRequest(USkeletalMeshComponent* MeshComp, float TotalDuration) const

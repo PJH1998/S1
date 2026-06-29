@@ -106,6 +106,11 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_DropState)
 	int32 Amount = 0;
+
+	// 서버가 InitializeDrop을 호출한 시점의 스폰 위치 — 클라이언트가 프레젠테이션 시작점 기준으로 사용
+	UPROPERTY(Replicated)
+	FVector ReplicatedSpawnLocation = FVector::ZeroVector;
+
 	float PresentationElapsedTime = 0.f;
 	float FloatingElapsedTime = 0.f;
 	float FloatingAmplitude = 10.f;

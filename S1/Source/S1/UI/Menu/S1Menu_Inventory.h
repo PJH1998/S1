@@ -19,6 +19,7 @@ class S1_API US1Menu_Inventory : public US1BaseWidget
 public:
 	virtual void NativeConstruct() override;
 
+	void HandleShown();
 	void HandleSlotHoverStarted(FGameplayTag ItemTag, const FVector2D& ScreenPosition);
 	void HandleSlotHoverEnded();
 

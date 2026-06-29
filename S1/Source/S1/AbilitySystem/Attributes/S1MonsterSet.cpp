@@ -8,7 +8,6 @@
 #include "Engine/World.h"
 #include "S1DataTableTypes.h"
 #include "System/S1AssetManager.h"
-#include "System/S1CombatFeedbackSubsystem.h"
 #include "Tags/S1GameplayTags.h"
 #include "S1LogChannels.h"
 
@@ -48,17 +47,8 @@ void US1MonsterSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackDa
 			}
 		}
 
-		if (UWorld* World = Monster->GetWorld())
-		{
-			if (World->GetNetMode() != NM_DedicatedServer)
-			{
-				if (US1CombatFeedbackSubsystem* CombatFeedback = World->GetSubsystem<US1CombatFeedbackSubsystem>())
-				{
-					const int32 Damage = FMath::RoundToInt(FMath::Abs(Data.EvaluatedData.Magnitude));
-					CombatFeedback->ShowDamageNumber(Damage, DamageLocation);
-				}
-			}
-		}
+		// 데미지 폰트는 클라이언트 HP바(S1MonsterHPBar::NativeTick)에서 HP 감소를 감지하여 출력
+		// — PostGameplayEffectExecute는 서버 전용이므로 여기서 직접 호출하지 않음
 	}
 
 	if (GetHealth() > 0.f)

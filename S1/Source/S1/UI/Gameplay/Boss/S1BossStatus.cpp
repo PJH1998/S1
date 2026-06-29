@@ -5,7 +5,9 @@
 #include "AbilitySystem/Attributes/S1BossSet.h"
 #include "Character/Boss/S1BossBase.h"
 #include "Components/TextBlock.h"
+#include "Engine/World.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "System/S1CombatFeedbackSubsystem.h"
 
 US1BossStatus::US1BossStatus(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -16,6 +18,7 @@ void US1BossStatus::SetBoss(AS1BossBase* InBoss)
 {
 	Boss = IsValid(InBoss) ? InBoss : nullptr;
 	BossSet = Boss ? Boss->GetS1BossSet() : nullptr;
+	PrevHealthForDamageNumber = -1.f;
 
 	if (BossSet == nullptr)
 	{
@@ -60,10 +63,24 @@ void US1BossStatus::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		return;
 	}
 
-	// Temp
-	//BossSet->SetHealth(BossSet->GetHealth() - 2.f * InDeltaTime);
+	const float NewHealth = BossSet->GetHealth();
+	SetValue(NewHealth, BossSet->GetMaxHealth());
 
-	SetValue(BossSet->GetHealth(), BossSet->GetMaxHealth());
+	if (PrevHealthForDamageNumber >= 0.f && NewHealth < PrevHealthForDamageNumber)
+	{
+		const int32 DamageAmount = FMath::RoundToInt(PrevHealthForDamageNumber - NewHealth);
+		if (DamageAmount > 0)
+		{
+			if (UWorld* World = GetWorld())
+			{
+				if (US1CombatFeedbackSubsystem* CombatFeedback = World->GetSubsystem<US1CombatFeedbackSubsystem>())
+				{
+					CombatFeedback->ShowDamageNumber(DamageAmount, Boss->GetActorLocation());
+				}
+			}
+		}
+	}
+	PrevHealthForDamageNumber = NewHealth;
 
 	if (CurrentValue >= LerpValue)
 	{
@@ -71,7 +88,8 @@ void US1BossStatus::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	}
 	else
 	{
-		LerpValue = FMath::Max(CurrentValue, LerpValue - LerpSpeed * InDeltaTime);
+		const float LerpDelta = FMath::Max(MaxValue, 1.f) * LerpSpeed * InDeltaTime;
+		LerpValue = FMath::Max(CurrentValue, LerpValue - LerpDelta);
 	}
 
 	Bind_ShaderResource();

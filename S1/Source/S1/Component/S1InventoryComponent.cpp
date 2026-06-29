@@ -2,6 +2,7 @@
 
 
 #include "Component/S1InventoryComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "S1DataTableTypes.h"
 #include "S1Define.h"
 #include "Tags/S1GameplayTags.h"
@@ -10,6 +11,25 @@
 US1InventoryComponent::US1InventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	SetIsReplicatedByDefault(true);
+}
+
+void US1InventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(US1InventoryComponent, Gold);
+	DOREPLIFETIME(US1InventoryComponent, ItemStacks);
+}
+
+void US1InventoryComponent::OnRep_Gold()
+{
+	OnGoldChanged.Broadcast(Gold);
+}
+
+void US1InventoryComponent::OnRep_ItemStacks()
+{
+	OnInventoryChanged.Broadcast();
 }
 
 bool US1InventoryComponent::IsStackableItem(FGameplayTag ItemTag) const

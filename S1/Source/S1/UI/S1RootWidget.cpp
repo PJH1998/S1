@@ -26,6 +26,11 @@ void US1RootWidget::ShowMenu(const FGameplayTag& UITag)
 	{
 		const ESlateVisibility NewVisibility = Menu_Inventory->IsVisible() ? ESlateVisibility::Collapsed : ESlateVisibility::Visible;
 		Menu_Inventory->SetVisibility(NewVisibility);
+
+		if (NewVisibility == ESlateVisibility::Visible)
+		{
+			Menu_Inventory->HandleShown();
+		}
 	}
 }
 

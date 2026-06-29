@@ -7,6 +7,8 @@
 #include "Animation/WidgetAnimation.h"
 #include "Character/S1Monster.h"
 #include "Components/TextBlock.h"
+#include "Engine/World.h"
+#include "System/S1CombatFeedbackSubsystem.h"
 
 US1MonsterHPBar::US1MonsterHPBar(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -16,6 +18,7 @@ US1MonsterHPBar::US1MonsterHPBar(const FObjectInitializer& ObjectInitializer)
 void US1MonsterHPBar::SetMonster(AS1Monster* InMonster)
 {
 	Monster = IsValid(InMonster) ? InMonster : nullptr;
+	PrevHealthForDamageNumber = -1.f;
 
 	if (!IsValid(Monster))
 	{
@@ -118,7 +121,25 @@ void US1MonsterHPBar::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		return;
 	}
 
-	SetValue(MonsterAttributeSet->GetHealth(), MonsterAttributeSet->GetMaxHealth());
+	const float NewHealth = MonsterAttributeSet->GetHealth();
+	SetValue(NewHealth, MonsterAttributeSet->GetMaxHealth());
+
+	// HP가 실제로 감소했을 때 데미지 폰트 출력 (첫 틱 초기화 시에는 스킵)
+	if (PrevHealthForDamageNumber >= 0.f && NewHealth < PrevHealthForDamageNumber)
+	{
+		const int32 DamageAmount = FMath::RoundToInt(PrevHealthForDamageNumber - NewHealth);
+		if (DamageAmount > 0)
+		{
+			if (UWorld* World = GetWorld())
+			{
+				if (US1CombatFeedbackSubsystem* CombatFeedback = World->GetSubsystem<US1CombatFeedbackSubsystem>())
+				{
+					CombatFeedback->ShowDamageNumber(DamageAmount, Monster->GetActorLocation());
+				}
+			}
+		}
+	}
+	PrevHealthForDamageNumber = NewHealth;
 
 	if (CurrentValue >= LerpValue)
 	{
@@ -126,7 +147,9 @@ void US1MonsterHPBar::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	}
 	else
 	{
-		LerpValue = FMath::Max(CurrentValue, LerpValue - LerpSpeed * InDeltaTime);
+		// LerpSpeed는 MaxValue 기준 비율/초 — HP 스케일에 무관하게 일정 속도로 보간
+		const float LerpDelta = FMath::Max(MaxValue, 1.f) * LerpSpeed * InDeltaTime;
+		LerpValue = FMath::Max(CurrentValue, LerpValue - LerpDelta);
 	}
 
 	Bind_ShaderResource();

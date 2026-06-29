@@ -20,6 +20,7 @@ class S1_API US1Menu_Inventory_Equip : public US1BaseWidget
 public:
 	void InitializeMenu(US1Menu_Inventory* InOwnerMenu);
 	void RegisterEquipSlot(FGameplayTag SlotTag, US1Inventory_Slot* SlotWidget);
+	void HandleShown();
 
 protected:
 	virtual void NativeConstruct() override;
@@ -40,6 +41,7 @@ private:
 
 	void RefreshSlots();
 	void InitializeEquipSlots();
+	void EnsureEquipBound();
 	AS1PlayerState* GetOwnerPlayerState() const;
 
 private:

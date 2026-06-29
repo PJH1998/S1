@@ -24,6 +24,19 @@ void US1Menu_Inventory::NativeConstruct()
 	}
 }
 
+void US1Menu_Inventory::HandleShown()
+{
+	if (Inventory_Bag)
+	{
+		Inventory_Bag->HandleShown();
+	}
+
+	if (Inventory_Equip)
+	{
+		Inventory_Equip->HandleShown();
+	}
+}
+
 void US1Menu_Inventory::HandleSlotHoverStarted(FGameplayTag ItemTag, const FVector2D& ScreenPosition)
 {
 	if (ItemInfoWidget == nullptr)

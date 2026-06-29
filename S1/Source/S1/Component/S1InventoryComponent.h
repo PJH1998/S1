@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameplayTagContainer.h"
+#include "Net/UnrealNetwork.h"
 #include "S1InventoryComponent.generated.h"
 
 USTRUCT(BlueprintType)
@@ -27,8 +28,10 @@ class S1_API US1InventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	US1InventoryComponent();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
 	bool AddGold(int32 Amount);
@@ -48,9 +51,15 @@ public:
 private:
 	bool IsStackableItem(FGameplayTag ItemTag) const;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UFUNCTION()
+	void OnRep_Gold();
+
+	UFUNCTION()
+	void OnRep_ItemStacks();
+
+	UPROPERTY(ReplicatedUsing = OnRep_Gold, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	int32 Gold = 0;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_ItemStacks, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TArray<FS1InventoryItemStack> ItemStacks;
 };

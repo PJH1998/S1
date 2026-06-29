@@ -33,17 +33,35 @@ void US1Menu_Inventory_Bag::NativeConstruct()
 		Tab_Other->OnClicked.AddDynamic(this, &ThisClass::OnTabOtherClicked);
 	}
 
-	if (AS1PlayerState* PlayerState = GetOwnerPlayerState())
-	{
-		InventoryComponent = PlayerState->GetInventoryComponent();
-		if (InventoryComponent)
-		{
-			InventoryComponent->OnInventoryChanged.AddDynamic(this, &ThisClass::OnInventoryChanged);
-		}
-	}
+	EnsureInventoryBound();
 
 	EnsureSlotsCreated();
 	RefreshSlots();
+}
+
+void US1Menu_Inventory_Bag::HandleShown()
+{
+	RefreshSlots();
+}
+
+void US1Menu_Inventory_Bag::EnsureInventoryBound()
+{
+	if (InventoryComponent != nullptr)
+	{
+		return;
+	}
+
+	AS1PlayerState* PlayerState = GetOwnerPlayerState();
+	if (PlayerState == nullptr)
+	{
+		return;
+	}
+
+	InventoryComponent = PlayerState->GetInventoryComponent();
+	if (InventoryComponent)
+	{
+		InventoryComponent->OnInventoryChanged.AddDynamic(this, &ThisClass::OnInventoryChanged);
+	}
 }
 
 void US1Menu_Inventory_Bag::NativeDestruct()
@@ -127,6 +145,8 @@ void US1Menu_Inventory_Bag::OnSlotRightClicked(FGameplayTag ItemTag, int32 SlotI
 
 void US1Menu_Inventory_Bag::RefreshSlots()
 {
+	EnsureInventoryBound();
+
 	if (InventoryComponent == nullptr || GridPanel_Slots == nullptr)
 	{
 		return;

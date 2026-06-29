@@ -56,7 +56,8 @@ void US1HPBar::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	}
 	else
 	{
-		LerpValue = FMath::Max(CurrentValue, LerpValue - LerpSpeed * InDeltaTime);
+		const float LerpDelta = FMath::Max(MaxValue, 1.f) * LerpSpeed * InDeltaTime;
+		LerpValue = FMath::Max(CurrentValue, LerpValue - LerpDelta);
 	}
 
 	Bind_ShaderResource();

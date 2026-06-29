@@ -32,17 +32,35 @@ void US1Menu_Inventory_Equip::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (AS1PlayerState* PlayerState = GetOwnerPlayerState())
-	{
-		EquipComponent = PlayerState->GetEquipComponent();
-		if (EquipComponent)
-		{
-			EquipComponent->OnEquipmentChanged.AddDynamic(this, &ThisClass::OnEquipmentChanged);
-		}
-	}
+	EnsureEquipBound();
 
 	InitializeEquipSlots();
 	RefreshSlots();
+}
+
+void US1Menu_Inventory_Equip::HandleShown()
+{
+	RefreshSlots();
+}
+
+void US1Menu_Inventory_Equip::EnsureEquipBound()
+{
+	if (EquipComponent != nullptr)
+	{
+		return;
+	}
+
+	AS1PlayerState* PlayerState = GetOwnerPlayerState();
+	if (PlayerState == nullptr)
+	{
+		return;
+	}
+
+	EquipComponent = PlayerState->GetEquipComponent();
+	if (EquipComponent)
+	{
+		EquipComponent->OnEquipmentChanged.AddDynamic(this, &ThisClass::OnEquipmentChanged);
+	}
 }
 
 void US1Menu_Inventory_Equip::NativeDestruct()
@@ -105,6 +123,8 @@ void US1Menu_Inventory_Equip::OnSlotRightClicked(FGameplayTag ItemTag, int32 Slo
 
 void US1Menu_Inventory_Equip::RefreshSlots()
 {
+	EnsureEquipBound();
+
 	if (EquipComponent == nullptr)
 	{
 		return;
