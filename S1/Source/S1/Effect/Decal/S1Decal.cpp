@@ -34,6 +34,8 @@ void AS1Decal::BeginPlay()
 
 void AS1Decal::OnSpawnFromPool(FGameplayTag InPoolTag, FVector Location, FRotator Rotation)
 {
+	IS1PoolingInterface::OnSpawnFromPool(InPoolTag, Location, Rotation);
+
 	PoolTag = InPoolTag;
 
 	// 베이스 인터페이스 기본구현(un-hide/collision/tick)은 호출하지 않는다.
@@ -43,6 +45,8 @@ void AS1Decal::OnSpawnFromPool(FGameplayTag InPoolTag, FVector Location, FRotato
 
 void AS1Decal::OnReturnToPool()
 {
+	IS1PoolingInterface::OnReturnToPool();
+
 	HideDecal();
 }
 
