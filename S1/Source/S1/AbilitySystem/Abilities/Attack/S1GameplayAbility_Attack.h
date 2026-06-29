@@ -25,6 +25,9 @@ public:
 	// Progression 콤보 어드밴스 시 카메라 회전 갱신
 	virtual void OnProgressionMontageStarted() override;
 
+	// 몽타주 재생 시 — AtkCollision 노티파이 스캔 → 서버 히트 윈도우 타이머 스케줄
+	virtual void OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate) override;
+
 protected:
 	void ResetHitTargets();
 	void StartRotateToCamera();
@@ -58,8 +61,17 @@ private:
 	UFUNCTION()
 	void OnAttackBoxOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	// 서버 권위에서만 — 몽타주의 AtkCollision 윈도우(begin/end)를 real-time 타이머로 스케줄
+	void ScheduleHitWindows(UAnimMontage* Montage, float Rate);
+	void ClearHitWindowTimers();
+	void EnableWeaponHitCollision(float AtkScale, FGameplayTag HitStrengthTag);
+	void DisableWeaponHitCollision();
+
 	UPROPERTY()
 	TObjectPtr<US1AbilityTask_RotateToCamera> RotateTask;
 
 	TArray<TWeakObjectPtr<AActor>> HitTargets;
+
+	// 활성 히트 윈도우 타이머 (몽타주당 begin/end 쌍) — 몽타주 교체/종료 시 정리
+	TArray<FTimerHandle> HitWindowTimers;
 };

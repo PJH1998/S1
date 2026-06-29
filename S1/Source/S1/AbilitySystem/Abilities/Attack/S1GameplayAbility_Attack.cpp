@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Abilities/Attack/S1GameplayAbility_Attack.h"
-#include "S1LogChannels.h"
 #include "AbilitySystem/Progression/S1MontageProgression.h"
 #include "AbilitySystem/Task/S1AbilityTask_RotateToCamera.h"
 #include "AbilitySystem/S1AbilitySystemComponent.h"
@@ -12,6 +11,10 @@
 #include "Components/BoxComponent.h"
 #include "Tags/S1GameplayTags.h"
 #include "Abilities/GameplayAbilityTargetTypes.h"
+#include "Animation/NotifyState/S1AnimNotifyState_AtkCollision.h"
+#include "Animation/AnimMontage.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 US1GameplayAbility_Attack::US1GameplayAbility_Attack(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -54,6 +57,8 @@ void US1GameplayAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle
 
 void US1GameplayAbility_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	ClearHitWindowTimers();
+	DisableWeaponHitCollision();
 	UnbindAttackBox();
 	HitTargets.Reset();
 
@@ -65,6 +70,109 @@ void US1GameplayAbility_Attack::OnProgressionMontageStarted()
 	if (bRotateToCamera)
 	{
 		StartRotateToCamera();
+	}
+}
+
+void US1GameplayAbility_Attack::OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate)
+{
+	// 새 몽타주(스윙) 진입 — 이전 윈도우 정리 후 이 몽타주의 AtkCollision 윈도우를 서버에서 스케줄
+	ClearHitWindowTimers();
+	DisableWeaponHitCollision();
+	ScheduleHitWindows(Montage, Rate);
+}
+
+void US1GameplayAbility_Attack::ScheduleHitWindows(UAnimMontage* Montage, float Rate)
+{
+	// 데미지는 서버 권위 → 히트 윈도우도 서버에서만 구동 (클라 노티파이는 데이터 마커로 무동작)
+	AActor* Avatar = GetAvatarActorFromActorInfo();
+	if (false == IsValid(Avatar) || false == Avatar->HasAuthority())
+	{
+		return;
+	}
+
+	UWorld* World = Avatar->GetWorld();
+	if (nullptr == Montage || nullptr == World)
+	{
+		return;
+	}
+
+	// 몽타주는 Rate × RateScale 배속 재생 → montage-time을 real-time으로 변환 (÷ 배속)
+	const float EffectiveRate = FMath::Max(Rate * Montage->RateScale, KINDA_SMALL_NUMBER);
+
+	for (const FAnimNotifyEvent& Event : Montage->Notifies)
+	{
+		const US1AnimNotifyState_AtkCollision* AtkNotify = Cast<US1AnimNotifyState_AtkCollision>(Event.NotifyStateClass);
+		if (nullptr == AtkNotify)
+		{
+			continue;
+		}
+
+		const float        RealBegin   = Event.GetTriggerTime() / EffectiveRate;
+		const float        RealEnd      = (Event.GetTriggerTime() + Event.GetDuration()) / EffectiveRate;
+		const float        AtkScale     = AtkNotify->GetAtkScale();
+		const FGameplayTag StrengthTag  = AtkNotify->GetHitStrengthTag();
+
+		// Begin
+		FTimerHandle BeginHandle;
+		World->GetTimerManager().SetTimer(
+			BeginHandle,
+			FTimerDelegate::CreateWeakLambda(this, [this, AtkScale, StrengthTag]()
+			{
+				EnableWeaponHitCollision(AtkScale, StrengthTag);
+			}),
+			FMath::Max(RealBegin, 0.001f), false);
+		HitWindowTimers.Add(BeginHandle);
+
+		// End
+		FTimerHandle EndHandle;
+		World->GetTimerManager().SetTimer(
+			EndHandle,
+			FTimerDelegate::CreateWeakLambda(this, [this]()
+			{
+				DisableWeaponHitCollision();
+			}),
+			FMath::Max(RealEnd, 0.002f), false);
+		HitWindowTimers.Add(EndHandle);
+	}
+}
+
+void US1GameplayAbility_Attack::ClearHitWindowTimers()
+{
+	if (UWorld* World = GetWorld())
+	{
+		for (FTimerHandle& Handle : HitWindowTimers)
+		{
+			World->GetTimerManager().ClearTimer(Handle);
+		}
+	}
+	HitWindowTimers.Reset();
+}
+
+void US1GameplayAbility_Attack::EnableWeaponHitCollision(float AtkScale, FGameplayTag HitStrengthTag)
+{
+	AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo());
+	if (false == IsValid(Player))
+	{
+		return;
+	}
+
+	if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
+	{
+		Weapon->EnableHitCollision(AtkScale, HitStrengthTag);
+	}
+}
+
+void US1GameplayAbility_Attack::DisableWeaponHitCollision()
+{
+	AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo());
+	if (false == IsValid(Player))
+	{
+		return;
+	}
+
+	if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
+	{
+		Weapon->DisableHitCollision();
 	}
 }
 
@@ -133,9 +241,6 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 		return;
 	}
 
-	LOG(TEXT("[Overlap] OtherActor: %s | HitTargets: %d"),
-		*OtherActor->GetName(), HitTargets.Num());
-
 	if (false == IsValid(OtherActor) || OtherActor == AvatarActor)
 	{
 		return;
@@ -149,9 +254,6 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 		}
 	}
 	HitTargets.Add(OtherActor);
-
-	LOG(TEXT("[AttackHit] Actor: %s | Channel: %d"),
-		*OtherActor->GetName(), (int32)OtherComp->GetCollisionObjectType());
 
 	if (nullptr == DamageEffect)
 	{
@@ -172,9 +274,6 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 	const FGameplayTag HitStrengthTag = IsValid(DamageWeapon) ? DamageWeapon->GetCurrentHitStrengthTag() : FGameplayTag();
 	const float DmgMult               = IsValid(MontageProgression) ? MontageProgression->GetDamageMultiplier() : 1.0f;
 	const float FinalDamage           = AttribSet->GetBaseDamage() * AtkScale * DmgMult;
-
-	LOG(TEXT("[AttackDamage] Target: %s | Base: %.1f | AtkScale: %.2f | DmgMult: %.2f | Final: %.1f"),
-		*OtherActor->GetName(), AttribSet->GetBaseDamage(), AtkScale, DmgMult, FinalDamage);
 
 	FGameplayAbilityTargetDataHandle TargetDataHandle;
 	FGameplayAbilityTargetData_SingleTargetHit* TargetData = new FGameplayAbilityTargetData_SingleTargetHit();

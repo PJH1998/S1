@@ -49,6 +49,9 @@ public:
 	// Loop 종료 직전 훅 (e.g. GA_LoopAttack_Dive: 중력 리셋)
 	virtual void OnProgressionLoopEnded() {}
 
+	// 몽타주 재생 직후 훅 (e.g. GA_Attack: AtkCollision 노티파이 스캔 → 서버 히트 윈도우 스케줄)
+	virtual void OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate) {}
+
 	// protected인 GetAnimInstance를 Progression에서 호출 가능하도록 노출
 	US1AnimInstance* GetAnimInstanceForProgression() const;
 
