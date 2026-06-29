@@ -78,6 +78,10 @@ public:
 	 *  ApexHeight: 시작점 대비 목표 정점 높이. Tick에서 이 높이 도달 시 Event.Enemy.Apex 전송. */
 	void EnterAirborneState(float ApexHeight);
 
+	/** 시간 정지(궁극기 등) — 서버에서 호출, 전체 클라에 CustomTimeDilation 적용해 애니메이션까지 정지 */
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSetTimeFrozen(bool bFrozen);
+
 public:
 	UPROPERTY(BlueprintAssignable)
 	FMonsterHasTargetChangedDelegate OnHasTargetChanged;

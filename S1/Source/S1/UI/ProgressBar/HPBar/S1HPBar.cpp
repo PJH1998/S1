@@ -34,9 +34,18 @@ void US1HPBar::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
+	// PlayerState 복제가 늦게 도착할 수 있으므로 null이면 재조회
 	if (PlayerSet == nullptr)
 	{
-		return;
+		if (AS1PlayerState* PS = Cast<AS1PlayerState>(GetOwningPlayerState()))
+		{
+			PlayerSet = PS->GetS1PlayerSet();
+		}
+
+		if (PlayerSet == nullptr)
+		{
+			return;
+		}
 	}
 
 	SetValue(PlayerSet->GetHealth(), PlayerSet->GetMaxHealth());

@@ -10,6 +10,7 @@
 class US1MontageProgression;
 class US1AnimInstance;
 class UAbilityTask_ApplyRootMotionConstantForce;
+class UAnimMontage;
 
 // 액션 중 상태(State.Action) 관리 + EarlyMove(이동/점프 입력 시 조기 종료) 공통 베이스
 // Attack, Dash, Dodge 등 액션 GA의 부모 클래스
@@ -51,6 +52,10 @@ public:
 	// protected인 GetAnimInstance를 Progression에서 호출 가능하도록 노출
 	US1AnimInstance* GetAnimInstanceForProgression() const;
 
+	// 몽타주를 ASC 경유로 재생 — RepAnimMontageInfo로 소유 클라 포함 전체 복제
+	// (PlayMontageAndWait 태스크와 동일 메커니즘. 반환: 재생 시간, 실패 시 0)
+	float PlayAbilityMontage(UAnimMontage* Montage, FName StartSection = NAME_None, float Rate = 1.f);
+
 private:
 	UFUNCTION()
 	void OnEarlyMoveEventReceived(FGameplayEventData Payload);
@@ -75,8 +80,24 @@ protected:
 	virtual void OnMoveBeginReceived(const FGameplayEventData* Payload);
 	virtual void OnMoveEndReceived(const FGameplayEventData* Payload);
 
+	// 캡처된 이동 방향 — 기본 수평(CapturedActionMoveDir). pitch 포함 3D 이동이 필요한 서브클래스는 override
+	virtual FVector GetCapturedMoveDirection() const;
+
+	// 몽타주의 MoveEvent 노티파이(데이터)를 읽어 활성화 시점(예측 스코프)에 루트모션 task 생성
+	// StrengthOverTime 커브로 노티파이 구간에만 force 적용 → 예측키 확보 + 구간 타이밍 정확
+	// Rate × Montage RateScale 배속을 반영해 montage-time을 real-time으로 변환
+	void ApplyMontageRootMotion(UAnimMontage* Montage, float Rate);
+
+	// 이동 루트모션 중력 적용 — true면 XY만 루트모션/Z는 물리(§36). 자체 중력 제어(GravityScale=0) 서브클래스는 false
+	UPROPERTY(EditDefaultsOnly, Category = "Action|Move")
+	bool bMoveEnableGravity = true;
+
 	UPROPERTY()
 	TObjectPtr<UAbilityTask_ApplyRootMotionConstantForce> MoveTask;
+
+	// 활성화 시점에 1회 캡처한 이동 방향 (컨트롤 회전=카메라 기준, 복제되어 클라/서버 일치)
+	// 노티파이 시점 실시간 방향은 예측 회전 랙으로 어긋나 서버 보정 되돌림 발생 → 캡처값 사용
+	FVector CapturedActionMoveDir = FVector::ForwardVector;
 
 private:
 	// virtual dispatch를 위한 non-virtual 래퍼 (GenericGameplayEventCallbacks에 저장됨)

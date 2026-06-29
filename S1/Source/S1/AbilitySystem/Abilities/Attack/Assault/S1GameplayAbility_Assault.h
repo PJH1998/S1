@@ -14,6 +14,9 @@ class S1_API US1GameplayAbility_Assault : public US1GameplayAbility_Attack
 {
 	GENERATED_BODY()
 
+public:
+	US1GameplayAbility_Assault();
+
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
@@ -21,6 +24,9 @@ protected:
 protected:
 	virtual void OnMoveBeginReceived(const FGameplayEventData* Payload) override;
 	virtual void OnMoveEndReceived(const FGameplayEventData* Payload) override;
+
+	// pitch 포함 3D 방향 사용 (카메라 방향 대쉬) — 베이스의 수평 방향 대신
+	virtual FVector GetCapturedMoveDirection() const override;
 
 private:
 	// 공중/지상 판단 후 Progression의 EndMontages에서 조회할 키 태그

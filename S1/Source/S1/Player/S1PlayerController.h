@@ -51,7 +51,14 @@ private:
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
+	// 클라 측 빙의 콜백 — 원격 클라는 OnPossess(서버 전용)가 호출 안 됨
+	virtual void AcknowledgePossession(APawn* P) override;
 
+private:
+	// 서버/클라 공통 — S1Player 캐싱 + 어빌리티 입력 바인딩
+	void InitPawnInput(APawn* InPawn);
+
+protected:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<AS1Player> S1Player;
 

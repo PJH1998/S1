@@ -7,8 +7,13 @@
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystemComponent.h"
+#include "GameFramework/RootMotionSource.h"
+#include "Curves/CurveFloat.h"
 #include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
 #include "Animation/S1AnimInstance.h"
+#include "Animation/NotifyState/S1AnimNotifyState_MoveEvent.h"
+#include "Character/S1Character.h"
 #include "Character/Player/S1Player.h"
 
 US1GameplayAbility_Action::US1GameplayAbility_Action(const FObjectInitializer& ObjectInitializer)
@@ -25,12 +30,28 @@ void US1GameplayAbility_Action::ActivateAbility(const FGameplayAbilitySpecHandle
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	// 액션 중 상태 태그 부여 — Jump() 오버라이드에서 차단 조건으로 사용
+	// 액션 중 상태 태그 부여 — Jump()/AddMovementInput() 차단 조건
+	// ServerOnly GA라 서버에서만 부여 → 클라의 이동/점프 검사가 보도록 TagOnly로 복제
 	if (ActionStateTag.IsValid())
 	{
 		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
 		{
-			ASC->AddLooseGameplayTag(ActionStateTag);
+			ASC->AddLooseGameplayTag(ActionStateTag, 1, EGameplayTagReplicationState::TagOnly);
+		}
+	}
+
+	// 이동 방향을 활성화 시점에 1회 캡처 (컨트롤 회전=카메라 방향, 복제되어 클라/서버 일치)
+	if (const APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo()))
+	{
+		FVector Dir = Pawn->GetControlRotation().Vector();
+		Dir.Z = 0.f;
+		if (false == Dir.IsNearlyZero())
+		{
+			CapturedActionMoveDir = Dir.GetSafeNormal();
+		}
+		else
+		{
+			CapturedActionMoveDir = Pawn->GetActorForwardVector();
 		}
 	}
 
@@ -66,7 +87,7 @@ void US1GameplayAbility_Action::EndAbility(const FGameplayAbilitySpecHandle Hand
 		{
 			if (ASC->HasMatchingGameplayTag(ActionStateTag))
 			{
-				ASC->RemoveLooseGameplayTag(ActionStateTag);
+				ASC->RemoveLooseGameplayTag(ActionStateTag, 1, EGameplayTagReplicationState::TagOnly);
 			}
 		}
 	}
@@ -103,6 +124,17 @@ bool US1GameplayAbility_Action::OnInputReactivated()
 {
 	if (IsValid(MontageProgression))
 	{
+		// 콤보 어드밴스 시 이동 방향 재캡처 — RotateToCamera로 캐릭터가 매 타 재조준되므로
+		// 루트모션도 첫 타 방향이 아닌 현재 조준 방향을 따라가야 함 (컨트롤 회전=복제되어 클라/서버 일치)
+		if (const APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo()))
+		{
+			FVector Dir = Pawn->GetControlRotation().Vector();
+			Dir.Z = 0.f;
+			if (false == Dir.IsNearlyZero())
+			{
+				CapturedActionMoveDir = Dir.GetSafeNormal();
+			}
+		}
 		return MontageProgression->OnInputReactivated();
 	}
 	return false;
@@ -184,58 +216,146 @@ US1AnimInstance* US1GameplayAbility_Action::GetAnimInstanceForProgression() cons
 	return GetAnimInstance();
 }
 
-void US1GameplayAbility_Action::OnMoveBeginReceived(const FGameplayEventData* Payload)
+float US1GameplayAbility_Action::PlayAbilityMontage(UAnimMontage* Montage, FName StartSection, float Rate)
 {
-	// 이동 속도는 NotifyState에서 Payload.EventMagnitude로 전달 (음수 = 후방 이동)
-	const float Impulse = Payload ? Payload->EventMagnitude : 0.f;
-	if (FMath::IsNearlyZero(Impulse))
+	if (nullptr == Montage)
 	{
-		return;
+		return 0.f;
 	}
 
-	if (IsValid(MoveTask))
+	AS1Character* Character = Cast<AS1Character>(GetAvatarActorFromActorInfo());
+	if (false == ::IsValid(Character))
 	{
-		return;
+		return 0.f;
 	}
 
-	const AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo());
-	if (false == IsValid(Player))
+	// LocalPredicted: GAS 네이티브 예측 몽타주 — 소유 클라는 예측 재생(1회), 서버는 RepAnimMontage로 시뮬프록시에만 복제(소유자 스킵)
+	// MulticastPlayMontage를 쓰면 소유 클라가 (예측 재생 + 서버 멀티캐스트) 이중 재생 → 몽타주 재시작으로 노티파이 NotifyEnd 조기 발화(MoveBegin/End 붕괴)
+	if (EGameplayAbilityNetExecutionPolicy::LocalPredicted == GetNetExecutionPolicy())
 	{
-		return;
+		UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+		if (nullptr == ASC)
+		{
+			return 0.f;
+		}
+
+		const float Duration = ASC->PlayMontage(this, GetCurrentActivationInfo(), Montage, Rate, StartSection);
+
+		// 예측 스코프(ActivateAbility 호출 스택) 안에서 루트모션 생성 — 몽타주의 MoveEvent 노티파이를 데이터로 읽음
+		// 노티파이에서 직접 만들면 클라/서버 독립 발화라 공유 예측키가 없어 서버에 네트워킹 안 됨 (틱/스냅백)
+		ApplyMontageRootMotion(Montage, Rate);
+
+		return Duration;
 	}
 
-	const FVector FacingDir = Player->GetActorForwardVector();
-	const FVector InputDir  = Player->GetLastInputDirection();
+	// ServerOnly — 서버 권위 GA의 몽타주를 전체 클라(소유자 포함)+서버에서 재생
+	// 서버는 동기 실행되어 이어지는 Montage_SetEndDelegate/섹션 제어가 서버 AnimInstance에 정상 바인딩
+	Character->MulticastPlayMontage(Montage, Rate, StartSection);
 
-	// S키 (반대 방향) 누르고 있으면 이동 없음
-	if (InputDir.SizeSquared() > 0.1f && FVector::DotProduct(FacingDir, InputDir) < -0.5f)
-	{
-		return;
-	}
-
-	MoveTask = UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
-		this,
-		NAME_None,
-		FacingDir,
-		Impulse,
-		9999.f,
-		false,
-		nullptr,
-		ERootMotionFinishVelocityMode::SetVelocity,
-		FVector::ZeroVector,
-		0.f,
-		true	// bEnableGravity — XY만 루트모션이 덮고 Z는 물리(런치/중력)에 위임
-	);
-	MoveTask->ReadyForActivation();
+	// 실패 판정용 길이 반환 (실제 종료는 서버 측 종료 델리게이트가 처리)
+	return Montage->GetPlayLength();
 }
 
-void US1GameplayAbility_Action::OnMoveEndReceived(const FGameplayEventData* Payload)
+FVector US1GameplayAbility_Action::GetCapturedMoveDirection() const
 {
+	return CapturedActionMoveDir;
+}
+
+void US1GameplayAbility_Action::ApplyMontageRootMotion(UAnimMontage* Montage, float Rate)
+{
+	// 예측 어빌리티만 — 예측키가 있어야 루트모션이 서버까지 네트워킹됨 (ServerOnly는 notify 직접 경로 사용)
+	if (EGameplayAbilityNetExecutionPolicy::LocalPredicted != GetNetExecutionPolicy())
+	{
+		return;
+	}
+	if (nullptr == Montage)
+	{
+		return;
+	}
+
+	// 몽타주에서 MoveEvent 노티파이를 데이터 마커로 스캔 — 첫 번째 구간 (다중 구간은 추후)
+	float StartTime = -1.f;
+	float WindowDuration = 0.f;
+	float MoveDistance = 0.f;
+	for (const FAnimNotifyEvent& Event : Montage->Notifies)
+	{
+		if (const US1AnimNotifyState_MoveEvent* MoveNotify = Cast<US1AnimNotifyState_MoveEvent>(Event.NotifyStateClass))
+		{
+			StartTime      = Event.GetTriggerTime();
+			WindowDuration = Event.GetDuration();
+			MoveDistance   = MoveNotify->GetMoveDistance();
+			break;
+		}
+	}
+
+	// 이동 노티파이 없는 몽타주 = 이동 없음
+	if (StartTime < 0.f || WindowDuration <= KINDA_SMALL_NUMBER || FMath::IsNearlyZero(MoveDistance))
+	{
+		return;
+	}
+
+	FVector MoveDir = GetCapturedMoveDirection().GetSafeNormal();
+	if (MoveDir.IsNearlyZero())
+	{
+		if (const AActor* Avatar = GetAvatarActorFromActorInfo())
+		{
+			MoveDir = Avatar->GetActorForwardVector();
+		}
+	}
+
+	// 몽타주는 Rate × RateScale 배속으로 재생 → montage-time ≠ real-time
+	// 루트모션 task는 real-time 기준이므로 노티파이 montage-time을 real-time으로 변환 (÷ 배속)
+	const float EffectiveRate = FMath::Max(Rate * Montage->RateScale, KINDA_SMALL_NUMBER);
+	const float RealWindow    = WindowDuration / EffectiveRate;
+	const float Speed         = MoveDistance / RealWindow;					// 음수 = 후방
+	const float TotalDuration = (StartTime + WindowDuration) / EffectiveRate;
+	const float StartNorm     = StartTime / (StartTime + WindowDuration);	// 배속은 분자/분모에서 상쇄 → montage 비율 그대로
+
+	// windup(0~StartNorm) force 0, 노티파이 구간(StartNorm~끝) force 1로 게이트하는 커브
+	// → 활성화 시점에 task 생성(예측키 확보)하되 이동은 노티파이 구간에만 정확히 발생
+	UCurveFloat* StrengthCurve = nullptr;
+	if (StartTime > KINDA_SMALL_NUMBER)
+	{
+		StrengthCurve = NewObject<UCurveFloat>(this);
+		FRichCurve& RichCurve = StrengthCurve->FloatCurve;
+		// 명시적 선형 램프: windup(0~StartNorm) 0, 구간 진입에서 즉시 1
+		RichCurve.AddKey(0.f, 0.f);
+		RichCurve.AddKey(FMath::Max(StartNorm - 0.001f, 0.f), 0.f);
+		RichCurve.AddKey(StartNorm, 1.f);
+		RichCurve.AddKey(1.f, 1.f);
+	}
+
 	if (IsValid(MoveTask))
 	{
 		MoveTask->EndTask();
 		MoveTask = nullptr;
 	}
+
+	MoveTask = UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
+		this,
+		NAME_None,
+		MoveDir,
+		Speed,
+		TotalDuration,
+		false,									// bIsAdditive
+		StrengthCurve,							// 구간 게이트 (StartTime==0이면 nullptr=즉시)
+		ERootMotionFinishVelocityMode::SetVelocity,
+		FVector::ZeroVector,					// SetVelocityOnFinish
+		0.f,									// ClampVelocityOnFinish
+		bMoveEnableGravity);
+	MoveTask->ReadyForActivation();
+}
+
+void US1GameplayAbility_Action::OnMoveBeginReceived(const FGameplayEventData* Payload)
+{
+	// 이동은 PlayAbilityMontage→ApplyMontageRootMotion가 활성화 시점(예측 스코프)에 처리
+	// 베이스는 비움 — 서브클래스(Assault 등)가 히트 콜리전 등 비이동 로직만 override
+}
+
+void US1GameplayAbility_Action::OnMoveEndReceived(const FGameplayEventData* Payload)
+{
+	// 루트모션은 유한 Duration으로 스스로 종료(예측키로 동기화) — 여기서 수동 종료 안 함
+	// 베이스는 비움 — 서브클래스가 히트 콜리전 off / 분기 등만 처리
 }
 
 void US1GameplayAbility_Action::InternalMoveBeginCallback(const FGameplayEventData* Payload)
@@ -260,7 +380,7 @@ void US1GameplayAbility_Action::OnEarlyMoveEnabled()
 	{
 		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
 		{
-			ASC->RemoveLooseGameplayTag(ActionStateTag);
+			ASC->RemoveLooseGameplayTag(ActionStateTag, 1, EGameplayTagReplicationState::TagOnly);
 		}
 	}
 

@@ -3,7 +3,6 @@
 #include "AbilitySystem/Progression/Sequence/S1MontageProgression_SequenceBranch.h"
 #include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
 #include "Animation/S1AnimInstance.h"
-#include "GameFramework/Character.h"
 
 void US1MontageProgression_SequenceBranch::OnActivated()
 {
@@ -20,14 +19,8 @@ void US1MontageProgression_SequenceBranch::OnActivated()
 		return;
 	}
 
-	ACharacter* Character = Cast<ACharacter>(GA->GetAvatarActorFromActorInfo());
-	if (false == IsValid(Character))
-	{
-		GA->RequestEndAbility(true);
-		return;
-	}
-
-	const float Duration = Character->PlayAnimMontage(BeginMontage);
+	// ASC 경유 재생 → 클라 복제
+	const float Duration = GA->PlayAbilityMontage(BeginMontage);
 	if (Duration <= 0.f)
 	{
 		GA->RequestEndAbility(true);
@@ -56,13 +49,6 @@ void US1MontageProgression_SequenceBranch::OnBranchRequested(FGameplayTag InKey)
 		return;
 	}
 
-	ACharacter* Character = Cast<ACharacter>(GA->GetAvatarActorFromActorInfo());
-	if (false == IsValid(Character))
-	{
-		GA->RequestEndAbility(true);
-		return;
-	}
-
 	US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression();
 	if (false == IsValid(AnimInst))
 	{
@@ -73,7 +59,8 @@ void US1MontageProgression_SequenceBranch::OnBranchRequested(FGameplayTag InKey)
 
 	CurrentEndMontage = EndMontage;
 
-	const float Duration = Character->PlayAnimMontage(EndMontage);
+	// ASC 경유 재생 → 클라 복제
+	const float Duration = GA->PlayAbilityMontage(EndMontage);
 	if (Duration <= 0.f)
 	{
 		CurrentEndMontage = nullptr;

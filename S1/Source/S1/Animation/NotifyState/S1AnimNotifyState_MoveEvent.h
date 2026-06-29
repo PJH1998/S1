@@ -16,6 +16,9 @@ public:
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 
+	// 이동 거리 — GA가 활성화 시점에 몽타주를 스캔해 읽는 데이터 (LocalPredicted 예측 루트모션용)
+	float GetMoveDistance() const { return MoveDistance; }
+
 private:
 	UPROPERTY(EditAnywhere, Category = "MoveEvent")
 	FGameplayTag MoveBeginEventTag;
@@ -27,4 +30,9 @@ private:
 	// 짧은 구간이면 빠르게, 긴 구간이면 천천히 같은 거리 이동. 0이면 이동 없음, 음수면 후방 이동
 	UPROPERTY(EditAnywhere, Category = "MoveEvent")
 	float MoveDistance = 0.f;
+
+	// true면 이동을 GA의 AbilityTask가 처리 — 노티파이는 MoveBegin/End 이벤트만 보내고 RootMotionSource는 추가 안 함
+	// (LocalPredicted 전환된 어빌리티용. ServerOnly 어빌리티는 false로 노티파이가 직접 이동)
+	UPROPERTY(EditAnywhere, Category = "MoveEvent")
+	bool bUseAbilityTaskMovement = false;
 };

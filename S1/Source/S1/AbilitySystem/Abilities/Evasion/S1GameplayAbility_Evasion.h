@@ -15,6 +15,9 @@ class S1_API US1GameplayAbility_Evasion : public US1GameplayAbility_Action
 {
 	GENERATED_BODY()
 
+public:
+	US1GameplayAbility_Evasion();
+
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
@@ -22,15 +25,12 @@ protected:
 	// 카메라 기준 입력 방향 반환 (입력 없으면 액터 전방)
 	FVector ComputeInputDirection() const;
 
-	// true: MoveBegin~MoveEnd 구간 GravityScale=0 (Air 회피용)
-	UPROPERTY(EditDefaultsOnly, Category = "Evasion|Move")
-	bool bControlGravity = false;
+	// 활성화 시점 루트모션 방향 — Evasion은 입력 방향(CapturedMoveDirection) 기준
+	// (베이스는 컨트롤회전 방향 반환 → 4방향 회피와 불일치하므로 override 필수)
+	virtual FVector GetCapturedMoveDirection() const override;
 
 	// ActivateAbility 시 캡처한 이동 방향 (Dodge에서 회전 대상으로도 활용)
 	FVector CapturedMoveDirection = FVector::ZeroVector;
-
-	virtual void OnMoveBeginReceived(const FGameplayEventData* Payload) override;
-	virtual void OnMoveEndReceived(const FGameplayEventData* Payload) override;
 
 private:
 	bool bCachedOrientToMovement = true;
