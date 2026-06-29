@@ -32,6 +32,12 @@ public:
 	// 노출 무기 전환(서버 권위). 페이즈 전환 지점(어빌리티/AI)에서 호출한다.
 	void SetActiveWeapon(EBossWeapon NewWeapon);
 
+	// 현재 노출 무기 = 페이즈 지표(Axe=1페이즈, Sword=2페이즈).
+	EBossWeapon GetActiveWeapon() const { return ActiveWeapon; }
+
+	// 무기 숨김/표시(서버 권위). 페이즈 전환 몽타주의 던지기/뽑기 노티파이가 호출한다.
+	void SetWeaponHidden(bool bInHidden);
+
 	// Wall-Kick dash 등 절대 타깃점 이동의 목표 위치. 서버에서 어빌리티가 설정, 이동 노티가 읽음.
 	void SetWallKickTarget(const FVector& InTarget) { WallKickTarget = InTarget; }
 	FVector GetWallKickTarget() const { return WallKickTarget; }
@@ -46,7 +52,10 @@ private:
 	UFUNCTION()
 	void OnRep_ActiveWeapon();
 
-	// ActiveWeapon 값에 맞춰 무기 메쉬를 표시/숨김(서버·클라 공용).
+	UFUNCTION()
+	void OnRep_WeaponHidden();
+
+	// ActiveWeapon / bWeaponHidden 값에 맞춰 무기 메쉬를 표시/숨김(서버·클라 공용).
 	void UpdateWeaponVisibility();
 
 	// 왼손(w_L_Attach)에 부착하는 방패. Leader Pose로 보스 본을 따라가며, 1페이즈(Axe)에서만 표시.
@@ -56,6 +65,10 @@ private:
 	// 기본값 Axe(1페이즈)
 	UPROPERTY(ReplicatedUsing = OnRep_ActiveWeapon)
 	EBossWeapon ActiveWeapon = EBossWeapon::Axe;
+
+	// 무기를 전부 숨길지 여부(페이즈 전환 던지기~뽑기 구간).
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponHidden)
+	bool bWeaponHidden = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement|Chase")
 	float DefaultMaxWalkSpeed = 600.f;

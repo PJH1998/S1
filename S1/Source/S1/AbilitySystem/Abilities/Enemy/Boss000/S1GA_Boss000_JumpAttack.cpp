@@ -38,14 +38,11 @@ void US1GA_Boss000_JumpAttack::ActivateAbility(const FGameplayAbilitySpecHandle 
 		return;
 	}
 
-	// 정점/착지 물리 이벤트로 몽타주 섹션을 전환한다.
+	// 정점 이벤트만 먼저 대기. 착지 리스너는 정점(=실제 점프로 공중에 뜸) 이후에 등록한다.
+	// (점프 전 잔여 Event.Enemy.Landed 로 End 섹션이 조기 재생되는 것 방지 — 예: 직전 WallKick 종료 후 낙하)
 	UAbilityTask_WaitGameplayEvent* ApexTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, S1EventTags::Event_Enemy_Apex, nullptr, true, true);
 	ApexTask->EventReceived.AddDynamic(this, &ThisClass::OnApex);
 	ApexTask->ReadyForActivation();
-
-	UAbilityTask_WaitGameplayEvent* LandedTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, S1EventTags::Event_Enemy_Landed, nullptr, true, true);
-	LandedTask->EventReceived.AddDynamic(this, &ThisClass::OnLanded);
-	LandedTask->ReadyForActivation();
 }
 
 void US1GA_Boss000_JumpAttack::OnApex(FGameplayEventData Payload)
@@ -55,6 +52,11 @@ void US1GA_Boss000_JumpAttack::OnApex(FGameplayEventData Payload)
 	{
 		ASC->CurrentMontageJumpToSection(TopSectionName);
 	}
+
+	// 정점 이후부터 착지 대기 — 이제 들어오는 Landed는 이 점프의 착지다.
+	UAbilityTask_WaitGameplayEvent* LandedTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, S1EventTags::Event_Enemy_Landed, nullptr, true, true);
+	LandedTask->EventReceived.AddDynamic(this, &ThisClass::OnLanded);
+	LandedTask->ReadyForActivation();
 }
 
 void US1GA_Boss000_JumpAttack::OnLanded(FGameplayEventData Payload)

@@ -58,9 +58,12 @@ private:
 	// 현재 타깃(플레이어) 위치. 없으면 보스 전방 폴백.
 	FVector ResolveTargetLocation() const;
 
-	// 패턴 동안 중력을 끄고(올라탄 상태 유지) 종료 시 복원. dash 단위가 아닌 어빌리티 단위.
-	void DisableGravity();
-	void RestoreGravity();
+	// 타깃 방향으로 보스를 즉시 회전(페이즈 시작 시 호출 — 이동 전 어색한 방향 응시 방지).
+	void FaceTowards(const FVector& TargetLocation) const;
+
+	// 패턴 동안 중력 off + 캡슐 콜리전 off(기둥에 안 걸리고 올라탄 상태 유지), 종료 시 복원. 어빌리티 단위.
+	void BeginPatternMovement();
+	void EndPatternMovement();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "WallKick")
@@ -104,7 +107,10 @@ private:
 	int32 TargetHops = 0;
 	TWeakObjectPtr<AS1Boss000_Gimmick> CurrentPillar;
 
-	// 중력 복원용(패턴 단위).
+	// 패턴 이동 상태 복원용(중력 + 캡슐 콜리전).
 	float CachedGravityScale = 1.f;
-	bool bGravityDisabled = false;
+	bool bPatternMovementActive = false;
+
+	// 페이즈 전환 중(이전 몽타주 블렌드아웃 중에 다음 것을 시작) 자기-중단 콜백 무시용.
+	bool bAdvancing = false;
 };

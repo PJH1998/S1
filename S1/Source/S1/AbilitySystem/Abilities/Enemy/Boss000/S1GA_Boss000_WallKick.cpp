@@ -7,6 +7,7 @@
 #include "AI/S1AIController.h"
 #include "Animation/AnimInstance.h"
 #include "Character/Boss/Boss000/S1Boss_000.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Data/S1AnimData.h"
 #include "Engine/World.h"
@@ -43,17 +44,19 @@ void US1GA_Boss000_WallKick::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 		return;
 	}
 
-	// 패턴 동안 중력 off — 홉 사이에 기둥 위에 머물게. EndAbility에서 복원.
-	DisableGravity();
+	// 패턴 동안 중력·캡슐 콜리전 off — 기둥에 안 걸리고 홉 사이에 기둥 위에 머물게. EndAbility에서 복원.
+	BeginPatternMovement();
 
-	Monster->SetWallKickTarget(CurrentPillar->GetJumpTopLocation());
+	const FVector FirstTarget = CurrentPillar->GetJumpTopLocation();
+	Monster->SetWallKickTarget(FirstTarget);
+	FaceTowards(FirstTarget);
 	CurrentPhase = EWallKickPhase::Start;
 	PlayPhaseMontage(StartMontageTag);
 }
 
 void US1GA_Boss000_WallKick::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	RestoreGravity();
+	EndPatternMovement();
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -78,6 +81,9 @@ void US1GA_Boss000_WallKick::OnPhaseCompleted()
 		++HopCount;
 	}
 
+	// 다음 페이즈를 이전 몽타주 블렌드아웃 중에 시작(크로스페이드, Idle 제거).
+	// 이때 이전 태스크의 자기-중단 콜백이 어빌리티를 끝내지 않도록 가드.
+	bAdvancing = true;
 	if (HopCount < TargetHops)
 	{
 		if (false == StartMovePhase())
@@ -89,10 +95,17 @@ void US1GA_Boss000_WallKick::OnPhaseCompleted()
 	{
 		StartSlashPhase();
 	}
+	bAdvancing = false;
 }
 
 void US1GA_Boss000_WallKick::OnPhaseInterrupted()
 {
+	// 페이즈 전환 중 발생한 자기-중단(이전 몽타주를 의도적으로 끊고 다음 것 재생)은 무시.
+	if (bAdvancing)
+	{
+		return;
+	}
+
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
@@ -115,7 +128,7 @@ void US1GA_Boss000_WallKick::PlayPhaseMontage(const FGameplayTag& PhaseMontageTa
 	}
 
 	// 완료 시 다음 페이즈로 체이닝, 중단/취소 시 안전 종료. (base PlayAttackMontage는 완료 시 무조건 EndAbility라 미사용)
-	MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnPhaseCompleted);
+	MontageTask->OnBlendOut.AddDynamic(this, &ThisClass::OnPhaseCompleted);
 	MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnPhaseInterrupted);
 	MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnPhaseInterrupted);
 	MontageTask->ReadyForActivation();
@@ -137,7 +150,9 @@ bool US1GA_Boss000_WallKick::StartMovePhase()
 	}
 
 	CurrentPillar = NextPillar;
-	Monster->SetWallKickTarget(NextPillar->GetJumpTopLocation());
+	const FVector NextTarget = NextPillar->GetJumpTopLocation();
+	Monster->SetWallKickTarget(NextTarget);
+	FaceTowards(NextTarget);   // 이동 즉시 다음 기둥을 바라보게
 	CurrentPhase = EWallKickPhase::Move;
 	PlayPhaseMontage(MoveMontageTag);
 	return true;
@@ -162,7 +177,9 @@ void US1GA_Boss000_WallKick::StartSlashPhase()
 
 	CurrentPhase = EWallKickPhase::Slash;
 	ActiveMontage = Montage;
-	Monster->SetWallKickTarget(ResolveTargetLocation());
+	const FVector SlashTarget = ResolveTargetLocation();
+	Monster->SetWallKickTarget(SlashTarget);
+	FaceTowards(SlashTarget);
 
 	// Start 섹션부터 재생 + 자체 완료/중단 바인딩(체이닝).
 	UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, Montage, 1.f, SlashStartSection);
@@ -172,7 +189,7 @@ void US1GA_Boss000_WallKick::StartSlashPhase()
 		return;
 	}
 
-	MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnPhaseCompleted);
+	MontageTask->OnBlendOut.AddDynamic(this, &ThisClass::OnPhaseCompleted);
 	MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnPhaseInterrupted);
 	MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnPhaseInterrupted);
 	MontageTask->ReadyForActivation();
@@ -256,28 +273,37 @@ FVector US1GA_Boss000_WallKick::ResolveTargetLocation() const
 	return Monster->GetActorLocation() + Monster->GetActorForwardVector() * 500.f;
 }
 
-void US1GA_Boss000_WallKick::DisableGravity()
+void US1GA_Boss000_WallKick::BeginPatternMovement()
 {
-	if (bGravityDisabled)
+	if (bPatternMovementActive)
 	{
 		return;
 	}
 
 	AS1Boss_000* Monster = GetMonster();
-	UCharacterMovementComponent* Movement = Monster ? Monster->GetCharacterMovement() : nullptr;
-	if (nullptr == Movement)
+	if (nullptr == Monster)
 	{
 		return;
 	}
 
-	CachedGravityScale = Movement->GravityScale;
-	Movement->GravityScale = 0.f;
-	bGravityDisabled = true;
+	if (UCharacterMovementComponent* Movement = Monster->GetCharacterMovement())
+	{
+		CachedGravityScale = Movement->GravityScale;
+		Movement->GravityScale = 0.f;
+	}
+
+	// 캡슐 콜리전 off — dash가 기둥(WorldStatic)에 막히지 않게. 공격 콜리전 컴포넌트는 별개라 영향 없음.
+	//if (UCapsuleComponent* Capsule = Monster->GetCapsuleComponent())
+	//{
+	//	Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//}
+
+	bPatternMovementActive = true;
 }
 
-void US1GA_Boss000_WallKick::RestoreGravity()
+void US1GA_Boss000_WallKick::EndPatternMovement()
 {
-	if (false == bGravityDisabled)
+	if (false == bPatternMovementActive)
 	{
 		return;
 	}
@@ -288,7 +314,33 @@ void US1GA_Boss000_WallKick::RestoreGravity()
 		{
 			Movement->GravityScale = CachedGravityScale;
 		}
+
+		// 살아있는 상태의 캡슐 콜리전으로 복원(RestoreAliveState와 동일).
+		//if (UCapsuleComponent* Capsule = Monster->GetCapsuleComponent())
+		//{
+		//	Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		//}
 	}
 
-	bGravityDisabled = false;
+	bPatternMovementActive = false;
+}
+
+void US1GA_Boss000_WallKick::FaceTowards(const FVector& TargetLocation) const
+{
+	AS1Boss_000* Monster = GetMonster();
+	if (nullptr == Monster)
+	{
+		return;
+	}
+
+	FVector Direction = TargetLocation - Monster->GetActorLocation();
+	Direction.Z = 0.f;
+	if (false == Direction.Normalize())
+	{
+		return;
+	}
+
+	FRotator NewRotation = Monster->GetActorRotation();
+	NewRotation.Yaw = Direction.Rotation().Yaw;
+	Monster->SetActorRotation(NewRotation);
 }
