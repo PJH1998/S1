@@ -12,11 +12,8 @@ void US1PoolingManager::OnWorldBeginPlay(UWorld& InWorld)
 {
 	Super::OnWorldBeginPlay(InWorld);
 
-	if (InWorld.GetAuthGameMode() == nullptr)
-	{
-		return;
-	}
-
+	// 권위(서버)면 모든 풀을, 클라면 로컬(bLocalCosmetic) 풀만 채운다.
+	// WorldSettings/AssetManager는 클라에서도 접근 가능하므로 net-mode로 early-return하지 않는다.
 	AS1WorldSettings* WS = Cast<AS1WorldSettings>(InWorld.GetWorldSettings());
 	if (false == IsValid(WS) || false == WS->PoolAssetTag.IsValid() || false == WS->PoolWorldTag.IsValid())
 	{
@@ -41,6 +38,7 @@ void US1PoolingManager::Deinitialize()
 
 	Pool.Empty();
 	WorldToPoolTags.Empty();
+	LocalPoolTags.Empty();
 
 	// Active 추적
 	// ActiveActors.Empty();
@@ -62,12 +60,25 @@ void US1PoolingManager::AddToPoolFromAsset(FGameplayTag AssetTag, FGameplayTag W
 		return;
 	}
 
+	const bool bIsAuthority = (GetWorld()->GetAuthGameMode() != nullptr);
+
 	TArray<FGameplayTag>& PoolTags = WorldToPoolTags.FindOrAdd(WorldTag);
 	for (const FS1PoolEntry& Entry : PoolSet->Pools)
 	{
 		if (false == Entry.PoolTag.IsValid() || nullptr == Entry.ActorClass)
 		{
 			continue;
+		}
+
+		// 비-로컬(권위-리플리케이트) 풀은 서버에서만 채운다.
+		if (false == Entry.bLocalCosmetic && false == bIsAuthority)
+		{
+			continue;
+		}
+
+		if (Entry.bLocalCosmetic)
+		{
+			LocalPoolTags.Add(Entry.PoolTag);
 		}
 
 		AddToPool(Entry.PoolTag, Entry.ActorClass, Entry.Count);
@@ -105,7 +116,8 @@ void US1PoolingManager::AddToPool(FGameplayTag PoolTag, TSubclassOf<AActor> Acto
 
 AActor* US1PoolingManager::SpawnFromPool(FGameplayTag PoolTag, FVector Location, FRotator Rotation)
 {
-	if (nullptr == GetWorld()->GetAuthGameMode())
+	// 로컬 풀은 클라에서도 허용. 비-로컬은 권위에서만.
+	if (false == IsLocalPoolTag(PoolTag) && nullptr == GetWorld()->GetAuthGameMode())
 	{
 		LOG(TEXT("[Pool] SpawnFromPool: client call ignored | Tag=%s"), *PoolTag.ToString());
 		return nullptr;
@@ -135,7 +147,8 @@ AActor* US1PoolingManager::SpawnFromPool(FGameplayTag PoolTag, FVector Location,
 
 void US1PoolingManager::ReturnToPool(AActor* Actor, FGameplayTag PoolTag)
 {
-	if (nullptr == GetWorld()->GetAuthGameMode())
+	// 로컬 풀은 클라에서도 허용. 비-로컬은 권위에서만.
+	if (false == IsLocalPoolTag(PoolTag) && nullptr == GetWorld()->GetAuthGameMode())
 	{
 		return;
 	}
@@ -161,6 +174,11 @@ void US1PoolingManager::ReturnToPool(AActor* Actor, FGameplayTag PoolTag)
 	Poolable->OnReturnToPool();
 
 	ActorPool.Add(Actor);
+}
+
+bool US1PoolingManager::IsLocalPoolTag(FGameplayTag PoolTag) const
+{
+	return LocalPoolTags.Contains(PoolTag);
 }
 
 void US1PoolingManager::RemovePoolByWorld(FGameplayTag WorldTag)
@@ -194,6 +212,8 @@ void US1PoolingManager::RemovePoolByWorld(FGameplayTag WorldTag)
 			}
 			Pool.Remove(PoolTag);
 		}
+
+		LocalPoolTags.Remove(PoolTag);
 	}
 
 	WorldToPoolTags.Remove(WorldTag);

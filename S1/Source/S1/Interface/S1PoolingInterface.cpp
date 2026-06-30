@@ -47,13 +47,14 @@ void IS1PoolingInterface::ReturnSelf()
 		return;
 	}
 
-	if (false == Self->HasAuthority())
+	US1PoolingManager* PoolingManager = Self->GetWorld()->GetSubsystem<US1PoolingManager>();
+	if (false == IsValid(PoolingManager))
 	{
 		return;
 	}
 
-	US1PoolingManager* PoolingManager = Self->GetWorld()->GetSubsystem<US1PoolingManager>();
-	if (false == IsValid(PoolingManager))
+	// 로컬(비리플리케이트) 풀은 클라에서도 반납 허용. 비-로컬은 권위에서만.
+	if (false == Self->HasAuthority() && false == PoolingManager->IsLocalPoolTag(PoolTag))
 	{
 		return;
 	}

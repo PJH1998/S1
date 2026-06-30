@@ -22,6 +22,10 @@ struct FS1PoolEntry
 
 	UPROPERTY(EditAnywhere)
 	int32 Count = 10;
+
+	// true면 클라 포함 전 net-mode에서 로컬 스폰/반납 (데칼 같은 비리플리케이트 비주얼)
+	UPROPERTY(EditAnywhere)
+	bool bLocalCosmetic = false;
 };
 
 USTRUCT(BlueprintType)
