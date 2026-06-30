@@ -54,7 +54,7 @@ EBTNodeResult::Type UBT_Task_BackJump::ExecuteTask(UBehaviorTreeComponent& Owner
 		}
 	}
 
-	const float MontageDuration = Monster->PlayAnimMontage(BackJumpMontage, 1.f, StartSection);
+	const float MontageDuration = Monster->PlayMonsterMontage(BackJumpMontage, 1.f, StartSection);
 	if (MontageDuration <= 0.f)
 	{
 		return EBTNodeResult::Failed;

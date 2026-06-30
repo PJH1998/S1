@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Animation/S1AnimInstance_EnemyLocomotion.h"
+#include "Character/S1Character.h"
 #include "Character/S1Monster.h"
 #include "Component/S1EnemyLocomotionComponent.h"
 #include "GameFramework/Character.h"
@@ -57,17 +58,15 @@ bool US1AnimInstance_EnemyLocomotion::PlayTurnMontage(UAnimMontage* Montage, FNa
 
 	StopTurnMontage();
 
-	ACharacter* OwnerCharacter = Cast<ACharacter>(TryGetPawnOwner());
+	AS1Character* OwnerCharacter = Cast<AS1Character>(TryGetPawnOwner());
 	if (OwnerCharacter == nullptr)
 	{
 		return false;
 	}
 
-	const float MontageLength = OwnerCharacter->PlayAnimMontage(Montage, 1.f, StartSection);
-	if (MontageLength <= 0.f)
-	{
-		return false;
-	}
+	// 서버 권위에서 호출(BT는 authority에서만 실행) → 전체 클라+서버에서 Turn 몽타주 재생
+	// 빌트인 PlayAnimMontage는 서버 AnimInstance에서만 재생되어 데디 클라에 안 보임
+	OwnerCharacter->MulticastPlayMontage(Montage, 1.f, StartSection);
 
 	ActiveTurnMontage = Montage;
 	return true;

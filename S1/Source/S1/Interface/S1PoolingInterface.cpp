@@ -11,7 +11,9 @@ void IS1PoolingInterface::OnSpawnFromPool(FGameplayTag InPoolTag, FVector Locati
 
 	if (AActor* Self = Cast<AActor>(_getUObject()))
 	{
-		Self->FlushNetDormancy();
+		// 스폰=활성화 → 어웨이크로 복귀(내부적으로 flush 포함). FlushNetDormancy만으론 DORM_DormantAll이 유지되어
+		// 1회 복제 후 다시 도먼트 → 연속 이동(위치/속도/RepRootMotion)이 클라에 복제되지 않음.
+		Self->SetNetDormancy(ENetDormancy::DORM_Awake);
 		Self->SetActorLocationAndRotation(Location, Rotation);
 		Self->SetActorHiddenInGame(false);
 		if (USceneComponent* Root = Self->GetRootComponent())

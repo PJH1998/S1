@@ -325,7 +325,7 @@ bool UBT_Task_HitReact::StartGroundHit(AS1Monster* Monster, ES1HitReactType HitT
 	}
 
 	ActiveMontage = Montage;
-	const float Duration = Monster->PlayAnimMontage(Montage);
+	const float Duration = Monster->PlayMonsterMontage(Montage);
 	return Duration > 0.f;
 }
 
@@ -372,12 +372,13 @@ bool UBT_Task_HitReact::StartLaunchPhase(AS1Monster* Monster, EHitReactPhase Pha
 	float Duration = 0.f;
 	if (bJumpWithinLaunchMontage)
 	{
-		AnimInstance->Montage_JumpToSection(StartSectionName, Montage);
+		// 재생 중 섹션 점프도 데디 클라에 복제(Multicast는 서버에서도 동기 실행되어 기존 서버 페이즈 머신 유지).
+		Monster->MulticastJumpToSection(Montage, StartSectionName);
 		Duration = 1.f;
 	}
 	else
 	{
-		Duration = Monster->PlayAnimMontage(Montage, 1.f, StartSectionName);
+		Duration = Monster->PlayMonsterMontage(Montage, 1.f, StartSectionName);
 	}
 
 	if (Duration <= 0.f)
@@ -438,11 +439,7 @@ bool UBT_Task_HitReact::StartGetUpPhase(AS1Monster* Monster)
 	CurrentPhase = EHitReactPhase::GetUp;
 	ActiveMontage = GetUpMontage;
 
-	const float Duration = AnimInstance->Montage_Play(
-		GetUpMontage,
-		1.f,
-		EMontagePlayReturnType::MontageLength,
-		0.f);
+	const float Duration = Monster->PlayMonsterMontage(GetUpMontage);
 
 	return Duration > 0.f;
 }

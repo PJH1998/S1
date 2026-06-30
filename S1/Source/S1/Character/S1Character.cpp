@@ -62,6 +62,23 @@ void AS1Character::MulticastPlayMontage_Implementation(UAnimMontage* Montage, fl
 	}
 }
 
+void AS1Character::MulticastJumpToSection_Implementation(UAnimMontage* Montage, FName SectionName)
+{
+	if (nullptr == Montage || SectionName.IsNone())
+	{
+		return;
+	}
+
+	USkeletalMeshComponent* MeshComp = GetMesh();
+	UAnimInstance* AnimInst = IsValid(MeshComp) ? MeshComp->GetAnimInstance() : nullptr;
+	if (nullptr == AnimInst || false == AnimInst->Montage_IsPlaying(Montage))
+	{
+		return;
+	}
+
+	AnimInst->Montage_JumpToSection(SectionName, Montage);
+}
+
 void AS1Character::SetReplicatedGravityScale(float Scale)
 {
 	// 서버 권위 — 즉시 서버 CMC 적용 + 복제 트리거(소유 클라 포함 OnRep에서 적용)

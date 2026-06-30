@@ -46,6 +46,7 @@ protected:
 	void ApplyVisualParams(const FS1DropItemResourceEntry& Resource, const FS1DropItemVisualParams& VisualParams);
 
 	void StartDropPresentation();
+	void EnablePickupCollision();
 	void UpdateDropPresentation(float DeltaTime);
 	void UpdateFloatingMotion(float DeltaTime);
 	FVector CalculateDropTargetLocation() const;
@@ -110,6 +111,11 @@ private:
 	// 서버가 InitializeDrop을 호출한 시점의 스폰 위치 — 클라이언트가 프레젠테이션 시작점 기준으로 사용
 	UPROPERTY(Replicated)
 	FVector ReplicatedSpawnLocation = FVector::ZeroVector;
+
+	// 서버가 계산한 최종 정착 위치 — 클라이언트가 동일한 위치로 보간(보이는 위치 = 충돌 위치 일치).
+	// 재사용 시마다 난수로 갱신되므로, 이 값을 OnRep 트리거로 삼아 풀 재사용(예: 동일 Amount의 Exp) 시에도 클라가 항상 재연출하도록 한다.
+	UPROPERTY(ReplicatedUsing = OnRep_DropState)
+	FVector ReplicatedRestLocation = FVector::ZeroVector;
 
 	float PresentationElapsedTime = 0.f;
 	float FloatingElapsedTime = 0.f;

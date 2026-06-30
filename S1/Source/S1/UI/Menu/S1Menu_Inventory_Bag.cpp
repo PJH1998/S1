@@ -139,7 +139,7 @@ void US1Menu_Inventory_Bag::OnSlotRightClicked(FGameplayTag ItemTag, int32 SlotI
 
 	if (US1EquipComponent* EquipComponent = PlayerState->GetEquipComponent())
 	{
-		EquipComponent->EquipItem(ItemTag);
+		EquipComponent->RequestEquipItem(ItemTag);
 	}
 }
 

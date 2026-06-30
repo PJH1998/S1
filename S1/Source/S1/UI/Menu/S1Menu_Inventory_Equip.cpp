@@ -38,6 +38,22 @@ void US1Menu_Inventory_Equip::NativeConstruct()
 	RefreshSlots();
 }
 
+void US1Menu_Inventory_Equip::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	// 데디 클라에서 PlayerState가 늦게 복제되면 NativeConstruct 시점엔 바인딩이 안 된다.
+	// 바인딩될 때까지만 재시도하고, 성사되면 한 번 갱신한다. (S1HPBar의 늦은 PlayerState 재취득 패턴)
+	if (EquipComponent == nullptr)
+	{
+		EnsureEquipBound();
+		if (EquipComponent != nullptr)
+		{
+			RefreshSlots();
+		}
+	}
+}
+
 void US1Menu_Inventory_Equip::HandleShown()
 {
 	RefreshSlots();
@@ -115,7 +131,7 @@ void US1Menu_Inventory_Equip::OnSlotRightClicked(FGameplayTag ItemTag, int32 Slo
 	{
 		if (EquipComponent->GetEquippedItemTag(EquipSlotEntry.Key) == ItemTag)
 		{
-			EquipComponent->UnequipItem(EquipSlotEntry.Key);
+			EquipComponent->RequestUnequipItem(EquipSlotEntry.Key);
 			break;
 		}
 	}

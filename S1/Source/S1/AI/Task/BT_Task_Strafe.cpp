@@ -69,7 +69,7 @@ EBTNodeResult::Type UBT_Task_Strafe::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 		}
 	}
 
-	const float MontageDuration = Monster->PlayAnimMontage(ActiveStrafeMontage, 1.f, StartSection);
+	const float MontageDuration = Monster->PlayMonsterMontage(ActiveStrafeMontage, 1.f, StartSection);
 	if (MontageDuration <= 0.f)
 	{
 		ClearCachedState();

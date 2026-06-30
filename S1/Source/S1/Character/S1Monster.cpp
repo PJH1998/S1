@@ -15,6 +15,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameplayEffect.h"
 #include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
 #include "Net/UnrealNetwork.h"
 #include "S1Define.h"
 #include "Tags/S1GameplayTags.h"
@@ -128,7 +129,25 @@ void AS1Monster::OnRep_ReplicatedLocomotionState()
 
 void AS1Monster::PlayAnimation(UAnimMontage* AnimMontage, float InPlayRate, FName StartSectionName)
 {
-	PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
+	PlayMonsterMontage(AnimMontage, InPlayRate, StartSectionName);
+}
+
+float AS1Monster::PlayMonsterMontage(UAnimMontage* Montage, float InPlayRate, FName StartSectionName)
+{
+	if (false == HasAuthority() || Montage == nullptr)
+	{
+		return 0.f;
+	}
+
+	// 루트모션 몽타주: ACharacter의 RepRootMotion(COND_SimulatedOnly)이 데디 클라에 복제 → 빌트인 경로 유지(이중 구동 방지).
+	if (Montage->HasRootMotion())
+	{
+		return PlayAnimMontage(Montage, InPlayRate, StartSectionName);
+	}
+
+	// 제자리 몽타주: PlayAnimMontage는 서버 AnimInstance에만 재생되어 데디 클라 미반영 → Multicast로 전체 클라(+서버) 재생.
+	MulticastPlayMontage(Montage, InPlayRate, StartSectionName);
+	return Montage->GetPlayLength() / FMath::Max(InPlayRate, KINDA_SMALL_NUMBER);
 }
 
 void AS1Monster::PlaySpawnAnimation()
@@ -152,7 +171,7 @@ void AS1Monster::PlaySpawnAnimation()
 	}
 
 	const float PlayRate = FMath::Max(SpawnAnimationPlayRate, KINDA_SMALL_NUMBER);
-	const float Duration = PlayAnimMontage(MontageToPlay, PlayRate);
+	const float Duration = PlayMonsterMontage(MontageToPlay, PlayRate);
 	if (bBlockAIWhileSpawnAnimation == false || Duration <= 0.f)
 	{
 		ResumeAIAfterSpawnAnimation();

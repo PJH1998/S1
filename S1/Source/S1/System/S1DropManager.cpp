@@ -21,9 +21,12 @@ void US1DropManager::HandleMonsterDeath(AS1Monster* DeadMonster)
 
 	TArray<AController*> RewardOwners;
 
-	if (APlayerController* PlayerController = World->GetFirstPlayerController())
+	for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
 	{
-		RewardOwners.Add(PlayerController);
+		if (APlayerController* PlayerController = It->Get())
+		{
+			RewardOwners.Add(PlayerController);
+		}
 	}
 
 	HandleMonsterDeathForOwners(DeadMonster, RewardOwners);

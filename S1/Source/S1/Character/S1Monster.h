@@ -60,6 +60,10 @@ public:
 	void PlayAnimation(UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
 	void PlaySpawnAnimation();
 
+	/** 서버 권위 몬스터 몽타주 재생. 루트모션은 RepRootMotion(엔진)으로, 제자리 몽타주는 Multicast로 데디 클라에 복제.
+	 *  반환: 서버 기준 재생 길이(초). */
+	float PlayMonsterMontage(UAnimMontage* Montage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
+
 	void EnableAttackCollision(const FGameplayTag& CollisionTag, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio);
 	void DisableAttackCollision(const FGameplayTag& CollisionTag);
 	bool ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio, const FHitResult& HitResult);

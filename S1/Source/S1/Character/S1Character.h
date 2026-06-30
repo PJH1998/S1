@@ -39,6 +39,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastPlayMontage(UAnimMontage* Montage, float Rate, FName StartSection);
 
+	// 재생 중인 몽타주의 섹션 점프를 전체 클라(+서버)에 복제 — Montage_JumpToSection은 서버 AnimInstance에만 적용되어 데디 클라 미반영
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastJumpToSection(UAnimMontage* Montage, FName SectionName);
+
 	// GravityScale을 복제해서 설정 — 서버 권위 GA가 중력을 바꿔도 소유 클라 CMC 예측이 일치(호버 덜덜 방지)
 	// 서버에서 호출. 전체 클라(소유자 포함)에 복제되어 OnRep에서 CMC에 적용
 	void SetReplicatedGravityScale(float Scale);

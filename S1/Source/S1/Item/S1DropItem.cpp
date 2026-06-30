@@ -38,6 +38,7 @@ AS1DropItem::AS1DropItem()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	bOnlyRelevantToOwner = true;
+	SetReplicateMovement(false);
 
 	SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
 	SetRootComponent(SceneRoot);
@@ -73,6 +74,7 @@ void AS1DropItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AS1DropItem, OwnerController);
 	DOREPLIFETIME(AS1DropItem, Amount);
 	DOREPLIFETIME(AS1DropItem, ReplicatedSpawnLocation);
+	DOREPLIFETIME(AS1DropItem, ReplicatedRestLocation);
 }
 
 void AS1DropItem::Tick(float DeltaTime)
@@ -98,8 +100,10 @@ void AS1DropItem::OnReturnToPool()
 	RarityTag = FGameplayTag();
 	Amount = 0;
 	ReplicatedSpawnLocation = FVector::ZeroVector;
-	OwnerController = nullptr;
-	SetOwner(nullptr);
+	ReplicatedRestLocation = FVector::ZeroVector;
+	// 소유권(OwnerController/SetOwner)은 여기서 비우지 않는다.
+	// bOnlyRelevantToOwner=true이므로 지금 owner를 끊으면 bHidden 복제 전에 줍는 클라가 irrelevant가 되어
+	// 아이템이 클라에서 즉시 사라지지 않는다. 소유권은 다음 InitializeDrop에서 새 owner로 재할당된다.
 	MeshBaseRelativeLocation = FVector::ZeroVector;
 
 	if (MeshComponent)
@@ -145,7 +149,7 @@ void AS1DropItem::InitializeDrop(ES1DropItemType InDropType, int32 InAmount, FGa
 	if (PickupSphere)
 	{
 		PickupSphere->SetSphereRadius(PickupRadius);
-		PickupSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		PickupSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
 	if (Resource.DropEffect)
@@ -231,13 +235,36 @@ void AS1DropItem::StartDropPresentation()
 {
 	PresentationElapsedTime = 0.f;
 	PresentationStartLocation = GetActorLocation();
-	PresentationTargetLocation = CalculateDropTargetLocation();
+
+	// 서버만 난수로 정착 위치를 정하고 복제, 클라는 복제값을 그대로 사용 → 보이는 위치 = 충돌 위치
+	if (HasAuthority())
+	{
+		PresentationTargetLocation = CalculateDropTargetLocation();
+		ReplicatedRestLocation = PresentationTargetLocation;
+	}
+	else
+	{
+		PresentationTargetLocation = ReplicatedRestLocation;
+	}
+
 	bIsPresenting = PresentationDuration > 0.f;
 
 	if (bIsPresenting == false)
 	{
 		SetActorLocation(PresentationTargetLocation);
+		EnablePickupCollision();
 	}
+}
+
+void AS1DropItem::EnablePickupCollision()
+{
+	// 픽업 판정은 서버에서만 일어나므로 서버에서, 정착 완료 후에만 충돌을 켠다
+	if (false == HasAuthority() || PickupSphere == nullptr)
+	{
+		return;
+	}
+
+	PickupSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
 void AS1DropItem::UpdateDropPresentation(float DeltaTime)
@@ -257,6 +284,7 @@ void AS1DropItem::UpdateDropPresentation(float DeltaTime)
 	{
 		bIsPresenting = false;
 		SetActorLocation(PresentationTargetLocation);
+		EnablePickupCollision();
 	}
 }
 
@@ -377,7 +405,7 @@ void AS1DropItem::ApplyReplicatedDropState()
 	if (PickupSphere)
 	{
 		PickupSphere->SetSphereRadius(PickupRadius);
-		PickupSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		PickupSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
 	// 클라이언트는 서버 기준 스폰 위치로 Actor를 맞춘 뒤 프레젠테이션 시작

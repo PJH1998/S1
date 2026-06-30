@@ -16,7 +16,15 @@
 US1EquipComponent::US1EquipComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	SetIsReplicatedByDefault(true);
 	EquipEffectHandles.SetNum(EquipSlotCount);
+}
+
+void US1EquipComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(US1EquipComponent, EquippedItems);
 }
 
 void US1EquipComponent::BeginPlay()
@@ -133,10 +141,55 @@ void US1EquipComponent::RemoveEquipGameplayEffect(ES1EquipSlot Slot)
 	ActiveHandle.Invalidate();
 }
 
+void US1EquipComponent::RequestEquipItem(FGameplayTag ItemTag)
+{
+	// 장착 처리는 서버 권위 — 클라 호출은 서버로 전달 (AS1Player::EquipWeapon 패턴)
+	if (GetOwner() && GetOwner()->HasAuthority())
+	{
+		EquipItem(ItemTag);
+	}
+	else
+	{
+		ServerEquipItem(ItemTag);
+	}
+}
+
+void US1EquipComponent::RequestUnequipItem(FGameplayTag SlotTag)
+{
+	if (GetOwner() && GetOwner()->HasAuthority())
+	{
+		UnequipItem(SlotTag, false);
+	}
+	else
+	{
+		ServerUnequipItem(SlotTag);
+	}
+}
+
+void US1EquipComponent::ServerEquipItem_Implementation(FGameplayTag ItemTag)
+{
+	EquipItem(ItemTag);
+}
+
+void US1EquipComponent::ServerUnequipItem_Implementation(FGameplayTag SlotTag)
+{
+	UnequipItem(SlotTag, false);
+}
+
+void US1EquipComponent::OnRep_EquippedItems()
+{
+	OnEquipmentChanged.Broadcast();
+}
+
 bool US1EquipComponent::EquipItem(FGameplayTag ItemTag)
 {
 	AS1PlayerState* PlayerState = Cast<AS1PlayerState>(GetOwner());
 	if (PlayerState == nullptr || false == ItemTag.IsValid())
+	{
+		return false;
+	}
+
+	if (false == PlayerState->HasAuthority())
 	{
 		return false;
 	}
@@ -199,6 +252,12 @@ bool US1EquipComponent::EquipItem(FGameplayTag ItemTag)
 bool US1EquipComponent::UnequipItem(FGameplayTag SlotTag, bool bFromEquipSwap)
 {
 	if (false == SlotTag.IsValid())
+	{
+		return false;
+	}
+
+	const AActor* OwnerActor = GetOwner();
+	if (OwnerActor == nullptr || false == OwnerActor->HasAuthority())
 	{
 		return false;
 	}
