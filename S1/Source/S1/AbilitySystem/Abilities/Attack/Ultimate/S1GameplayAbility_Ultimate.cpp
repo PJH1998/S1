@@ -10,6 +10,9 @@
 US1GameplayAbility_Ultimate::US1GameplayAbility_Ultimate(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	// 컷씬/몬스터 프리즈는 서버 권위 — 캐릭터 정지라 예측할 이동 없음.
+	// Attack 베이스가 LocalPredicted로 바뀌므로 여기서 ServerOnly로 되돌림.
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
 }
 
 void US1GameplayAbility_Ultimate::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

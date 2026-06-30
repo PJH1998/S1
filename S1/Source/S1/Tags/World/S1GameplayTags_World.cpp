@@ -40,3 +40,9 @@ namespace S1HitLagTags
 	UE_DEFINE_GAMEPLAY_TAG(HitLag_PerfectDodge, "HitLag.PerfectDodge");
 	UE_DEFINE_GAMEPLAY_TAG(HitLag_Ultimate, "HitLag.Ultimate");
 }
+
+namespace S1CharacterTag
+{
+	UE_DEFINE_GAMEPLAY_TAG(Charcter_Select_Asna, "Character.Select.Asna");
+	UE_DEFINE_GAMEPLAY_TAG(Charcter_Select_Kirito, "Character.Select.Kirito");
+}

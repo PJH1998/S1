@@ -229,6 +229,10 @@ float US1GameplayAbility_Action::PlayAbilityMontage(UAnimMontage* Montage, FName
 		return 0.f;
 	}
 
+	// 서브클래스 훅 — GA_Attack이 이 몽타주의 AtkCollision 노티파이를 스캔해 서버에서 히트 윈도우 타이머 스케줄
+	// (서버 노티파이 per-frame thrash 우회: 노티파이는 데이터 마커, 실제 on/off는 GA가 1회씩 구동)
+	OnAbilityMontagePlayed(Montage, Rate);
+
 	// LocalPredicted: GAS 네이티브 예측 몽타주 — 소유 클라는 예측 재생(1회), 서버는 RepAnimMontage로 시뮬프록시에만 복제(소유자 스킵)
 	// MulticastPlayMontage를 쓰면 소유 클라가 (예측 재생 + 서버 멀티캐스트) 이중 재생 → 몽타주 재시작으로 노티파이 NotifyEnd 조기 발화(MoveBegin/End 붕괴)
 	if (EGameplayAbilityNetExecutionPolicy::LocalPredicted == GetNetExecutionPolicy())

@@ -5,6 +5,7 @@
 #include "S1LogChannels.h"
 #include "S1Define.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
 
 US1LevelManager* US1LevelManager::Get(const UObject* WorldContextObject)
 {
@@ -25,7 +26,11 @@ void US1LevelManager::ChangeLevel(const FName& NextLevelName, const FGameplayTag
 	LoadLevelName = NextLevelName;
 	LoadAssetLabel = NextAssetLabel;
 
-	UGameplayStatics::OpenLevel(GetGameInstance(), S1Levels::LoadingMap);
+	
+//	UGameplayStatics::OpenLevel(GetGameInstance(), S1Levels::LoadingMap);
+
+	//Temp ( Loading 처리 전 테스트 용 )
+	LoadResources();
 }
 
 void US1LevelManager::LoadResources()
@@ -44,9 +49,41 @@ void US1LevelManager::LoadResources()
 
 	bIsLoading = true;
 
-	US1AssetManager::LoadAsyncByLabel(LoadAssetLabel, FAsyncLabelLoadCompletedDelegate::CreateLambda([this]()
+	if (LoadAssetLabel.IsValid())
+	{
+		US1AssetManager::LoadAsyncByLabel(LoadAssetLabel, FAsyncLabelLoadCompletedDelegate::CreateLambda([this]()
+			{
+				bIsLoading = false;
+				ServerTravelTo(LoadLevelName);
+			}));
+	}
+	else
 	{
 		bIsLoading = false;
-		UGameplayStatics::OpenLevel(GetGameInstance(), LoadLevelName);
-	}));
+		ServerTravelTo(LoadLevelName);
+	}
+}
+
+void US1LevelManager::ServerTravelTo(const FName& MapName)
+{
+	UGameInstance* GI = GetGameInstance();
+	if (false == ::IsValid(GI))
+	{
+		return;
+	}
+
+	UWorld* World = GI->GetWorld();
+	if (false == ::IsValid(World))
+	{
+		return;
+	}
+
+	// 서버 권위 전용 — 클라에서 호출되면 무시 (seamless travel은 서버가 모든 클라를 데려감)
+	if (NM_Client == World->GetNetMode())
+	{
+		LOG_WARNING(TEXT("LevelManager : ServerTravel ignored on client"));
+		return;
+	}
+
+	World->ServerTravel(MapName.ToString());
 }

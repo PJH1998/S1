@@ -26,3 +26,9 @@ void US1GameplayAbility_LoopAttack_Dive::OnProgressionLoopEnded()
 {
 	ResetGravityScale();
 }
+
+bool US1GameplayAbility_LoopAttack_Dive::OnInputReactivated()
+{
+	// 활성 중 재활성 무시 — 연타 시 ResetGravityScale 재호출로 중력 복원되는 버그 방지
+	return false;
+}

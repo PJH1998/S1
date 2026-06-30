@@ -3,6 +3,7 @@
 #include "Interface/S1PoolingInterface.h"
 #include "System/S1PoolingManager.h"
 #include "GameFramework/Actor.h"
+#include "S1LogChannels.h"
 
 void IS1PoolingInterface::OnSpawnFromPool(FGameplayTag InPoolTag, FVector Location, FRotator Rotation)
 {
@@ -10,8 +11,13 @@ void IS1PoolingInterface::OnSpawnFromPool(FGameplayTag InPoolTag, FVector Locati
 
 	if (AActor* Self = Cast<AActor>(_getUObject()))
 	{
+		Self->FlushNetDormancy();
 		Self->SetActorLocationAndRotation(Location, Rotation);
 		Self->SetActorHiddenInGame(false);
+		if (USceneComponent* Root = Self->GetRootComponent())
+		{
+			Root->SetVisibility(true, true);
+		}
 		Self->SetActorEnableCollision(true);
 		Self->SetActorTickEnabled(true);
 		Self->ForceNetUpdate();
@@ -23,9 +29,13 @@ void IS1PoolingInterface::OnReturnToPool()
 	if (AActor* Self = Cast<AActor>(_getUObject()))
 	{
 		Self->SetActorHiddenInGame(true);
+		if (USceneComponent* Root = Self->GetRootComponent())
+		{
+			Root->SetVisibility(false, true);
+		}
 		Self->SetActorEnableCollision(false);
 		Self->SetActorTickEnabled(false);
-		Self->ForceNetUpdate();
+		Self->SetNetDormancy(ENetDormancy::DORM_DormantAll);
 	}
 }
 
@@ -33,6 +43,11 @@ void IS1PoolingInterface::ReturnSelf()
 {
 	AActor* Self = Cast<AActor>(_getUObject());
 	if (false == IsValid(Self))
+	{
+		return;
+	}
+
+	if (false == Self->HasAuthority())
 	{
 		return;
 	}

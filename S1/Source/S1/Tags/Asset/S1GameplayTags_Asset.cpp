@@ -47,6 +47,8 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_DropTable_Enemy001, "Asset.DropTable.Enemy001");
 
 	UE_DEFINE_GAMEPLAY_TAG(Asset_WeaponData, "Asset.WeaponData");
+
+	UE_DEFINE_GAMEPLAY_TAG(Asset_CharacterData, "Asset.CharacterData");
 #pragma endregion
 }
 

@@ -2,10 +2,40 @@
 
 
 #include "GameMode/S1GameModeBase.h"
+#include "Player/S1PlayerState.h"
+#include "Data/S1CharacterSelectData.h"
+#include "System/S1AssetManager.h"
+#include "Tags/Asset/S1GameplayTags_Asset.h"
+
+AS1GameModeBase::AS1GameModeBase()
+{
+	bUseSeamlessTravel = true;
+}
 
 void AS1GameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
+}
 
-	// What to do Level Change
+UClass* AS1GameModeBase::GetDefaultPawnClassForController_Implementation(AController* InController)
+{
+	FGameplayTag SelectedTag;
+
+	if (AS1PlayerState* PS = InController->GetPlayerState<AS1PlayerState>())
+	{
+		SelectedTag = PS->GetSelectedCharacterTag();
+	}
+
+	if (SelectedTag.IsValid())
+	{
+		if (US1CharacterSelectData* SelectData = US1AssetManager::GetAssetByTag<US1CharacterSelectData>(S1AssetTags::Asset_CharacterData))
+		{
+			if (UClass* CharacterClass = SelectData->GetCharacterClass(SelectedTag))
+			{
+				return CharacterClass;
+			}
+		}
+	}
+
+	return Super::GetDefaultPawnClassForController_Implementation(InController);
 }

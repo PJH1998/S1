@@ -7,6 +7,8 @@
 namespace S1Levels
 {
 	const FName LoadingMap = TEXT("LoadingMap");
+	const FName SelectMap = TEXT("SelectMap");
+	const FName MainMap = TEXT("DevMap");
 }
 
 namespace S1CollisionChannel

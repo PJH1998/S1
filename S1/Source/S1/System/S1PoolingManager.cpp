@@ -65,10 +65,8 @@ void US1PoolingManager::AddToPoolFromAsset(FGameplayTag AssetTag, FGameplayTag W
 	TArray<FGameplayTag>& PoolTags = WorldToPoolTags.FindOrAdd(WorldTag);
 	for (const FS1PoolEntry& Entry : PoolSet->Pools)
 	{
-		LOG_WARNING(TEXT("TEST : ADD TO POOL"));
 		if (false == Entry.PoolTag.IsValid() || nullptr == Entry.ActorClass)
 		{
-			LOG_WARNING(TEXT("TEST : NONE TAG"));
 			continue;
 		}
 
@@ -95,7 +93,7 @@ void US1PoolingManager::AddToPool(FGameplayTag PoolTag, TSubclassOf<AActor> Acto
 		IS1PoolingInterface* Poolable = Cast<IS1PoolingInterface>(Actor);
 		if (nullptr == Poolable)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("PoolingManager: %s does not implement IS1PoolingInterface"), *Actor->GetName());
+			LOG_WARNING(TEXT("PoolingManager: %s does not implement IS1PoolingInterface"), *Actor->GetName());
 			Actor->Destroy();
 			continue;
 		}
@@ -107,6 +105,12 @@ void US1PoolingManager::AddToPool(FGameplayTag PoolTag, TSubclassOf<AActor> Acto
 
 AActor* US1PoolingManager::SpawnFromPool(FGameplayTag PoolTag, FVector Location, FRotator Rotation)
 {
+	if (nullptr == GetWorld()->GetAuthGameMode())
+	{
+		LOG(TEXT("[Pool] SpawnFromPool: client call ignored | Tag=%s"), *PoolTag.ToString());
+		return nullptr;
+	}
+
 	TArray<AActor*>* ActorPool = Pool.Find(PoolTag);
 	if (nullptr == ActorPool || ActorPool->IsEmpty())
 	{
@@ -131,6 +135,11 @@ AActor* US1PoolingManager::SpawnFromPool(FGameplayTag PoolTag, FVector Location,
 
 void US1PoolingManager::ReturnToPool(AActor* Actor, FGameplayTag PoolTag)
 {
+	if (nullptr == GetWorld()->GetAuthGameMode())
+	{
+		return;
+	}
+
 	if (false == IsValid(Actor))
 	{
 		return;
@@ -142,15 +151,16 @@ void US1PoolingManager::ReturnToPool(AActor* Actor, FGameplayTag PoolTag)
 		return;
 	}
 
+	TArray<AActor*>& ActorPool = Pool.FindOrAdd(PoolTag);
+	if (ActorPool.Contains(Actor))
+	{
+		LOG_WARNING(TEXT("[Pool] ReturnToPool: double return ignored | Tag=%s | Actor=%s"), *PoolTag.ToString(), *Actor->GetName());
+		return;
+	}
+
 	Poolable->OnReturnToPool();
 
-	// Active 추적
-	// if (TArray<TWeakObjectPtr<AActor>>* Actives = ActiveActors.Find(PoolTag))
-	// {
-	// 	Actives->RemoveAll([Actor](const TWeakObjectPtr<AActor>& Ptr) { return Ptr.Get() == Actor; });
-	// }
-
-	Pool.FindOrAdd(PoolTag).Add(Actor);
+	ActorPool.Add(Actor);
 }
 
 void US1PoolingManager::RemovePoolByWorld(FGameplayTag WorldTag)

@@ -4,7 +4,6 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "NiagaraComponent.h"
-#include "S1LogChannels.h"
 
 AS1Weapon::AS1Weapon()
 {
@@ -34,9 +33,6 @@ void AS1Weapon::EnableHitCollision(float InAtkScale, FGameplayTag InHitStrengthT
 		OnHitCollisionEnabled.Broadcast();
 		AttackBox->SetGenerateOverlapEvents(true);
 		AttackBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-
-		LOG(TEXT("[HitCollision] Enabled | AtkScale: %.2f | Tag: %s"),
-			InAtkScale, *InHitStrengthTag.ToString());
 	}
 }
 

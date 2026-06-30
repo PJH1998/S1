@@ -2,6 +2,7 @@
 
 
 #include "Player/S1PlayerState.h"
+#include "Net/UnrealNetwork.h"
 #include "AbilitySystem/AbilitySystemComponent/Player/S1PlayerAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
 #include "Component/S1InventoryComponent.h"
@@ -54,4 +55,35 @@ void AS1PlayerState::InitPlayerSetFromTable(const FGameplayTag& AssetTag, const 
 {
 	if (!::IsValid(PlayerSet)) { return; }
 	PlayerSet->InitAttributeFromTable(AssetTag, TableTag);
+}
+
+void AS1PlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AS1PlayerState, SelectedCharacterTag);
+}
+
+void AS1PlayerState::SetSelectedCharacterTag(const FGameplayTag& InTag)
+{
+	SelectedCharacterTag = InTag;
+}
+
+void AS1PlayerState::CopyProperties(APlayerState* PlayerState)
+{
+	Super::CopyProperties(PlayerState);
+
+	if (AS1PlayerState* S1PS = Cast<AS1PlayerState>(PlayerState))
+	{
+		S1PS->SelectedCharacterTag = SelectedCharacterTag;
+	}
+}
+
+void AS1PlayerState::OverrideWith(APlayerState* PlayerState)
+{
+	Super::OverrideWith(PlayerState);
+
+	if (AS1PlayerState* S1PS = Cast<AS1PlayerState>(PlayerState))
+	{
+		SelectedCharacterTag = S1PS->SelectedCharacterTag;
+	}
 }
