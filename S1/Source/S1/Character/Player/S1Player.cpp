@@ -164,9 +164,21 @@ void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 	}
 
 	// ItemTag에 따라 엔트리 결정
-	TSubclassOf<AS1Weapon> ResolvedWeaponClass             = DefaultWeaponClass;
-	TSubclassOf<US1WeaponAnimLayer> ResolvedAnimLayerClass = DefaultAnimLayerClass;
-	FGameplayTag ResolvedWeaponAbilitiesTag                 = DefaultWeaponAbilitiesTag;
+	const bool bFemale = (Gender == EPlayerGender::Female);
+
+	TSubclassOf<AS1Weapon> ResolvedWeaponClass        = DefaultWeaponClass;
+	TSubclassOf<AS1Weapon> ResolvedOffhandWeaponClass = nullptr;
+	FGameplayTag ResolvedWeaponAbilitiesTag            = DefaultWeaponAbilitiesTag;
+
+	TSubclassOf<US1WeaponAnimLayer> ResolvedAnimLayerClass = nullptr;
+	if (nullptr != DefaultWeaponClass)
+	{
+		ResolvedAnimLayerClass = DefaultWeaponClass->GetDefaultObject<AS1Weapon>()->GetAnimLayerClass(Gender);
+	}
+	if (nullptr == ResolvedAnimLayerClass)
+	{
+		LOG_WARNING(TEXT("EquipWeapon: DefaultWeaponClass has no AnimLayerClass for %s"), bFemale ? TEXT("Female") : TEXT("Male"));
+	}
 
 	if (ItemTag.IsValid())
 	{
@@ -176,8 +188,21 @@ void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 			if (const FS1WeaponEntry* Entry = WeaponData->FindEntryByTag(ItemTag))
 			{
 				ResolvedWeaponClass        = Entry->WeaponClass;
-				ResolvedAnimLayerClass     = Entry->AnimLayerClass;
+				ResolvedOffhandWeaponClass = Entry->OffhandWeaponClass;
 				ResolvedWeaponAbilitiesTag = Entry->WeaponAbilitiesTag;
+
+				if (nullptr != Entry->WeaponClass)
+				{
+					TSubclassOf<US1WeaponAnimLayer> EntryLayerClass = Entry->WeaponClass->GetDefaultObject<AS1Weapon>()->GetAnimLayerClass(Gender);
+					if (nullptr != EntryLayerClass)
+					{
+						ResolvedAnimLayerClass = EntryLayerClass;
+					}
+					else
+					{
+						LOG_WARNING(TEXT("EquipWeapon: [%s] has no AnimLayerClass — falling back to default."), *ItemTag.ToString());
+					}
+				}
 			}
 		}
 	}
@@ -191,6 +216,12 @@ void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 		EquippedWeapon = nullptr;
 	}
 
+	if (IsValid(EquippedOffhandWeapon))
+	{
+		EquippedOffhandWeapon->Destroy();
+		EquippedOffhandWeapon = nullptr;
+	}
+
 	if (nullptr != ResolvedWeaponClass)
 	{
 		FActorSpawnParameters SpawnParams;
@@ -198,6 +229,15 @@ void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 		EquippedWeapon = GetWorld()->SpawnActor<AS1Weapon>(ResolvedWeaponClass, SpawnParams);
 		EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponSocketName);
 		EquippedWeapon->SetActorRelativeRotation(FRotator(0.f, 0.f, -90.f));
+	}
+
+	if (nullptr != ResolvedOffhandWeaponClass)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		EquippedOffhandWeapon = GetWorld()->SpawnActor<AS1Weapon>(ResolvedOffhandWeaponClass, SpawnParams);
+		EquippedOffhandWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, OffhandSocketName);
+		EquippedOffhandWeapon->SetActorRelativeRotation(FRotator(0.f, 0.f, -90.f));
 	}
 
 	// WeaponType이 달라진 경우에만 AnimLayer 교체 (서버 자신의 히트 판정 포즈용)
@@ -252,7 +292,13 @@ void AS1Player::LinkWeaponAnimLayer(TSubclassOf<US1WeaponAnimLayer> AnimLayerCla
 void AS1Player::OnRep_EquippedItemTag()
 {
 	// 원격 클라 비주얼 — 장착 태그로 AnimLayer 클래스 재해석 후 링크
-	TSubclassOf<US1WeaponAnimLayer> ResolvedAnimLayerClass = DefaultAnimLayerClass;
+	const bool bFemale = (Gender == EPlayerGender::Female);
+
+	TSubclassOf<US1WeaponAnimLayer> ResolvedAnimLayerClass = nullptr;
+	if (nullptr != DefaultWeaponClass)
+	{
+		ResolvedAnimLayerClass = DefaultWeaponClass->GetDefaultObject<AS1Weapon>()->GetAnimLayerClass(Gender);
+	}
 
 	if (EquippedItemTag.IsValid())
 	{
@@ -260,7 +306,18 @@ void AS1Player::OnRep_EquippedItemTag()
 		{
 			if (const FS1WeaponEntry* Entry = WeaponData->FindEntryByTag(EquippedItemTag))
 			{
-				ResolvedAnimLayerClass = Entry->AnimLayerClass;
+				if (nullptr != Entry->WeaponClass)
+				{
+					TSubclassOf<US1WeaponAnimLayer> EntryLayerClass = Entry->WeaponClass->GetDefaultObject<AS1Weapon>()->GetAnimLayerClass(Gender);
+					if (nullptr != EntryLayerClass)
+					{
+						ResolvedAnimLayerClass = EntryLayerClass;
+					}
+					else
+					{
+						LOG_WARNING(TEXT("OnRep_EquippedItemTag: [%s] has no AnimLayerClass — falling back to default."), *EquippedItemTag.ToString());
+					}
+				}
 			}
 		}
 	}
@@ -427,6 +484,7 @@ void AS1Player::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AS1Player, EquippedWeapon);
+	DOREPLIFETIME(AS1Player, EquippedOffhandWeapon);
 	DOREPLIFETIME(AS1Player, EquippedItemTag);
 	DOREPLIFETIME_CONDITION(AS1Player, bSprint, COND_SkipOwner);
 }

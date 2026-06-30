@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Player/S1PlayerController.h"
@@ -123,6 +123,7 @@ void AS1PlayerController::PlayerTick(float DeltaTime)
 	if (WasInputKeyJustPressed(EKeys::Q))
 	{
 		S1Player->OnItemEquipped(S1ItemTags::Item_Weapon_SWD01);
+//		S1Player->OnItemEquipped(S1ItemTags::Item_Weapon_DSWD01);
 	}
 	if (WasInputKeyJustPressed(EKeys::E))
 	{

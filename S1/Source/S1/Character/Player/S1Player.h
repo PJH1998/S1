@@ -82,7 +82,8 @@ private:
 	void ServerSetSprinting(bool bInSprint);
 
 public:
-	AS1Weapon*		    GetEquippedWeapon()    const { return EquippedWeapon; }
+	AS1Weapon*		    GetEquippedWeapon()        const { return EquippedWeapon; }
+	AS1Weapon*		    GetEquippedOffhandWeapon() const { return EquippedOffhandWeapon; }
 	US1LockOnComponent* GetLockOnComponent()   const { return LockOnComponent; }
 	const TArray<FS1AbilityInputBinding>& GetAbilityInputBindings() const { return AbilityInputBindings; }
 
@@ -111,15 +112,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Default")
 	TSubclassOf<AS1Weapon> DefaultWeaponClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Default")
-	TSubclassOf<US1WeaponAnimLayer> DefaultAnimLayerClass;
-
 	// 무기 없을 때(기본 상태) 부여할 GA 그룹 태그
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Default")
 	FGameplayTag DefaultWeaponAbilitiesTag;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Weapon")
 	TObjectPtr<AS1Weapon> EquippedWeapon;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Weapon")
+	TObjectPtr<AS1Weapon> EquippedOffhandWeapon;
 
 	// 장착 아이템 태그 복제 — 각 클라가 OnRep에서 AnimLayer 링크 (비주얼 동기화)
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedItemTag)
@@ -130,6 +131,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	FName WeaponSocketName = FName("w_R_Attach");
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	FName OffhandSocketName = FName("w_L_Attach");
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float WeaponLayerBlendTime = 0.25f;

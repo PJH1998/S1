@@ -3,15 +3,10 @@
 #include "Player/S1CharacterSelectController.h"
 
 #include "S1Define.h"
-#include "Data/S1CharacterSelectData.h"
-#include "Character/Player/S1Player.h"
+#include "Character/S1SelectCharacter.h"
 #include "Player/S1PlayerState.h"
-#include "System/S1AssetManager.h"
 #include "Tags/S1GameplayTags.h"
 #include "System/S1LevelManager.h"
-
-#include "Camera/CameraActor.h"
-#include "Kismet/GameplayStatics.h"
 
 #include "S1LogChannels.h"
 
@@ -24,24 +19,17 @@ void AS1CharacterSelectController::BeginPlay()
 		return;
 	}
 
-	if (ACameraActor* SelectCamera = Cast<ACameraActor>(UGameplayStatics::GetActorOfClass(GetWorld(), ACameraActor::StaticClass())))
+	PreviewActor = Cast<AS1SelectCharacter>(GetPawn());
+	if (false == ::IsValid(PreviewActor))
 	{
-		SetViewTarget(SelectCamera);
+		LOG_WARNING(TEXT("CharacterSelect: AS1SelectCharacter not found — check SelectMap GameMode DefaultPawnClass"));
+		return;
 	}
-
-	if (US1CharacterSelectData* CharacterData = US1AssetManager::GetAssetByTag<US1CharacterSelectData>(S1AssetTags::Asset_CharacterData))
-	{
-		SelectData = CharacterData;
-	}
-
-	PreviewTransform = FTransform(FVector::ZeroVector);
-
 
 	//Test
 	CharacterTagA = S1CharacterTag::Charcter_Select_Asna;
 	CharacterTagB = S1CharacterTag::Charcter_Select_Kirito;
 
-	// A를 기본 선택으로 표시
 	SelectCharacter(CharacterTagA);
 }
 
@@ -52,6 +40,10 @@ void AS1CharacterSelectController::SetupInputComponent()
 	InputComponent->BindKey(EKeys::NumPadOne, IE_Pressed, this, &ThisClass::OnSelectA);
 	InputComponent->BindKey(EKeys::NumPadTwo, IE_Pressed, this, &ThisClass::OnSelectB);
 	InputComponent->BindKey(EKeys::NumPadThree, IE_Pressed, this, &ThisClass::OnConfirm);
+
+
+	InputComponent->BindKey(EKeys::NumPadFour, IE_Pressed, this, &ThisClass::OnWeaponSelectA);
+	InputComponent->BindKey(EKeys::NumPadFive, IE_Pressed, this, &ThisClass::OnWeaponSelectB);
 }
 
 void AS1CharacterSelectController::OnSelectA()
@@ -64,11 +56,20 @@ void AS1CharacterSelectController::OnSelectB()
 	SelectCharacter(CharacterTagB);
 }
 
+void AS1CharacterSelectController::OnWeaponSelectA()
+{
+	PreviewActor->ChangeWeapon(S1ItemTags::Item_Weapon_RPR00);
+}
+
+void AS1CharacterSelectController::OnWeaponSelectB()
+{
+	PreviewActor->ChangeWeapon(S1ItemTags::Item_Weapon_SWD00);
+}
+
 void AS1CharacterSelectController::OnConfirm()
 {
 	LOG(TEXT("CharacterSelect: Confirm — Selected [%s]"), *CurrentSelectedTag.ToString());
 
-	// travel은 서버 권위에서만 — 클라 입력을 서버로 라우팅
 	ServerConfirmSelection();
 }
 
@@ -94,38 +95,13 @@ void AS1CharacterSelectController::SelectCharacter(const FGameplayTag& Tag)
 
 void AS1CharacterSelectController::UpdatePreview(const FGameplayTag& Tag)
 {
-	if (false == ::IsValid(SelectData))
-	{
-		LOG_WARNING(TEXT("CharacterSelect: SelectData is not set"));
-		return;
-	}
-
-	UClass* CharacterClass = SelectData->GetCharacterClass(Tag);
-	if (nullptr == CharacterClass)
-	{
-		LOG_WARNING(TEXT("CharacterSelect: No CharacterClass for Tag [%s]"), *Tag.ToString());
-		return;
-	}
-
-	if (::IsValid(PreviewActor))
-	{
-		PreviewActor->Destroy();
-		PreviewActor = nullptr;
-	}
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	PreviewActor = GetWorld()->SpawnActor<AS1Player>(CharacterClass, PreviewTransform, SpawnParams);
 	if (false == ::IsValid(PreviewActor))
 	{
+		LOG_WARNING(TEXT("CharacterSelect: PreviewActor is not valid"));
 		return;
 	}
 
-	// 리슨 서버에서 다른 클라로 복제 차단 — 순수 로컬 비주얼
-	PreviewActor->SetReplicates(false);
-	PreviewActor->SetActorEnableCollision(false);
-	PreviewActor->SetActorTickEnabled(false);
+	PreviewActor->ChangeMesh(Tag);
 }
 
 void AS1CharacterSelectController::ServerSetSelectedCharacter_Implementation(FGameplayTag Tag)

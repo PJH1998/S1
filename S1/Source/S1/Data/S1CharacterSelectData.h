@@ -5,9 +5,37 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "GameplayTagContainer.h"
+#include "S1Enums.h"
 #include "S1CharacterSelectData.generated.h"
 
 class AS1Player;
+class USkeletalMesh;
+
+USTRUCT(BlueprintType)
+struct FS1SelectCharacterEntry
+{
+	GENERATED_BODY()
+
+	// seamless travel 시 스폰할 플레이어 클래스
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<AS1Player> CharacterClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	EPlayerGender Gender = EPlayerGender::Female;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<USkeletalMesh> BodyMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<USkeletalMesh> HairMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<USkeletalMesh> FaceMesh;
+
+	// WeaponData에서 조회할 시작 무기 태그 (FS1WeaponEntry 키)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag DefaultWeaponTag;
+};
 
 UCLASS()
 class S1_API US1CharacterSelectData : public UPrimaryDataAsset
@@ -15,9 +43,9 @@ class S1_API US1CharacterSelectData : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
-	UClass* GetCharacterClass(const FGameplayTag& Tag) const;
+	const FS1SelectCharacterEntry* FindEntryByTag(const FGameplayTag& Tag) const;
 
-protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Character")
-	TMap<FGameplayTag, TSubclassOf<AS1Player>> CharacterClasses;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<FGameplayTag, FS1SelectCharacterEntry> Entries;
 };

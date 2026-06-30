@@ -7,8 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "S1CharacterSelectController.generated.h"
 
-class AS1Player;
-class US1CharacterSelectData;
+class AS1SelectCharacter;
 
 UCLASS()
 class S1_API AS1CharacterSelectController : public APlayerController
@@ -20,8 +19,11 @@ protected:
 	virtual void SetupInputComponent() override;
 
 private:
+	//TEST
 	void OnSelectA();
 	void OnSelectB();
+	void OnWeaponSelectA();
+	void OnWeaponSelectB();
 	void OnConfirm();
 
 	void SelectCharacter(const FGameplayTag& Tag);
@@ -35,26 +37,15 @@ private:
 	void ServerConfirmSelection();
 
 protected:
-
-
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterSelect")
 	FGameplayTag CharacterTagA;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterSelect")
 	FGameplayTag CharacterTagB;
 
-	//// 미리보기 액터가 배치될 트랜스폼 (에디터에서 설정)
-	//UPROPERTY(EditDefaultsOnly, Category = "CharacterSelect")
-	//FTransform PreviewTransform;
-
 private:
 	UPROPERTY()
-	TObjectPtr<AS1Player> PreviewActor;
-
-	UPROPERTY()
-	TObjectPtr<US1CharacterSelectData> SelectData;
+	TObjectPtr<AS1SelectCharacter> PreviewActor;
 
 	FGameplayTag CurrentSelectedTag;
-
-	FTransform PreviewTransform;
 };

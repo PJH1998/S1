@@ -23,8 +23,9 @@ protected:
 
 public:
 	// Dive는 홀드/루프 — 활성 중 같은 입력 연타로 재활성하면 EndAbility의 ResetGravityScale이
-	// 중력을 복원해 부유가 깨짐(떨어짐). 재활성 무시 (입력은 PlayerASC 버퍼로 흘러감)
+	// 중력을 복원해 부유가 깨짐(떨어짐). 재활성/크로스 무시 (입력은 PlayerASC 버퍼로 흘러감)
 	virtual bool OnInputReactivated() override;
+	virtual bool OnCrossInput(const FGameplayTagContainer& TargetAbilityTags) override;
 
 private:
 	// Start 구간 중력 (0 = 공중 정지)

@@ -2,6 +2,12 @@
 
 #include "AbilitySystem/Abilities/Evasion/S1GameplayAbility_Evasion.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
+#include "Animation/NotifyState/LooseGameplayTag/S1AnimNotifyState_LooseGameplayTag.h"
+#include "Animation/AnimMontage.h"
+#include "AbilitySystemComponent.h"
+#include "Tags/S1GameplayTags.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -38,6 +44,21 @@ void US1GameplayAbility_Evasion::EndAbility(const FGameplayAbilitySpecHandle Han
 	{
 		MoveTask->EndTask();
 		MoveTask = nullptr;
+	}
+
+	// 무적 윈도우 도중 종료 시 — 타이머 정리 + 서버 태그 강제 제거
+	ClearInvincibilityTimers();
+
+	AActor* Avatar = GetAvatarActorFromActorInfo();
+	if (IsValid(Avatar) && Avatar->HasAuthority())
+	{
+		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+		{
+			if (ASC->HasMatchingGameplayTag(S1StateTags::State_Invincible))
+			{
+				ASC->RemoveLooseGameplayTag(S1StateTags::State_Invincible);
+			}
+		}
 	}
 
 	// 복제 경유로 중력 복구
@@ -83,5 +104,79 @@ FVector US1GameplayAbility_Evasion::ComputeInputDirection() const
 		return Character->GetActorForwardVector();
 	}
 	return InputDir.GetSafeNormal();
+}
+
+void US1GameplayAbility_Evasion::OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate)
+{
+	ClearInvincibilityTimers();
+	ScheduleInvincibilityWindows(Montage, Rate);
+}
+
+void US1GameplayAbility_Evasion::ScheduleInvincibilityWindows(UAnimMontage* Montage, float Rate)
+{
+	// 데미지 블록(PreAttributeChange)은 서버에서만 판정 → 무적 태그도 서버에서만 관리
+	AActor* Avatar = GetAvatarActorFromActorInfo();
+	if (false == IsValid(Avatar) || false == Avatar->HasAuthority())
+	{
+		return;
+	}
+
+	UWorld* World = Avatar->GetWorld();
+	if (nullptr == Montage || nullptr == World)
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (false == IsValid(ASC))
+	{
+		return;
+	}
+
+	const float EffectiveRate = FMath::Max(Rate * Montage->RateScale, KINDA_SMALL_NUMBER);
+
+	for (const FAnimNotifyEvent& Event : Montage->Notifies)
+	{
+		const US1AnimNotifyState_LooseGameplayTag* TagNotify = Cast<US1AnimNotifyState_LooseGameplayTag>(Event.NotifyStateClass);
+		if (nullptr == TagNotify || TagNotify->GetTag() != S1StateTags::State_Invincible)
+		{
+			continue;
+		}
+
+		const float RealBegin = Event.GetTriggerTime() / EffectiveRate;
+		const float RealEnd   = (Event.GetTriggerTime() + Event.GetDuration()) / EffectiveRate;
+
+		FTimerHandle BeginHandle;
+		World->GetTimerManager().SetTimer(
+			BeginHandle,
+			FTimerDelegate::CreateWeakLambda(this, [this, ASC]()
+			{
+				ASC->AddLooseGameplayTag(S1StateTags::State_Invincible);
+			}),
+			FMath::Max(RealBegin, 0.001f), false);
+		InvincibilityTimers.Add(BeginHandle);
+
+		FTimerHandle EndHandle;
+		World->GetTimerManager().SetTimer(
+			EndHandle,
+			FTimerDelegate::CreateWeakLambda(this, [this, ASC]()
+			{
+				ASC->RemoveLooseGameplayTag(S1StateTags::State_Invincible);
+			}),
+			FMath::Max(RealEnd, 0.002f), false);
+		InvincibilityTimers.Add(EndHandle);
+	}
+}
+
+void US1GameplayAbility_Evasion::ClearInvincibilityTimers()
+{
+	if (UWorld* World = GetWorld())
+	{
+		for (FTimerHandle& Handle : InvincibilityTimers)
+		{
+			World->GetTimerManager().ClearTimer(Handle);
+		}
+	}
+	InvincibilityTimers.Reset();
 }
 

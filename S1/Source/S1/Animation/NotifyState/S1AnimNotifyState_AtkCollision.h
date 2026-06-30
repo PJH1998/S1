@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
 #include "GameplayTagContainer.h"
+#include "S1Enums.h"
 #include "S1AnimNotifyState_AtkCollision.generated.h"
 
 // 데이터 마커 — 직접 히트 콜리전을 켜지 않음.
@@ -16,8 +17,9 @@ class S1_API US1AnimNotifyState_AtkCollision : public UAnimNotifyState
 	GENERATED_BODY()
 
 public:
-	float        GetAtkScale()       const { return AtkScale; }
-	FGameplayTag GetHitStrengthTag() const { return HitStrengthTag; }
+	float          GetAtkScale()       const { return AtkScale; }
+	FGameplayTag   GetHitStrengthTag() const { return HitStrengthTag; }
+	ES1AttackHand  GetAttackHand()     const { return AttackHand; }
 
 private:
 	// 이 히트 윈도우의 공격 배율 — AttribSet.BaseDamage * AtkScale * Progression.GetDamageMultiplier()
@@ -27,4 +29,8 @@ private:
 	// 피격 강도 태그 — 타겟 피격 GA 선택에 사용 (e.g. HitType.Weak / HitType.Strong)
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	FGameplayTag HitStrengthTag;
+
+	// 활성화할 무기 손 — Main: 단일/주무기, Offhand: 보조 무기 (기본 Main)
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	ES1AttackHand AttackHand = ES1AttackHand::Main;
 };
