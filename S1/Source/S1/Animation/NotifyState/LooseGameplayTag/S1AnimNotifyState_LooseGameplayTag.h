@@ -16,6 +16,8 @@ public:
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 
+	FGameplayTag GetTag() const { return Tag; }
+
 protected:
 	void SetTag(USkeletalMeshComponent* MeshComp, bool bAdd);
 

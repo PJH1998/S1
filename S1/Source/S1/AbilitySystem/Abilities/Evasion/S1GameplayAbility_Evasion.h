@@ -29,9 +29,19 @@ protected:
 	// (베이스는 컨트롤회전 방향 반환 → 4방향 회피와 불일치하므로 override 필수)
 	virtual FVector GetCapturedMoveDirection() const override;
 
+	// 몽타주 재생 직후 — LooseGameplayTag 노티파이 스캔 → 서버 무적 윈도우 타이머 스케줄
+	virtual void OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate) override;
+
+
 	// ActivateAbility 시 캡처한 이동 방향 (Dodge에서 회전 대상으로도 활용)
 	FVector CapturedMoveDirection = FVector::ZeroVector;
 
 private:
+	// 서버 권위에서만 — 몽타주의 LooseGameplayTag(State.Invincible) 윈도우를 타이머로 스케줄
+	void ScheduleInvincibilityWindows(UAnimMontage* Montage, float Rate);
+	void ClearInvincibilityTimers();
+
+	TArray<FTimerHandle> InvincibilityTimers;
+
 	bool bCachedOrientToMovement = true;
 };

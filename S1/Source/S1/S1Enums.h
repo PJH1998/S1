@@ -33,6 +33,7 @@ enum class ES1WeaponType : uint8
 	None = 0 UMETA(DisplayName = "None"),
 	RPR  = 1 UMETA(DisplayName = "Rapier"),
 	SWD  = 2 UMETA(DisplayName = "Sword"),
+	DSWD = 3 UMETA(DisplayName = "DualSword"),
 };
 
 UENUM(BlueprintType)
@@ -58,4 +59,11 @@ enum class ES1HitReactType : uint8
 	Weak    = 1 UMETA(DisplayName = "Weak"),
 	Strong  = 2 UMETA(DisplayName = "Strong"),
 	Launch  = 3 UMETA(DisplayName = "Launch"),
+};
+
+UENUM(BlueprintType)
+enum class ES1AttackHand : uint8
+{
+	Main    = 0 UMETA(DisplayName = "Main Hand"),
+	Offhand = 1 UMETA(DisplayName = "Off Hand"),
 };

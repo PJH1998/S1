@@ -71,6 +71,11 @@ void US1GameplayAbility_Assault::OnMoveBeginReceived(const FGameplayEventData* P
 		{
 			Weapon->EnableHitCollision(AssaultAtkScale, AssaultHitStrengthTag);
 		}
+
+		if (AS1Weapon* Offhand = Player->GetEquippedOffhandWeapon())
+		{
+			Offhand->EnableHitCollision(AssaultAtkScale, AssaultHitStrengthTag);
+		}
 	}
 }
 
@@ -90,6 +95,11 @@ void US1GameplayAbility_Assault::OnMoveEndReceived(const FGameplayEventData* Pay
 		if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
 		{
 			Weapon->DisableHitCollision();
+		}
+
+		if (AS1Weapon* Offhand = Player->GetEquippedOffhandWeapon())
+		{
+			Offhand->DisableHitCollision();
 		}
 	}
 

@@ -19,6 +19,11 @@ namespace S1ItemTags
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_SWD02, "Item.Weapon.SWD02");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_SWD03, "Item.Weapon.SWD03");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_SWD04, "Item.Weapon.SWD04");
+
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_DSWD01, "Item.Weapon.DSWD01");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_DSWD02, "Item.Weapon.DSWD02");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_DSWD03, "Item.Weapon.DSWD03");
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_DSWD04, "Item.Weapon.DSWD04");
 }
 
 namespace S1ItemRarityTags

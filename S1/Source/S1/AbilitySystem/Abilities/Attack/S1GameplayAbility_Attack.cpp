@@ -58,9 +58,11 @@ void US1GameplayAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle
 void US1GameplayAbility_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	ClearHitWindowTimers();
-	DisableWeaponHitCollision();
+	DisableWeaponHitCollision(ES1AttackHand::Main);
+	DisableWeaponHitCollision(ES1AttackHand::Offhand);
 	UnbindAttackBox();
-	HitTargets.Reset();
+	MainHitTargets.Reset();
+	OffhandHitTargets.Reset();
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -77,7 +79,8 @@ void US1GameplayAbility_Attack::OnAbilityMontagePlayed(UAnimMontage* Montage, fl
 {
 	// 새 몽타주(스윙) 진입 — 이전 윈도우 정리 후 이 몽타주의 AtkCollision 윈도우를 서버에서 스케줄
 	ClearHitWindowTimers();
-	DisableWeaponHitCollision();
+	DisableWeaponHitCollision(ES1AttackHand::Main);
+	DisableWeaponHitCollision(ES1AttackHand::Offhand);
 	ScheduleHitWindows(Montage, Rate);
 }
 
@@ -107,18 +110,19 @@ void US1GameplayAbility_Attack::ScheduleHitWindows(UAnimMontage* Montage, float 
 			continue;
 		}
 
-		const float        RealBegin   = Event.GetTriggerTime() / EffectiveRate;
-		const float        RealEnd      = (Event.GetTriggerTime() + Event.GetDuration()) / EffectiveRate;
-		const float        AtkScale     = AtkNotify->GetAtkScale();
-		const FGameplayTag StrengthTag  = AtkNotify->GetHitStrengthTag();
+		const float           RealBegin  = Event.GetTriggerTime() / EffectiveRate;
+		const float           RealEnd    = (Event.GetTriggerTime() + Event.GetDuration()) / EffectiveRate;
+		const float           AtkScale   = AtkNotify->GetAtkScale();
+		const FGameplayTag    StrengthTag = AtkNotify->GetHitStrengthTag();
+		const ES1AttackHand   Hand       = AtkNotify->GetAttackHand();
 
 		// Begin
 		FTimerHandle BeginHandle;
 		World->GetTimerManager().SetTimer(
 			BeginHandle,
-			FTimerDelegate::CreateWeakLambda(this, [this, AtkScale, StrengthTag]()
+			FTimerDelegate::CreateWeakLambda(this, [this, AtkScale, StrengthTag, Hand]()
 			{
-				EnableWeaponHitCollision(AtkScale, StrengthTag);
+				EnableWeaponHitCollision(AtkScale, StrengthTag, Hand);
 			}),
 			FMath::Max(RealBegin, 0.001f), false);
 		HitWindowTimers.Add(BeginHandle);
@@ -127,9 +131,9 @@ void US1GameplayAbility_Attack::ScheduleHitWindows(UAnimMontage* Montage, float 
 		FTimerHandle EndHandle;
 		World->GetTimerManager().SetTimer(
 			EndHandle,
-			FTimerDelegate::CreateWeakLambda(this, [this]()
+			FTimerDelegate::CreateWeakLambda(this, [this, Hand]()
 			{
-				DisableWeaponHitCollision();
+				DisableWeaponHitCollision(Hand);
 			}),
 			FMath::Max(RealEnd, 0.002f), false);
 		HitWindowTimers.Add(EndHandle);
@@ -148,7 +152,7 @@ void US1GameplayAbility_Attack::ClearHitWindowTimers()
 	HitWindowTimers.Reset();
 }
 
-void US1GameplayAbility_Attack::EnableWeaponHitCollision(float AtkScale, FGameplayTag HitStrengthTag)
+void US1GameplayAbility_Attack::EnableWeaponHitCollision(float AtkScale, FGameplayTag HitStrengthTag, ES1AttackHand Hand)
 {
 	AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo());
 	if (false == IsValid(Player))
@@ -156,13 +160,23 @@ void US1GameplayAbility_Attack::EnableWeaponHitCollision(float AtkScale, FGamepl
 		return;
 	}
 
-	if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
+	if (Hand == ES1AttackHand::Main)
 	{
-		Weapon->EnableHitCollision(AtkScale, HitStrengthTag);
+		if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
+		{
+			Weapon->EnableHitCollision(AtkScale, HitStrengthTag);
+		}
+	}
+	else
+	{
+		if (AS1Weapon* Offhand = Player->GetEquippedOffhandWeapon())
+		{
+			Offhand->EnableHitCollision(AtkScale, HitStrengthTag);
+		}
 	}
 }
 
-void US1GameplayAbility_Attack::DisableWeaponHitCollision()
+void US1GameplayAbility_Attack::DisableWeaponHitCollision(ES1AttackHand Hand)
 {
 	AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo());
 	if (false == IsValid(Player))
@@ -170,15 +184,30 @@ void US1GameplayAbility_Attack::DisableWeaponHitCollision()
 		return;
 	}
 
-	if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
+	if (Hand == ES1AttackHand::Main)
 	{
-		Weapon->DisableHitCollision();
+		if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
+		{
+			Weapon->DisableHitCollision();
+		}
+	}
+	else
+	{
+		if (AS1Weapon* Offhand = Player->GetEquippedOffhandWeapon())
+		{
+			Offhand->DisableHitCollision();
+		}
 	}
 }
 
-void US1GameplayAbility_Attack::ResetHitTargets()
+void US1GameplayAbility_Attack::ResetMainHitTargets()
 {
-	HitTargets.Reset();
+	MainHitTargets.Reset();
+}
+
+void US1GameplayAbility_Attack::ResetOffhandHitTargets()
+{
+	OffhandHitTargets.Reset();
 }
 
 void US1GameplayAbility_Attack::StartRotateToCamera()
@@ -204,14 +233,17 @@ void US1GameplayAbility_Attack::BindAttackBox()
 		return;
 	}
 
-	AS1Weapon* Weapon = Player->GetEquippedWeapon();
-	if (false == IsValid(Weapon))
+	if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
 	{
-		return;
+		Weapon->OnHitCollisionEnabled.AddUObject(this, &ThisClass::ResetMainHitTargets);
+		Weapon->GetAttackBox()->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnAttackBoxOverlap);
 	}
 
-	Weapon->OnHitCollisionEnabled.AddUObject(this, &ThisClass::ResetHitTargets);
-	Weapon->GetAttackBox()->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnAttackBoxOverlap);
+	if (AS1Weapon* Offhand = Player->GetEquippedOffhandWeapon())
+	{
+		Offhand->OnHitCollisionEnabled.AddUObject(this, &ThisClass::ResetOffhandHitTargets);
+		Offhand->GetAttackBox()->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnAttackBoxOverlap);
+	}
 }
 
 void US1GameplayAbility_Attack::UnbindAttackBox()
@@ -222,14 +254,17 @@ void US1GameplayAbility_Attack::UnbindAttackBox()
 		return;
 	}
 
-	AS1Weapon* Weapon = Player->GetEquippedWeapon();
-	if (false == IsValid(Weapon))
+	if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
 	{
-		return;
+		Weapon->OnHitCollisionEnabled.RemoveAll(this);
+		Weapon->GetAttackBox()->OnComponentBeginOverlap.RemoveDynamic(this, &ThisClass::OnAttackBoxOverlap);
 	}
 
-	Weapon->OnHitCollisionEnabled.RemoveAll(this);
-	Weapon->GetAttackBox()->OnComponentBeginOverlap.RemoveDynamic(this, &ThisClass::OnAttackBoxOverlap);
+	if (AS1Weapon* Offhand = Player->GetEquippedOffhandWeapon())
+	{
+		Offhand->OnHitCollisionEnabled.RemoveAll(this);
+		Offhand->GetAttackBox()->OnComponentBeginOverlap.RemoveDynamic(this, &ThisClass::OnAttackBoxOverlap);
+	}
 }
 
 void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -246,14 +281,20 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 		return;
 	}
 
-	for (const TWeakObjectPtr<AActor>& HitActor : HitTargets)
+	// 어느 손의 AttackBox가 발동했는지 판별 → 각 손의 HitTargets 독립 관리
+	AS1Player* DamagePlayer = Cast<AS1Player>(AvatarActor);
+	AS1Weapon* OffhandWeapon = IsValid(DamagePlayer) ? DamagePlayer->GetEquippedOffhandWeapon() : nullptr;
+	const bool bIsOffhand = IsValid(OffhandWeapon) && OverlappedComp == OffhandWeapon->GetAttackBox();
+	TArray<TWeakObjectPtr<AActor>>& Targets = bIsOffhand ? OffhandHitTargets : MainHitTargets;
+
+	for (const TWeakObjectPtr<AActor>& HitActor : Targets)
 	{
 		if (HitActor.Get() == OtherActor)
 		{
 			return;
 		}
 	}
-	HitTargets.Add(OtherActor);
+	Targets.Add(OtherActor);
 
 	if (nullptr == DamageEffect)
 	{
@@ -267,8 +308,7 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 		return;
 	}
 
-	AS1Player* DamagePlayer = Cast<AS1Player>(AvatarActor);
-	AS1Weapon* DamageWeapon = IsValid(DamagePlayer) ? DamagePlayer->GetEquippedWeapon() : nullptr;
+	AS1Weapon* DamageWeapon = bIsOffhand ? OffhandWeapon : (IsValid(DamagePlayer) ? DamagePlayer->GetEquippedWeapon() : nullptr);
 
 	const float        AtkScale       = IsValid(DamageWeapon) ? DamageWeapon->GetCurrentAtkScale()       : 1.0f;
 	const FGameplayTag HitStrengthTag = IsValid(DamageWeapon) ? DamageWeapon->GetCurrentHitStrengthTag() : FGameplayTag();

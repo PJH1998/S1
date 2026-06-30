@@ -32,3 +32,9 @@ bool US1GameplayAbility_LoopAttack_Dive::OnInputReactivated()
 	// 활성 중 재활성 무시 — 연타 시 ResetGravityScale 재호출로 중력 복원되는 버그 방지
 	return false;
 }
+
+bool US1GameplayAbility_LoopAttack_Dive::OnCrossInput(const FGameplayTagContainer& TargetAbilityTags)
+{
+	// 활성 중 크로스 무시 — 연타가 cross로 빠져 RequestEndAbility → ResetGravityScale로 중력 복원되는 것 방지
+	return false;
+}

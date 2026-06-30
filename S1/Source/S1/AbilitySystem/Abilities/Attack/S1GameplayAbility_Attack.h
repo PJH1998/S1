@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
 #include "GameplayTagContainer.h"
+#include "S1Enums.h"
 #include "S1GameplayAbility_Attack.generated.h"
 
 class US1AbilityTask_RotateToCamera;
@@ -29,7 +30,6 @@ public:
 	virtual void OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate) override;
 
 protected:
-	void ResetHitTargets();
 	void StartRotateToCamera();
 
 protected:
@@ -58,19 +58,24 @@ private:
 	void BindAttackBox();
 	void UnbindAttackBox();
 
+	void ResetMainHitTargets();
+	void ResetOffhandHitTargets();
+
 	UFUNCTION()
 	void OnAttackBoxOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	// 서버 권위에서만 — 몽타주의 AtkCollision 윈도우(begin/end)를 real-time 타이머로 스케줄
 	void ScheduleHitWindows(UAnimMontage* Montage, float Rate);
 	void ClearHitWindowTimers();
-	void EnableWeaponHitCollision(float AtkScale, FGameplayTag HitStrengthTag);
-	void DisableWeaponHitCollision();
+	void EnableWeaponHitCollision(float AtkScale, FGameplayTag HitStrengthTag, ES1AttackHand Hand);
+	void DisableWeaponHitCollision(ES1AttackHand Hand);
 
 	UPROPERTY()
 	TObjectPtr<US1AbilityTask_RotateToCamera> RotateTask;
 
-	TArray<TWeakObjectPtr<AActor>> HitTargets;
+	// Main/Offhand 독립 히트 타겟 — 같은 타겟을 양손으로 개별 타격 가능
+	TArray<TWeakObjectPtr<AActor>> MainHitTargets;
+	TArray<TWeakObjectPtr<AActor>> OffhandHitTargets;
 
 	// 활성 히트 윈도우 타이머 (몽타주당 begin/end 쌍) — 몽타주 교체/종료 시 정리
 	TArray<FTimerHandle> HitWindowTimers;
