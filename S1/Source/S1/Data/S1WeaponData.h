@@ -6,7 +6,6 @@
 #include "S1WeaponData.generated.h"
 
 class AS1Weapon;
-class US1WeaponAnimLayer;
 
 USTRUCT(BlueprintType)
 struct FS1WeaponEntry
@@ -19,12 +18,6 @@ struct FS1WeaponEntry
 	// null이면 단일 무기, 설정 시 오프핸드 소켓에 추가 스폰
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AS1Weapon> OffhandWeaponClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<US1WeaponAnimLayer> MaleAnimLayerClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<US1WeaponAnimLayer> FemaleAnimLayerClass;
 
 	// 이 무기 장착 시 부여할 GA 그룹 태그 (AbilityData PDA 키)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

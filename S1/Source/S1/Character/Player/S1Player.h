@@ -112,9 +112,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Default")
 	TSubclassOf<AS1Weapon> DefaultWeaponClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Default")
-	TSubclassOf<US1WeaponAnimLayer> DefaultAnimLayerClass;
-
 	// 무기 없을 때(기본 상태) 부여할 GA 그룹 태그
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Default")
 	FGameplayTag DefaultWeaponAbilitiesTag;

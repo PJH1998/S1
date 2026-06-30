@@ -166,10 +166,19 @@ void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 	// ItemTag에 따라 엔트리 결정
 	const bool bFemale = (Gender == EPlayerGender::Female);
 
-	TSubclassOf<AS1Weapon> ResolvedWeaponClass             = DefaultWeaponClass;
-	TSubclassOf<AS1Weapon> ResolvedOffhandWeaponClass      = nullptr;
-	TSubclassOf<US1WeaponAnimLayer> ResolvedAnimLayerClass = DefaultAnimLayerClass;
-	FGameplayTag ResolvedWeaponAbilitiesTag                 = DefaultWeaponAbilitiesTag;
+	TSubclassOf<AS1Weapon> ResolvedWeaponClass        = DefaultWeaponClass;
+	TSubclassOf<AS1Weapon> ResolvedOffhandWeaponClass = nullptr;
+	FGameplayTag ResolvedWeaponAbilitiesTag            = DefaultWeaponAbilitiesTag;
+
+	TSubclassOf<US1WeaponAnimLayer> ResolvedAnimLayerClass = nullptr;
+	if (nullptr != DefaultWeaponClass)
+	{
+		ResolvedAnimLayerClass = DefaultWeaponClass->GetDefaultObject<AS1Weapon>()->GetAnimLayerClass(Gender);
+	}
+	if (nullptr == ResolvedAnimLayerClass)
+	{
+		LOG_WARNING(TEXT("EquipWeapon: DefaultWeaponClass has no AnimLayerClass for %s"), bFemale ? TEXT("Female") : TEXT("Male"));
+	}
 
 	if (ItemTag.IsValid())
 	{
@@ -182,15 +191,17 @@ void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 				ResolvedOffhandWeaponClass = Entry->OffhandWeaponClass;
 				ResolvedWeaponAbilitiesTag = Entry->WeaponAbilitiesTag;
 
-				TSubclassOf<US1WeaponAnimLayer> EntryLayerClass = bFemale ? Entry->FemaleAnimLayerClass : Entry->MaleAnimLayerClass;
-				if (nullptr != EntryLayerClass)
+				if (nullptr != Entry->WeaponClass)
 				{
-					ResolvedAnimLayerClass = EntryLayerClass;
-				}
-				else
-				{
-					LOG_WARNING(TEXT("EquipWeapon: [%s] has no %s AnimLayerClass — falling back to default."),
-						*ItemTag.ToString(), bFemale ? TEXT("Female") : TEXT("Male"));
+					TSubclassOf<US1WeaponAnimLayer> EntryLayerClass = Entry->WeaponClass->GetDefaultObject<AS1Weapon>()->GetAnimLayerClass(Gender);
+					if (nullptr != EntryLayerClass)
+					{
+						ResolvedAnimLayerClass = EntryLayerClass;
+					}
+					else
+					{
+						LOG_WARNING(TEXT("EquipWeapon: [%s] has no AnimLayerClass — falling back to default."), *ItemTag.ToString());
+					}
 				}
 			}
 		}
@@ -282,7 +293,12 @@ void AS1Player::OnRep_EquippedItemTag()
 {
 	// 원격 클라 비주얼 — 장착 태그로 AnimLayer 클래스 재해석 후 링크
 	const bool bFemale = (Gender == EPlayerGender::Female);
-	TSubclassOf<US1WeaponAnimLayer> ResolvedAnimLayerClass = DefaultAnimLayerClass;
+
+	TSubclassOf<US1WeaponAnimLayer> ResolvedAnimLayerClass = nullptr;
+	if (nullptr != DefaultWeaponClass)
+	{
+		ResolvedAnimLayerClass = DefaultWeaponClass->GetDefaultObject<AS1Weapon>()->GetAnimLayerClass(Gender);
+	}
 
 	if (EquippedItemTag.IsValid())
 	{
@@ -290,15 +306,17 @@ void AS1Player::OnRep_EquippedItemTag()
 		{
 			if (const FS1WeaponEntry* Entry = WeaponData->FindEntryByTag(EquippedItemTag))
 			{
-				TSubclassOf<US1WeaponAnimLayer> EntryLayerClass = bFemale ? Entry->FemaleAnimLayerClass : Entry->MaleAnimLayerClass;
-				if (nullptr != EntryLayerClass)
+				if (nullptr != Entry->WeaponClass)
 				{
-					ResolvedAnimLayerClass = EntryLayerClass;
-				}
-				else
-				{
-					LOG_WARNING(TEXT("OnRep_EquippedItemTag: [%s] has no %s AnimLayerClass — falling back to default."),
-						*EquippedItemTag.ToString(), bFemale ? TEXT("Female") : TEXT("Male"));
+					TSubclassOf<US1WeaponAnimLayer> EntryLayerClass = Entry->WeaponClass->GetDefaultObject<AS1Weapon>()->GetAnimLayerClass(Gender);
+					if (nullptr != EntryLayerClass)
+					{
+						ResolvedAnimLayerClass = EntryLayerClass;
+					}
+					else
+					{
+						LOG_WARNING(TEXT("OnRep_EquippedItemTag: [%s] has no AnimLayerClass — falling back to default."), *EquippedItemTag.ToString());
+					}
 				}
 			}
 		}

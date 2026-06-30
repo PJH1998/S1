@@ -10,16 +10,19 @@ namespace S1DropTags
 
 namespace S1ItemTags
 {
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_RPR00, "Item.Weapon.RPR00");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_RPR01, "Item.Weapon.RPR01");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_RPR02, "Item.Weapon.RPR02");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_RPR03, "Item.Weapon.RPR03");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_RPR04, "Item.Weapon.RPR04");
 
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_SWD00, "Item.Weapon.SWD00");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_SWD01, "Item.Weapon.SWD01");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_SWD02, "Item.Weapon.SWD02");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_SWD03, "Item.Weapon.SWD03");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_SWD04, "Item.Weapon.SWD04");
 
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_DSWD00, "Item.Weapon.DSWD00");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_DSWD01, "Item.Weapon.DSWD01");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_DSWD02, "Item.Weapon.DSWD02");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_DSWD03, "Item.Weapon.DSWD03");

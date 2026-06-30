@@ -11,6 +11,7 @@
 class USkeletalMeshComponent;
 class UBoxComponent;
 class UNiagaraComponent;
+class US1WeaponAnimLayer;
 
 DECLARE_MULTICAST_DELEGATE(FOnS1HitCollisionEnabled)
 
@@ -34,6 +35,7 @@ public:
 	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 	UBoxComponent* GetAttackBox() const { return AttackBox; }
 	ES1WeaponType GetWeaponType() const { return WeaponType; }
+	TSubclassOf<US1WeaponAnimLayer> GetAnimLayerClass(EPlayerGender InGender) const;
 
 	FOnS1HitCollisionEnabled OnHitCollisionEnabled;
 
@@ -49,6 +51,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	ES1WeaponType WeaponType = ES1WeaponType::None;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	TSubclassOf<US1WeaponAnimLayer> MaleAnimLayerClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	TSubclassOf<US1WeaponAnimLayer> FemaleAnimLayerClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Trail")
 	FName TipSocketName = TEXT("Tip");

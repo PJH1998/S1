@@ -5,6 +5,7 @@
 #include "Player/S1PlayerState.h"
 #include "Data/S1CharacterSelectData.h"
 #include "System/S1AssetManager.h"
+#include "Character/Player/S1Player.h"
 #include "Tags/Asset/S1GameplayTags_Asset.h"
 
 AS1GameModeBase::AS1GameModeBase()
@@ -30,9 +31,12 @@ UClass* AS1GameModeBase::GetDefaultPawnClassForController_Implementation(AContro
 	{
 		if (US1CharacterSelectData* SelectData = US1AssetManager::GetAssetByTag<US1CharacterSelectData>(S1AssetTags::Asset_CharacterData))
 		{
-			if (UClass* CharacterClass = SelectData->GetCharacterClass(SelectedTag))
+			if (const FS1SelectCharacterEntry* Entry = SelectData->FindEntryByTag(SelectedTag))
 			{
-				return CharacterClass;
+				if (nullptr != Entry->CharacterClass)
+				{
+					return Entry->CharacterClass.Get();
+				}
 			}
 		}
 	}
