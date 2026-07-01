@@ -9,6 +9,8 @@
 class USkeletalMeshComponent;
 class USpringArmComponent;
 class UCameraComponent;
+class USceneCaptureComponent2D;
+class UTextureRenderTarget2D;
 class AS1Weapon;
 class US1WeaponAnimLayer;
 class US1CharacterSelectData;
@@ -33,6 +35,8 @@ public:
 	void AddCameraYaw(float DeltaYaw);
 	void AddCameraPitch(float DeltaPitch);
 
+	UTextureRenderTarget2D* GetPreviewRenderTarget() const { return PreviewRenderTarget; }
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> BodyMesh;
@@ -48,6 +52,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UCameraComponent> Camera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<USceneCaptureComponent2D> PreviewCapture;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Preview")
+	TObjectPtr<UTextureRenderTarget2D> PreviewRenderTarget;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Data")
 	TObjectPtr<US1CharacterSelectData> CharacterSelectData;

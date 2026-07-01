@@ -38,7 +38,12 @@ void AS1PlayerController::BeginPlay()
 
 	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
 	{
-		UIManager->Create_RootUI(this);
+		UIManager->Create_RootUI(this, S1UITags::UI_Root_Gameplay);
+
+		if (US1RootWidget* Root = UIManager->GetRootWidget())
+		{
+			Root->SetUp_Panel(UI_TYPE::HUD, S1UITags::UI_Gameplay_HUD);
+		}
 	}
 }
 

@@ -7,6 +7,7 @@
 #include "Player/S1PlayerState.h"
 #include "Tags/S1GameplayTags.h"
 #include "System/S1LevelManager.h"
+#include "System/S1UIManager.h"
 
 #include "S1LogChannels.h"
 
@@ -17,6 +18,15 @@ void AS1CharacterSelectController::BeginPlay()
 	if (false == IsLocalController())
 	{
 		return;
+	}
+
+	FInputModeGameAndUI InputMode;
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	SetInputMode(InputMode);
+
+	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
+	{
+		UIManager->Create_RootUI(this, S1UITags::UI_Root_Lobby);
 	}
 
 	PreviewActor = Cast<AS1SelectCharacter>(GetPawn());

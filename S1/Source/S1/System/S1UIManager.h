@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Subsystems/SubsystemBlueprintLibrary.h"
 #include "Subsystems/LocalPlayerSubsystem.h"
 #include "S1UIManager.generated.h"
@@ -30,7 +31,7 @@ public:
 	virtual void Deinitialize() override;
 
 public:
-	void Create_RootUI(APlayerController* PC);
+	void Create_RootUI(APlayerController* PC, const FGameplayTag& RootUITag);
 	void UnRegister_RootUI();
 
 public:

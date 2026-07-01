@@ -27,11 +27,11 @@ void US1UIManager::Deinitialize()
 	Super::Deinitialize();
 }
 
-void US1UIManager::Create_RootUI(APlayerController* PC)
+void US1UIManager::Create_RootUI(APlayerController* PC, const FGameplayTag& RootUITag)
 {
 	if (const US1UIData* UIData = US1AssetManager::GetAssetByTag<US1UIData>(S1AssetTags::Asset_UIData))
 	{
-		if (TSubclassOf<US1BaseWidget> RootWidgetClass = UIData->FindUserWidgetClassByTag(S1UITags::UI_Root))
+		if (TSubclassOf<US1BaseWidget> RootWidgetClass = UIData->FindUserWidgetClassByTag(RootUITag))
 		{
 			RootWidget = CreateWidget<US1RootWidget>(PC, RootWidgetClass);
 		}
@@ -42,8 +42,6 @@ void US1UIManager::Create_RootUI(APlayerController* PC)
 		UE_LOG(LogWindows, Error, TEXT("Failed to Create : RootWidget"));
 		return;
 	}
-	RootWidget->SetUp_HUD(S1UITags::UI_Gameplay_HUD);
-
 	RootWidget->AddToViewport();
 
 	RootWidget->DeliverFinished.RemoveDynamic(this, &ThisClass::FinishedFade);

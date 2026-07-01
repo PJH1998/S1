@@ -2,6 +2,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/SceneCaptureComponent2D.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "Data/S1CharacterSelectData.h"
 #include "Data/S1WeaponData.h"
 #include "Weapon/S1Weapon.h"
@@ -33,12 +35,25 @@ AS1SelectCharacter::AS1SelectCharacter()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+
+	PreviewCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("PreviewCapture"));
+	PreviewCapture->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+	PreviewCapture->bCaptureEveryFrame = true;
+	PreviewCapture->bCaptureOnMovement = false;
+	PreviewCapture->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
+	PreviewCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
 }
 
 void AS1SelectCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (::IsValid(PreviewCapture))
+	{
+		PreviewCapture->TextureTarget = PreviewRenderTarget;
+		PreviewCapture->ShowOnlyActors.Reset();
+		PreviewCapture->ShowOnlyActors.Add(this);
+	}
 }
 
 void AS1SelectCharacter::Tick(float DeltaTime)
@@ -82,12 +97,20 @@ void AS1SelectCharacter::ChangeWeapon(const FGameplayTag& WeaponTag)
 {
 	if (::IsValid(EquippedWeapon))
 	{
+		if (::IsValid(PreviewCapture))
+		{
+			PreviewCapture->ShowOnlyActors.Remove(EquippedWeapon);
+		}
 		EquippedWeapon->Destroy();
 		EquippedWeapon = nullptr;
 	}
 
 	if (::IsValid(EquippedOffhandWeapon))
 	{
+		if (::IsValid(PreviewCapture))
+		{
+			PreviewCapture->ShowOnlyActors.Remove(EquippedOffhandWeapon);
+		}
 		EquippedOffhandWeapon->Destroy();
 		EquippedOffhandWeapon = nullptr;
 	}
@@ -127,6 +150,11 @@ void AS1SelectCharacter::ChangeWeapon(const FGameplayTag& WeaponTag)
 		{
 			EquippedWeapon->AttachToComponent(BodyMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
 			EquippedWeapon->SetActorRelativeRotation(FRotator(0.f, 0.f, -90.f));
+
+			if (::IsValid(PreviewCapture))
+			{
+				PreviewCapture->ShowOnlyActors.AddUnique(EquippedWeapon);
+			}
 		}
 
 		TSubclassOf<US1WeaponAnimLayer> LayerClass = Entry->WeaponClass->GetDefaultObject<AS1Weapon>()->GetAnimLayerClass(CurrentGender);
@@ -148,6 +176,11 @@ void AS1SelectCharacter::ChangeWeapon(const FGameplayTag& WeaponTag)
 		{
 			EquippedOffhandWeapon->AttachToComponent(BodyMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, OffhandSocketName);
 			EquippedOffhandWeapon->SetActorRelativeRotation(FRotator(0.f, 0.f, -90.f));
+
+			if (::IsValid(PreviewCapture))
+			{
+				PreviewCapture->ShowOnlyActors.AddUnique(EquippedOffhandWeapon);
+			}
 		}
 	}
 }

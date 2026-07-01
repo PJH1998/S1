@@ -4,7 +4,8 @@
 
 namespace S1UITags
 {
-	UE_DEFINE_GAMEPLAY_TAG(UI_Root, "UI.Root");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Root_Gameplay, "UI.Root.Gameplay");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Root_Lobby, "UI.Root.Lobby");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Cursor, "UI.Cursor");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Fade, "UI.Fade");
 

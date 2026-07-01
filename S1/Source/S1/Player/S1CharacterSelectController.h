@@ -18,12 +18,14 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 
-private:
-	//TEST
+public:
+	//TEST — UI 슬롯 클릭에서도 호출
 	void OnSelectA();
 	void OnSelectB();
 	void OnWeaponSelectA();
 	void OnWeaponSelectB();
+
+private:
 	void OnConfirm();
 
 	void SelectCharacter(const FGameplayTag& Tag);

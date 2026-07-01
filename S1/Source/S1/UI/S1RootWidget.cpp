@@ -5,9 +5,6 @@
 #include "System/S1UIManager.h"
 #include "UI/Cursor/S1Cursor.h"
 #include "UI/Fade/S1Fade.h"
-#include "UI/Lobby/S1HUD_Lobby.h"
-#include "UI/Menu/S1Inventory_ItemInfo.h"
-#include "UI/Menu/S1Menu_Inventory.h"
 #include "Framework/Application/SlateApplication.h"
 
 #include "Tags/S1GameplayTags.h"
@@ -20,53 +17,39 @@ US1RootWidget::US1RootWidget(const FObjectInitializer& ObjectInitializer)
 	PanelSlots.SetNum(static_cast<int32>(UI_TYPE::END));
 }
 
-void US1RootWidget::ShowMenu(const FGameplayTag& UITag)
+UCanvasPanel* US1RootWidget::GetCanvasPanel(UI_TYPE PanelType) const
 {
-	if (UITag == S1UITags::UI_Menu_Inventory && Menu_Inventory)
+	switch (PanelType)
 	{
-		const ESlateVisibility NewVisibility = Menu_Inventory->IsVisible() ? ESlateVisibility::Collapsed : ESlateVisibility::Visible;
-		Menu_Inventory->SetVisibility(NewVisibility);
-
-		if (NewVisibility == ESlateVisibility::Visible)
-		{
-			Menu_Inventory->HandleShown();
-		}
+	case UI_TYPE::HUD:    return CanvasPanel_HUD;
+	case UI_TYPE::CURSOR: return CanvasPanel_Cursor;
+	case UI_TYPE::FADE:   return CanvasPanel_Fade;
+	default:              return nullptr;
 	}
 }
 
-void US1RootWidget::HideAllMenus()
+void US1RootWidget::SetUp_Panel(UI_TYPE PanelType, const FGameplayTag& UITag)
 {
-	if (Menu_Inventory)
+	UCanvasPanel* CanvasPanel = GetCanvasPanel(PanelType);
+	if (CanvasPanel == nullptr)
 	{
-		Menu_Inventory->SetVisibility(ESlateVisibility::Collapsed);
+		return;
 	}
 
-	if (ItemInfoWidget)
-	{
-		ItemInfoWidget->HideInfo();
-	}
-}
-
-bool US1RootWidget::IsInventoryMenuOpen() const
-{
-	return Menu_Inventory && Menu_Inventory->IsVisible();
-}
-
-void US1RootWidget::SetUp_HUD(const FGameplayTag& UITag)
-{
-	if (CanvasPanel_HUD->HasAnyChildren())
-		CanvasPanel_HUD->ClearChildren();
+	if (CanvasPanel->HasAnyChildren())
+		CanvasPanel->ClearChildren();
 
 	if (const US1UIData* UIData = US1AssetManager::GetAssetByTag<US1UIData>(S1AssetTags::Asset_UIData))
 	{
-		if (TSubclassOf<US1BaseWidget> HUDClass = UIData->FindUserWidgetClassByTag(UITag))
+		if (TSubclassOf<US1BaseWidget> WidgetClass = UIData->FindUserWidgetClassByTag(UITag))
 		{
-			Register_Panel<US1BaseWidget>(UI_TYPE::HUD, HUDClass, CanvasPanel_HUD, false);
-			if (PanelSlots[static_cast<int32>(UI_TYPE::HUD)] != nullptr)
+			Register_Panel<US1BaseWidget>(PanelType, WidgetClass, CanvasPanel, false);
+			const int32 LocalType = static_cast<int32>(PanelType);
+			if (PanelSlots[LocalType] != nullptr)
 			{
-				PanelSlots[static_cast<int32>(UI_TYPE::HUD)]->SetAnchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f));
-				PanelSlots[static_cast<int32>(UI_TYPE::HUD)]->SetOffsets(FMargin(0.0f));
-				PanelSlots[static_cast<int32>(UI_TYPE::HUD)]->SetAlignment(FVector2D::ZeroVector);
+				PanelSlots[LocalType]->SetAnchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f));
+				PanelSlots[LocalType]->SetOffsets(FMargin(0.0f));
+				PanelSlots[LocalType]->SetAlignment(FVector2D::ZeroVector);
 			}
 		}
 	}
@@ -122,28 +105,7 @@ void US1RootWidget::NativeConstruct()
 			// Fade Delegate
 			FadeWidget->OnFadeFinished.AddDynamic(this, &ThisClass::DeliveFadeFinished);
 		}
-
-		if (CanvasPanel_Popup)
-		{
-			if (TSubclassOf<US1BaseWidget> ItemInfoClass = UIData->FindUserWidgetClassByTag(S1UITags::UI_Menu_ItemInfo))
-			{
-				ItemInfoWidget = Cast<US1Inventory_ItemInfo>(Register_Panel<US1BaseWidget>(UI_TYPE::POPUP, ItemInfoClass, CanvasPanel_Popup));
-				CanvasPanel_Popup->SetVisibility(ESlateVisibility::HitTestInvisible);
-				if (PanelSlots[static_cast<int32>(UI_TYPE::POPUP)] != nullptr)
-				{
-					PanelSlots[static_cast<int32>(UI_TYPE::POPUP)]->SetAutoSize(true);
-					PanelSlots[static_cast<int32>(UI_TYPE::POPUP)]->SetAlignment(FVector2D::ZeroVector);
-				}
-
-				if (ItemInfoWidget)
-				{
-					ItemInfoWidget->HideInfo();
-				}
-			}
-		}
 	}
-
-	HideAllMenus();
 }
 
 void US1RootWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
