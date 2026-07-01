@@ -4,7 +4,6 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "NiagaraComponent.h"
-#include "Animation/Weapon/S1WeaponAnimLayer.h"
 
 AS1Weapon::AS1Weapon()
 {
@@ -23,11 +22,6 @@ AS1Weapon::AS1Weapon()
 	TrailComponent = CreateDefaultSubobject<UNiagaraComponent>("TrailComponent");
 	TrailComponent->SetupAttachment(WeaponMesh, TipSocketName);
 	TrailComponent->bAutoActivate = false;
-}
-
-TSubclassOf<US1WeaponAnimLayer> AS1Weapon::GetAnimLayerClass(EPlayerGender InGender) const
-{
-	return (InGender == EPlayerGender::Female) ? FemaleAnimLayerClass : MaleAnimLayerClass;
 }
 
 void AS1Weapon::EnableHitCollision(float InAtkScale, FGameplayTag InHitStrengthTag)

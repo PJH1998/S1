@@ -5,12 +5,8 @@
 namespace S1AnimTags
 {
 #pragma region Assault_Branch
-	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Female_RPR_Assault_End_Air,    "Anim.Montage.Female.RPR.AssaultEnd.Air");
-	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Female_RPR_Assault_End_Ground, "Anim.Montage.Female.RPR.AssaultEnd.Ground");
-
-	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Female_SWD_AssaultEnd_Air, "Anim.Montage.Female.SWD.AssaultEnd.Air");
-	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Female_SWD_AssaultEnd_Ground, "Anim.Montage.Female.SWD.AssaultEnd.Ground");
-
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Assault_End_Air,    "Anim.Montage.AssaultEnd.Air");
+	UE_DEFINE_GAMEPLAY_TAG(Anim_Montage_Assault_End_Ground, "Anim.Montage.AssaultEnd.Ground");
 #pragma endregion
 
 #pragma region SWD_Skill_Branch

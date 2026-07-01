@@ -122,8 +122,8 @@ void AS1PlayerController::PlayerTick(float DeltaTime)
 	// [TEST] Q: SWD01으로 무기 교체 / E: 기본 무기로 복귀
 	if (WasInputKeyJustPressed(EKeys::Q))
 	{
-		S1Player->OnItemEquipped(S1ItemTags::Item_Weapon_SWD01);
-//		S1Player->OnItemEquipped(S1ItemTags::Item_Weapon_DSWD01);
+//		S1Player->OnItemEquipped(S1ItemTags::Item_Weapon_SWD01);
+		S1Player->OnItemEquipped(S1ItemTags::Item_Weapon_DSWD01);
 	}
 	if (WasInputKeyJustPressed(EKeys::E))
 	{

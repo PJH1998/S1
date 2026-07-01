@@ -134,8 +134,6 @@ void AS1Player::PossessedBy(AController* NewController)
 
 	// EquipComponent 없으면 기본 무기로 초기화
 	EquipWeapon(InitialTag);
-
-	AbilitySystemComponent->AddCharacterAbilities(DefaultAbilitiesTag);
 }
 
 void AS1Player::OnItemEquipped(FGameplayTag ItemTag)
@@ -163,47 +161,32 @@ void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 		return;
 	}
 
-	// ItemTag에 따라 엔트리 결정
-	const bool bFemale = (Gender == EPlayerGender::Female);
+	// ItemTag 없으면(맨손) WeaponData의 기본 무기 엔트리로 대체 — 무기 유무와 무관하게 동일한 조회 경로 사용
+	const FGameplayTag ResolvedItemTag = ItemTag.IsValid() ? ItemTag : DefaultWeaponTag;
 
-	TSubclassOf<AS1Weapon> ResolvedWeaponClass        = DefaultWeaponClass;
+	TSubclassOf<AS1Weapon> ResolvedWeaponClass        = nullptr;
 	TSubclassOf<AS1Weapon> ResolvedOffhandWeaponClass = nullptr;
-	FGameplayTag ResolvedWeaponAbilitiesTag            = DefaultWeaponAbilitiesTag;
-
+	FGameplayTag ResolvedWeaponAbilitiesTag           = FGameplayTag::EmptyTag;
 	TSubclassOf<US1WeaponAnimLayer> ResolvedAnimLayerClass = nullptr;
-	if (nullptr != DefaultWeaponClass)
-	{
-		ResolvedAnimLayerClass = DefaultWeaponClass->GetDefaultObject<AS1Weapon>()->GetAnimLayerClass(Gender);
-	}
-	if (nullptr == ResolvedAnimLayerClass)
-	{
-		LOG_WARNING(TEXT("EquipWeapon: DefaultWeaponClass has no AnimLayerClass for %s"), bFemale ? TEXT("Female") : TEXT("Male"));
-	}
 
-	if (ItemTag.IsValid())
+	US1WeaponData* WeaponData = US1AssetManager::GetAssetByTag<US1WeaponData>(S1AssetTags::Asset_WeaponData);
+	if (IsValid(WeaponData))
 	{
-		US1WeaponData* WeaponData = US1AssetManager::GetAssetByTag<US1WeaponData>(S1AssetTags::Asset_WeaponData);
-		if (IsValid(WeaponData))
+		if (const FS1WeaponEntry* Entry = WeaponData->FindEntryByTag(ResolvedItemTag))
 		{
-			if (const FS1WeaponEntry* Entry = WeaponData->FindEntryByTag(ItemTag))
-			{
-				ResolvedWeaponClass        = Entry->WeaponClass;
-				ResolvedOffhandWeaponClass = Entry->OffhandWeaponClass;
-				ResolvedWeaponAbilitiesTag = Entry->WeaponAbilitiesTag;
+			ResolvedWeaponClass        = Entry->WeaponClass;
+			ResolvedOffhandWeaponClass = Entry->OffhandWeaponClass;
+			ResolvedWeaponAbilitiesTag = Entry->WeaponAbilitiesTag;
+			ResolvedAnimLayerClass     = Entry->GetAnimLayerClass(Gender);
 
-				if (nullptr != Entry->WeaponClass)
-				{
-					TSubclassOf<US1WeaponAnimLayer> EntryLayerClass = Entry->WeaponClass->GetDefaultObject<AS1Weapon>()->GetAnimLayerClass(Gender);
-					if (nullptr != EntryLayerClass)
-					{
-						ResolvedAnimLayerClass = EntryLayerClass;
-					}
-					else
-					{
-						LOG_WARNING(TEXT("EquipWeapon: [%s] has no AnimLayerClass — falling back to default."), *ItemTag.ToString());
-					}
-				}
+			if (nullptr == ResolvedAnimLayerClass)
+			{
+				LOG_WARNING(TEXT("EquipWeapon: [%s] has no AnimLayerClass."), *ResolvedItemTag.ToString());
 			}
+		}
+		else
+		{
+			LOG_WARNING(TEXT("EquipWeapon: WeaponData has no entry for [%s]."), *ResolvedItemTag.ToString());
 		}
 	}
 
@@ -266,7 +249,9 @@ void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 	}
 
 	// 복제 트리거 — 원격 클라가 OnRep에서 AnimLayer 링크
-	EquippedItemTag = ItemTag;
+	// ItemTag(원본)이 아닌 ResolvedItemTag(맨손 폴백 반영값)를 써야 함 — 안 그러면 맨손(Default) 최초 장착 시
+	// Empty→Empty로 값이 안 바뀌어 리플리케이션이 발생하지 않고 클라에서 OnRep이 아예 호출되지 않음
+	EquippedItemTag = ResolvedItemTag;
 }
 
 void AS1Player::ServerRequestEquip_Implementation(const FGameplayTag& ItemTag)
@@ -292,32 +277,19 @@ void AS1Player::LinkWeaponAnimLayer(TSubclassOf<US1WeaponAnimLayer> AnimLayerCla
 void AS1Player::OnRep_EquippedItemTag()
 {
 	// 원격 클라 비주얼 — 장착 태그로 AnimLayer 클래스 재해석 후 링크
-	const bool bFemale = (Gender == EPlayerGender::Female);
+	const FGameplayTag ResolvedItemTag = EquippedItemTag.IsValid() ? EquippedItemTag : DefaultWeaponTag;
 
 	TSubclassOf<US1WeaponAnimLayer> ResolvedAnimLayerClass = nullptr;
-	if (nullptr != DefaultWeaponClass)
-	{
-		ResolvedAnimLayerClass = DefaultWeaponClass->GetDefaultObject<AS1Weapon>()->GetAnimLayerClass(Gender);
-	}
 
-	if (EquippedItemTag.IsValid())
+	if (US1WeaponData* WeaponData = US1AssetManager::GetAssetByTag<US1WeaponData>(S1AssetTags::Asset_WeaponData))
 	{
-		if (US1WeaponData* WeaponData = US1AssetManager::GetAssetByTag<US1WeaponData>(S1AssetTags::Asset_WeaponData))
+		if (const FS1WeaponEntry* Entry = WeaponData->FindEntryByTag(ResolvedItemTag))
 		{
-			if (const FS1WeaponEntry* Entry = WeaponData->FindEntryByTag(EquippedItemTag))
+			ResolvedAnimLayerClass = Entry->GetAnimLayerClass(Gender);
+
+			if (nullptr == ResolvedAnimLayerClass)
 			{
-				if (nullptr != Entry->WeaponClass)
-				{
-					TSubclassOf<US1WeaponAnimLayer> EntryLayerClass = Entry->WeaponClass->GetDefaultObject<AS1Weapon>()->GetAnimLayerClass(Gender);
-					if (nullptr != EntryLayerClass)
-					{
-						ResolvedAnimLayerClass = EntryLayerClass;
-					}
-					else
-					{
-						LOG_WARNING(TEXT("OnRep_EquippedItemTag: [%s] has no AnimLayerClass — falling back to default."), *EquippedItemTag.ToString());
-					}
-				}
+				LOG_WARNING(TEXT("OnRep_EquippedItemTag: [%s] has no AnimLayerClass."), *ResolvedItemTag.ToString());
 			}
 		}
 	}
@@ -567,6 +539,12 @@ void AS1Player::ReleaseAbility(const FGameplayTag& AbilityTag)
 	if (HasAuthority())
 	{
 		AbilitySystemComponent->ReleaseAbility(AbilityTag);
+	}
+	else if (AbilitySystemComponent->IsAbilityPredicted(AbilityTag))
+	{
+		// LocalPredicted — 클라에서 로컬 GA에도 직접 전달 (Activate와 동일한 흐름)
+		AbilitySystemComponent->ReleaseAbility(AbilityTag);
+		ServerReleaseAbility(AbilityTag);
 	}
 	else
 	{
