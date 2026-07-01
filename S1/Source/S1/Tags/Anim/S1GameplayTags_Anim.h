@@ -7,11 +7,8 @@
 namespace S1AnimTags
 {
 #pragma region Assault_Branch
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Female_RPR_AssaultEnd_Air);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Female_RPR_AssaultEnd_Ground);
-
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Female_SWD_AssaultEnd_Air);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_Female_SWD_AssaultEnd_Ground);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_AssaultEnd_Air);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Anim_Montage_AssaultEnd_Ground);
 #pragma endregion
 
 #pragma region SWD_Skill_Branch

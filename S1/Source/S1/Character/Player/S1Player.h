@@ -108,13 +108,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Character")
 	EPlayerGender Gender = EPlayerGender::Female;
 
-	// 장착 무기 없을 때 사용하는 기본값 (캐릭터 BP별로 설정)
+	// 무기 없을 때(맨손) 사용할 WeaponData 엔트리 키 — WeaponClass/WeaponAbilitiesTag/AnimLayer 전부 이 태그로 조회
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Default")
-	TSubclassOf<AS1Weapon> DefaultWeaponClass;
-
-	// 무기 없을 때(기본 상태) 부여할 GA 그룹 태그
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Default")
-	FGameplayTag DefaultWeaponAbilitiesTag;
+	FGameplayTag DefaultWeaponTag;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Weapon")
 	TObjectPtr<AS1Weapon> EquippedWeapon;
@@ -151,10 +147,6 @@ protected:
 	TObjectPtr<US1PlayerCameraComponent> Camera;
 
 private:
-	// 무기 무관 기본 GA (Dash, Dodge 등) — 게임 시작 시 1회 등록
-	UPROPERTY(EditDefaultsOnly, Category = "Ability")
-	FGameplayTag DefaultAbilitiesTag;
-
 	// 현재 장착된 무기의 WeaponType — 같은 타입 재장착 시 AnimLayer 교체 건너뜀
 	ES1WeaponType CurrentWeaponType = ES1WeaponType::None;
 

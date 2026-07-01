@@ -21,9 +21,10 @@ namespace S1AssetTags
 #pragma endregion
 
 #pragma region GameAbilitySystem
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Player_Default_Female);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Player_RPR_Female);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Player_SWD_Female);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Player_SWD_Male);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Player_DSWD_Male);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Boss000);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Enemy001);

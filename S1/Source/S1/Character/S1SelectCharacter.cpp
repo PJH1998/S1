@@ -156,17 +156,17 @@ void AS1SelectCharacter::ChangeWeapon(const FGameplayTag& WeaponTag)
 				PreviewCapture->ShowOnlyActors.AddUnique(EquippedWeapon);
 			}
 		}
+	}
 
-		TSubclassOf<US1WeaponAnimLayer> LayerClass = Entry->WeaponClass->GetDefaultObject<AS1Weapon>()->GetAnimLayerClass(CurrentGender);
-		if (nullptr == LayerClass)
-		{
-			LOG_WARNING(TEXT("ChangeWeapon: [%s] WeaponClass has no AnimLayerClass"), *WeaponTag.ToString());
-		}
-		else
-		{
-			BodyMesh->LinkAnimClassLayers(LayerClass);
-			CurrentAnimLayerClass = LayerClass;
-		}
+	TSubclassOf<US1WeaponAnimLayer> LayerClass = Entry->GetAnimLayerClass(CurrentGender);
+	if (nullptr == LayerClass)
+	{
+		LOG_WARNING(TEXT("ChangeWeapon: [%s] has no AnimLayerClass"), *WeaponTag.ToString());
+	}
+	else
+	{
+		BodyMesh->LinkAnimClassLayers(LayerClass);
+		CurrentAnimLayerClass = LayerClass;
 	}
 
 	if (nullptr != Entry->OffhandWeaponClass)

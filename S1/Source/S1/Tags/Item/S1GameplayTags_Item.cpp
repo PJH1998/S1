@@ -10,6 +10,8 @@ namespace S1DropTags
 
 namespace S1ItemTags
 {
+	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_Default, "Item.Weapon.Default");
+
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_RPR00, "Item.Weapon.RPR00");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_RPR01, "Item.Weapon.RPR01");
 	UE_DEFINE_GAMEPLAY_TAG(Item_Weapon_RPR02, "Item.Weapon.RPR02");
