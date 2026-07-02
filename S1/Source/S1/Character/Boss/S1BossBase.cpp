@@ -5,6 +5,7 @@
 
 #include "AbilitySystem/Attributes/S1BossSet.h"
 #include "AI/S1BossAIController.h"
+#include "System/S1CombatFeedbackSubsystem.h"
 
 ES1EnemyTier AS1BossBase::GetLockOnTier_Implementation()
 {
@@ -40,4 +41,15 @@ US1BossSet* AS1BossBase::GetS1BossSet() const
 const FName& AS1BossBase::GetBossName() const
 {
 	return BossName;
+}
+
+void AS1BossBase::MulticastNotifyGuardBlocked_Implementation(const FVector& InBlockLocation)
+{
+	if (UWorld* World = GetWorld())
+	{
+		if (US1CombatFeedbackSubsystem* CombatFeedback = World->GetSubsystem<US1CombatFeedbackSubsystem>())
+		{
+			CombatFeedback->ShowBlockNumber(InBlockLocation);
+		}
+	}
 }

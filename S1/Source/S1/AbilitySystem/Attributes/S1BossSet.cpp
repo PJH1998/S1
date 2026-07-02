@@ -35,6 +35,7 @@ void US1BossSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData&
 					{
 						// 정면 콘 안 → 차단. 적용된 데미지 원복 후 Super(데미지 넘버/사망 처리) 스킵.
 						SetHealth(GetHealth() - Data.EvaluatedData.Magnitude);
+						Boss->MulticastNotifyGuardBlocked(Boss->GetActorLocation());
 						return;
 					}
 				}

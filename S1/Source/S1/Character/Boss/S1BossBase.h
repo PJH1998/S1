@@ -32,6 +32,10 @@ public:
 	// 가드 정면 차단 콘의 절반 각도(도). S1BossSet의 방향 판정이 읽는다.
 	float GetGuardFrontalHalfAngleDeg() const { return GuardFrontalHalfAngleDeg; }
 
+	// 가드 차단 발생을 전체 클라(+서버)에 알린다. S1BossSet의 정면 차단 분기에서 호출된다.
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastNotifyGuardBlocked(const FVector& InBlockLocation);
+
 protected:
 	FName BossName = {};
 

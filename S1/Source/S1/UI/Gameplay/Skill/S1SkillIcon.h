@@ -24,7 +24,6 @@ public:
 
 public:
 	virtual void NativeConstruct() override;
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 public:
 	void SetIconTexture(UTexture2D* InTexture);

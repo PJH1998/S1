@@ -88,7 +88,7 @@ void US1MonsterHPBar::NativeConstruct()
 	Super::NativeConstruct();
 
 	LerpValue = CurrentValue;
-	LerpSpeed = 25.f;
+	LerpSpeed = 0.4f;
 	Bind_ShaderResource();
 
 	if (Anim_FadeOut)

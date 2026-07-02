@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UI/S1BaseWidget.h"
 #include "S1Menu_SelectCharacter.generated.h"
 
@@ -36,6 +37,7 @@ private:
 
 	void SelectSlot(US1SelectCharacter_Slot* SelectedSlot, US1SelectCharacter_Slot* OtherSlot, const FText& InNameplateText);
 	void SelectWeaponSlot(US1SelectWeapon_Slot* SelectedSlot, US1SelectWeapon_Slot* OtherSlot);
+	void SetupWeaponSlots(const FGameplayTag& Slot01WeaponTag, const FGameplayTag& Slot02WeaponTag);
 
 private:
 	UPROPERTY(meta = (BindWidget))

@@ -13,6 +13,7 @@ namespace S1UITags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Lobby_Logo, "UI.Lobby.Logo");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Gameplay_HUD, "UI.Gameplay.HUD");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Monster_HPBar, "UI.Monster.HPBar");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Gameplay_DamageNumber, "UI.Gameplay.DamageNumber");
 
 	UE_DEFINE_GAMEPLAY_TAG(UI_Menu_Inventory, "UI.Menu.Inventory");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Menu_ItemInfo, "UI.Menu.ItemInfo");
@@ -38,5 +39,11 @@ namespace S1UIResourceTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Frame_Unique, "UI.Icon.Frame.Unique");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Frame_Legendary, "UI.Icon.Frame.Legendary");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Effect_Equiped, "UI.Icon.Effect.Equiped");
+#pragma endregion
+
+#pragma region Select
+	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Weapon_RPR, "UI.Icon.Weapon.RPR");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Weapon_SWD, "UI.Icon.Weapon.SWD");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Weapon_DSWD, "UI.Icon.Weapon.DSWD");
 #pragma endregion
 }

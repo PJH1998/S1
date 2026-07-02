@@ -8,6 +8,7 @@
 #include "S1SelectWeapon_Slot.generated.h"
 
 class UImage;
+class UTextBlock;
 class UTexture2D;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FS1SelectWeaponSlotClickedSignature);
@@ -23,6 +24,7 @@ class S1_API US1SelectWeapon_Slot : public US1BaseWidget
 public:
 	void SetSelected(bool bInSelected);
 	void SetWeaponTag(const FGameplayTag& InWeaponTag);
+	FGameplayTag GetWeaponTag() const { return WeaponTag; }
 
 	UPROPERTY(BlueprintAssignable)
 	FS1SelectWeaponSlotClickedSignature OnSlotClicked;
@@ -36,9 +38,17 @@ protected:
 private:
 	void UpdateFrameVisual();
 
+	static FGameplayTag GetWeaponIconTag(const FGameplayTag& WeaponTag);
+
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_BG;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_Icon;
+
+	UPROPERTY(meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> Text_Name;
 
 	UPROPERTY(Transient)
 	FGameplayTag WeaponTag;

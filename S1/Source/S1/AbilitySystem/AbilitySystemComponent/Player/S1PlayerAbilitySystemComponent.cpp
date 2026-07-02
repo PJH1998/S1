@@ -3,13 +3,20 @@
 
 #include "AbilitySystem/AbilitySystemComponent/Player/S1PlayerAbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/S1GameplayAbility.h"
+#include "AbilitySystemComponent.h"
 #include "Character/Player/S1Player.h"
+#include "Tags/S1GameplayTags.h"
 
 US1PlayerAbilitySystemComponent::US1PlayerAbilitySystemComponent()
 {
 	// PlayerState ASC — 소유 클라엔 풀 동기화, 타 클라엔 GameplayCue/태그만 (멀티 표준)
 	SetIsReplicated(true);
 	SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+	CooldownVariants.Add(FS1CooldownVariantSet{
+		S1AbilityTags::Ability_Player_Attack_Skill01,
+		S1CooldownTags::Cooldown_Player_Ground_Skill01,
+		S1CooldownTags::Cooldown_Player_Air_Skill01 });
 }
 
 bool US1PlayerAbilitySystemComponent::ActivateAbility(const FGameplayTag& AbilityTag)
@@ -203,7 +210,51 @@ FPredictionKey US1PlayerAbilitySystemComponent::ConsumePendingReactivationKey()
 
 bool US1PlayerAbilitySystemComponent::GetSkillCooldown(const FGameplayTag& UnifiedCooldownTag, float& OutRemainingTime, float& OutDuration) const
 {
-	return false;
+	OutRemainingTime = 0.f;
+	OutDuration = 0.f;
+
+	const FS1CooldownVariantSet* Variant = FindCooldownVariant(UnifiedCooldownTag);
+	if (Variant == nullptr)
+	{
+		return false;
+	}
+
+	const bool bAir = HasMatchingGameplayTag(S1StateTags::State_Air) && Variant->AirCooldownTag.IsValid();
+	const FGameplayTag& TagToQuery = bAir ? Variant->AirCooldownTag : Variant->GroundCooldownTag;
+	if (!TagToQuery.IsValid())
+	{
+		return false;
+	}
+
+	const FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(FGameplayTagContainer(TagToQuery));
+	const TArray<TPair<float, float>> Results = GetActiveEffectsTimeRemainingAndDuration(Query);
+
+	bool bFound = false;
+	for (const TPair<float, float>& Pair : Results)
+	{
+		if (Pair.Value <= 0.f)
+		{
+			// Duration 없는(Instant/Infinite) GE는 UI 쿨다운 대상이 아님
+			continue;
+		}
+
+		if (!bFound || Pair.Key > OutRemainingTime)
+		{
+			OutRemainingTime = FMath::Max(Pair.Key, 0.f);
+			OutDuration = Pair.Value;
+			bFound = true;
+		}
+	}
+
+	return bFound && OutRemainingTime > 0.f;
+}
+
+const FS1CooldownVariantSet* US1PlayerAbilitySystemComponent::FindCooldownVariant(const FGameplayTag& UnifiedCooldownTag) const
+{
+	return CooldownVariants.FindByPredicate([&UnifiedCooldownTag](const FS1CooldownVariantSet& Variant)
+	{
+		return Variant.AbilityTag == UnifiedCooldownTag;
+	});
 }
 
 void US1PlayerAbilitySystemComponent::QueueAbility(const FGameplayTag& AbilityTag, const FGameplayTag& FlushTag)

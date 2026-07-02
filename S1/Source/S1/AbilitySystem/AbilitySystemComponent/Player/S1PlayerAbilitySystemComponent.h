@@ -13,6 +13,10 @@ struct FS1CooldownVariantSet
 {
 	GENERATED_BODY()
 
+	// 이 쿨다운 세트가 대응하는 스킬(Ability) 태그
+	UPROPERTY(EditDefaultsOnly)
+	FGameplayTag AbilityTag;
+
 	UPROPERTY(EditDefaultsOnly)
 	FGameplayTag GroundCooldownTag;
 
@@ -52,10 +56,16 @@ private:
 
 	void OnFlushTagChanged(const FGameplayTag Tag, int32 NewCount);
 
+	const FS1CooldownVariantSet* FindCooldownVariant(const FGameplayTag& UnifiedCooldownTag) const;
+
 private:
 	// 키 입력 버퍼 유효 시간
 	UPROPERTY(EditDefaultsOnly, Category = "InputBuffer")
 	float InputBufferDuration = 0.1f;
+
+	// 스킬별 Ground/Air 쿨다운 태그 매핑 (UI GetSkillCooldown 조회용)
+	UPROPERTY(EditDefaultsOnly, Category = "Cooldown")
+	TArray<FS1CooldownVariantSet> CooldownVariants;
 
 	// 키 입력에 따른 실행할 AbilityTag 보관
 	FGameplayTag QueuedAbilityTag;

@@ -49,7 +49,7 @@ void US1BossStatus::NativeConstruct()
 	Super::NativeConstruct();
 
 	LerpValue = CurrentValue;
-	LerpSpeed = 25.f;
+	LerpSpeed = 0.4f;
 	Bind_ShaderResource();
 }
 

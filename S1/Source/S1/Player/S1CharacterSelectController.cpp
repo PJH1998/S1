@@ -50,10 +50,6 @@ void AS1CharacterSelectController::SetupInputComponent()
 	InputComponent->BindKey(EKeys::NumPadOne, IE_Pressed, this, &ThisClass::OnSelectA);
 	InputComponent->BindKey(EKeys::NumPadTwo, IE_Pressed, this, &ThisClass::OnSelectB);
 	InputComponent->BindKey(EKeys::NumPadThree, IE_Pressed, this, &ThisClass::OnConfirm);
-
-
-	InputComponent->BindKey(EKeys::NumPadFour, IE_Pressed, this, &ThisClass::OnWeaponSelectA);
-	InputComponent->BindKey(EKeys::NumPadFive, IE_Pressed, this, &ThisClass::OnWeaponSelectB);
 }
 
 void AS1CharacterSelectController::OnSelectA()
@@ -66,19 +62,22 @@ void AS1CharacterSelectController::OnSelectB()
 	SelectCharacter(CharacterTagB);
 }
 
-void AS1CharacterSelectController::OnWeaponSelectA()
+void AS1CharacterSelectController::OnWeaponSelect(const FGameplayTag& WeaponTag)
 {
-	PreviewActor->ChangeWeapon(S1ItemTags::Item_Weapon_RPR00);
-}
+	if (false == ::IsValid(PreviewActor))
+	{
+		return;
+	}
 
-void AS1CharacterSelectController::OnWeaponSelectB()
-{
-	PreviewActor->ChangeWeapon(S1ItemTags::Item_Weapon_SWD00);
+	PreviewActor->ChangeWeapon(WeaponTag);
 }
 
 void AS1CharacterSelectController::OnConfirm()
 {
 	LOG(TEXT("CharacterSelect: Confirm — Selected [%s]"), *CurrentSelectedTag.ToString());
+
+	FInputModeGameOnly InputMode;
+	SetInputMode(InputMode);
 
 	ServerConfirmSelection();
 }

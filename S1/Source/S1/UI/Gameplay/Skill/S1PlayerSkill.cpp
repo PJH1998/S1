@@ -3,7 +3,9 @@
 
 #include "UI/Gameplay/Skill/S1PlayerSkill.h"
 
+#include "AbilitySystem/AbilitySystemComponent/Player/S1PlayerAbilitySystemComponent.h"
 #include "Data/S1UIResource.h"
+#include "Player/S1PlayerState.h"
 #include "Tags/S1GameplayTags.h"
 #include "System/S1AssetManager.h"
 #include "UI/Gameplay/Skill/S1SkillIcon.h"
@@ -11,9 +13,8 @@
 US1PlayerSkill::US1PlayerSkill(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	// Temp
-	CooldownRemainingTimes.Init(5.f, 4);
-	CooldownDurations.Init(10.f, 4);
+	CooldownRemainingTimes.Init(0.f, 4);
+	CooldownDurations.Init(0.f, 4);
 }
 
 void US1PlayerSkill::NativeConstruct()
@@ -22,6 +23,42 @@ void US1PlayerSkill::NativeConstruct()
 
 	InitializeSkillIcons();
 	InitializeSkillTextures();
+	ApplyCooldowns();
+}
+
+void US1PlayerSkill::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	AS1PlayerState* PS = GetOwningPlayerState<AS1PlayerState>();
+	US1PlayerAbilitySystemComponent* ASC = PS ? Cast<US1PlayerAbilitySystemComponent>(PS->GetS1AbilitySystemComponent()) : nullptr;
+	if (ASC == nullptr)
+	{
+		return;
+	}
+
+	static const FGameplayTag SkillTags[3] =
+	{
+		S1AbilityTags::Ability_Player_Attack_Skill01,
+		S1AbilityTags::Ability_Player_Attack_Skill02,
+		S1AbilityTags::Ability_Player_Attack_Skill03,
+	};
+
+	for (int32 Index = 0; Index < 3; ++Index)
+	{
+		if (!CooldownRemainingTimes.IsValidIndex(Index) || !CooldownDurations.IsValidIndex(Index))
+		{
+			continue;
+		}
+
+		float Remaining = 0.f;
+		float Duration = 0.f;
+		ASC->GetSkillCooldown(SkillTags[Index], Remaining, Duration);
+
+		CooldownRemainingTimes[Index] = Remaining;
+		CooldownDurations[Index] = Duration;
+	}
+
 	ApplyCooldowns();
 }
 

@@ -26,6 +26,8 @@ public:
 	virtual bool IsInventoryMenuOpen() const override;
 	virtual US1Inventory_ItemInfo* GetItemInfoWidget() const override { return ItemInfoWidget; }
 
+	UCanvasPanel* GetDamageNumberCanvas() const { return CanvasPanel_DamageNumber; }
+
 protected:
 	virtual void NativeConstruct() override;
 
@@ -34,6 +36,8 @@ private:
 	TObjectPtr<UCanvasPanel> CanvasPanel_Menu;
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCanvasPanel> CanvasPanel_Popup;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCanvasPanel> CanvasPanel_DamageNumber;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<US1Menu_Inventory> Menu_Inventory;

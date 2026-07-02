@@ -6,37 +6,25 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "S1CombatFeedbackSubsystem.generated.h"
 
-class AS1DamageNumberEffect;
-class UNiagaraComponent;
+class UCanvasPanel;
+class US1DamageNumberWidget;
 
 USTRUCT()
-struct FS1DamageDigitInstance
+struct FS1ActiveFeedbackNumber
 {
 	GENERATED_BODY()
 
 	UPROPERTY()
-	TObjectPtr<UNiagaraComponent> Component = nullptr;
+	TObjectPtr<US1DamageNumberWidget> Widget = nullptr;
 
-	float OffsetFromCenter = 0.f;
-};
-
-USTRUCT()
-struct FS1ActiveDamageNumberGroup
-{
-	GENERATED_BODY()
-
-	FVector CenterWorldLocation = FVector::ZeroVector;
+	FVector WorldLocation = FVector::ZeroVector;
 	float ElapsedTime = 0.f;
 	float Lifetime = 1.f;
 	float RiseSpeed = 80.f;
-	float DigitSpacing = 90.f;
-
-	UPROPERTY()
-	TArray<FS1DamageDigitInstance> Digits;
 };
 
 /**
- * 
+ *
  */
 UCLASS()
 class S1_API US1CombatFeedbackSubsystem : public UTickableWorldSubsystem
@@ -50,15 +38,29 @@ public:
 	virtual bool IsTickable() const override;
 
 	void ShowDamageNumber(int32 Damage, const FVector& HitLocation);
+	void ShowBlockNumber(const FVector& HitLocation);
 
 private:
 	static void SplitDamageIntoDigits(int32 Damage, TArray<int32>& OutDigits);
-	static bool GetCameraBasis(UWorld* World, FVector& OutRight, FRotator& OutRotation);
-	void UpdateDamageNumberGroup(FS1ActiveDamageNumberGroup& Group) const;
-	void FinishDamageNumberGroup(FS1ActiveDamageNumberGroup& Group);
-	const AS1DamageNumberEffect* GetDamageNumberEffect() const;
+
+	FVector GetRandomizedLocation(const FVector& HitLocation) const;
+	UCanvasPanel* GetOrResolveDamageNumberCanvas();
+	US1DamageNumberWidget* AcquirePooledWidget();
+	void ReleaseWidget(US1DamageNumberWidget* Widget);
+	void RegisterActiveNumber(US1DamageNumberWidget* Widget, const FVector& HitLocation);
+	void UpdateActiveNumber(FS1ActiveFeedbackNumber& ActiveNumber) const;
 
 private:
 	UPROPERTY(Transient)
-	TArray<FS1ActiveDamageNumberGroup> ActiveDamageNumberGroups;
+	TArray<TObjectPtr<US1DamageNumberWidget>> PooledWidgets;
+
+	UPROPERTY(Transient)
+	TArray<FS1ActiveFeedbackNumber> ActiveNumbers;
+
+	TWeakObjectPtr<UCanvasPanel> CachedDamageNumberCanvas;
+
+private:
+	float RandomRadius = 50.f;
+	float Lifetime = 1.f;
+	float RiseSpeed = 50.f;
 };

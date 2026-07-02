@@ -20,21 +20,6 @@ void US1SkillIcon::NativeConstruct()
 	UpdateCooldownVisual();
 }
 
-void US1SkillIcon::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
-{
-	Super::NativeTick(MyGeometry, InDeltaTime);
-
-	if (CooldownRemainingTime <= 0.f)
-	{
-		return;
-	}
-
-	// Temp
-	CooldownRemainingTime = FMath::Max(CooldownRemainingTime - InDeltaTime, 0.f);
-	UpdateCooldownVisual();
-	SetUsable(CooldownRemainingTime <= 0.f);
-}
-
 void US1SkillIcon::SetIconTexture(UTexture2D* InTexture)
 {
 	if (Image_BG == nullptr || InTexture == nullptr)

@@ -15,6 +15,7 @@ namespace S1UITags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Lobby_Logo);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Gameplay_HUD);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Monster_HPBar);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Gameplay_DamageNumber);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Menu_Inventory);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Menu_ItemInfo);
@@ -41,5 +42,11 @@ namespace S1UIResourceTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_Frame_Legendary);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_Effect_Equiped);
+#pragma endregion
+
+#pragma region Select
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_Weapon_RPR);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_Weapon_SWD);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_Weapon_DSWD);
 #pragma endregion
 }

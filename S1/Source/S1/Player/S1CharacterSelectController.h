@@ -22,8 +22,7 @@ public:
 	//TEST — UI 슬롯 클릭에서도 호출
 	void OnSelectA();
 	void OnSelectB();
-	void OnWeaponSelectA();
-	void OnWeaponSelectB();
+	void OnWeaponSelect(const FGameplayTag& WeaponTag);
 
 private:
 	void OnConfirm();

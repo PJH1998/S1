@@ -6,6 +6,7 @@
 #include "UI/Lobby/Custom/Select/S1SelectWeapon_Slot.h"
 #include "Components/TextBlock.h"
 #include "Player/S1CharacterSelectController.h"
+#include "Tags/S1GameplayTags.h"
 
 void US1Menu_SelectCharacter::NativeConstruct()
 {
@@ -33,11 +34,13 @@ void US1Menu_SelectCharacter::NativeConstruct()
 
 	// 컨트롤러의 기본 선택(BeginPlay에서 CharacterTagA = Asuna)과 초기 표시를 맞춘다.
 	SelectSlot(SelectCharSlot_F, SelectCharSlot_M, FText::FromString(TEXT("아스나")));
+	SetupWeaponSlots(S1ItemTags::Item_Weapon_RPR00, S1ItemTags::Item_Weapon_SWD00);
 }
 
 void US1Menu_SelectCharacter::OnSlotMClicked()
 {
 	SelectSlot(SelectCharSlot_M, SelectCharSlot_F, FText::FromString(TEXT("키리토")));
+	SetupWeaponSlots(S1ItemTags::Item_Weapon_DSWD01, S1ItemTags::Item_Weapon_SWD00);
 
 	if (AS1CharacterSelectController* Controller = GetOwningPlayer<AS1CharacterSelectController>())
 	{
@@ -48,6 +51,7 @@ void US1Menu_SelectCharacter::OnSlotMClicked()
 void US1Menu_SelectCharacter::OnSlotFClicked()
 {
 	SelectSlot(SelectCharSlot_F, SelectCharSlot_M, FText::FromString(TEXT("아스나")));
+	SetupWeaponSlots(S1ItemTags::Item_Weapon_RPR00, S1ItemTags::Item_Weapon_SWD00);
 
 	if (AS1CharacterSelectController* Controller = GetOwningPlayer<AS1CharacterSelectController>())
 	{
@@ -61,7 +65,7 @@ void US1Menu_SelectCharacter::OnWeaponSlot01Clicked()
 
 	if (AS1CharacterSelectController* Controller = GetOwningPlayer<AS1CharacterSelectController>())
 	{
-		Controller->OnWeaponSelectA();
+		Controller->OnWeaponSelect(SelectWeapon_01->GetWeaponTag());
 	}
 }
 
@@ -71,7 +75,7 @@ void US1Menu_SelectCharacter::OnWeaponSlot02Clicked()
 
 	if (AS1CharacterSelectController* Controller = GetOwningPlayer<AS1CharacterSelectController>())
 	{
-		Controller->OnWeaponSelectB();
+		Controller->OnWeaponSelect(SelectWeapon_02->GetWeaponTag());
 	}
 }
 
@@ -104,5 +108,20 @@ void US1Menu_SelectCharacter::SelectWeaponSlot(US1SelectWeapon_Slot* SelectedSlo
 	{
 		OtherSlot->SetSelected(false);
 	}
+}
+
+void US1Menu_SelectCharacter::SetupWeaponSlots(const FGameplayTag& Slot01WeaponTag, const FGameplayTag& Slot02WeaponTag)
+{
+	if (SelectWeapon_01)
+	{
+		SelectWeapon_01->SetWeaponTag(Slot01WeaponTag);
+	}
+
+	if (SelectWeapon_02)
+	{
+		SelectWeapon_02->SetWeaponTag(Slot02WeaponTag);
+	}
+
+	SelectWeaponSlot(SelectWeapon_01, SelectWeapon_02);
 }
 
