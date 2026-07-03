@@ -61,8 +61,18 @@ void US1DeathPresentationComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	}
 
 	PresentationElapsed += DeltaTime;
-	const float Alpha = FMath::Clamp(PresentationElapsed / FadeDuration, 0.f, 1.f);
-	ApplyFadeAlpha(1.f - Alpha);
+	const float Progress = FMath::Clamp(PresentationElapsed / FadeDuration, 0.f, 1.f);
+
+	switch (PresentationMode)
+	{
+	case EDeathPresentation::Dissolve:
+		ApplyDissolveAmount(Progress);
+		break;
+	case EDeathPresentation::AlphaFade:
+	default:
+		ApplyFadeAlpha(1.f - Progress);
+		break;
+	}
 
 	if (PresentationElapsed >= FadeDuration)
 	{
@@ -139,6 +149,22 @@ void US1DeathPresentationComponent::InitializeFadeMaterials()
 		}
 
 		FadeMIDs.Add(MID);
+
+		if (PresentationMode == EDeathPresentation::Dissolve)
+		{
+			if (DissolveTextureParameterName != NAME_None)
+			{
+				MID->SetTextureParameterValue(DissolveTextureParameterName, DissolveTexture);
+			}
+			if (DissolveEdgeColorParameterName != NAME_None)
+			{
+				MID->SetVectorParameterValue(DissolveEdgeColorParameterName, DissolveEdgeColor);
+			}
+			if (DissolveEdgeWidthParameterName != NAME_None)
+			{
+				MID->SetScalarParameterValue(DissolveEdgeWidthParameterName, DissolveEdgeWidth);
+			}
+		}
 	}
 }
 
@@ -159,7 +185,31 @@ void US1DeathPresentationComponent::ApplyFadeAlpha(float Alpha)
 	}
 }
 
+void US1DeathPresentationComponent::ApplyDissolveAmount(float Amount)
+{
+	if (DissolveAmountParameterName == NAME_None)
+	{
+		return;
+	}
+
+	const float ClampedAmount = FMath::Clamp(Amount, 0.f, 1.f);
+	for (UMaterialInstanceDynamic* MID : FadeMIDs)
+	{
+		if (MID)
+		{
+			MID->SetScalarParameterValue(DissolveAmountParameterName, ClampedAmount);
+		}
+	}
+}
+
 void US1DeathPresentationComponent::ResetFadeMaterials()
 {
-	ApplyFadeAlpha(1.f);
+	if (PresentationMode == EDeathPresentation::Dissolve)
+	{
+		ApplyDissolveAmount(0.f);
+	}
+	else
+	{
+		ApplyFadeAlpha(1.f);
+	}
 }
