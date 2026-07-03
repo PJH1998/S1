@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Animation/Notify/S1AnimNotify_SpawnEffect.h"
 #include "System/S1AssetManager.h"
@@ -41,5 +41,5 @@ void US1AnimNotify_SpawnEffect::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 	FVector Location = MeshComp->GetSocketLocation(SpawnSocketName);
 	FRotator Rotation = MeshComp->GetSocketRotation(SpawnSocketName);
 
-	EffectClass->GetDefaultObject<AS1Effect>()->PlayEffect(Owner->GetWorld(), Location, Rotation);
+	EffectClass->GetDefaultObject<AS1Effect>()->PlayEffect(Owner->GetWorld(), Location, IsApplySocketRotation ? Rotation : FRotator(0, 0, 0));
 }

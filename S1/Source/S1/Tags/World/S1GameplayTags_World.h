@@ -29,6 +29,11 @@ namespace S1EffectTags
 #pragma region DamageNumber
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_DamageNumber);
 #pragma endregion
+
+#pragma region Particle
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Particle_Fragment);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Particle_Dust);
+#pragma endregion
 }
 
 namespace S1MonsterCollisionTags

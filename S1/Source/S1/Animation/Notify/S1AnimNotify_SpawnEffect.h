@@ -26,4 +26,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Effect")
 	FName SpawnSocketName;
+
+	UPROPERTY(EditAnywhere, Category = "Effect")
+	bool IsApplySocketRotation = true;
 };

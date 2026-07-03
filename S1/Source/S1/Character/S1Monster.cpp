@@ -83,6 +83,7 @@ void AS1Monster::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 	DOREPLIFETIME(AS1Monster, ReplicatedLocomotionMode);
 	DOREPLIFETIME(AS1Monster, ReplicatedLocomotionPhase);
 	DOREPLIFETIME(AS1Monster, bReplicatedLocomotionLoop);
+	DOREPLIFETIME(AS1Monster, MonsterName);
 }
 
 void AS1Monster::SetReplicatedLocomotionState(EEnemyLocomotionMode Mode, EEnemyLocomotionPhase Phase, bool bInLocomotionLoop)
@@ -761,6 +762,28 @@ void AS1Monster::OnRep_IsDead()
 void AS1Monster::OnRep_HasTarget()
 {
 	OnHasTargetChanged.Broadcast(this, bHasTarget);
+}
+
+void AS1Monster::SetMonsterName(const FText& InMonsterName)
+{
+	if (false == HasAuthority())
+	{
+		return;
+	}
+
+	if (MonsterName.EqualTo(InMonsterName))
+	{
+		return;
+	}
+
+	MonsterName = InMonsterName;
+	OnMonsterNameChanged.Broadcast(this);
+	ForceNetUpdate();
+}
+
+void AS1Monster::OnRep_MonsterName()
+{
+	OnMonsterNameChanged.Broadcast(this);
 }
 
 ES1EnemyTier AS1Monster::GetLockOnTier_Implementation()

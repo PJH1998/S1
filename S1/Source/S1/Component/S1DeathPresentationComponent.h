@@ -7,6 +7,7 @@
 #include "S1DeathPresentationComponent.generated.h"
 
 class UMaterialInstanceDynamic;
+class UTexture2D;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathPresentationComplete);
 
@@ -44,6 +45,27 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Death")
 	FName OpacityParameterName = TEXT("Opacity");
 
+	UPROPERTY(EditDefaultsOnly, Category = "Death", meta = (EditCondition = "PresentationMode == EDeathPresentation::Dissolve", EditConditionHides))
+	TObjectPtr<UTexture2D> DissolveTexture;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Death", meta = (EditCondition = "PresentationMode == EDeathPresentation::Dissolve", EditConditionHides))
+	FName DissolveTextureParameterName = TEXT("DissolveTexture");
+
+	UPROPERTY(EditDefaultsOnly, Category = "Death", meta = (EditCondition = "PresentationMode == EDeathPresentation::Dissolve", EditConditionHides))
+	FName DissolveAmountParameterName = TEXT("DissolveAmount");
+
+	UPROPERTY(EditDefaultsOnly, Category = "Death", meta = (EditCondition = "PresentationMode == EDeathPresentation::Dissolve", EditConditionHides))
+	FLinearColor DissolveEdgeColor = FLinearColor(10.f, 2.f, 0.5f);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Death", meta = (EditCondition = "PresentationMode == EDeathPresentation::Dissolve", EditConditionHides))
+	FName DissolveEdgeColorParameterName = TEXT("DissolveEdgeColor");
+
+	UPROPERTY(EditDefaultsOnly, Category = "Death", meta = (EditCondition = "PresentationMode == EDeathPresentation::Dissolve", EditConditionHides, ClampMin = "0.0"))
+	float DissolveEdgeWidth = 0.05f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Death", meta = (EditCondition = "PresentationMode == EDeathPresentation::Dissolve", EditConditionHides))
+	FName DissolveEdgeWidthParameterName = TEXT("DissolveEdgeWidth");
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -54,6 +76,7 @@ private:
 	void ClearPresentationTimer();
 	void InitializeFadeMaterials();
 	void ApplyFadeAlpha(float Alpha);
+	void ApplyDissolveAmount(float Amount);
 	void ResetFadeMaterials();
 
 	UPROPERTY(Transient)

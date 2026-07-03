@@ -66,6 +66,7 @@ void US1MonsterHPBarComponent::BeginPlay()
 	{
 		OwnerMonster->OnHasTargetChanged.AddDynamic(this, &ThisClass::HandleHasTargetChanged);
 		OwnerMonster->OnReturnedToPool.AddDynamic(this, &ThisClass::HandleReturnedToPool);
+		OwnerMonster->OnMonsterNameChanged.AddDynamic(this, &ThisClass::HandleMonsterNameChanged);
 		UpdateBarVisibility(OwnerMonster->HasTarget());
 	}
 }
@@ -81,6 +82,7 @@ void US1MonsterHPBarComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	{
 		OwnerMonster->OnHasTargetChanged.RemoveDynamic(this, &ThisClass::HandleHasTargetChanged);
 		OwnerMonster->OnReturnedToPool.RemoveDynamic(this, &ThisClass::HandleReturnedToPool);
+		OwnerMonster->OnMonsterNameChanged.RemoveDynamic(this, &ThisClass::HandleMonsterNameChanged);
 	}
 
 	OwnerMonster = nullptr;
@@ -133,6 +135,16 @@ void US1MonsterHPBarComponent::HandleHasTargetChanged(AS1Monster* InMonster, boo
 	}
 
 	UpdateBarVisibility(bInHasTarget);
+}
+
+void US1MonsterHPBarComponent::HandleMonsterNameChanged(AS1Monster* InMonster)
+{
+	if (InMonster != OwnerMonster || MonsterHPBar == nullptr)
+	{
+		return;
+	}
+
+	MonsterHPBar->SetMonster(OwnerMonster);
 }
 
 void US1MonsterHPBarComponent::HandleReturnedToPool(AS1Monster* InMonster)
