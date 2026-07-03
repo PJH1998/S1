@@ -7,6 +7,7 @@
 #include "S1Customize.generated.h"
 
 class UImage;
+class UButton;
 
 /**
  *
@@ -23,6 +24,13 @@ protected:
 	virtual void NativeConstruct() override;
 
 private:
+	UFUNCTION()
+	void OnStartClicked();
+
+private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_CharacterModel;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> Button_Start;
 };
