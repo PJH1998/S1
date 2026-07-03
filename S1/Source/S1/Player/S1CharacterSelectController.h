@@ -23,6 +23,7 @@ public:
 	void OnSelectA();
 	void OnSelectB();
 	void OnWeaponSelect(const FGameplayTag& WeaponTag);
+	void RequestConfirm();
 
 private:
 	void OnConfirm();

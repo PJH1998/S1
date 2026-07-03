@@ -3,8 +3,10 @@
 
 #include "S1Customize.h"
 #include "Components/Image.h"
+#include "Components/Button.h"
 #include "Character/S1SelectCharacter.h"
 #include "Engine/TextureRenderTarget2D.h"
+#include "Player/S1CharacterSelectController.h"
 
 US1Customize::US1Customize(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -21,5 +23,18 @@ void US1Customize::NativeConstruct()
 		{
 			Image_CharacterModel->SetBrushResourceObject(RT);
 		}
+	}
+
+	if (Button_Start)
+	{
+		Button_Start->OnClicked.AddDynamic(this, &ThisClass::OnStartClicked);
+	}
+}
+
+void US1Customize::OnStartClicked()
+{
+	if (AS1CharacterSelectController* Controller = GetOwningPlayer<AS1CharacterSelectController>())
+	{
+		Controller->RequestConfirm();
 	}
 }

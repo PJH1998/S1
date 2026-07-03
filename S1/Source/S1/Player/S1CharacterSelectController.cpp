@@ -72,6 +72,11 @@ void AS1CharacterSelectController::OnWeaponSelect(const FGameplayTag& WeaponTag)
 	PreviewActor->ChangeWeapon(WeaponTag);
 }
 
+void AS1CharacterSelectController::RequestConfirm()
+{
+	OnConfirm();
+}
+
 void AS1CharacterSelectController::OnConfirm()
 {
 	LOG(TEXT("CharacterSelect: Confirm — Selected [%s]"), *CurrentSelectedTag.ToString());
