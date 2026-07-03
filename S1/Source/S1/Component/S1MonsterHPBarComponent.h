@@ -38,6 +38,9 @@ private:
 	void HandleHasTargetChanged(AS1Monster* InMonster, bool bInHasTarget);
 
 	UFUNCTION()
+	void HandleMonsterNameChanged(AS1Monster* InMonster);
+
+	UFUNCTION()
 	void HandleReturnedToPool(AS1Monster* InMonster);
 
 	UFUNCTION()

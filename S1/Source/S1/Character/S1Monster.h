@@ -20,6 +20,7 @@ class UPrimitiveComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMonsterHasTargetChangedDelegate, AS1Monster*, Monster, bool, bHasTarget);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMonsterReturnedToPoolDelegate, AS1Monster*, Monster);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMonsterNameChangedDelegate, AS1Monster*, Monster);
 
 UCLASS()
 class S1_API AS1Monster : public AS1Character, public IS1PoolingInterface, public IS1LockOnInterface
@@ -41,7 +42,7 @@ public:
 	bool				HasTarget()				const { return bHasTarget; }
 	FGameplayTag		GetDropTableTag()	const { return DropTableTag; }
 	const FText&		GetMonsterName()	const { return MonsterName; }
-	void				SetMonsterName(const FText& InMonsterName) { MonsterName = InMonsterName; }
+	void				SetMonsterName(const FText& InMonsterName);
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -93,6 +94,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FMonsterReturnedToPoolDelegate OnReturnedToPool;
 
+	UPROPERTY(BlueprintAssignable)
+	FMonsterNameChangedDelegate OnMonsterNameChanged;
+
 public:
 	/** 사망 시 이동·캡슐 OFF. NotifyDeath에서 호출. */
 	void HandleDeathPrepare();
@@ -141,6 +145,9 @@ protected:
 	void OnRep_HasTarget();
 
 	UFUNCTION()
+	void OnRep_MonsterName();
+
+	UFUNCTION()
 	void OnRep_ReplicatedLocomotionState();
 
 protected:
@@ -168,7 +175,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Drop")
 	FGameplayTag DropTableTag;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Monster")
+	UPROPERTY(ReplicatedUsing = OnRep_MonsterName, EditDefaultsOnly, BlueprintReadOnly, Category = "Monster")
 	FText MonsterName;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawn")
