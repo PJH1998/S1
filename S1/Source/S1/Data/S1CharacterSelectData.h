@@ -35,6 +35,9 @@ struct FS1SelectCharacterEntry
 	// WeaponData에서 조회할 시작 무기 태그 (FS1WeaponEntry 키)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FGameplayTag DefaultWeaponTag;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText DisplayName;
 };
 
 UCLASS()
