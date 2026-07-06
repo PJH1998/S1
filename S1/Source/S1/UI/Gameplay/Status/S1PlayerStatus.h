@@ -6,17 +6,34 @@
 #include "UI/S1BaseWidget.h"
 #include "S1PlayerStatus.generated.h"
 
+class UImage;
+class UTextBlock;
+
 /**
- * 
+ *
  */
 UCLASS()
 class S1_API US1PlayerStatus : public US1BaseWidget
 {
 	GENERATED_BODY()
-	
+
 public:
 	US1PlayerStatus(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+private:
+	void RefreshCharacterInfo();
+
+private:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> Image_Char;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> Text_Name;
+
+private:
+	bool bCharacterInfoInitialized = false;
 };

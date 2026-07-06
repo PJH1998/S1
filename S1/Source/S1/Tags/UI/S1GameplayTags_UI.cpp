@@ -24,10 +24,22 @@ namespace S1UITags
 namespace S1UIResourceTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Heal, "UI.Tex.Heal");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Heal_Female, "UI.Tex.Heal.Female");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Heal_Male, "UI.Tex.Heal.Male");
 
-	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Asna_Skill01, "UI.Tex.Asna.Skill01");
-	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Asna_Skill02, "UI.Tex.Asna.Skill02");
-	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Asna_Skill03, "UI.Tex.Asna.Skill03");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Skill01, "UI.Tex.Skill01");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Skill01_Female, "UI.Tex.Skill01.Female");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Skill01_Male, "UI.Tex.Skill01.Male");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Skill02, "UI.Tex.Skill02");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Skill02_Female, "UI.Tex.Skill02.Female");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Skill02_Male, "UI.Tex.Skill02.Male");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Skill03, "UI.Tex.Skill03");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Skill03_Female, "UI.Tex.Skill03.Female");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Skill03_Male, "UI.Tex.Skill03.Male");
+
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Ultimate, "UI.Tex.Ultimate");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Ultimate_Female, "UI.Tex.Ultimate.Female");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Ultimate_Male, "UI.Tex.Ultimate.Male");
 
 #pragma region Inventory
 	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_BG_Common, "UI.Icon.BG.Common");

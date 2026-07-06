@@ -6,6 +6,10 @@
 #include "Character/S1Monster.h"
 #include "S1Define.h"
 #include "TimerManager.h"
+#include "System/S1AssetManager.h"
+#include "Data/S1EffectData.h"
+#include "Effect/S1Effect.h"
+#include "Tags/S1GameplayTags.h"
 
 AS1Boss000_Gimmick::AS1Boss000_Gimmick()
 {
@@ -146,6 +150,14 @@ FVector AS1Boss000_Gimmick::GetJumpTopLocation() const
 void AS1Boss000_Gimmick::PlayBreakFx()
 {
 	const FVector Center = GetActorLocation();
+
+	if (US1EffectData* EffectData = US1AssetManager::GetAssetByTag<US1EffectData>(S1AssetTags::Asset_Effect))
+	{
+		if (TSubclassOf<AS1Effect> EffectClass = EffectData->FindEffectClassByTag(S1EffectTags::Effect_Particle_Dust))
+		{
+			EffectClass->GetDefaultObject<AS1Effect>()->PlayEffect(GetWorld(), Center, FRotator::ZeroRotator);
+		}
+	}
 
 	UStaticMeshComponent* Fragments[] = { BreakMesh01, BreakMesh02 };
 	for (UStaticMeshComponent* Fragment : Fragments)

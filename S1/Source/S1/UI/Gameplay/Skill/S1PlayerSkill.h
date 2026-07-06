@@ -50,4 +50,6 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill", meta = (AllowPrivateAccess = "true"))
 	TArray<float> CooldownDurations;
+
+	bool bSkillTexturesInitialized = false;
 };

@@ -4,11 +4,26 @@
 #include "UI/Gameplay/Skill/S1PlayerSkill.h"
 
 #include "AbilitySystem/AbilitySystemComponent/Player/S1PlayerAbilitySystemComponent.h"
+#include "Data/S1CharacterSelectData.h"
 #include "Data/S1UIResource.h"
 #include "Player/S1PlayerState.h"
 #include "Tags/S1GameplayTags.h"
 #include "System/S1AssetManager.h"
 #include "UI/Gameplay/Skill/S1SkillIcon.h"
+
+namespace
+{
+	FGameplayTag AppendGenderSuffix(const FGameplayTag& BaseTag, EPlayerGender Gender)
+	{
+		if (false == BaseTag.IsValid())
+		{
+			return BaseTag;
+		}
+
+		const TCHAR* Suffix = (Gender == EPlayerGender::Female) ? TEXT(".Female") : TEXT(".Male");
+		return FGameplayTag::RequestGameplayTag(FName(*(BaseTag.GetTagName().ToString() + Suffix)));
+	}
+}
 
 US1PlayerSkill::US1PlayerSkill(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -29,6 +44,11 @@ void US1PlayerSkill::NativeConstruct()
 void US1PlayerSkill::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	if (false == bSkillTexturesInitialized)
+	{
+		InitializeSkillTextures();
+	}
 
 	AS1PlayerState* PS = GetOwningPlayerState<AS1PlayerState>();
 	US1PlayerAbilitySystemComponent* ASC = PS ? Cast<US1PlayerAbilitySystemComponent>(PS->GetS1AbilitySystemComponent()) : nullptr;
@@ -73,6 +93,20 @@ void US1PlayerSkill::InitializeSkillIcons()
 
 void US1PlayerSkill::InitializeSkillTextures()
 {
+	AS1PlayerState* PS = GetOwningPlayerState<AS1PlayerState>();
+	const FGameplayTag SelectedCharacterTag = PS ? PS->GetSelectedCharacterTag() : FGameplayTag();
+	if (false == SelectedCharacterTag.IsValid())
+	{
+		return;
+	}
+
+	const US1CharacterSelectData* CharacterSelectData = US1AssetManager::GetAssetByTag<US1CharacterSelectData>(S1AssetTags::Asset_CharacterData);
+	const FS1SelectCharacterEntry* Entry = CharacterSelectData ? CharacterSelectData->FindEntryByTag(SelectedCharacterTag) : nullptr;
+	if (Entry == nullptr)
+	{
+		return;
+	}
+
 	const US1UIResource* UIResource = US1AssetManager::GetAssetByTag<US1UIResource>(S1AssetTags::Asset_UIResource);
 	if (UIResource == nullptr)
 	{
@@ -81,9 +115,9 @@ void US1PlayerSkill::InitializeSkillTextures()
 
 	const TArray<FGameplayTag> SkillTextureTags =
 	{
-		S1UIResourceTags::UI_Tex_Asna_Skill01,
-		S1UIResourceTags::UI_Tex_Asna_Skill02,
-		S1UIResourceTags::UI_Tex_Asna_Skill03,
+		S1UIResourceTags::UI_Tex_Skill01,
+		S1UIResourceTags::UI_Tex_Skill02,
+		S1UIResourceTags::UI_Tex_Skill03,
 		S1UIResourceTags::UI_Tex_Heal,
 	};
 
@@ -91,9 +125,12 @@ void US1PlayerSkill::InitializeSkillTextures()
 	{
 		if (US1SkillIcon* SkillIcon = SkillIcons[Index])
 		{
-			SkillIcon->SetIconTexture(UIResource->FindTextureByTag(SkillTextureTags[Index]));
+			const FGameplayTag GenderedTag = AppendGenderSuffix(SkillTextureTags[Index], Entry->Gender);
+			SkillIcon->SetIconTexture(UIResource->FindTextureByTag(GenderedTag));
 		}
 	}
+
+	bSkillTexturesInitialized = true;
 }
 
 void US1PlayerSkill::ApplyCooldowns()
