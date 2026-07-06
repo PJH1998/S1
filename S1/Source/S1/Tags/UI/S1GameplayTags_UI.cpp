@@ -37,6 +37,10 @@ namespace S1UIResourceTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Skill03_Female, "UI.Tex.Skill03.Female");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Skill03_Male, "UI.Tex.Skill03.Male");
 
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Ultimate, "UI.Tex.Ultimate");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Ultimate_Female, "UI.Tex.Ultimate.Female");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Tex_Ultimate_Male, "UI.Tex.Ultimate.Male");
+
 #pragma region Inventory
 	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_BG_Common, "UI.Icon.BG.Common");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_BG_Rare, "UI.Icon.BG.Rare");
