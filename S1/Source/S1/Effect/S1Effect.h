@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "S1Effect.generated.h"
 
+class UNiagaraComponent;
+
 UCLASS()
 class S1_API AS1Effect : public AActor
 {
@@ -23,5 +25,5 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void PlayEffect(UWorld* World, FVector Location, FRotator Rotation) const {}
+	virtual void PlayEffect(UWorld* World, FVector Location, FRotator Rotation, UNiagaraComponent** OutComponent = nullptr) const {}
 };
