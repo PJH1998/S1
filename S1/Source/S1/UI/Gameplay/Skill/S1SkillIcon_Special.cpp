@@ -14,20 +14,6 @@
 #include "System/S1AssetManager.h"
 #include "Tags/S1GameplayTags.h"
 
-namespace
-{
-	FGameplayTag AppendGenderSuffix(const FGameplayTag& BaseTag, EPlayerGender Gender)
-	{
-		if (false == BaseTag.IsValid())
-		{
-			return BaseTag;
-		}
-
-		const TCHAR* Suffix = (Gender == EPlayerGender::Female) ? TEXT(".Female") : TEXT(".Male");
-		return FGameplayTag::RequestGameplayTag(FName(*(BaseTag.GetTagName().ToString() + Suffix)));
-	}
-}
-
 void US1SkillIcon_Special::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -122,7 +108,7 @@ void US1SkillIcon_Special::InitializeIconTexture()
 		return;
 	}
 
-	const FGameplayTag GenderedTag = AppendGenderSuffix(S1UIResourceTags::UI_Tex_Ultimate, Entry->Gender);
+	const FGameplayTag GenderedTag = US1BaseWidget::AppendGenderSuffix(S1UIResourceTags::UI_Tex_Ultimate, Entry->Gender);
 	UTexture2D* IconTexture = UIResource->FindTextureByTag(GenderedTag);
 	if (IconTexture == nullptr || Image_Icon == nullptr)
 	{

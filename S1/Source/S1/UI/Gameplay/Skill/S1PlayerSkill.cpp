@@ -11,20 +11,6 @@
 #include "System/S1AssetManager.h"
 #include "UI/Gameplay/Skill/S1SkillIcon.h"
 
-namespace
-{
-	FGameplayTag AppendGenderSuffix(const FGameplayTag& BaseTag, EPlayerGender Gender)
-	{
-		if (false == BaseTag.IsValid())
-		{
-			return BaseTag;
-		}
-
-		const TCHAR* Suffix = (Gender == EPlayerGender::Female) ? TEXT(".Female") : TEXT(".Male");
-		return FGameplayTag::RequestGameplayTag(FName(*(BaseTag.GetTagName().ToString() + Suffix)));
-	}
-}
-
 US1PlayerSkill::US1PlayerSkill(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -125,7 +111,7 @@ void US1PlayerSkill::InitializeSkillTextures()
 	{
 		if (US1SkillIcon* SkillIcon = SkillIcons[Index])
 		{
-			const FGameplayTag GenderedTag = AppendGenderSuffix(SkillTextureTags[Index], Entry->Gender);
+			const FGameplayTag GenderedTag = US1BaseWidget::AppendGenderSuffix(SkillTextureTags[Index], Entry->Gender);
 			SkillIcon->SetIconTexture(UIResource->FindTextureByTag(GenderedTag));
 		}
 	}

@@ -4,7 +4,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 
-void AS1NiagaraEffect::PlayEffect(UWorld* World, FVector Location, FRotator Rotation, UNiagaraComponent** OutComponent) const
+void AS1NiagaraEffect::PlayEffect(UWorld* World, FVector Location, FRotator Rotation, FVector Scale, UNiagaraComponent** OutComponent) const
 {
 	if (nullptr == World || nullptr == NiagaraSystem)
 	{
@@ -16,7 +16,7 @@ void AS1NiagaraEffect::PlayEffect(UWorld* World, FVector Location, FRotator Rota
 		NiagaraSystem,
 		Location,
 		Rotation,
-		FVector::OneVector,
+		Scale,
 		true,
 		true,
 		ENCPoolMethod::AutoRelease);

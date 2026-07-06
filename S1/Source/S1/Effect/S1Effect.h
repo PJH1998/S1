@@ -25,5 +25,5 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void PlayEffect(UWorld* World, FVector Location, FRotator Rotation, UNiagaraComponent** OutComponent = nullptr) const {}
+	virtual void PlayEffect(UWorld* World, FVector Location, FRotator Rotation, FVector Scale = FVector::OneVector, UNiagaraComponent** OutComponent = nullptr) const {}
 };

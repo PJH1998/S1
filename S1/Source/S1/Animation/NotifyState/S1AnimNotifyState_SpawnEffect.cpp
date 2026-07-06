@@ -46,7 +46,7 @@ void US1AnimNotifyState_SpawnEffect::NotifyBegin(USkeletalMeshComponent* MeshCom
 				PreviewNiagaraSystem,
 				PreviewTransform.GetLocation(),
 				PreviewTransform.GetRotation().Rotator(),
-				FVector::OneVector,
+				PreviewTransform.GetScale3D(),
 				true,
 				true,
 				ENCPoolMethod::AutoRelease);
@@ -94,7 +94,7 @@ void US1AnimNotifyState_SpawnEffect::NotifyBegin(USkeletalMeshComponent* MeshCom
 	{
 		// 소켓을 계속 따라다니지 않고, 스폰 시점의 소켓 트랜스폼에 SpawnOffset을 곱한 결과를 스냅샷으로 사용
 		const FTransform SpawnTransform = GetSpawnOffset() * TargetMesh->GetSocketTransform(GetSpawnSocketName());
-		NiagaraEffectCDO->PlayEffect(MeshComp->GetWorld(), SpawnTransform.GetLocation(), SpawnTransform.GetRotation().Rotator(), &Component);
+		NiagaraEffectCDO->PlayEffect(MeshComp->GetWorld(), SpawnTransform.GetLocation(), SpawnTransform.GetRotation().Rotator(), SpawnTransform.GetScale3D(), &Component);
 	}
 
 	Character->RegisterAttachedEffect(GetEffectTag(), Component);
