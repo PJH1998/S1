@@ -752,7 +752,6 @@ void AS1Monster::OnRep_IsDead()
 		}
 
 		HandleDeathPrepare();
-		BeginDeathPresentation();
 		return;
 	}
 

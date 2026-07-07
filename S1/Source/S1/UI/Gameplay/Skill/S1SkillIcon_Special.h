@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
+#include "S1Enums.h"
 #include "UI/S1BaseWidget.h"
 #include "S1SkillIcon_Special.generated.h"
 
@@ -28,6 +30,8 @@ private:
 	void InitializeGaugeMaterial();
 	void InitializeIconTexture();
 	void UpdateGaugeVisual();
+
+	static FGameplayTag AppendGenderSuffix(const FGameplayTag& BaseTag, EPlayerGender Gender);
 
 private:
 	UPROPERTY(meta = (BindWidget))

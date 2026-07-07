@@ -3,6 +3,7 @@
 #include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayEffectExtension.h"
+#include "Net/UnrealNetwork.h"
 #include "Data/S1DataTableData.h"
 #include "S1DataTableTypes.h"
 #include "System/S1AssetManager.h"
@@ -114,6 +115,30 @@ void US1PlayerSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackDat
 			GetMaxXP(),
 			GetLevel()));
 	}
+}
+
+void US1PlayerSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(US1PlayerSet, CurrentXP, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(US1PlayerSet, MaxXP, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(US1PlayerSet, Level, COND_None, REPNOTIFY_Always);
+}
+
+void US1PlayerSet::OnRep_CurrentXP(const FGameplayAttributeData& OldCurrentXP)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(US1PlayerSet, CurrentXP, OldCurrentXP);
+}
+
+void US1PlayerSet::OnRep_MaxXP(const FGameplayAttributeData& OldMaxXP)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(US1PlayerSet, MaxXP, OldMaxXP);
+}
+
+void US1PlayerSet::OnRep_Level(const FGameplayAttributeData& OldLevel)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(US1PlayerSet, Level, OldLevel);
 }
 
 void US1PlayerSet::LevelUp()
