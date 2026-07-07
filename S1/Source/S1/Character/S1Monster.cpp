@@ -12,6 +12,7 @@
 #include "Component/S1MonsterReactBridgeComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/PrimitiveComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameplayEffect.h"
 #include "Animation/AnimInstance.h"
@@ -27,6 +28,9 @@ AS1Monster::AS1Monster()
 {
 	bReplicates = true;
 	SetReplicateMovement(true);
+
+	// 데디 서버에서도 Locomotion 스테이트 머신/노티파이(Run 전환, Chase 회전 등)가 정상 평가되도록 강제
+	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 
 	AbilitySystemComponent = CreateDefaultSubobject<US1AbilitySystemComponent>("AbilitySystemComponent");
 	DeathPresentationComponent = CreateDefaultSubobject<US1DeathPresentationComponent>(TEXT("DeathPresentationComponent"));

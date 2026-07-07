@@ -29,7 +29,7 @@ void US1EnemyLocomotionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 
 	if (ApproachState == EEnemyApproachState::Approaching)
 	{
-		TickApproach(DeltaTime);
+		TickApproach();
 	}
 }
 
@@ -81,6 +81,7 @@ bool US1EnemyLocomotionComponent::StartApproach(AActor* Target, EEnemyLocomotion
 		AbortApproach(true);
 		return false;
 	}
+	AIController->StopMovement(); // Start 단계에서는 이동 대기, Loop 진입 시 TickApproach에서 재개
 
 	SetComponentTickEnabled(true);
 
@@ -175,7 +176,7 @@ bool US1EnemyLocomotionComponent::IsTargetForward(AActor* Target, float ForwardF
 	return ClassifyTurnDirection(Target, ForwardFovDegrees) == EEnemyTurnDirection::None;
 }
 
-void US1EnemyLocomotionComponent::TickApproach(float DeltaTime)
+void US1EnemyLocomotionComponent::TickApproach()
 {
 	AActor* Target = ApproachTarget.Get();
 	AAIController* AIController = GetMonsterAIController();
@@ -193,15 +194,13 @@ void US1EnemyLocomotionComponent::TickApproach(float DeltaTime)
 		BeginStop();
 		return;
 	}
-	const float TargetSpeed = GetTargetMoveSpeed();
-	if (AnimInstance->bLocomotionLoop || AnimInstance->LocomotionPhase == EEnemyLocomotionPhase::Loop)
+
+	if (AnimInstance->LocomotionPhase != EEnemyLocomotionPhase::Loop)
 	{
-		Movement->MaxWalkSpeed = TargetSpeed;
+		return;
 	}
-	else
-	{
-		Movement->MaxWalkSpeed = FMath::FInterpTo(Movement->MaxWalkSpeed, TargetSpeed, DeltaTime, AccelerationInterpSpeed);
-	}
+
+	Movement->MaxWalkSpeed = GetTargetMoveSpeed();
 	if (UPathFollowingComponent* PathFollowingComponent = AIController->GetPathFollowingComponent())
 	{
 		if (PathFollowingComponent->GetStatus() != EPathFollowingStatus::Moving)

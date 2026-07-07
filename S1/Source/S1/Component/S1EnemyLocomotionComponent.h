@@ -43,7 +43,7 @@ protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	void TickApproach(float DeltaTime);
+	void TickApproach();
 	void BeginStop();
 	void RestoreMovementSpeed();
 
@@ -66,9 +66,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Locomotion|Approach", meta = (ClampMin = "0.0"))
 	float MoveAcceptRadius = { 50.f };
-
-	UPROPERTY(EditAnywhere, Category = "Locomotion|Approach", meta = (ClampMin = "0.0"))
-	float AccelerationInterpSpeed = { 3.f };
 
 	TWeakObjectPtr<AActor> ApproachTarget;
 	EEnemyLocomotionMode LocomotionMode = EEnemyLocomotionMode::Run;
