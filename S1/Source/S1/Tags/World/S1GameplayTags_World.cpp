@@ -16,8 +16,12 @@ namespace S1EffectTags
 	UE_DEFINE_GAMEPLAY_TAG(Effect_Decal_AttackRange, "Effect.Decal.AttackRange");
 #pragma endregion
 
-#pragma region Slash
-	UE_DEFINE_GAMEPLAY_TAG(Effect_Slash, "Effect.Slash");
+#pragma region RPR
+	UE_DEFINE_GAMEPLAY_TAG(Effect_RPR_Slash, "Effect.RPR.Slash");
+	UE_DEFINE_GAMEPLAY_TAG(Effect_RPR_Thrust, "Effect.RPR.Thrust");
+#pragma endregion
+
+#pragma region SWD
 #pragma endregion
 
 #pragma region Impact
