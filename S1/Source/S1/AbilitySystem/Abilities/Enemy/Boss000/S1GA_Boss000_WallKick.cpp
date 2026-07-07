@@ -11,7 +11,6 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Data/S1AnimData.h"
 #include "Engine/World.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Interaction/Gimmick/S1Boss000_Gimmick.h"
 #include "System/S1AssetManager.h"
 #include "System/S1GimmickManager.h"
@@ -286,11 +285,7 @@ void US1GA_Boss000_WallKick::BeginPatternMovement()
 		return;
 	}
 
-	if (UCharacterMovementComponent* Movement = Monster->GetCharacterMovement())
-	{
-		CachedGravityScale = Movement->GravityScale;
-		Movement->GravityScale = 0.f;
-	}
+	SetGravityScale(0.f);
 
 	// 캡슐 콜리전 off — dash가 기둥(WorldStatic)에 막히지 않게. 공격 콜리전 컴포넌트는 별개라 영향 없음.
 	//if (UCapsuleComponent* Capsule = Monster->GetCapsuleComponent())
@@ -308,19 +303,16 @@ void US1GA_Boss000_WallKick::EndPatternMovement()
 		return;
 	}
 
-	if (AS1Boss_000* Monster = GetMonster())
-	{
-		if (UCharacterMovementComponent* Movement = Monster->GetCharacterMovement())
-		{
-			Movement->GravityScale = CachedGravityScale;
-		}
+	ResetGravityScale();
 
-		// 살아있는 상태의 캡슐 콜리전으로 복원(RestoreAliveState와 동일).
-		//if (UCapsuleComponent* Capsule = Monster->GetCapsuleComponent())
-		//{
-		//	Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		//}
-	}
+	// 살아있는 상태의 캡슐 콜리전으로 복원(RestoreAliveState와 동일).
+	//if (AS1Boss_000* Monster = GetMonster())
+	//{
+	//	if (UCapsuleComponent* Capsule = Monster->GetCapsuleComponent())
+	//	{
+	//		Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//	}
+	//}
 
 	bPatternMovementActive = false;
 }

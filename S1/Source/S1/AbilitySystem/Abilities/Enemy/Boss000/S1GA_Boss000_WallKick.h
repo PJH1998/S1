@@ -107,8 +107,7 @@ private:
 	int32 TargetHops = 0;
 	TWeakObjectPtr<AS1Boss000_Gimmick> CurrentPillar;
 
-	// 패턴 이동 상태 복원용(중력 + 캡슐 콜리전).
-	float CachedGravityScale = 1.f;
+	// 패턴 이동 상태 복원용(중력 + 캡슐 콜리전). 중력은 SetGravityScale/ResetGravityScale이 이전값을 캐싱.
 	bool bPatternMovementActive = false;
 
 	// 페이즈 전환 중(이전 몽타주 블렌드아웃 중에 다음 것을 시작) 자기-중단 콜백 무시용.
