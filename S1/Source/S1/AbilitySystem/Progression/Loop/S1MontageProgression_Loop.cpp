@@ -8,6 +8,7 @@
 #include "Animation/S1AnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "S1LogChannels.h"
 
 US1MontageProgression_Loop::US1MontageProgression_Loop()
 {
@@ -179,6 +180,8 @@ void US1MontageProgression_Loop::PlayLoopMontage()
 	{
 		return;
 	}
+
+	LOG_WARNING(TEXT("PlayLoopMontage ENTER"));
 
 	const float Duration = GA->PlayAbilityMontage(LoopMontage);
 	if (Duration <= 0.f)
