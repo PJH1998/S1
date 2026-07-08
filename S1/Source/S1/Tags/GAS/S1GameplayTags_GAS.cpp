@@ -73,8 +73,15 @@ namespace S1StateTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Action,              "State.Action");
 	UE_DEFINE_GAMEPLAY_TAG(State_CanNextAttack,       "State.CanNextAttack");
 	UE_DEFINE_GAMEPLAY_TAG(State_Air,                 "State.Air");
-	UE_DEFINE_GAMEPLAY_TAG(State_Air_Used_WeakAttack, "State.Air.Used.WeakAttack");
-	UE_DEFINE_GAMEPLAY_TAG(State_Air_Used_Skill01,    "State.Air.Used.Skill01");
+
+	UE_DEFINE_GAMEPLAY_TAG(State_Used_Air,            "State.Used.Air");
+	UE_DEFINE_GAMEPLAY_TAG(State_Used_Air_WeakAttack, "State.Used.Air.WeakAttack");
+	UE_DEFINE_GAMEPLAY_TAG(State_Used_Air_Assault, "State.Used.Air.Assault");
+	UE_DEFINE_GAMEPLAY_TAG(State_Used_Air_Skill01, "State.Used.Air.Skill01");
+	UE_DEFINE_GAMEPLAY_TAG(State_Used_Air_Skill02, "State.Used.Air.Skill02");
+	UE_DEFINE_GAMEPLAY_TAG(State_Used_Air_Skill03, "State.Used.Air.Skill03");
+	UE_DEFINE_GAMEPLAY_TAG(State_Used_Air_Skill04, "State.Used.Air.Skill04");
+
 	UE_DEFINE_GAMEPLAY_TAG(State_Invincible,          "State.Invincible");
 	UE_DEFINE_GAMEPLAY_TAG(State_Boss_Guard,          "State.Boss.Guard");
 	UE_DEFINE_GAMEPLAY_TAG(State_Enemy_Attacking,     "State.Enemy.Attacking");

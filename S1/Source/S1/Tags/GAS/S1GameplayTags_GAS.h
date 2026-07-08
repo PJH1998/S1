@@ -82,8 +82,16 @@ namespace S1StateTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Action);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_CanNextAttack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air_Used_WeakAttack);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air_Used_Skill01);
+
+	// 상위 태그 — State.Air 하위가 아니라 별도 트리라서(State.Used.Air.*), 착지 시 State.Air와 별개로 이 트리도 같이 정리해야 함
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Used_Air);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Used_Air_WeakAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Used_Air_Assault);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Used_Air_Skill01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Used_Air_Skill02);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Used_Air_Skill03);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Used_Air_Skill04);
+
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Invincible);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Boss_Guard);

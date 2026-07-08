@@ -73,8 +73,8 @@ private:
 	// 점프 GAS 처리 본체 — 소유 클라/서버 각 머신에서 로컬 실행
 	void HandleJumpGAS();
 
-	// 공중 상태 적용 — true면 State.Air 부여, false면 State.Air 및 모든 하위(State.Air.Used.*)까지 제거
-	// (하위 태그가 State.Air에 계층 매칭되어 남으면 지상에서도 공중공격으로 오판정됨)
+	// 공중 상태 적용 — true면 State.Air 부여, false면 State.Air 하위 전부 + State.Used.Air 하위 전부 제거
+	// (하위 태그가 남으면 지상에서도 공중공격으로 오판정되거나, 공중 스킬 1회 제한 태그가 안 풀림)
 	void ApplyAirState(bool bInAir);
 
 	// 스프린트 상태를 서버에 전달 (이동속도 + 복제 bSprint 갱신)
@@ -173,6 +173,11 @@ private:
 	// 공중 상태 태그
 	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
 	FGameplayTag AirStateTag;
+
+	// 공중 스킬 1회 제한용 상위 태그(State.Used.Air.*) — AirStateTag(State.Air) 하위가 아닌 별도 트리라
+	// 착지 시 ApplyAirState(false)에서 AirStateTag와 별개로 이 트리도 같이 제거해야 함
+	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
+	FGameplayTag UsedAirStateTag;
 
 	void EquipWeapon(const FGameplayTag& ItemTag);
 

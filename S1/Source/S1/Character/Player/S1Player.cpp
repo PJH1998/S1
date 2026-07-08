@@ -400,12 +400,12 @@ void AS1Player::ApplyAirState(bool bInAir)
 		return;
 	}
 
-	// 지상 — State.Air 및 모든 하위(State.Air.Used.WeakAttack 등)까지 제거
+	// 지상 — State.Air 하위 전부 + State.Used.Air 하위 전부 제거(둘은 서로 다른 트리라 따로 매칭 필요)
 	FGameplayTagContainer OwnedTags;
 	AbilitySystemComponent->GetOwnedGameplayTags(OwnedTags);
 	for (const FGameplayTag& Tag : OwnedTags)
 	{
-		if (Tag.MatchesTag(AirStateTag))
+		if (Tag.MatchesTag(AirStateTag) || (UsedAirStateTag.IsValid() && Tag.MatchesTag(UsedAirStateTag)))
 		{
 			AbilitySystemComponent->SetLooseGameplayTagCount(Tag, 0);
 		}
