@@ -19,7 +19,7 @@ public:
 	virtual float GetDamageMultiplier() const override;
 
 protected:
-	virtual void OnLoopCycleCompleted() override;
+	virtual void OnLoopCycleCompleted(FGameplayTag EffectTag) override;
 
 private:
 	// 사이클 0, 1, 2 ... 순서의 데미지 배율

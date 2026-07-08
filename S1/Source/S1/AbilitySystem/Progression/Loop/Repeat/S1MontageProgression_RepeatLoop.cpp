@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Progression/Loop/Repeat/S1MontageProgression_RepeatLoop.h"
+#include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
 
 void US1MontageProgression_RepeatLoop::OnActivated()
 {
@@ -26,9 +27,14 @@ void US1MontageProgression_RepeatLoop::OnInputReleased()
 	ExitLoop(nullptr, bImmediateExitOnKeyUp);
 }
 
-void US1MontageProgression_RepeatLoop::OnLoopCycleCompleted()
+void US1MontageProgression_RepeatLoop::OnLoopCycleCompleted(FGameplayTag EffectTag)
 {
 	++LoopCount;
+
+	if (GA.IsValid())
+	{
+		GA->OnProgressionCycleCompleted(EffectTag, LoopCount, MaxLoopCount);
+	}
 }
 
 bool US1MontageProgression_RepeatLoop::ShouldExitLoop() const

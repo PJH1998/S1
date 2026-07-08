@@ -17,8 +17,16 @@ namespace S1EffectTags
 #pragma endregion
 
 #pragma region RPR
-	UE_DEFINE_GAMEPLAY_TAG(Effect_RPR_Slash, "Effect.RPR.Slash");
-	UE_DEFINE_GAMEPLAY_TAG(Effect_RPR_Thrust, "Effect.RPR.Thrust");
+	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Slash01, "Effect.Player.Slash01");
+	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Slash02, "Effect.Player.Slash02");
+
+	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Thrust01, "Effect.Player.Thrust01");
+
+	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Wave01, "Effect.Player.Wave01");
+	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Wave02, "Effect.Player.Wave02");
+
+	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Aura01, "Effect.Player.Aura01");
+	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Aura02, "Effect.Player.Aura02");
 #pragma endregion
 
 #pragma region SWD

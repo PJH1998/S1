@@ -172,6 +172,12 @@ void AS1PlayerController::InitPawnInput(APawn* InPawn)
 
 void AS1PlayerController::SetupAbilityInputBindings(const TArray<FS1AbilityInputBinding>& Bindings)
 {
+	// 리슨 서버 로컬 플레이어는 OnPossess+AcknowledgePossession 둘 다 여기 도달 — 두 번째 호출 무시
+	if (bAbilityInputBound)
+	{
+		return;
+	}
+
 	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent);
 	if (false == IsValid(EIC))
 	{
@@ -183,6 +189,8 @@ void AS1PlayerController::SetupAbilityInputBindings(const TArray<FS1AbilityInput
 	{
 		return;
 	}
+
+	bAbilityInputBound = true;
 
 	for (const FS1AbilityInputBinding& Binding : Bindings)
 	{

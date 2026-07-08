@@ -8,7 +8,7 @@
 #include "S1MontageProgression_Loop.generated.h"
 
 // 몽타주 기반: StartMontage → LoopMontage (반복) → EndMontage
-// 사이클 감지: OnLoopMontageEnded → OnLoopCycleCompleted() → ShouldExitLoop()
+// 사이클 감지: OnLoopMontageBlendingOut/OnLoopCycleEventReceived → OnLoopCycleCompleted(EffectTag) → ShouldExitLoop()
 // 탈출: LoopEndEventTag 이벤트 수신 or 키업(OnInputReleased) → ExitLoop()
 // BlendOut=0 필수 (Start/Loop 몽타주) — 기본값 0.25면 idle 비침
 UCLASS()
@@ -27,7 +27,8 @@ public:
 	virtual bool		 WillHandleAbilityEnd() const override { return true; }
 
 protected:
-	virtual void OnLoopCycleCompleted() {}
+	// EffectTag: OnLoopCycleEventReceived의 Payload.InstigatorTags에서 추출(없으면 Invalid) — Charge류 서브클래스가 사용
+	virtual void OnLoopCycleCompleted(FGameplayTag EffectTag) {}
 	virtual bool ShouldExitLoop() const { return false; }
 
 	// ShouldExitLoop() true 시 재생할 End 몽타주 — nullptr이면 EndMontage 사용

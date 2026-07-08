@@ -24,6 +24,9 @@ protected:
 	FGameplayTag GetEffectTag() const { return EffectTag; }
 	FName GetSpawnSocketName() const { return SpawnSocketName; }
 	const FTransform& GetSpawnOffset() const { return SpawnOffset; }
+	ES1EffectAttachTarget GetAttachTarget() const { return AttachTarget; }
+	const FLinearColor& GetInitialColor() const { return InitialColor; }
+	FName GetColorParameterName() const { return ColorParameterName; }
 
 	// AssetTag/EffectTag로 EffectData에서 Niagara Effect CDO를 찾음 — 못 찾으면 nullptr
 	AS1NiagaraEffect* FindNiagaraEffectCDO() const;
@@ -58,4 +61,12 @@ private:
 	// 소켓 기준 로컬 오프셋(Location/Rotation/Scale) — Effect Local에 곱해지는 소켓 상대 트랜스폼
 	UPROPERTY(EditAnywhere, Category = "Effect")
 	FTransform SpawnOffset = FTransform::Identity;
+
+	// 스폰 시 NS의 Color User Parameter에 1회 설정 — 캐릭터/스킬별로 같은 NS를 다른 색으로 재사용할 때 사용
+	// (ColorParameterName이 NS에 없는 이름이면 Niagara가 조용히 무시함 — 안 써도 안전)
+	UPROPERTY(EditAnywhere, Category = "Effect")
+	FLinearColor InitialColor = FLinearColor::White;
+
+	UPROPERTY(EditAnywhere, Category = "Effect")
+	FName ColorParameterName = TEXT("Color");
 };

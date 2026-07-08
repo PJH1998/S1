@@ -1,10 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Animation/NotifyState/S1AnimNotifyState_SpawnEffect.h"
+#include "Animation/S1EffectSpawnLibrary.h"
 #include "Effect/NiagaraEffect/S1NiagaraEffect.h"
 #include "Character/S1Character.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#if WITH_EDITOR
+#include "PrimitiveDrawingUtils.h"
+#endif
 
 void US1AnimNotifyState_SpawnEffect::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
@@ -35,13 +39,15 @@ void US1AnimNotifyState_SpawnEffect::NotifyBegin(USkeletalMeshComponent* MeshCom
 
 			if (nullptr != PreviewComponent)
 			{
-				PreviewComponent->SetAbsolute(false, !bFollowSocketRotation, true);
+				// Scale은 항상 절대값(부모 스케일 무시), Location/Rotation은 소켓 그대로 추종
+				PreviewComponent->SetAbsolute(false, false, true);
+				PreviewComponent->SetVariableLinearColor(GetColorParameterName(), GetInitialColor());
 			}
 		}
 		else
 		{
-			const FTransform PreviewTransform = GetSpawnOffset() * MeshComp->GetSocketTransform(GetSpawnSocketName());
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			const FTransform PreviewTransform = S1EffectSpawnLibrary::ComputeSpawnTransform(MeshComp, GetSpawnSocketName(), GetSpawnOffset());
+			UNiagaraComponent* PreviewComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 				MeshComp->GetWorld(),
 				PreviewNiagaraSystem,
 				PreviewTransform.GetLocation(),
@@ -50,6 +56,11 @@ void US1AnimNotifyState_SpawnEffect::NotifyBegin(USkeletalMeshComponent* MeshCom
 				true,
 				true,
 				ENCPoolMethod::AutoRelease);
+
+			if (nullptr != PreviewComponent)
+			{
+				PreviewComponent->SetVariableLinearColor(GetColorParameterName(), GetInitialColor());
+			}
 		}
 		return;
 	}
@@ -84,17 +95,22 @@ void US1AnimNotifyState_SpawnEffect::NotifyBegin(USkeletalMeshComponent* MeshCom
 	{
 		NiagaraEffectCDO->PlayEffectAttached(TargetMesh, GetSpawnSocketName(), GetSpawnOffset(), &Component);
 
-		// Scale은 항상 절대값, Rotation은 bFollowSocketRotation 옵션에 따라 소켓 추종 여부 결정
+		// Scale은 항상 절대값(부모 스케일 무시), Location/Rotation은 소켓 그대로 추종
 		if (nullptr != Component)
 		{
-			Component->SetAbsolute(false, !bFollowSocketRotation, true);
+			Component->SetAbsolute(false, false, true);
 		}
 	}
 	else
 	{
-		// 소켓을 계속 따라다니지 않고, 스폰 시점의 소켓 트랜스폼에 SpawnOffset을 곱한 결과를 스냅샷으로 사용
-		const FTransform SpawnTransform = GetSpawnOffset() * TargetMesh->GetSocketTransform(GetSpawnSocketName());
+		// 소켓을 계속 따라다니지 않고, 스폰 시점의 트랜스폼을 스냅샷으로 사용
+		const FTransform SpawnTransform = S1EffectSpawnLibrary::ComputeSpawnTransform(TargetMesh, GetSpawnSocketName(), GetSpawnOffset());
 		NiagaraEffectCDO->PlayEffect(MeshComp->GetWorld(), SpawnTransform.GetLocation(), SpawnTransform.GetRotation().Rotator(), SpawnTransform.GetScale3D(), &Component);
+	}
+
+	if (nullptr != Component)
+	{
+		Component->SetVariableLinearColor(GetColorParameterName(), GetInitialColor());
 	}
 
 	Character->RegisterAttachedEffect(GetEffectTag(), Component);
@@ -115,12 +131,20 @@ void US1AnimNotifyState_SpawnEffect::NotifyEnd(USkeletalMeshComponent* MeshComp,
 		return;
 	}
 
-	if (bAttachToSocket)
-	{
-		Character->DetachAttachedEffect(GetEffectTag());
-	}
-	else
-	{
-		Character->RemoveAttachedEffect(GetEffectTag());
-	}
+	Character->EndAttachedEffect(GetEffectTag());
 }
+
+#if WITH_EDITOR
+void US1AnimNotifyState_SpawnEffect::DrawInEditor(FPrimitiveDrawInterface* PDI, USkeletalMeshComponent* MeshComp, const UAnimSequenceBase* Animation, const FAnimNotifyEvent& NotifyEvent) const
+{
+	if (nullptr == PDI || nullptr == MeshComp)
+	{
+		return;
+	}
+
+	// 무기/캐릭터 컨텍스트가 없는 프리뷰 환경이므로 항상 캐릭터 메시 소켓 기준으로 계산
+	const FTransform SpawnTransform = S1EffectSpawnLibrary::ComputeSpawnTransform(MeshComp, GetSpawnSocketName(), GetSpawnOffset());
+	DrawCoordinateSystem(PDI, SpawnTransform.GetLocation(), SpawnTransform.GetRotation().Rotator(), 20.f, SDPG_Foreground);
+	DrawWireSphere(PDI, SpawnTransform, FLinearColor::Yellow, 5.f, 12, SDPG_Foreground);
+}
+#endif

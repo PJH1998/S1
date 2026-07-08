@@ -52,20 +52,27 @@ public:
 	// Replicated 아님 — 각 머신이 자기 로컬 Niagara 인스턴스만 추적(몽타주 자체가 이미 서버/클라 각각 재생되므로 이 함수도 각 머신에서 로컬로 호출됨)
 	void RegisterAttachedEffect(FGameplayTag EffectKey, UNiagaraComponent* Component);
 
-	// EffectKey로 등록된 이펙트 중 가장 먼저 등록된(=먼저 시작된) 것부터 소켓에서 분리(현재 월드 트랜스폼 유지) — Begin/End가 순서대로 쌍을 이룬다는 전제(FIFO)
-	void DetachAttachedEffect(FGameplayTag EffectKey);
-
-	// 애초에 소켓에 붙은 적 없는 이펙트용 — Detach 없이 가장 먼저 등록된 것부터 Map에서만 제거(FIFO)
-	void RemoveAttachedEffect(FGameplayTag EffectKey);
+	// EffectKey로 등록된 이펙트 중 가장 먼저 등록된(=먼저 시작된) 것부터 종료 — Begin/End가 순서대로 쌍을 이룬다는 전제(FIFO)
+	// 현재 소켓에 부착돼 있으면(GetAttachParent() 확인) Detach 후 정리, 부착된 적 없으면 그냥 Map에서만 제거 — 호출부가 Attach 여부를 몰라도 됨
+	// LifetimeAfterEnd가 0보다 크면 그 시간(초) 뒤에 강제로 Deactivate — NS 자체 Duration/Loop 설정이 잘못돼도 확실히 정리되는 안전장치
+	void EndAttachedEffect(FGameplayTag EffectKey, float LifetimeAfterEnd = 0.f);
 
 	// EffectKey로 등록된 이펙트 목록 조회(제거 없이 Peek) — NotifyTick 등에서 활성 인스턴스에 값을 계속 흘려보낼 때 사용
 	const TArray<TWeakObjectPtr<UNiagaraComponent>>* FindAttachedEffects(FGameplayTag EffectKey) const;
+
+	// bAutoRelease=false로 스폰돼 스스로 안 사라지는 컴포넌트를, 더 이상 재사용 안 할 시점(예: Charge 마지막 사이클)에 호출
+	// 스폰 시점이 아니라 "진짜 끝났다"고 판단되는 시점에 직접 걸어야 함 — 스폰 시 걸면 Once+Burst NS는 매 재트리거(Activate)마다
+	// OnSystemFinished가 발화해서 첫 사이클만에 파괴돼버림. Infinite NS는 이 이벤트가 런타임에 발화 안 하므로 걸어도 무해
+	void ArmEffectAutoDestroy(UNiagaraComponent* Component);
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION()
 	void OnRep_GravityScale();
+
+	UFUNCTION()
+	void OnManagedEffectFinished(UNiagaraComponent* FinishedComponent);
 
 	UPROPERTY(ReplicatedUsing = OnRep_GravityScale)
 	float RepGravityScale = 1.f;

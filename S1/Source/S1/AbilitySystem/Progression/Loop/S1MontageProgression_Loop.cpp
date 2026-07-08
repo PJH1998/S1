@@ -269,7 +269,7 @@ void US1MontageProgression_Loop::OnLoopMontageBlendingOut(UAnimMontage* Montage,
 		return;
 	}
 
-	OnLoopCycleCompleted();
+	OnLoopCycleCompleted(FGameplayTag());
 
 	if (bEndRequested || ShouldExitLoop())
 	{
@@ -329,7 +329,14 @@ void US1MontageProgression_Loop::OnLoopStartEventReceived(const FGameplayEventDa
 
 void US1MontageProgression_Loop::OnLoopCycleEventReceived(const FGameplayEventData* Payload)
 {
-	OnLoopCycleCompleted();
+	// Charge류 전용 Notify(SpawnLoopCycleEffect)만 InstigatorTags에 EffectTag를 실어 보냄 — 일반 SendGameplayEvent는 비워둠(Invalid)
+	FGameplayTag EffectTag;
+	if (nullptr != Payload && Payload->InstigatorTags.Num() > 0)
+	{
+		EffectTag = Payload->InstigatorTags.GetByIndex(0);
+	}
+
+	OnLoopCycleCompleted(EffectTag);
 
 	if (bEndRequested || ShouldExitLoop())
 	{

@@ -108,7 +108,7 @@ void AS1Character::RegisterAttachedEffect(FGameplayTag EffectKey, UNiagaraCompon
 	ActiveAttachedEffects.FindOrAdd(EffectKey).Add(Component);
 }
 
-void AS1Character::DetachAttachedEffect(FGameplayTag EffectKey)
+void AS1Character::EndAttachedEffect(FGameplayTag EffectKey, float LifetimeAfterEnd)
 {
 	TArray<TWeakObjectPtr<UNiagaraComponent>>* FoundArray = ActiveAttachedEffects.Find(EffectKey);
 	if (nullptr == FoundArray || 0 == FoundArray->Num())
@@ -116,31 +116,61 @@ void AS1Character::DetachAttachedEffect(FGameplayTag EffectKey)
 		return;
 	}
 
-	// 가장 먼저 등록된(Begin이 가장 먼저 호출된) 인스턴스부터 Detach — FIFO
+	// 가장 먼저 등록된(Begin이 가장 먼저 호출된) 인스턴스부터 처리 — FIFO
 	TWeakObjectPtr<UNiagaraComponent> OldestEntry = (*FoundArray)[0];
 	FoundArray->RemoveAt(0);
 
-	if (UNiagaraComponent* Component = OldestEntry.Get())
-	{
-		Component->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-	}
-}
-
-void AS1Character::RemoveAttachedEffect(FGameplayTag EffectKey)
-{
-	TArray<TWeakObjectPtr<UNiagaraComponent>>* FoundArray = ActiveAttachedEffects.Find(EffectKey);
-	if (nullptr == FoundArray || 0 == FoundArray->Num())
+	UNiagaraComponent* Component = OldestEntry.Get();
+	if (nullptr == Component)
 	{
 		return;
 	}
 
-	// 애초에 부착된 적 없으므로 Detach 없이 그냥 제거만 — FIFO
-	FoundArray->RemoveAt(0);
+	// 현재 부착돼 있는지는 컴포넌트 스스로 알 수 있으므로 호출부가 Attach 여부를 몰라도 됨
+	if (nullptr != Component->GetAttachParent())
+	{
+		Component->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	}
+
+	if (LifetimeAfterEnd > 0.f)
+	{
+		TWeakObjectPtr<UNiagaraComponent> WeakComponent = Component;
+		FTimerHandle TimerHandle;
+		GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([WeakComponent]()
+		{
+
+			if (UNiagaraComponent* TimedOutComponent = WeakComponent.Get())
+			{
+				TimedOutComponent->Deactivate();
+			}
+		}), LifetimeAfterEnd, false);
+	}
+	else
+	{
+		// 0 이하면 대기 없이 즉시 Deactivate — NS 자체 Loop/Duration 설정에 기대지 않고 확실히 스폰 중단
+		Component->Deactivate();
+	}
 }
 
 const TArray<TWeakObjectPtr<UNiagaraComponent>>* AS1Character::FindAttachedEffects(FGameplayTag EffectKey) const
 {
 	return ActiveAttachedEffects.Find(EffectKey);
+}
+
+void AS1Character::ArmEffectAutoDestroy(UNiagaraComponent* Component)
+{
+	if (::IsValid(Component))
+	{
+		Component->OnSystemFinished.AddUniqueDynamic(this, &AS1Character::OnManagedEffectFinished);
+	}
+}
+
+void AS1Character::OnManagedEffectFinished(UNiagaraComponent* FinishedComponent)
+{
+	if (::IsValid(FinishedComponent))
+	{
+		FinishedComponent->DestroyComponent();
+	}
 }
 
 void AS1Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

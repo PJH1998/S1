@@ -24,9 +24,9 @@ float US1MontageProgression_RepeatLoopScaled::GetDamageMultiplier() const
 	return DamageScaleStages[FMath::Clamp(CurrentStage, 0, DamageScaleStages.Num() - 1)];
 }
 
-void US1MontageProgression_RepeatLoopScaled::OnLoopCycleCompleted()
+void US1MontageProgression_RepeatLoopScaled::OnLoopCycleCompleted(FGameplayTag EffectTag)
 {
-	Super::OnLoopCycleCompleted();  // ++LoopCount
+	Super::OnLoopCycleCompleted(EffectTag);  // ++LoopCount (+ GA->OnProgressionCycleCompleted 전달)
 
 	if (false == DamageScaleStages.IsEmpty())
 	{
