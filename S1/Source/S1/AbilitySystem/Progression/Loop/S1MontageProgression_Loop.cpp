@@ -370,5 +370,5 @@ void US1MontageProgression_Loop::OnLoopCycleEventReceived(const FGameplayEventDa
 
 void US1MontageProgression_Loop::OnLoopEndEventReceived(FGameplayEventData Payload)
 {
-	ExitLoop();
+	ExitLoop(nullptr, bImmediateExitOnLoopEnd);
 }

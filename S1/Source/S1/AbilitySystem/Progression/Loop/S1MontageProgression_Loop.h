@@ -59,9 +59,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Loop")
 	FGameplayTag LoopCycleEventTag;
 
-	// 외부 이벤트로 즉시 탈출 (선택 — 비워두면 키업/MaxCount로만 탈출)
+	// 외부 이벤트로 탈출 요청 (선택 — 비워두면 키업/MaxCount로만 탈출)
+	// 실제로 즉시 끊을지는 bImmediateExitOnLoopEnd가 결정 — 기본은 현재 Loop 사이클이 끝날 때까지 대기 후 End
 	UPROPERTY(EditDefaultsOnly, Category = "Loop")
 	FGameplayTag LoopEndEventTag;
+
+	// true: LoopEndEventTag 수신 즉시 Loop 중단 후 End로 점프 / false: 현재 Loop 사이클이 끝난 후 End로
+	// (e.g. Dive가 착지 이벤트를 받고도 Loop를 어색하게 더 재생하는 문제 — true로 즉시 착지 모션 전환 가능)
+	UPROPERTY(EditDefaultsOnly, Category = "Loop")
+	bool bImmediateExitOnLoopEnd = false;
 
 	// Loop 재시작 시 Inertialization 블렌드 시간 (0이면 비활성)
 	UPROPERTY(EditDefaultsOnly, Category = "Loop")

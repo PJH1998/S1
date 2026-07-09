@@ -34,7 +34,15 @@ USkeletalMeshComponent* S1EffectSpawnLibrary::ResolveTargetMesh(ES1EffectAttachT
 	}
 
 	AS1Player* Player = Cast<AS1Player>(Character);
-	AS1Weapon* Weapon = ::IsValid(Player) ? Player->GetEquippedWeapon() : nullptr;
+	if (false == ::IsValid(Player))
+	{
+		return nullptr;
+	}
+
+	AS1Weapon* Weapon = (ES1EffectAttachTarget::OffHandWeapon == AttachTarget)
+		? Player->GetEquippedOffhandWeapon()
+		: Player->GetEquippedWeapon();
+
 	return ::IsValid(Weapon) ? Weapon->GetWeaponMesh() : nullptr;
 }
 

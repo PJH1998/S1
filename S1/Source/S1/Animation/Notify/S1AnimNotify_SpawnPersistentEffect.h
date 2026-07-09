@@ -37,9 +37,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Effect")
 	FGameplayTag EffectTag;
 
-	// Weapon이면 장착 무기의 WeaponMesh 소켓에서, Character면 캐릭터 메시 소켓에서 스폰
+	// Character/MainHandWeapon/OffHandWeapon 중 어느 메시 소켓에서 스폰할지
 	UPROPERTY(EditAnywhere, Category = "Effect")
-	ES1EffectAttachTarget AttachTarget = ES1EffectAttachTarget::Weapon;
+	ES1EffectAttachTarget AttachTarget = ES1EffectAttachTarget::MainHandWeapon;
 
 	UPROPERTY(EditAnywhere, Category = "Effect")
 	FName SpawnSocketName;

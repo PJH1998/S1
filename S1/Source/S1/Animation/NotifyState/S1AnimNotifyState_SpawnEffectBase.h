@@ -31,7 +31,7 @@ protected:
 	// AssetTag/EffectTag로 EffectData에서 Niagara Effect CDO를 찾음 — 못 찾으면 nullptr
 	AS1NiagaraEffect* FindNiagaraEffectCDO() const;
 
-	// AttachTarget 설정에 따라 Weapon(장착 무기 메시)/Character(캐릭터 메시) 중 스폰 대상 메시 결정 — 못 찾으면 nullptr
+	// AttachTarget 설정에 따라 Character/MainHandWeapon/OffHandWeapon 중 스폰 대상 메시 결정 — 못 찾으면 nullptr
 	USkeletalMeshComponent* ResolveTargetMesh(AS1Character* Character, USkeletalMeshComponent* CharacterMesh) const;
 
 #if WITH_EDITORONLY_DATA
@@ -51,9 +51,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Effect")
 	FGameplayTag EffectTag;
 
-	// Weapon이면 장착 무기의 WeaponMesh 소켓에서, Character면 캐릭터 메시 소켓에서 스폰
+	// Character/MainHandWeapon/OffHandWeapon 중 어느 메시 소켓에서 스폰할지
 	UPROPERTY(EditAnywhere, Category = "Effect")
-	ES1EffectAttachTarget AttachTarget = ES1EffectAttachTarget::Weapon;
+	ES1EffectAttachTarget AttachTarget = ES1EffectAttachTarget::MainHandWeapon;
 
 	UPROPERTY(EditAnywhere, Category = "Effect")
 	FName SpawnSocketName;
