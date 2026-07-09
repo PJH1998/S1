@@ -98,6 +98,12 @@ void AS1Character::OnRep_GravityScale()
 	}
 }
 
+void AS1Character::MulticastSetHitLaunchData_Implementation(FVector Velocity, FVector Facing)
+{
+	PendingHitLaunchVelocity  = Velocity;
+	PendingHitFacingDirection = Facing;
+}
+
 void AS1Character::RegisterAttachedEffect(FGameplayTag EffectKey, UNiagaraComponent* Component)
 {
 	if (false == EffectKey.IsValid() || false == ::IsValid(Component))

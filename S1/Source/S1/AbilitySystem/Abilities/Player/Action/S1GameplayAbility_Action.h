@@ -115,10 +115,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	FGameplayTag ActionStateTag;
 
-	// 이 이벤트 수신 시 OnEarlyMoveEnabled 호출 (empty = EarlyMove 비활성)
+protected:
+	// 이 이벤트 수신 시 OnEarlyMoveEnabled 호출 (empty = EarlyMove 비활성) — 서브클래스 생성자에서 비활성화할 수 있도록 protected(ex. GA_Hit)
 	UPROPERTY(EditDefaultsOnly, Category = "Action|EarlyMove")
 	FGameplayTag EarlyMoveEventTag;
 
+private:
 	// 점프 감지용 이벤트 태그 — Character::Jump()에서 SendGameplayEventToActor로 전송
 	// (empty = 점프 감지 안 함)
 	UPROPERTY(EditDefaultsOnly, Category = "Action|EarlyMove")

@@ -6,6 +6,7 @@
 #include "Camera/S1PlayerCameraComponent.h"
 #include "Component/S1LockOnComponent.h"
 #include "Component/S1EquipComponent.h"
+#include "Component/S1PlayerReactBridgeComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -23,6 +24,10 @@
 #include "Player/S1PlayerState.h"
 #include "Tags/S1GameplayTags.h"
 #include "Net/UnrealNetwork.h"
+#include "S1LogChannels.h"
+#include "Components/InputComponent.h"
+#include "GameFramework/WorldSettings.h"
+#include "Engine/World.h"
 
 #include "LevelSequence.h"
 #include "LevelSequencePlayer.h"
@@ -64,6 +69,9 @@ AS1Player::AS1Player()
 
 	// LockOn
 	LockOnComponent = CreateDefaultSubobject<US1LockOnComponent>(TEXT("LockOnComponent"));
+
+	// 피격 리액션 브릿지 (GE 적용 감지 → GA_Hit 트리거)
+	ReactBridgeComponent = CreateDefaultSubobject<US1PlayerReactBridgeComponent>(TEXT("ReactBridgeComponent"));
 
 	// SpringArm
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
@@ -119,6 +127,19 @@ void AS1Player::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	InitSystem();
+
+	// 무기 무관 공용 어빌리티(GA_Hit 등) — EquipWeapon의 WeaponAbilitiesTag 그룹과 별개 그룹이라
+	// 무기 교체(RemoveCharacterAbilities(CurrentWeaponAbilitiesTag))에 영향받지 않고 계속 유지됨
+	if (IsValid(AbilitySystemComponent) && DefaultAbilitiesTag.IsValid())
+	{
+		AbilitySystemComponent->AddCharacterAbilities(DefaultAbilitiesTag);
+	}
+
+	// ReactBridgeComponent도 BeginPlay 시점엔 ASC가 아직 없어서 바인딩 실패 — 여기서(ASC 준비된 시점) 바인딩
+	if (IsValid(ReactBridgeComponent))
+	{
+		ReactBridgeComponent->BindAbilitySystem();
+	}
 
 	FGameplayTag InitialTag = FGameplayTag::EmptyTag;
 
@@ -428,6 +449,54 @@ void AS1Player::ServerSetSprinting_Implementation(bool bInSprint)
 {
 	bSprint = bInSprint;
 	GetCharacterMovement()->MaxWalkSpeed = bSprint ? SprintSpeed : WalkSpeed;
+}
+
+void AS1Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+#if !UE_BUILD_SHIPPING
+	if (IsValid(PlayerInputComponent))
+	{
+		PlayerInputComponent->BindKey(EKeys::NumPadSeven, IE_Pressed, this, &ThisClass::DebugTriggerHit_Weak);
+		PlayerInputComponent->BindKey(EKeys::NumPadEight, IE_Pressed, this, &ThisClass::DebugTriggerHit_Strong);
+		PlayerInputComponent->BindKey(EKeys::NumPadNine,  IE_Pressed, this, &ThisClass::DebugTriggerHit_ToAir);
+	}
+#endif
+}
+
+void AS1Player::DebugTriggerHit_Weak()
+{
+	ServerDebugTriggerHit(S1HitType::HitType_Weak);
+}
+
+void AS1Player::DebugTriggerHit_Strong()
+{
+	ServerDebugTriggerHit(S1HitType::HitType_Strong);
+}
+
+void AS1Player::DebugTriggerHit_ToAir()
+{
+	ServerDebugTriggerHit(S1HitType::HitType_ToAir);
+}
+
+void AS1Player::ServerDebugTriggerHit_Implementation(FGameplayTag HitTypeTag)
+{
+#if !UE_BUILD_SHIPPING
+	if (false == IsValid(AbilitySystemComponent) || false == HitTypeTag.IsValid())
+	{
+		return;
+	}
+
+	// 공격원 없이 테스트 — 월드 원점(WorldSettings 위치, 보통 0,0,0)을 공격원 위치로 취급
+	FGameplayEventData Payload;
+	Payload.EventTag   = HitTypeTag;
+	Payload.Instigator = GetWorld() ? GetWorld()->GetWorldSettings() : nullptr;
+	Payload.Target     = this;
+
+	LOG(TEXT("[DebugHit] %s 강제 트리거 (원점 기준)"), *HitTypeTag.ToString());
+	AbilitySystemComponent->HandleGameplayEvent(HitTypeTag, &Payload);
+#endif
 }
 
 void AS1Player::SetLastInputDirection(const FVector& InDirection)

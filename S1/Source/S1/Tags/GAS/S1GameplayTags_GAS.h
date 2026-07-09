@@ -25,6 +25,12 @@ namespace S1AbilityTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Assault);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Ultimate);
 	#pragma endregion
+
+	#pragma region Hit
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Hit_Weak);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Hit_Strong);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Hit_ToAir);
+	#pragma endregion
 #pragma endregion
 
 #pragma region Boss000

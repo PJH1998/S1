@@ -23,6 +23,12 @@ namespace S1AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Assault,			"Ability.Player.Attack.Assault");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Ultimiate,			"Ability.Player.Attack.Ultimiate");
 	#pragma endregion
+
+	#pragma region Hit
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Hit_Weak,   "Ability.Player.Hit.Weak");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Hit_Strong, "Ability.Player.Hit.Strong");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Hit_ToAir,  "Ability.Player.Hit.ToAir");
+	#pragma endregion
 #pragma endregion
 
 #pragma region Boss000

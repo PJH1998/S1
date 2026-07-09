@@ -48,6 +48,26 @@ public:
 	// 서버에서 호출. 전체 클라(소유자 포함)에 복제되어 OnRep에서 CMC에 적용
 	void SetReplicatedGravityScale(float Scale);
 
+	// 피격 넉백 속도/회전 방향을 몽타주 재생 트리거 "직전"에 명시적으로 멀티캐스트 — US1AnimNotifyState_HitLaunch가
+	// 전체 머신에서 읽어 루트모션/회전에 사용. ⚠️ 일반 Replicated 프로퍼티였다가 실측에서 레이스 확인됨(§ 아래) →
+	// 같은 액터의 Reliable Multicast끼리는 도착 순서가 보장되므로, 이 호출을 몽타주 재생(MulticastPlayMontage 등) 직전에
+	// 명시적으로 호출하면 노티파이가 발화하는 시점엔 항상 값이 이미 세팅되어 있음이 보장됨
+	// (예전엔 별도 Replicated 프로퍼티로 전달 — 몽타주 Multicast와 다른 복제 채널이라 도착 순서 보장이 안 돼서
+	//  일부 머신에서 노티파이가 먼저 발화해 값이 0으로 읽히는 레이스가 실측으로 확인됨)
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSetHitLaunchData(FVector Velocity, FVector Facing);
+
+	FVector GetPendingHitLaunchVelocity() const { return PendingHitLaunchVelocity; }
+	FVector GetPendingHitFacingDirection() const { return PendingHitFacingDirection; }
+
+	// 넉백 종료 후 로컬 정리(Notify NotifyEnd에서 각 머신이 자기 값만 리셋) — 순서 보장 불필요라 멀티캐스트 아님
+	void ClearPendingHitLaunchVelocity() { PendingHitLaunchVelocity = FVector::ZeroVector; }
+
+	// CMC->bOrientRotationToMovement 캐시(넉백 이동 중 회전 스냅 유지용) — Notify는 몽타주에 박힌 공유 UObject라
+	// 재생 주체별 상태를 못 들고 있어서(Effects_Niagara.md §29 경고) Character에 대신 보관
+	void SetCachedOrientRotationToMovement(bool bValue) { bCachedOrientRotationToMovement = bValue; }
+	bool GetCachedOrientRotationToMovement() const { return bCachedOrientRotationToMovement; }
+
 	// 소켓에 붙여 재생 중인 이펙트를 EffectKey로 등록 — 같은 Key로 이전 이펙트가 끝나기 전에 또 스폰될 수 있어 Key당 배열(큐)로 보관
 	// Replicated 아님 — 각 머신이 자기 로컬 Niagara 인스턴스만 추적(몽타주 자체가 이미 서버/클라 각각 재생되므로 이 함수도 각 머신에서 로컬로 호출됨)
 	void RegisterAttachedEffect(FGameplayTag EffectKey, UNiagaraComponent* Component);
@@ -76,6 +96,22 @@ protected:
 
 	UPROPERTY(ReplicatedUsing = OnRep_GravityScale)
 	float RepGravityScale = 1.f;
+
+	// MulticastSetHitLaunchData로 전체 머신에 동일하게 세팅 — 일반 Replicated 프로퍼티 아님(레이스 방지, 위 설명 참조)
+	FVector PendingHitLaunchVelocity = FVector::ZeroVector;
+	FVector PendingHitFacingDirection = FVector::ForwardVector;
+
+	// 각 머신 로컬 스크래치 — 복제 불필요(Notify가 그 머신에서 껐다 그 머신에서 복원)
+	bool bCachedOrientRotationToMovement = true;
+
+public:
+	// 데디 서버 NotifyState thrash 방어(§AtkCollision과 동일 원인 — AlwaysTickPoseAndRefreshBones 비렌더 서버에서
+	// NotifyBegin/End가 매 프레임 재발화) — 직전 적용 시각과 너무 가까우면 중복 적용으로 보고 스킵
+	float GetLastHitLaunchAppliedTime() const { return LastHitLaunchAppliedTime; }
+	void SetLastHitLaunchAppliedTime(float Time) { LastHitLaunchAppliedTime = Time; }
+
+private:
+	float LastHitLaunchAppliedTime = -1.f;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

@@ -19,6 +19,8 @@ namespace S1AssetTags
 #pragma endregion
 
 #pragma region GameAbilitySystem
+	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player_Default, "Asset.Ability.Player.Default");
+
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player_RPR_Female, "Asset.Ability.Player.RPR.Female");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player_SWD_Female, "Asset.Ability.Player.SWD.Female");
 

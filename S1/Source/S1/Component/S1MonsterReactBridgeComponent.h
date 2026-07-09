@@ -29,10 +29,7 @@ private:
 
 	void OnGameplayEffectApplied(UAbilitySystemComponent* TargetASC, const FGameplayEffectSpec& Spec, FActiveGameplayEffectHandle ActiveHandle);
 
-	static ES1HitReactType ParseHitTypeFromSpec(const FGameplayEffectSpec& Spec);
-	static ES1Direction CalcHitDirection(const AActor* Monster, const FVector& HitSourceLocation);
 	static bool ShouldPlayHitReact(ES1HitReactType HitType, const UAbilitySystemComponent* ASC);
-	static bool TryGetHitSourceLocation(const FGameplayEffectSpec& Spec, FVector& OutLocation);
 
 private:
 	FDelegateHandle GameplayEffectAppliedHandle;

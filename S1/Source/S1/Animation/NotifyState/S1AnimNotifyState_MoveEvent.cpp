@@ -43,14 +43,12 @@ void US1AnimNotifyState_MoveEvent::NotifyBegin(USkeletalMeshComponent* MeshComp,
 		return;
 	}
 
-	// 2) 이동 — 소유 클라(예측) + 서버(검증) 양쪽에서 루트모션 추가
+	// 2) 이동 — 소유 클라(예측) + 서버(검증) + 시뮬 프록시 전부 로컬로 동일 루트모션 추가
 	//    소유 클라만 추가하면 서버가 같은 소스를 몰라 클라 이동을 "비정상"으로 보고 되돌림(보정)
-	//    → 양쪽이 동일 소스를 가져야 서버가 클라 예측을 인정. 시뮬 프록시는 위치 복제로 따라옴(소스 불필요)
-	if (false == Character->IsLocallyControlled() && false == Character->HasAuthority())
-	{
-		return;
-	}
-
+	//    → 양쪽이 동일 소스를 가져야 서버가 클라 예측을 인정.
+	//    ⚠️ 시뮬 프록시도 배제하지 않음 — 위치 복제 보간만으로는 짧고 빠른 이동이 스냅샷 사이가 벌어져
+	//    순간이동처럼 보임(§HitLaunch에서 실측). 몽타주 자체가 이미 전체 복제되므로 이 노티파이도
+	//    전체 머신에서 로컬로 동일하게 발화해 결정론적으로 같은 힘을 적용
 	if (FMath::IsNearlyZero(MoveDistance) || TotalDuration <= KINDA_SMALL_NUMBER)
 	{
 		return;
@@ -98,12 +96,9 @@ void US1AnimNotifyState_MoveEvent::NotifyEnd(USkeletalMeshComponent* MeshComp, U
 		return;
 	}
 
-	// 조기 중단(몽타주 인터럽트) 대비 — 소유 클라/서버에서 루트모션 소스 제거 (정상 종료 시엔 이미 만료)
-	if (Character->IsLocallyControlled() || Character->HasAuthority())
+	// 조기 중단(몽타주 인터럽트) 대비 — 전체 머신에서 루트모션 소스 제거 (정상 종료 시엔 이미 만료)
+	if (UCharacterMovementComponent* CMC = Character->GetCharacterMovement())
 	{
-		if (UCharacterMovementComponent* CMC = Character->GetCharacterMovement())
-		{
-			CMC->RemoveRootMotionSource(MoveEventRootMotionName);
-		}
+		CMC->RemoveRootMotionSource(MoveEventRootMotionName);
 	}
 }

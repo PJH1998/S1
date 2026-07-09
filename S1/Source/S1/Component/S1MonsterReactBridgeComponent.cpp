@@ -3,6 +3,7 @@
 
 #include "Component/S1MonsterReactBridgeComponent.h"
 
+#include "AbilitySystem/S1HitReactLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AI/S1AIController.h"
 #include "Character/S1Monster.h"
@@ -79,7 +80,7 @@ void US1MonsterReactBridgeComponent::OnGameplayEffectApplied(
 		return;
 	}
 
-	const ES1HitReactType HitType = ParseHitTypeFromSpec(Spec);
+	const ES1HitReactType HitType = S1HitReactLibrary::ParseHitTypeFromSpec(Spec);
 	if (HitType == ES1HitReactType::None)
 	{
 		return;
@@ -91,12 +92,12 @@ void US1MonsterReactBridgeComponent::OnGameplayEffectApplied(
 	}
 
 	FVector HitSourceLocation = FVector::ZeroVector;
-	if (false == TryGetHitSourceLocation(Spec, HitSourceLocation))
+	if (false == S1HitReactLibrary::TryGetHitSourceLocation(Spec, HitSourceLocation))
 	{
 		return;
 	}
 
-	const ES1Direction HitDirection = CalcHitDirection(Monster, HitSourceLocation);
+	const ES1Direction HitDirection = S1HitReactLibrary::CalcHitDirection(Monster, HitSourceLocation);
 
 	AActor* Attacker = Spec.GetEffectContext().GetEffectCauser();
 	if (nullptr == Attacker)
@@ -108,59 +109,6 @@ void US1MonsterReactBridgeComponent::OnGameplayEffectApplied(
 	{
 		AIController->SetHitReactRequest(HitType, HitDirection, Attacker);
 	}
-}
-
-ES1HitReactType US1MonsterReactBridgeComponent::ParseHitTypeFromSpec(const FGameplayEffectSpec& Spec)
-{
-	FGameplayTagContainer AllTags;
-	AllTags.AppendTags(Spec.DynamicGrantedTags);
-	const FGameplayTagContainer& DynamicAssetTags = Spec.GetDynamicAssetTags();
-	AllTags.AppendTags(DynamicAssetTags);
-	if (nullptr != Spec.Def)
-	{
-		AllTags.AppendTags(Spec.Def->GetGrantedTags());
-	}
-
-	if (AllTags.HasTag(S1HitType::HitType_ToAir))
-	{
-		return ES1HitReactType::Launch;
-	}
-	if (AllTags.HasTag(S1HitType::HitType_Strong))
-	{
-		return ES1HitReactType::Strong;
-	}
-	if (AllTags.HasTag(S1HitType::HitType_Weak))
-	{
-		return ES1HitReactType::Weak;
-	}
-
-	return ES1HitReactType::None;
-}
-
-ES1Direction US1MonsterReactBridgeComponent::CalcHitDirection(const AActor* Monster, const FVector& HitSourceLocation)
-{
-	if (nullptr == Monster)
-	{
-		return ES1Direction::Forward;
-	}
-
-	FVector ToSource = HitSourceLocation - Monster->GetActorLocation();
-	ToSource.Z = 0.f;
-	if (ToSource.IsNearlyZero())
-	{
-		return ES1Direction::Forward;
-	}
-
-	const FVector Dir = ToSource.GetSafeNormal();
-	const float ForwardDot = FVector::DotProduct(Monster->GetActorForwardVector(), Dir);
-	const float RightDot = FVector::DotProduct(Monster->GetActorRightVector(), Dir);
-
-	if (FMath::Abs(ForwardDot) >= FMath::Abs(RightDot))
-	{
-		return ForwardDot >= 0.f ? ES1Direction::Forward : ES1Direction::Back;
-	}
-
-	return RightDot >= 0.f ? ES1Direction::Right : ES1Direction::Left;
 }
 
 bool US1MonsterReactBridgeComponent::ShouldPlayHitReact(ES1HitReactType HitType, const UAbilitySystemComponent* ASC)
@@ -176,21 +124,4 @@ bool US1MonsterReactBridgeComponent::ShouldPlayHitReact(ES1HitReactType HitType,
 	}
 
 	return HitType == ES1HitReactType::Strong || HitType == ES1HitReactType::Launch;
-}
-
-bool US1MonsterReactBridgeComponent::TryGetHitSourceLocation(const FGameplayEffectSpec& Spec, FVector& OutLocation)
-{
-	if (AActor* Causer = Spec.GetEffectContext().GetEffectCauser())
-	{
-		OutLocation = Causer->GetActorLocation();
-		return true;
-	}
-
-	if (AActor* Instigator = Spec.GetEffectContext().GetInstigator())
-	{
-		OutLocation = Instigator->GetActorLocation();
-		return true;
-	}
-
-	return false;
 }
