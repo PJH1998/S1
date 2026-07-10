@@ -48,6 +48,8 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_DropTable_Boss000,  "Asset.DropTable.Boss000");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_DropTable_Enemy001, "Asset.DropTable.Enemy001");
 
+	UE_DEFINE_GAMEPLAY_TAG(Asset_DropTable_Puzzle, "Asset.DropTable.Puzzle");
+
 	UE_DEFINE_GAMEPLAY_TAG(Asset_WeaponData, "Asset.WeaponData");
 
 	UE_DEFINE_GAMEPLAY_TAG(Asset_CharacterData, "Asset.CharacterData");

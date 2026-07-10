@@ -35,34 +35,34 @@ void AS1GimmickObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AS1GimmickObject, bIsBroken);
+	DOREPLIFETIME(AS1GimmickObject, bIsActivated);
 }
 
-void AS1GimmickObject::BreakGimmick()
+void AS1GimmickObject::ActivateGimmick()
 {
-	if (false == HasAuthority() || bIsBroken)
+	if (false == HasAuthority() || bIsActivated)
 	{
 		return;
 	}
 
-	bIsBroken = true;
-	OnRep_IsBroken();   // 서버에서도 연출 적용
+	bIsActivated = true;
+	OnRep_IsActivated();   // 서버에서도 연출 적용
 	ForceNetUpdate();
 }
 
 void AS1GimmickObject::ResetGimmick()
 {
-	if (false == HasAuthority() || false == bIsBroken)
+	if (false == HasAuthority() || false == bIsActivated)
 	{
 		return;
 	}
 
-	bIsBroken = false;
-	OnRep_IsBroken();
+	bIsActivated = false;
+	OnRep_IsActivated();
 	ForceNetUpdate();
 }
 
-void AS1GimmickObject::OnRep_IsBroken()
+void AS1GimmickObject::OnRep_IsActivated()
 {
 	// 베이스는 상태만 보유. 메쉬 스왑 등 연출은 자식에서 override.
 }

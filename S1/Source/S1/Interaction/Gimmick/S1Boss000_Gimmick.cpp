@@ -52,9 +52,9 @@ void AS1Boss000_Gimmick::BeginPlay()
 	}
 }
 
-void AS1Boss000_Gimmick::OnRep_IsBroken()
+void AS1Boss000_Gimmick::OnRep_IsActivated()
 {
-	// 전환 지점(서버 BreakGimmick/ResetGimmick·클라 OnRep 공통). 파편 물리는 각 머신에서 로컬로 연출.
+	// 전환 지점(서버 ActivateGimmick/ResetGimmick·클라 OnRep 공통). 파편 물리는 각 머신에서 로컬로 연출.
 	if (false == IsUsable())
 	{
 		ApplyBrokenVisual(true);
@@ -109,7 +109,7 @@ void AS1Boss000_Gimmick::OnIntactMeshBeginOverlap(UPrimitiveComponent* Overlappe
 		}
 	}
 
-	BreakGimmick();
+	ActivateGimmick();
 }
 
 void AS1Boss000_Gimmick::ApplyBrokenVisual(bool bBroken)

@@ -34,24 +34,34 @@ void US1DropManager::HandleMonsterDeath(AS1Monster* DeadMonster)
 
 void US1DropManager::HandleMonsterDeathForOwners(AS1Monster* DeadMonster, const TArray<AController*>& RewardOwners)
 {
+	if (false == IsValid(DeadMonster) || false == DeadMonster->GetDropTableTag().IsValid())
+	{
+		return;
+	}
+
+	const FVector OriginLocation = DeadMonster->GetActorLocation() + FVector(0.f, 0.f, 40.f);
+	GrantDropTableRewards(DeadMonster->GetDropTableTag(), OriginLocation, RewardOwners);
+}
+
+void US1DropManager::GrantDropTableRewards(FGameplayTag DropTableTag, FVector OriginLocation, const TArray<AController*>& RewardOwners)
+{
 	UWorld* World = GetWorld();
 	if (World == nullptr || World->GetAuthGameMode() == nullptr)
 	{
 		return;
 	}
 
-	if (false == IsValid(DeadMonster) || false == DeadMonster->GetDropTableTag().IsValid())
+	if (false == DropTableTag.IsValid())
 	{
 		return;
 	}
 
-	US1MonsterDropTable* DropTable = US1AssetManager::GetAssetByTag<US1MonsterDropTable>(DeadMonster->GetDropTableTag());
+	US1MonsterDropTable* DropTable = US1AssetManager::GetAssetByTag<US1MonsterDropTable>(DropTableTag);
 	if (false == IsValid(DropTable))
 	{
 		return;
 	}
 
-	const FVector OriginLocation = DeadMonster->GetActorLocation() + FVector(0.f, 0.f, 40.f);
 	for (AController* OwnerController : RewardOwners)
 	{
 		if (IsValid(OwnerController))
@@ -59,6 +69,26 @@ void US1DropManager::HandleMonsterDeathForOwners(AS1Monster* DeadMonster, const 
 			SpawnDropsForOwner(*DropTable, OriginLocation, OwnerController);
 		}
 	}
+}
+
+void US1DropManager::GrantDropTableRewardsToAllPlayers(FGameplayTag DropTableTag, FVector OriginLocation)
+{
+	UWorld* World = GetWorld();
+	if (World == nullptr || World->GetAuthGameMode() == nullptr)
+	{
+		return;
+	}
+
+	TArray<AController*> RewardOwners;
+	for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
+	{
+		if (APlayerController* PlayerController = It->Get())
+		{
+			RewardOwners.Add(PlayerController);
+		}
+	}
+
+	GrantDropTableRewards(DropTableTag, OriginLocation, RewardOwners);
 }
 
 void US1DropManager::SpawnDropsForOwner(const US1MonsterDropTable& DropTable, FVector OriginLocation, AController* OwnerController)
