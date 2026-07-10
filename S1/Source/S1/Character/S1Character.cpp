@@ -163,6 +163,29 @@ const TArray<TWeakObjectPtr<UNiagaraComponent>>* AS1Character::FindAttachedEffec
 	return ActiveAttachedEffects.Find(EffectKey);
 }
 
+void AS1Character::MulticastClearAllAttachedEffects_Implementation()
+{
+	for (TPair<FGameplayTag, TArray<TWeakObjectPtr<UNiagaraComponent>>>& Pair : ActiveAttachedEffects)
+	{
+		for (TWeakObjectPtr<UNiagaraComponent>& WeakComponent : Pair.Value)
+		{
+			UNiagaraComponent* Component = WeakComponent.Get();
+			if (nullptr == Component)
+			{
+				continue;
+			}
+
+			if (nullptr != Component->GetAttachParent())
+			{
+				Component->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+			}
+			Component->Deactivate();
+		}
+	}
+
+	ActiveAttachedEffects.Empty();
+}
+
 void AS1Character::ArmEffectAutoDestroy(UNiagaraComponent* Component)
 {
 	if (::IsValid(Component))

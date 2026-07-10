@@ -16,6 +16,8 @@ class S1_API US1GameplayAbility_Dash : public US1GameplayAbility_Evasion
 	GENERATED_BODY()
 
 public:
+	US1GameplayAbility_Dash();
+
 	virtual bool OnCrossInput(const FGameplayTagContainer& TargetAbilityTags) override;
 
 protected:

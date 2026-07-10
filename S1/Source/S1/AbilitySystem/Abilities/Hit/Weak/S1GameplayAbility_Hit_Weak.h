@@ -6,8 +6,8 @@
 #include "AbilitySystem/Abilities/Hit/S1GameplayAbility_Hit.h"
 #include "S1GameplayAbility_Hit_Weak.generated.h"
 
-// 약한 피격 — 방향별 제자리 경직 몽타주 재생 (넉백 없음)
-// MontageProgression에 US1MontageProgression_Directional을 배정하고 DirectionalMontages에 방향별 경직 몽타주를 등록해서 사용
+// 약한 피격 — 제자리 경직 몽타주 재생 (넉백 없음)
+// MontageProgression은 BP에서 원하는 타입(기본 _Sequence)으로 자유롭게 배정
 UCLASS()
 class S1_API US1GameplayAbility_Hit_Weak : public US1GameplayAbility_Hit
 {

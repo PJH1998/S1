@@ -6,6 +6,12 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+US1GameplayAbility_Dash::US1GameplayAbility_Dash()
+{
+	// 항상 Directional 고정 — BP에서 안 채워도(까먹어도) 항상 유효
+	MontageProgression = CreateDefaultSubobject<US1MontageProgression_Directional>(TEXT("MontageProgression"));
+}
+
 void US1GameplayAbility_Dash::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	// 방향 캡처 + OrientRotation + MoveBegin/End 바인딩은 Evasion::ActivateAbility에서 처리

@@ -57,6 +57,12 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSetHitLaunchData(FVector Velocity, FVector Facing);
 
+	// 보유 중인 ActiveAttachedEffects 전부 강제 Detach+Deactivate — Assault 등 SpawnPersistentEffect로 띄운 이펙트가
+	// 몽타주 인터럽트(피격 등)로 DespawnEffect 노티파이를 못 받아 영구 잔류하는 경우의 안전망
+	// 이펙트 추적이 각 머신 로컬이라 Multicast로 전체 머신에서 각자 정리해야 함
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastClearAllAttachedEffects();
+
 	FVector GetPendingHitLaunchVelocity() const { return PendingHitLaunchVelocity; }
 	FVector GetPendingHitFacingDirection() const { return PendingHitFacingDirection; }
 

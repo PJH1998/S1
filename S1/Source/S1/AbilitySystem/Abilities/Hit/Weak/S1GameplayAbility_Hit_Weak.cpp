@@ -1,8 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Abilities/Hit/Weak/S1GameplayAbility_Hit_Weak.h"
-#include "AbilitySystem/Progression/Directional/S1MontageProgression_Directional.h"
-#include "AbilitySystem/S1HitReactLibrary.h"
+#include "AbilitySystem/Progression/S1MontageProgression.h"
 #include "Tags/S1GameplayTags.h"
 
 US1GameplayAbility_Hit_Weak::US1GameplayAbility_Hit_Weak(const FObjectInitializer& ObjectInitializer)
@@ -28,19 +27,5 @@ void US1GameplayAbility_Hit_Weak::ActivateAbility(const FGameplayAbilitySpecHand
 		return;
 	}
 
-	if (US1MontageProgression_Directional* DirProg = Cast<US1MontageProgression_Directional>(MontageProgression))
-	{
-		ES1Direction Direction = ES1Direction::Forward;
-		if (AttackerActor.IsValid())
-		{
-			if (AActor* Character = GetAvatarActorFromActorInfo())
-			{
-				Direction = S1HitReactLibrary::CalcHitDirection(Character, AttackerActor->GetActorLocation());
-			}
-		}
-		DirProg->SetDirection(Direction);
-	}
-
-	MontageProgression->Init(this);
-	MontageProgression->OnActivated();
+	StartMontageProgression();
 }

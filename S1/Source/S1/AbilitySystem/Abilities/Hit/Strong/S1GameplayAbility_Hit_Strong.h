@@ -8,7 +8,7 @@
 
 // 강한 피격 — 공격원 반대 방향으로 넉백(ToAir보다 낮은 포물선) + 앞/뒤 피격에 따라 회전 분기
 // (앞: 공격원을 정면으로 바라봄 / 뒤: 공격원을 등지고(뒤로 두고) 바라봄 — 두 경우 다 넉백은 공격원 반대 방향으로 동일)
-// MontageProgression에 US1MontageProgression_Directional을 배정 — DirectionalMontages는 Forward/Back 두 키만 사용
+// MontageProgression은 항상 US1MontageProgression_DirectionalLoop 고정(생성자에서 직접 생성) — DirectionalMontages는 Forward/Back 두 키만 사용
 UCLASS()
 class S1_API US1GameplayAbility_Hit_Strong : public US1GameplayAbility_Hit
 {
