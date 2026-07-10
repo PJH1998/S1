@@ -8,6 +8,7 @@
 #include "Animation/S1AnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "S1LogChannels.h"
 
 US1MontageProgression_Loop::US1MontageProgression_Loop()
 {
@@ -180,6 +181,8 @@ void US1MontageProgression_Loop::PlayLoopMontage()
 		return;
 	}
 
+	LOG_WARNING(TEXT("PlayLoopMontage ENTER"));
+
 	const float Duration = GA->PlayAbilityMontage(LoopMontage);
 	if (Duration <= 0.f)
 	{
@@ -269,7 +272,7 @@ void US1MontageProgression_Loop::OnLoopMontageBlendingOut(UAnimMontage* Montage,
 		return;
 	}
 
-	OnLoopCycleCompleted();
+	OnLoopCycleCompleted(FGameplayTag());
 
 	if (bEndRequested || ShouldExitLoop())
 	{
@@ -329,7 +332,14 @@ void US1MontageProgression_Loop::OnLoopStartEventReceived(const FGameplayEventDa
 
 void US1MontageProgression_Loop::OnLoopCycleEventReceived(const FGameplayEventData* Payload)
 {
-	OnLoopCycleCompleted();
+	// Charge류 전용 Notify(SpawnLoopCycleEffect)만 InstigatorTags에 EffectTag를 실어 보냄 — 일반 SendGameplayEvent는 비워둠(Invalid)
+	FGameplayTag EffectTag;
+	if (nullptr != Payload && Payload->InstigatorTags.Num() > 0)
+	{
+		EffectTag = Payload->InstigatorTags.GetByIndex(0);
+	}
+
+	OnLoopCycleCompleted(EffectTag);
 
 	if (bEndRequested || ShouldExitLoop())
 	{
@@ -360,5 +370,5 @@ void US1MontageProgression_Loop::OnLoopCycleEventReceived(const FGameplayEventDa
 
 void US1MontageProgression_Loop::OnLoopEndEventReceived(FGameplayEventData Payload)
 {
-	ExitLoop();
+	ExitLoop(nullptr, bImmediateExitOnLoopEnd);
 }

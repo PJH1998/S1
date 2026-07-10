@@ -19,8 +19,17 @@ namespace S1EffectTags
 #pragma endregion
 
 #pragma region RPR
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_RPR_Slash);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_RPR_Thrust);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Slash01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Slash02);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Thrust01);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Wave01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Wave02);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Wave03);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Aura01);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Aura02);
 #pragma endregion
 
 #pragma region SWD

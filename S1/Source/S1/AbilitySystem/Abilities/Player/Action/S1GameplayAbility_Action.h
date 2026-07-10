@@ -49,6 +49,10 @@ public:
 	// Loop 종료 직전 훅 (e.g. GA_LoopAttack_Dive: 중력 리셋)
 	virtual void OnProgressionLoopEnded() {}
 
+	// RepeatLoop 계열 사이클 완료 훅 (e.g. GA_Charge: 사이클마다 이펙트 색상/크기 갱신)
+	// EffectTag: US1AnimNotify_SpawnLoopCycleEffect가 이벤트 Payload에 실어 보낸 태그 — 없으면 Invalid(일반 SendGameplayEvent는 안 실음)
+	virtual void OnProgressionCycleCompleted(FGameplayTag EffectTag, int32 CycleCount, int32 MaxCycleCount) {}
+
 	// 몽타주 재생 직후 훅 (e.g. GA_Attack: AtkCollision 노티파이 스캔 → 서버 히트 윈도우 스케줄)
 	virtual void OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate) {}
 
@@ -111,10 +115,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	FGameplayTag ActionStateTag;
 
-	// 이 이벤트 수신 시 OnEarlyMoveEnabled 호출 (empty = EarlyMove 비활성)
+protected:
+	// 이 이벤트 수신 시 OnEarlyMoveEnabled 호출 (empty = EarlyMove 비활성) — 서브클래스 생성자에서 비활성화할 수 있도록 protected(ex. GA_Hit)
 	UPROPERTY(EditDefaultsOnly, Category = "Action|EarlyMove")
 	FGameplayTag EarlyMoveEventTag;
 
+private:
 	// 점프 감지용 이벤트 태그 — Character::Jump()에서 SendGameplayEventToActor로 전송
 	// (empty = 점프 감지 안 함)
 	UPROPERTY(EditDefaultsOnly, Category = "Action|EarlyMove")

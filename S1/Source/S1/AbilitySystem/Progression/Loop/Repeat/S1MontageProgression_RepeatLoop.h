@@ -21,7 +21,7 @@ public:
 	virtual void OnInputReleased() override;
 
 protected:
-	virtual void OnLoopCycleCompleted() override;
+	virtual void OnLoopCycleCompleted(FGameplayTag EffectTag) override;
 	virtual bool ShouldExitLoop() const override;
 
 	// 최대 반복 횟수 — 도달 시 사이클 완료 후 자동 탈출

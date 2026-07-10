@@ -15,12 +15,14 @@ class AS1PlayerController;
 class AS1Weapon;
 class US1LockOnComponent;
 class US1PlayerCameraComponent;
+class US1PlayerReactBridgeComponent;
 class US1WeaponAnimLayer;
 class FLifetimeProperty;
 class ULevelSequence;
 class ULevelSequencePlayer;
 class ALevelSequenceActor;
 class ACineCameraActor;
+class UInputComponent;
 
 UCLASS()
 class S1_API AS1Player : public AS1Character
@@ -37,6 +39,7 @@ protected:
 	virtual void	Landed(const FHitResult& Hit) override;
 	// 공중 상태 태그 관리 — CMC 이동모드 기준(클라 예측/서버 일관) → 지상에서 공중공격 발동 방지
 	virtual void	OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
+	virtual void	SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 public:
 	virtual void	Tick(float DeltaTime) override;
@@ -73,13 +76,22 @@ private:
 	// 점프 GAS 처리 본체 — 소유 클라/서버 각 머신에서 로컬 실행
 	void HandleJumpGAS();
 
-	// 공중 상태 적용 — true면 State.Air 부여, false면 State.Air 및 모든 하위(State.Air.Used.*)까지 제거
-	// (하위 태그가 State.Air에 계층 매칭되어 남으면 지상에서도 공중공격으로 오판정됨)
+	// 공중 상태 적용 — true면 State.Air 부여, false면 State.Air 하위 전부 + State.Used.Air 하위 전부 제거
+	// (하위 태그가 남으면 지상에서도 공중공격으로 오판정되거나, 공중 스킬 1회 제한 태그가 안 풀림)
 	void ApplyAirState(bool bInAir);
 
 	// 스프린트 상태를 서버에 전달 (이동속도 + 복제 bSprint 갱신)
 	UFUNCTION(Server, Reliable)
 	void ServerSetSprinting(bool bInSprint);
+
+	// 디버그 전용 — NumPad 7/8/9로 GA_Hit_Weak/Strong/ToAir 강제 트리거 (공격원 없이 원점(0,0,0) 기준 방향)
+	// UFUNCTION은 UHT 제약상 헤더에서 #if(WITH_EDITORONLY_DATA 제외)로 못 감쌈 — 실제 스트리핑은 .cpp에서 처리
+	void DebugTriggerHit_Weak();
+	void DebugTriggerHit_Strong();
+	void DebugTriggerHit_ToAir();
+
+	UFUNCTION(Server, Reliable)
+	void ServerDebugTriggerHit(FGameplayTag HitTypeTag);
 
 public:
 	AS1Weapon*		    GetEquippedWeapon()        const { return EquippedWeapon; }
@@ -112,6 +124,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Default")
 	FGameplayTag DefaultWeaponTag;
 
+	// 무기 무관 공용 어빌리티(GA_Hit 등) — 무기 교체(EquipWeapon)와 별개로 PossessedBy에서 한 번만 부여, 이후 유지
+	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	FGameplayTag DefaultAbilitiesTag;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Weapon")
 	TObjectPtr<AS1Weapon> EquippedWeapon;
 
@@ -139,6 +155,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<US1LockOnComponent> LockOnComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<US1PlayerReactBridgeComponent> ReactBridgeComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USpringArmComponent> SpringArm;
@@ -173,6 +192,11 @@ private:
 	// 공중 상태 태그
 	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
 	FGameplayTag AirStateTag;
+
+	// 공중 스킬 1회 제한용 상위 태그(State.Used.Air.*) — AirStateTag(State.Air) 하위가 아닌 별도 트리라
+	// 착지 시 ApplyAirState(false)에서 AirStateTag와 별개로 이 트리도 같이 제거해야 함
+	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
+	FGameplayTag UsedAirStateTag;
 
 	void EquipWeapon(const FGameplayTag& ItemTag);
 

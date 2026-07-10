@@ -71,6 +71,7 @@ enum class ES1AttackHand : uint8
 UENUM(BlueprintType)
 enum class ES1EffectAttachTarget : uint8
 {
-	Character = 0 UMETA(DisplayName = "Character"),
-	Weapon    = 1 UMETA(DisplayName = "Weapon"),
+	Character      = 0 UMETA(DisplayName = "Character"),
+	MainHandWeapon = 1 UMETA(DisplayName = "Main Hand Weapon"),
+	OffHandWeapon  = 2 UMETA(DisplayName = "Off Hand Weapon"),
 };

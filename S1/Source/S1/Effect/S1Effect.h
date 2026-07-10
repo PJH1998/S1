@@ -25,5 +25,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void PlayEffect(UWorld* World, FVector Location, FRotator Rotation, FVector Scale = FVector::OneVector, UNiagaraComponent** OutComponent = nullptr) const {}
+	// bAutoRelease=false면 ENCPoolMethod::None으로 스폰 — 재사용/재트리거(Activate(true))할 컴포넌트는 시스템 완료 시 풀로 자동 반납되면 안 되므로 false 필요
+	virtual void PlayEffect(UWorld* World, FVector Location, FRotator Rotation, FVector Scale = FVector::OneVector, UNiagaraComponent** OutComponent = nullptr, bool bAutoRelease = true) const {}
 };

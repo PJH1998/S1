@@ -4,7 +4,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 
-void AS1NiagaraEffect::PlayEffect(UWorld* World, FVector Location, FRotator Rotation, FVector Scale, UNiagaraComponent** OutComponent) const
+void AS1NiagaraEffect::PlayEffect(UWorld* World, FVector Location, FRotator Rotation, FVector Scale, UNiagaraComponent** OutComponent, bool bAutoRelease) const
 {
 	if (nullptr == World || nullptr == NiagaraSystem)
 	{
@@ -17,9 +17,9 @@ void AS1NiagaraEffect::PlayEffect(UWorld* World, FVector Location, FRotator Rota
 		Location,
 		Rotation,
 		Scale,
+		bAutoRelease,	// bAutoDestroy — false면 시스템 완료돼도 파괴 안 되고 호출부가 수명을 직접 관리(Activate(true) 재사용 등)
 		true,
-		true,
-		ENCPoolMethod::AutoRelease);
+		bAutoRelease ? ENCPoolMethod::AutoRelease : ENCPoolMethod::None);
 
 	if (nullptr != OutComponent)
 	{
@@ -27,7 +27,7 @@ void AS1NiagaraEffect::PlayEffect(UWorld* World, FVector Location, FRotator Rota
 	}
 }
 
-void AS1NiagaraEffect::PlayEffectAttached(USceneComponent* AttachToComponent, FName SocketName, const FTransform& SpawnOffset, UNiagaraComponent** OutComponent) const
+void AS1NiagaraEffect::PlayEffectAttached(USceneComponent* AttachToComponent, FName SocketName, const FTransform& SpawnOffset, UNiagaraComponent** OutComponent, bool bAutoRelease) const
 {
 	if (nullptr == AttachToComponent || nullptr == NiagaraSystem)
 	{
@@ -43,8 +43,8 @@ void AS1NiagaraEffect::PlayEffectAttached(USceneComponent* AttachToComponent, FN
 		SpawnOffset.GetRotation().Rotator(),
 		SpawnOffset.GetScale3D(),
 		EAttachLocation::KeepRelativeOffset,
-		true,
-		ENCPoolMethod::AutoRelease,
+		bAutoRelease,	// bAutoDestroy — false면 시스템 완료돼도 파괴 안 되고 호출부가 수명을 직접 관리(Activate(true) 재사용 등)
+		bAutoRelease ? ENCPoolMethod::AutoRelease : ENCPoolMethod::None,
 		true);
 
 	if (nullptr != OutComponent)

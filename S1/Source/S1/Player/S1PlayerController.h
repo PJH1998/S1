@@ -64,4 +64,8 @@ protected:
 
 	// 커서 모드(인벤토리 열림 또는 Alt 홀드): 커서 표시 + 마우스 자유 + 카메라 회전 멈춤.
 	bool bCursorMode = false;
+
+	// 리슨 서버 로컬 플레이어는 OnPossess(서버)+AcknowledgePossession(소유 클라) 둘 다 이 PC에서 호출됨
+	// → SetupAbilityInputBindings 중복 호출 방지 (안 막으면 어빌리티 입력이 매번 두 번 처리되어 콤보가 한 타 건너뜀)
+	bool bAbilityInputBound = false;
 };
