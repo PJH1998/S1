@@ -11,8 +11,8 @@ class FLifetimeProperty;
 
 /**
  * 모든 보스/월드 기믹 오브젝트의 공통 베이스.
- * US1GimmickManager에 GimmickTag로 self-register 하며, 파괴/복구 상태(bIsBroken)를 복제한다.
- * 메쉬 스왑·물리 등 연출은 자식이 OnRep_IsBroken을 override 하여 채운다.
+ * US1GimmickManager에 GimmickTag로 self-register 하며, 활성화/복구 상태(bIsActivated)를 복제한다.
+ * 메쉬 스왑·물리 등 연출은 자식이 OnRep_IsActivated를 override 하여 채운다.
  */
 UCLASS(Abstract)
 class S1_API AS1GimmickObject : public AActor
@@ -23,10 +23,10 @@ public:
 	AS1GimmickObject();
 
 	FGameplayTag GetGimmickTag() const { return GimmickTag; }
-	bool IsUsable() const { return false == bIsBroken; }
+	bool IsUsable() const { return false == bIsActivated; }
 
-	// 서버 전용: 파괴 상태로 전환(멱등). 상태/복제는 베이스가 처리, 연출은 자식 OnRep에서.
-	virtual void BreakGimmick();
+	// 서버 전용: 활성화 상태로 전환(멱등). 상태/복제는 베이스가 처리, 연출은 자식 OnRep에서.
+	virtual void ActivateGimmick();
 	// 서버 전용: 원상 복구(멱등).
 	virtual void ResetGimmick();
 
@@ -37,13 +37,13 @@ protected:
 
 	// 클라 시각화 훅(자식 override). 베이스는 상태만 보유.
 	UFUNCTION()
-	virtual void OnRep_IsBroken();
+	virtual void OnRep_IsActivated();
 
 protected:
 	// 매니저 등록/질의 식별 태그.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gimmick")
 	FGameplayTag GimmickTag;
 
-	UPROPERTY(ReplicatedUsing = OnRep_IsBroken)
-	bool bIsBroken = false;
+	UPROPERTY(ReplicatedUsing = OnRep_IsActivated)
+	bool bIsActivated = false;
 };

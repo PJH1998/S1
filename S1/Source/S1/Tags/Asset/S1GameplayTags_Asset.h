@@ -51,6 +51,8 @@ namespace S1AssetTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DropTable_Boss000);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DropTable_Enemy001);
 
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DropTable_Puzzle);
+
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_WeaponData);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_CharacterData);
