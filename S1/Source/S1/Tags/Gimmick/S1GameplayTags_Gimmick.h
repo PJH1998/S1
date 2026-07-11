@@ -9,4 +9,5 @@ namespace S1GimmickTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gimmick_Boss000_Pillar);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gimmick_PressurePlate);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gimmick_Puzzle_Sequence001);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Gimmick_SlidingDoor);
 }

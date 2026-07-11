@@ -44,6 +44,7 @@ namespace S1AssetTags
 
 #pragma region Datas
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_PoolingData);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_QuestData);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_DataTable);
 
