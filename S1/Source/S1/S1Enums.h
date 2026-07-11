@@ -75,3 +75,12 @@ enum class ES1EffectAttachTarget : uint8
 	MainHandWeapon = 1 UMETA(DisplayName = "Main Hand Weapon"),
 	OffHandWeapon  = 2 UMETA(DisplayName = "Off Hand Weapon"),
 };
+
+UENUM(BlueprintType)
+enum class ES1AtkCollisionShape : uint8
+{
+	None       = 0 UMETA(DisplayName = "None"),
+	Sphere     = 1 UMETA(DisplayName = "Sphere"),
+	Box        = 2 UMETA(DisplayName = "Box"),
+	Hemisphere = 3 UMETA(DisplayName = "Hemisphere"),
+};

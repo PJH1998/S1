@@ -22,7 +22,6 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 protected:
-	virtual void OnMoveBeginReceived(const FGameplayEventData* Payload) override;
 	virtual void OnMoveEndReceived(const FGameplayEventData* Payload) override;
 
 	// pitch 포함 3D 방향 사용 (카메라 방향 대쉬) — 베이스의 수평 방향 대신
@@ -35,14 +34,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Assault|Branch")
 	FGameplayTag GroundEndTag;
-
-	// 이동 구간 히트 강도 태그 — PostGE에서 피격 반응 선택에 사용
-	UPROPERTY(EditDefaultsOnly, Category = "Assault")
-	FGameplayTag AssaultHitStrengthTag;
-
-	// 이동 구간 공격 배율
-	UPROPERTY(EditDefaultsOnly, Category = "Assault")
-	float AssaultAtkScale = 1.0f;
 
 	// 버튼 누른 순간(ActivateAbility, Super 전)에 캡처 — RotateToCamera 회전 전 방향 보존
 	FVector CapturedAssaultDirection = FVector::ZeroVector;

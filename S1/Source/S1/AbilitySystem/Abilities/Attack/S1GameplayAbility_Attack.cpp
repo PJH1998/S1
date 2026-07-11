@@ -9,9 +9,11 @@
 #include "Character/Player/S1Player.h"
 #include "Weapon/S1Weapon.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "Tags/S1GameplayTags.h"
 #include "Abilities/GameplayAbilityTargetTypes.h"
 #include "Animation/NotifyState/S1AnimNotifyState_AtkCollision.h"
+#include "Animation/S1EffectSpawnLibrary.h"
 #include "Animation/AnimMontage.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
@@ -60,6 +62,7 @@ void US1GameplayAbility_Attack::EndAbility(const FGameplayAbilitySpecHandle Hand
 	ClearHitWindowTimers();
 	DisableWeaponHitCollision(ES1AttackHand::Main);
 	DisableWeaponHitCollision(ES1AttackHand::Offhand);
+	DisableVirtualHitCollision();
 	UnbindAttackBox();
 	MainHitTargets.Reset();
 	OffhandHitTargets.Reset();
@@ -115,14 +118,28 @@ void US1GameplayAbility_Attack::ScheduleHitWindows(UAnimMontage* Montage, float 
 		const float           AtkScale   = AtkNotify->GetAtkScale();
 		const FGameplayTag    StrengthTag = AtkNotify->GetHitStrengthTag();
 		const ES1AttackHand   Hand       = AtkNotify->GetAttackHand();
+		const bool                  bEnableWeapon       = AtkNotify->IsWeaponCollisionEnabled();
+		const ES1AtkCollisionShape  VirtualShape        = AtkNotify->GetVirtualShape();
+		const ES1EffectAttachTarget VirtualAttachTarget = AtkNotify->GetVirtualAttachTarget();
+		const FName                 VirtualSocketName   = AtkNotify->GetVirtualSocketName();
+		const FTransform             VirtualSpawnOffset = AtkNotify->GetVirtualSpawnOffset();
+		const float                 VirtualSphereRadius = AtkNotify->GetVirtualSphereRadius();
+		const FVector               VirtualBoxExtent    = AtkNotify->GetVirtualBoxExtent();
 
 		// Begin
 		FTimerHandle BeginHandle;
 		World->GetTimerManager().SetTimer(
 			BeginHandle,
-			FTimerDelegate::CreateWeakLambda(this, [this, AtkScale, StrengthTag, Hand]()
+			FTimerDelegate::CreateWeakLambda(this, [this, AtkScale, StrengthTag, Hand, bEnableWeapon, VirtualShape, VirtualAttachTarget, VirtualSocketName, VirtualSpawnOffset, VirtualSphereRadius, VirtualBoxExtent]()
 			{
-				EnableWeaponHitCollision(AtkScale, StrengthTag, Hand);
+				if (bEnableWeapon)
+				{
+					EnableWeaponHitCollision(AtkScale, StrengthTag, Hand);
+				}
+				if (ES1AtkCollisionShape::None != VirtualShape)
+				{
+					EnableVirtualHitCollision(VirtualShape, VirtualAttachTarget, VirtualSocketName, VirtualSpawnOffset, VirtualSphereRadius, VirtualBoxExtent, AtkScale, StrengthTag, Hand);
+				}
 			}),
 			FMath::Max(RealBegin, 0.001f), false);
 		HitWindowTimers.Add(BeginHandle);
@@ -131,9 +148,16 @@ void US1GameplayAbility_Attack::ScheduleHitWindows(UAnimMontage* Montage, float 
 		FTimerHandle EndHandle;
 		World->GetTimerManager().SetTimer(
 			EndHandle,
-			FTimerDelegate::CreateWeakLambda(this, [this, Hand]()
+			FTimerDelegate::CreateWeakLambda(this, [this, Hand, bEnableWeapon, VirtualShape]()
 			{
-				DisableWeaponHitCollision(Hand);
+				if (bEnableWeapon)
+				{
+					DisableWeaponHitCollision(Hand);
+				}
+				if (ES1AtkCollisionShape::None != VirtualShape)
+				{
+					DisableVirtualHitCollision();
+				}
 			}),
 			FMath::Max(RealEnd, 0.002f), false);
 		HitWindowTimers.Add(EndHandle);
@@ -200,6 +224,73 @@ void US1GameplayAbility_Attack::DisableWeaponHitCollision(ES1AttackHand Hand)
 	}
 }
 
+void US1GameplayAbility_Attack::EnableVirtualHitCollision(ES1AtkCollisionShape Shape, ES1EffectAttachTarget AttachTarget, FName SocketName, const FTransform& SpawnOffset, float SphereRadius, const FVector& BoxExtent, float AtkScale, FGameplayTag HitStrengthTag, ES1AttackHand Hand)
+{
+	AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo());
+	if (false == IsValid(Player))
+	{
+		return;
+	}
+
+	USkeletalMeshComponent* TargetMesh = S1EffectSpawnLibrary::ResolveTargetMesh(AttachTarget, Player, Player->GetMesh());
+	if (nullptr == TargetMesh)
+	{
+		return;
+	}
+
+	const FTransform ShapeTransform = S1EffectSpawnLibrary::ComputeSpawnTransform(TargetMesh, SocketName, SpawnOffset);
+
+	PendingVirtualAtkScale       = AtkScale;
+	PendingVirtualHitStrengthTag = HitStrengthTag;
+	ActiveVirtualHand            = Hand;
+	bVirtualHemisphereActive     = (ES1AtkCollisionShape::Hemisphere == Shape);
+	VirtualHemisphereOrigin      = ShapeTransform.GetLocation();
+	VirtualHemisphereForward     = ShapeTransform.GetRotation().GetForwardVector();
+
+	if (ES1AtkCollisionShape::Box == Shape)
+	{
+		if (UBoxComponent* Box = Player->GetVirtualBoxCollision())
+		{
+			Box->AttachToComponent(TargetMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+			Box->SetRelativeTransform(SpawnOffset);
+			Box->SetBoxExtent(BoxExtent);
+			Box->SetGenerateOverlapEvents(true);
+			Box->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			Box->UpdateOverlaps();
+		}
+	}
+	else // Sphere or Hemisphere — 둘 다 같은 Sphere 콜리전을 쓰고, Hemisphere는 오버랩 시점에 각도로 추가 필터링
+	{
+		if (USphereComponent* Sphere = Player->GetVirtualSphereCollision())
+		{
+			Sphere->AttachToComponent(TargetMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+			Sphere->SetRelativeTransform(SpawnOffset);
+			Sphere->SetSphereRadius(SphereRadius);
+			Sphere->SetGenerateOverlapEvents(true);
+			Sphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			Sphere->UpdateOverlaps();
+		}
+	}
+}
+
+void US1GameplayAbility_Attack::DisableVirtualHitCollision()
+{
+	AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo());
+	if (IsValid(Player))
+	{
+		if (USphereComponent* Sphere = Player->GetVirtualSphereCollision())
+		{
+			Sphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+		if (UBoxComponent* Box = Player->GetVirtualBoxCollision())
+		{
+			Box->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+	}
+
+	bVirtualHemisphereActive = false;
+}
+
 void US1GameplayAbility_Attack::ResetMainHitTargets()
 {
 	MainHitTargets.Reset();
@@ -244,6 +335,16 @@ void US1GameplayAbility_Attack::BindAttackBox()
 		Offhand->OnHitCollisionEnabled.AddUObject(this, &ThisClass::ResetOffhandHitTargets);
 		Offhand->GetAttackBox()->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnAttackBoxOverlap);
 	}
+
+	if (USphereComponent* VirtualSphere = Player->GetVirtualSphereCollision())
+	{
+		VirtualSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnAttackBoxOverlap);
+	}
+
+	if (UBoxComponent* VirtualBox = Player->GetVirtualBoxCollision())
+	{
+		VirtualBox->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnAttackBoxOverlap);
+	}
 }
 
 void US1GameplayAbility_Attack::UnbindAttackBox()
@@ -265,6 +366,16 @@ void US1GameplayAbility_Attack::UnbindAttackBox()
 		Offhand->OnHitCollisionEnabled.RemoveAll(this);
 		Offhand->GetAttackBox()->OnComponentBeginOverlap.RemoveDynamic(this, &ThisClass::OnAttackBoxOverlap);
 	}
+
+	if (USphereComponent* VirtualSphere = Player->GetVirtualSphereCollision())
+	{
+		VirtualSphere->OnComponentBeginOverlap.RemoveDynamic(this, &ThisClass::OnAttackBoxOverlap);
+	}
+
+	if (UBoxComponent* VirtualBox = Player->GetVirtualBoxCollision())
+	{
+		VirtualBox->OnComponentBeginOverlap.RemoveDynamic(this, &ThisClass::OnAttackBoxOverlap);
+	}
 }
 
 void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -281,10 +392,28 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 		return;
 	}
 
-	// 어느 손의 AttackBox가 발동했는지 판별 → 각 손의 HitTargets 독립 관리
 	AS1Player* DamagePlayer = Cast<AS1Player>(AvatarActor);
-	AS1Weapon* OffhandWeapon = IsValid(DamagePlayer) ? DamagePlayer->GetEquippedOffhandWeapon() : nullptr;
-	const bool bIsOffhand = IsValid(OffhandWeapon) && OverlappedComp == OffhandWeapon->GetAttackBox();
+	if (false == IsValid(DamagePlayer))
+	{
+		return;
+	}
+
+	// 가상 충돌체(Sphere/Box) 오버랩인지 판별 — 무기 AttackBox와 같은 핸들러를 공유하므로 여기서 갈라줘야 함
+	const bool bIsVirtual = OverlappedComp == DamagePlayer->GetVirtualSphereCollision() || OverlappedComp == DamagePlayer->GetVirtualBoxCollision();
+
+	// 반구는 별도 프리미티브가 없어 Sphere 콜리전 + 전방 180도 DotProduct 필터로 구현 (AttackRange::IsInsideCone과 동일 방식)
+	if (bIsVirtual && bVirtualHemisphereActive && OverlappedComp == DamagePlayer->GetVirtualSphereCollision())
+	{
+		const FVector ToTarget = (OtherActor->GetActorLocation() - VirtualHemisphereOrigin).GetSafeNormal();
+		if (FVector::DotProduct(VirtualHemisphereForward, ToTarget) < 0.f)
+		{
+			return;
+		}
+	}
+
+	// 어느 손이 발동했는지 판별 → 각 손의 HitTargets 독립 관리 (가상 충돌체는 무기와 동일 배열에 합류 → 스윙당 대상 1회 보장)
+	AS1Weapon* OffhandWeapon = DamagePlayer->GetEquippedOffhandWeapon();
+	const bool bIsOffhand = bIsVirtual ? (ES1AttackHand::Offhand == ActiveVirtualHand) : (IsValid(OffhandWeapon) && OverlappedComp == OffhandWeapon->GetAttackBox());
 	TArray<TWeakObjectPtr<AActor>>& Targets = bIsOffhand ? OffhandHitTargets : MainHitTargets;
 
 	for (const TWeakObjectPtr<AActor>& HitActor : Targets)
@@ -308,12 +437,22 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 		return;
 	}
 
-	AS1Weapon* DamageWeapon = bIsOffhand ? OffhandWeapon : (IsValid(DamagePlayer) ? DamagePlayer->GetEquippedWeapon() : nullptr);
+	float AtkScale = 1.0f;
+	FGameplayTag HitStrengthTag;
+	if (bIsVirtual)
+	{
+		AtkScale       = PendingVirtualAtkScale;
+		HitStrengthTag = PendingVirtualHitStrengthTag;
+	}
+	else
+	{
+		AS1Weapon* DamageWeapon = bIsOffhand ? OffhandWeapon : DamagePlayer->GetEquippedWeapon();
+		AtkScale       = IsValid(DamageWeapon) ? DamageWeapon->GetCurrentAtkScale()       : 1.0f;
+		HitStrengthTag = IsValid(DamageWeapon) ? DamageWeapon->GetCurrentHitStrengthTag() : FGameplayTag();
+	}
 
-	const float        AtkScale       = IsValid(DamageWeapon) ? DamageWeapon->GetCurrentAtkScale()       : 1.0f;
-	const FGameplayTag HitStrengthTag = IsValid(DamageWeapon) ? DamageWeapon->GetCurrentHitStrengthTag() : FGameplayTag();
-	const float DmgMult               = IsValid(MontageProgression) ? MontageProgression->GetDamageMultiplier() : 1.0f;
-	const float FinalDamage           = AttribSet->GetBaseDamage() * AtkScale * DmgMult;
+	const float DmgMult      = IsValid(MontageProgression) ? MontageProgression->GetDamageMultiplier() : 1.0f;
+	const float FinalDamage  = AttribSet->GetBaseDamage() * AtkScale * DmgMult;
 
 	FGameplayAbilityTargetDataHandle TargetDataHandle;
 	FGameplayAbilityTargetData_SingleTargetHit* TargetData = new FGameplayAbilityTargetData_SingleTargetHit();

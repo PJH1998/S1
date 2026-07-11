@@ -4,11 +4,9 @@
 #include "AbilitySystem/Progression/S1MontageProgression.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
 #include "AbilitySystemComponent.h"
-#include "Character/Player/S1Player.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Tags/S1GameplayTags.h"
-#include "Weapon/S1Weapon.h"
 
 US1GameplayAbility_Assault::US1GameplayAbility_Assault()
 {
@@ -45,7 +43,7 @@ void US1GameplayAbility_Assault::ActivateAbility(const FGameplayAbilitySpecHandl
 	}
 
 	// 이동(루트모션)은 GA_Action::PlayAbilityMontage→ApplyMontageRootMotion가 활성화 시점(예측 스코프)에 처리
-	// 히트 콜리전은 이동 구간(OnMoveBeginReceived)에서만 활성화
+	// 히트 콜리전은 베이스 GA_Attack이 몽타주의 AtkCollision 노티파이를 스캔해 처리(§ 가상 공격 콜리전)
 }
 
 void US1GameplayAbility_Assault::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -61,24 +59,6 @@ void US1GameplayAbility_Assault::EndAbility(const FGameplayAbilitySpecHandle Han
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void US1GameplayAbility_Assault::OnMoveBeginReceived(const FGameplayEventData* Payload)
-{
-	// 이동(루트모션)은 활성화 시점에 ApplyMontageRootMotion가 이미 생성(방향은 GetCapturedMoveDirection 3D override)
-	// 여기선 히트 콜리전만 (서버 권위) — 이동 구간에만 활성화
-	if (AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo()))
-	{
-		if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
-		{
-			Weapon->EnableHitCollision(AssaultAtkScale, AssaultHitStrengthTag);
-		}
-
-		if (AS1Weapon* Offhand = Player->GetEquippedOffhandWeapon())
-		{
-			Offhand->EnableHitCollision(AssaultAtkScale, AssaultHitStrengthTag);
-		}
-	}
-}
-
 void US1GameplayAbility_Assault::OnMoveEndReceived(const FGameplayEventData* Payload)
 {
 	// PlayAnimMontage(EndMontage)가 BeginMontage를 중단할 때 MoveEvent NotifyEnd가 동기 재발화됨 → 중복 차단
@@ -88,21 +68,7 @@ void US1GameplayAbility_Assault::OnMoveEndReceived(const FGameplayEventData* Pay
 	}
 	bBranchRequested = true;
 
-	// 이동 구간 종료 — 히트 콜리전 비활성화
-	// (루트모션 task는 유한 Duration으로 스스로 종료 — 여기서 끊으면 클라/서버 타이밍 desync)
-	if (AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo()))
-	{
-		if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
-		{
-			Weapon->DisableHitCollision();
-		}
-
-		if (AS1Weapon* Offhand = Player->GetEquippedOffhandWeapon())
-		{
-			Offhand->DisableHitCollision();
-		}
-	}
-
+	// 히트 콜리전은 베이스 GA_Attack이 몽타주의 AtkCollision 노티파이를 스캔해 처리(§ 가상 공격 콜리전) — 여기선 분기만 담당
 	if (false == IsValid(MontageProgression))
 	{
 		return;

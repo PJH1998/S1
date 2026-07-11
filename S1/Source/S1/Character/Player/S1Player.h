@@ -11,6 +11,8 @@
 
 class USkeletalMeshComponent;
 class USpringArmComponent;
+class USphereComponent;
+class UBoxComponent;
 class AS1PlayerController;
 class AS1Weapon;
 class US1LockOnComponent;
@@ -99,6 +101,10 @@ public:
 	US1LockOnComponent* GetLockOnComponent()   const { return LockOnComponent; }
 	const TArray<FS1AbilityInputBinding>& GetAbilityInputBindings() const { return AbilityInputBindings; }
 
+	// AtkCollision 노티파이의 VirtualShape가 켜졌을 때 GA_Attack이 켜고 끄는 가상 판정 도형 — Main/Offhand 공용 1개씩
+	USphereComponent* GetVirtualSphereCollision() const { return VirtualSphereCollision; }
+	UBoxComponent*    GetVirtualBoxCollision()    const { return VirtualBoxCollision; }
+
 	UFUNCTION()
 	void OnItemEquipped(FGameplayTag ItemTag);
 
@@ -158,6 +164,18 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<US1PlayerReactBridgeComponent> ReactBridgeComponent;
+
+	// AtkCollision 노티파이의 가상 충돌체(구/반구용) — 기본 NoCollision, GA_Attack이 히트 윈도우에서만 켬
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VirtualCollision")
+	TObjectPtr<USphereComponent> VirtualSphereCollision;
+
+	// AtkCollision 노티파이의 가상 충돌체(박스용) — 기본 NoCollision, GA_Attack이 히트 윈도우에서만 켬
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VirtualCollision")
+	TObjectPtr<UBoxComponent> VirtualBoxCollision;
+
+	// 가상 충돌체 콜리전 프로파일 — AS1Weapon::AttackBox와 동일하게 몬스터만 Overlap하는 무기 채널(기본 "PlayerWeapon")
+	UPROPERTY(EditDefaultsOnly, Category = "VirtualCollision")
+	FName VirtualCollisionProfileName = TEXT("PlayerWeapon");
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USpringArmComponent> SpringArm;
