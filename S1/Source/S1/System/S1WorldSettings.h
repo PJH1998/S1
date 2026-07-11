@@ -18,4 +18,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Pooling")
 	FGameplayTag PoolWorldTag;
+
+	UPROPERTY(EditAnywhere, Category = "Quest")
+	FGameplayTag QuestAssetTag;
+
+	UPROPERTY(EditAnywhere, Category = "Quest")
+	FGameplayTag QuestStageTag;
 };

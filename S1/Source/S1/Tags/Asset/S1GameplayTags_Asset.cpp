@@ -43,6 +43,7 @@ namespace S1AssetTags
 
 #pragma region Datas
 	UE_DEFINE_GAMEPLAY_TAG(Asset_PoolingData, "Asset.PoolingData");
+	UE_DEFINE_GAMEPLAY_TAG(Asset_QuestData, "Asset.QuestData");
 
 	UE_DEFINE_GAMEPLAY_TAG(Asset_DataTable, "Asset.DataTable");
 

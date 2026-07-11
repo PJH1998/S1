@@ -28,6 +28,10 @@ public:
 	// 해당 태그 그룹의 모든 기믹을 원상 복구(서버 전용, 보스 리셋 시).
 	void ResetGimmicks(FGameplayTag Tag);
 
+	// 해당 태그의 사용 가능한 기믹 하나를 찾아 활성화(서버 전용). 퀘스트 클리어 등 BP에서 직접 호출하는 진입점.
+	UFUNCTION(BlueprintCallable, Category = "Gimmick")
+	void ActivateGimmick(FGameplayTag Tag);
+
 private:
 	TMap<FGameplayTag, TArray<TWeakObjectPtr<AS1GimmickObject>>> ActiveGimmicks;
 };

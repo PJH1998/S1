@@ -93,3 +93,11 @@ void US1GimmickManager::ResetGimmicks(FGameplayTag Tag)
 		}
 	}
 }
+
+void US1GimmickManager::ActivateGimmick(FGameplayTag Tag)
+{
+	if (AS1GimmickObject* Gimmick = GetRandomUsableGimmick(Tag))
+	{
+		Gimmick->ActivateGimmick();
+	}
+}
