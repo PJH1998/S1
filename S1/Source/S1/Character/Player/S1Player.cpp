@@ -16,6 +16,8 @@
 #include "Animation/S1AnimInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 #include "Data/S1WeaponData.h"
 #include "System/S1AssetManager.h"
 #include "Weapon/S1Weapon.h"
@@ -72,6 +74,19 @@ AS1Player::AS1Player()
 
 	// 피격 리액션 브릿지 (GE 적용 감지 → GA_Hit 트리거)
 	ReactBridgeComponent = CreateDefaultSubobject<US1PlayerReactBridgeComponent>(TEXT("ReactBridgeComponent"));
+
+	// AtkCollision 가상 충돌체 — AS1Weapon::AttackBox와 동일한 콜리전 프로파일(기본 NoCollision), GA_Attack이 히트 윈도우에서만 켬
+	VirtualSphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("VirtualSphereCollision"));
+	VirtualSphereCollision->SetupAttachment(BodyMesh);
+	VirtualSphereCollision->SetCollisionProfileName(VirtualCollisionProfileName);
+	VirtualSphereCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	VirtualSphereCollision->SetGenerateOverlapEvents(true);
+
+	VirtualBoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("VirtualBoxCollision"));
+	VirtualBoxCollision->SetupAttachment(BodyMesh);
+	VirtualBoxCollision->SetCollisionProfileName(VirtualCollisionProfileName);
+	VirtualBoxCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	VirtualBoxCollision->SetGenerateOverlapEvents(true);
 
 	// SpringArm
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));

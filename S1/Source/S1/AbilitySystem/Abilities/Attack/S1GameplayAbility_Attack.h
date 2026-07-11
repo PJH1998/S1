@@ -70,13 +70,27 @@ private:
 	void EnableWeaponHitCollision(float AtkScale, FGameplayTag HitStrengthTag, ES1AttackHand Hand);
 	void DisableWeaponHitCollision(ES1AttackHand Hand);
 
+	// AtkCollision 노티파이의 VirtualShape — 무기와 같은 AtkScale/HitStrengthTag를 공유하는 추가 판정 도형(Player 공용 Sphere/Box 1개씩)
+	void EnableVirtualHitCollision(ES1AtkCollisionShape Shape, ES1EffectAttachTarget AttachTarget, FName SocketName, const FTransform& SpawnOffset, float SphereRadius, const FVector& BoxExtent, float AtkScale, FGameplayTag HitStrengthTag, ES1AttackHand Hand);
+	void DisableVirtualHitCollision();
+
 	UPROPERTY()
 	TObjectPtr<US1AbilityTask_RotateToCamera> RotateTask;
 
-	// Main/Offhand 독립 히트 타겟 — 같은 타겟을 양손으로 개별 타격 가능
+	// Main/Offhand 독립 히트 타겟 — 같은 타겟을 양손으로 개별 타격 가능 (가상 충돌체 히트도 여기 합류해 무기와 합쳐서 대상당 1회 보장)
 	TArray<TWeakObjectPtr<AActor>> MainHitTargets;
 	TArray<TWeakObjectPtr<AActor>> OffhandHitTargets;
 
 	// 활성 히트 윈도우 타이머 (몽타주당 begin/end 쌍) — 몽타주 교체/종료 시 정리
 	TArray<FTimerHandle> HitWindowTimers;
+
+	// 가상 충돌체가 활성 중일 때 OnAttackBoxOverlap이 참조할 값 — EnableVirtualHitCollision에서 세팅, Disable에서 리셋
+	float         PendingVirtualAtkScale = 1.0f;
+	FGameplayTag  PendingVirtualHitStrengthTag;
+	ES1AttackHand ActiveVirtualHand = ES1AttackHand::Main;
+
+	// 반구 판정용 — Sphere 콜리전 + 전방 180도 DotProduct 필터로 구현(엔진에 반구 프리미티브 없음)
+	bool    bVirtualHemisphereActive = false;
+	FVector VirtualHemisphereOrigin = FVector::ZeroVector;
+	FVector VirtualHemisphereForward = FVector::ForwardVector;
 };
