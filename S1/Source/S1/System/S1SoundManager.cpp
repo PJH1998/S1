@@ -81,6 +81,17 @@ void US1SoundManager::PlayBGM(USoundBase* NewBGM, float FadeDuration)
 	GetWorld()->GetTimerManager().SetTimer(FadeTransitionTimerHandle, FadeInDelegate, FadeDuration, false);
 }
 
+void US1SoundManager::StopBGM(float FadeOutDuration)
+{
+	GetWorld()->GetTimerManager().ClearTimer(FadeTransitionTimerHandle);
+
+	UAudioComponent* CurrentComp = GetActiveComponent();
+	if (IsValid(CurrentComp) && CurrentComp->IsPlaying())
+	{
+		CurrentComp->FadeOut(FadeOutDuration, 0.f);
+	}
+}
+
 void US1SoundManager::PlaySound(USoundBase* Sound)
 {
 	if (false == IsValid(Sound))

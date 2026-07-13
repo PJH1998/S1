@@ -19,10 +19,19 @@ void US1HUD_Lobby::NativeConstruct()
 	Super::NativeConstruct();
 
 	Logo->OnClickedLogoDelegate.AddDynamic(this, &ThisClass::ShowCustomize);
+	Logo->OnLogoClickBeginDelegate.AddDynamic(this, &ThisClass::OnLogoClickBegin);
 
 	if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
 	{
 		SoundManager->PlayBGM(LobbyBGM, LobbyFadeInDuration);
+	}
+}
+
+void US1HUD_Lobby::OnLogoClickBegin()
+{
+	if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+	{
+		SoundManager->StopBGM(LobbyFadeOutDuration);
 	}
 }
 

@@ -35,6 +35,8 @@ FReply US1Logo::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 
 	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
 	{
+		OnLogoClickBeginDelegate.Broadcast();
+
 		if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
 		{
 			UIManager->FadeOut(3.f, [this]()

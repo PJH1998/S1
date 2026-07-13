@@ -6,7 +6,6 @@
 #include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
 #include "System/S1SoundManager.h"
-#include "S1Define.h"
 
 AS1BGMVolume::AS1BGMVolume()
 {
@@ -15,9 +14,7 @@ AS1BGMVolume::AS1BGMVolume()
 
 	ZoneVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("ZoneVolume"));
 	SetRootComponent(ZoneVolume);
-	ZoneVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	ZoneVolume->SetCollisionResponseToAllChannels(ECR_Ignore);
-	ZoneVolume->SetCollisionResponseToChannel(S1CollisionChannel::CC_Player, ECR_Overlap);
+	ZoneVolume->SetCollisionProfileName(TEXT("BGM_Volume"));
 	ZoneVolume->SetGenerateOverlapEvents(true);
 }
 
@@ -32,6 +29,7 @@ void AS1BGMVolume::BeginPlay()
 	}
 
 	ZoneVolume->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnZoneBeginOverlap);
+	ZoneVolume->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnZoneEndOverlap);
 }
 
 void AS1BGMVolume::Tick(float DeltaTime)
@@ -61,7 +59,19 @@ void AS1BGMVolume::OnZoneBeginOverlap(UPrimitiveComponent* OverlappedComp, AActo
 		return;
 	}
 
-	RequestPlayBGM();
+	// 경계에서 스치듯 왕복 시 재생이 반복되지 않도록, DebounceDuration 이상 머물러야 실제로 전환한다.
+	GetWorld()->GetTimerManager().SetTimer(DebounceTimerHandle, this, &ThisClass::RequestPlayBGM, DebounceDuration, false);
+}
+
+void AS1BGMVolume::OnZoneEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	APawn* Pawn = Cast<APawn>(OtherActor);
+	if (false == IsValid(Pawn) || false == Pawn->IsLocallyControlled())
+	{
+		return;
+	}
+
+	GetWorld()->GetTimerManager().ClearTimer(DebounceTimerHandle);
 }
 
 void AS1BGMVolume::RequestPlayBGM()

@@ -22,7 +22,10 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
-	void PlayBGM(USoundBase* NewBGM, float FadeDuration);
+	void PlayBGM(USoundBase* NewBGM, float FadeDuration = 0.f);
+
+	// 새 BGM 없이 현재 재생 중인 BGM만 FadeOut — 전환 종료 시점을 별도로 제어하고 싶을 때(예: UI 연출과 동기화) 사용.
+	void StopBGM(float FadeOutDuration = 0.f);
 
 	// 위치 없는 1회성 재생 — 호출부가 이미 재생할 Sound를 들고 있을 때 사용 (예: UI).
 	void PlaySound(USoundBase* Sound);

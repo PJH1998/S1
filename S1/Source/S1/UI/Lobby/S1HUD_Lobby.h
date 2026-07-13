@@ -30,6 +30,9 @@ private:
 	UFUNCTION()
 	void ShowCustomize();
 
+	UFUNCTION()
+	void OnLogoClickBegin();
+
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UWidgetSwitcher> WidgetSwitcher_Root;
@@ -43,6 +46,10 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "BGM")
 	float LobbyFadeInDuration = 1.5f;
+
+	// Logo 클릭 즉시(화면 FadeOut 시작과 동시) Lobby BGM을 죽이는 데 걸리는 시간 — UI FadeOut 길이(현재 3초)와 맞추면 됨
+	UPROPERTY(EditDefaultsOnly, Category = "BGM")
+	float LobbyFadeOutDuration = 3.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "BGM")
 	TObjectPtr<USoundBase> SelectedBGM;
