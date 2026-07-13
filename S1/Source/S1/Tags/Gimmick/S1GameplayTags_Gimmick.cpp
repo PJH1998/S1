@@ -8,4 +8,8 @@ namespace S1GimmickTags
 	UE_DEFINE_GAMEPLAY_TAG(Gimmick_PressurePlate, "Gimmick.PressurePlate");
 	UE_DEFINE_GAMEPLAY_TAG(Gimmick_Puzzle_Sequence001, "Gimmick.Puzzle.Sequence001");
 	UE_DEFINE_GAMEPLAY_TAG(Gimmick_SlidingDoor, "Gimmick.SlidingDoor");
+
+	UE_DEFINE_GAMEPLAY_TAG(Gimmick_ToggleButton, "Gimmick.ToggleButton");
+	UE_DEFINE_GAMEPLAY_TAG(Gimmick_TogglePillar, "Gimmick.TogglePillar");
+	UE_DEFINE_GAMEPLAY_TAG(Gimmick_Puzzle_TogglePillar001, "Gimmick.Puzzle.TogglePillar001");
 }

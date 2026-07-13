@@ -29,6 +29,8 @@ namespace S1GameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_ChangeLockOnSide);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LockOnLeft);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LockOnRight);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Interact);
 #pragma endregion
 
 #pragma region UI

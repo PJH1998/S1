@@ -37,6 +37,7 @@ private:
 	void OnChangeLockOnSide(const FInputActionValue& Value);
 	void OnCycleLeft(const FInputActionValue& Value);
 	void OnCycleRight(const FInputActionValue& Value);
+	void OnInteract(const FInputActionValue& Value);
 
 private:
 	void OnInventory(const FInputActionValue& Value);

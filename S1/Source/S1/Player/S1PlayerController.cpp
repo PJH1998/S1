@@ -103,6 +103,13 @@ void AS1PlayerController::SetupInputComponent()
 		}
 #pragma endregion
 
+#pragma region Interact
+		if (const UInputAction* InteractAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Interact))
+		{
+			EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ThisClass::OnInteract);
+		}
+#pragma endregion
+
 #pragma region UI
 		if (const UInputAction* InventoryAction = InputData->FindInputActionByTag(S1GameplayTags::Input_UI_Inventory))
 		{
@@ -439,6 +446,13 @@ void AS1PlayerController::OnCycleRight(const FInputActionValue& Value)
 		GetPlayerViewPoint(CamLoc, CamRot);
 		Comp->CycleRight(CamRot);
 	}
+}
+
+void AS1PlayerController::OnInteract(const FInputActionValue& Value)
+{
+	if (false == ::IsValid(S1Player)) { return; }
+
+	S1Player->TryInteract();
 }
 
 void AS1PlayerController::OnChangeLockOnSide(const FInputActionValue& Value)
