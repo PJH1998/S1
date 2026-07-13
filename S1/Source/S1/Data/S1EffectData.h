@@ -9,18 +9,6 @@
 
 class AS1Effect;
 
-USTRUCT(BlueprintType)
-struct FS1EffectEntry
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FGameplayTag EffectTag;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<AS1Effect> EffectClass;
-};
-
 UCLASS()
 class S1_API US1EffectData : public UDataAsset
 {
@@ -31,5 +19,5 @@ public:
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	TArray<FS1EffectEntry> Effects;
+	TMap<FGameplayTag, TSubclassOf<AS1Effect>> Effects;
 };

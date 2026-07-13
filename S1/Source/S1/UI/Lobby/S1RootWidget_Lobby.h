@@ -7,7 +7,7 @@
 #include "S1RootWidget_Lobby.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class S1_API US1RootWidget_Lobby : public US1RootWidget

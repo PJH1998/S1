@@ -6,12 +6,9 @@
 
 TSubclassOf<AS1Effect> US1EffectData::FindEffectClassByTag(const FGameplayTag& EffectTag) const
 {
-	for (const FS1EffectEntry& Effect : Effects)
+	if (const TSubclassOf<AS1Effect>* Found = Effects.Find(EffectTag))
 	{
-		if (Effect.EffectTag == EffectTag && Effect.EffectClass)
-		{
-			return Effect.EffectClass;
-		}
+		return *Found;
 	}
 
 	UE_LOG(LogWindows, Error, TEXT("Can't find EffectClass for EffectTag [%s]"), *EffectTag.ToString());

@@ -41,6 +41,10 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Effect, "Asset.Effect");
 #pragma endregion
 
+#pragma region Sound
+	UE_DEFINE_GAMEPLAY_TAG(Asset_SoundData, "Asset.SoundData");
+#pragma endregion
+
 #pragma region Datas
 	UE_DEFINE_GAMEPLAY_TAG(Asset_PoolingData, "Asset.PoolingData");
 	UE_DEFINE_GAMEPLAY_TAG(Asset_QuestData, "Asset.QuestData");

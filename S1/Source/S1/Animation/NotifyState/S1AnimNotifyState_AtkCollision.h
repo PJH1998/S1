@@ -21,6 +21,7 @@ class S1_API US1AnimNotifyState_AtkCollision : public UAnimNotifyState
 public:
 	float          GetAtkScale()       const { return AtkScale; }
 	FGameplayTag   GetHitStrengthTag() const { return HitStrengthTag; }
+	FGameplayTag   GetSoundBaseTag()   const { return SoundBaseTag; }
 	ES1AttackHand  GetAttackHand()     const { return AttackHand; }
 
 	// false면 이 히트 윈도우에서 무기 AttackBox를 켜지 않음 — 무기를 안 휘두르는 액션(맨손 타격 등)에서 VirtualShape만 판정하고 싶을 때 사용
@@ -47,6 +48,10 @@ private:
 	// 피격 강도 태그 — 타겟 피격 GA 선택에 사용 (e.g. HitType.Weak / HitType.Strong)
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	FGameplayTag HitStrengthTag;
+
+	// 무기별 사운드 카테고리 — HitStrengthTag와 조합해 US1SoundManager::PlayHitSound가 재생할 태그를 만든다 (e.g. Sound.Hit.RPR)
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	FGameplayTag SoundBaseTag;
 
 	// 활성화할 무기 손 — Main: 단일/주무기, Offhand: 보조 무기 (기본 Main)
 	UPROPERTY(EditAnywhere, Category = "Collision")
