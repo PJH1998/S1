@@ -22,7 +22,7 @@ void US1ANS_AttackCollision_M::NotifyBegin(USkeletalMeshComponent* MeshComp, UAn
 			return;
 		}
 
-		Monster->EnableAttackCollision(CollisionTag, DamageEffect, DamageRatio);
+		Monster->EnableAttackCollision(CollisionTag, DamageEffect, DamageRatio, HitStrengthTag, SoundBaseTag);
 	}
 }
 

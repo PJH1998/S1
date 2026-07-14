@@ -187,7 +187,7 @@ void AS1Monster::PlaySpawnAnimation()
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &ThisClass::ResumeAIAfterSpawnAnimation, Duration, false);
 }
 
-void AS1Monster::EnableAttackCollision(const FGameplayTag& CollisionTag, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio)
+void AS1Monster::EnableAttackCollision(const FGameplayTag& CollisionTag, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio, const FGameplayTag& HitStrengthTag, const FGameplayTag& SoundBaseTag)
 {
 	if (false == HasAuthority())
 	{
@@ -200,7 +200,7 @@ void AS1Monster::EnableAttackCollision(const FGameplayTag& CollisionTag, TSubcla
 		return;
 	}
 
-	ActiveAttackCollisions.FindOrAdd(CollisionTag) = FS1ActiveAttackCollision{ DamageEffect, DamageRatio };
+	ActiveAttackCollisions.FindOrAdd(CollisionTag) = FS1ActiveAttackCollision{ DamageEffect, DamageRatio, HitStrengthTag, SoundBaseTag };
 	AttackCollisionHitActors.FindOrAdd(CollisionTag).Reset();
  	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CollisionComponent->UpdateOverlaps();
@@ -222,7 +222,7 @@ void AS1Monster::DisableAttackCollision(const FGameplayTag& CollisionTag)
 	AttackCollisionHitActors.Remove(CollisionTag);
 }
 
-bool AS1Monster::ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio, const FHitResult& HitResult)
+bool AS1Monster::ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio, const FHitResult& HitResult, const FGameplayTag& HitStrengthTag, const FGameplayTag& SoundBaseTag)
 {
 	if (false == HasAuthority())
 	{
@@ -259,6 +259,14 @@ bool AS1Monster::ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEff
 	}
 
 	SpecHandle.Data->SetSetByCallerMagnitude(S1SetByCallerTags::SetByCaller_Damage, -FinalDamage);
+	if (HitStrengthTag.IsValid())
+	{
+		SpecHandle.Data->AppendDynamicAssetTags(FGameplayTagContainer(HitStrengthTag));
+	}
+	if (SoundBaseTag.IsValid())
+	{
+		SpecHandle.Data->AppendDynamicAssetTags(FGameplayTagContainer(SoundBaseTag));
+	}
 	TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	return true;
 }
@@ -365,7 +373,7 @@ void AS1Monster::OnAttackCollisionBeginOverlap(UPrimitiveComponent* OverlappedCo
 	}
 
 	HitActors.Add(OtherActor);
-	ApplyAttackDamage(OtherActor, ActiveCollision->DamageEffect, ActiveCollision->DamageRatio, SweepResult);
+	ApplyAttackDamage(OtherActor, ActiveCollision->DamageEffect, ActiveCollision->DamageRatio, SweepResult, ActiveCollision->HitStrengthTag, ActiveCollision->SoundBaseTag);
 }
 
 // HP 0: bIsDeadAnim·물리·BT 정지. 데스 재생·연출 타이밍은 ABP + AnimNotify.

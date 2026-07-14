@@ -87,6 +87,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = "AttackRange|Damage", meta = (EditCondition = "bApplyDamage"))
 	float DamageHeight = 200.f;
 
+	// 피격 강도 태그 — 타겟 피격 GA 선택에 사용 (e.g. HitType.Weak / HitType.Strong)
+	UPROPERTY(EditAnywhere, Category = "AttackRange|Damage", meta = (EditCondition = "bApplyDamage"))
+	FGameplayTag HitStrengthTag;
+
+	// 무기별 사운드 카테고리 — HitStrengthTag와 조합해 US1SoundManager::PlayHitSound가 재생할 태그를 만든다 (e.g. Sound.Hit.RPR)
+	UPROPERTY(EditAnywhere, Category = "AttackRange|Damage", meta = (EditCondition = "bApplyDamage"))
+	FGameplayTag SoundBaseTag;
+
 	UPROPERTY(Transient)
 	TMap<TWeakObjectPtr<USkeletalMeshComponent>, TWeakObjectPtr<AS1Decal_AttackRange>> ActiveDecals;
 
