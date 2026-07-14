@@ -8,10 +8,13 @@
 
 class AS1BossBase;
 class AS1Monster;
+class AS1PuzzleButton_Gimmick;
 class US1BossStatus;
+class US1InteractComponent;
+class UWidget;
 class UWidgetAnimation;
 /**
- * 
+ *
  */
 UCLASS()
 class S1_API US1HUD_Gameplay : public US1BaseWidget
@@ -32,12 +35,24 @@ private:
 	void ShowBossUI(AS1BossBase* InBoss);
 	void HideBossUI(AS1BossBase* InBoss);
 
+	void BindInteractEvents();
+	void SetUpInteractPrompt();
+
+	void ShowInteractPrompt();
+	void HideInteractPrompt();
+
 private:
 	UFUNCTION()
 	void HandleBossHasTargetChanged(AS1Monster* InMonster, bool bInHasTarget);
 
 	UFUNCTION()
 	void HandleHideAnimationFinished();
+
+	UFUNCTION()
+	void HandleNearestInteractableChanged(AS1PuzzleButton_Gimmick* NewNearest);
+
+	UFUNCTION()
+	void HandleInteractPromptHideAnimationFinished();
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -49,10 +64,22 @@ private:
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	TObjectPtr<UWidgetAnimation> Anim_BossStatus_FadeOut;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UWidget> InteractPrompt;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> Anim_InteractPrompt_FadeIn;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> Anim_InteractPrompt_FadeOut;
+
 private:
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<AS1BossBase>> BoundBosses;
 
 	UPROPERTY(Transient)
 	TObjectPtr<AS1BossBase> CurrentBoss;
+
+	UPROPERTY(Transient)
+	TWeakObjectPtr<US1InteractComponent> BoundInteractComponent;
 };

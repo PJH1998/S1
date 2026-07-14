@@ -16,6 +16,8 @@ class UBoxComponent;
 class AS1PlayerController;
 class AS1Weapon;
 class US1LockOnComponent;
+class US1InteractComponent;
+class AS1PuzzleButton_Gimmick;
 class US1PlayerCameraComponent;
 class US1PlayerReactBridgeComponent;
 class US1WeaponAnimLayer;
@@ -57,6 +59,9 @@ public:
 	void			    SetSprinting(bool bInSprint);
 	bool			    GetSprinting();
 
+	// InteractComponent가 찾은 가장 가까운 버튼을 눌러본다(대상 없으면 아무 일도 안 함).
+	void			    TryInteract();
+
 private:
 	// 입력 → 서버 라우팅 (ServerOnly GA — 서버에서 활성화/콤보/크로스 전부 처리)
 	// bInAir: 입력 시점 클라의 공중 상태 — 서버 이동상태 랙 보정용 (지상/공중 공격 정확 판정)
@@ -74,6 +79,10 @@ private:
 	// 점프 시 GAS 처리(이벤트 발송 + 공중 태그)를 서버에도 반영
 	UFUNCTION(Server, Reliable)
 	void ServerNotifyJump();
+
+	// Interact 입력 → 서버 라우팅. 서버에서 거리 재검증 후 Target->PressButton() 호출.
+	UFUNCTION(Server, Reliable)
+	void ServerInteract(AS1PuzzleButton_Gimmick* Target);
 
 	// 점프 GAS 처리 본체 — 소유 클라/서버 각 머신에서 로컬 실행
 	void HandleJumpGAS();
@@ -161,6 +170,13 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<US1LockOnComponent> LockOnComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<US1InteractComponent> InteractComponent;
+
+	// 서버 거리 재검증용 — InteractSphere 반경과 별개로 여유를 둔 허용 오차.
+	UPROPERTY(EditDefaultsOnly, Category = "Interact")
+	float InteractValidationRadius = 300.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<US1PlayerReactBridgeComponent> ReactBridgeComponent;

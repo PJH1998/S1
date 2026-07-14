@@ -6,7 +6,9 @@
 #include "Camera/S1PlayerCameraComponent.h"
 #include "Component/S1LockOnComponent.h"
 #include "Component/S1EquipComponent.h"
+#include "Component/S1InteractComponent.h"
 #include "Component/S1PlayerReactBridgeComponent.h"
+#include "Interaction/Gimmick/S1PuzzleButton_Gimmick.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -71,6 +73,9 @@ AS1Player::AS1Player()
 
 	// LockOn
 	LockOnComponent = CreateDefaultSubobject<US1LockOnComponent>(TEXT("LockOnComponent"));
+
+	// Interact (버튼 등 상호작용 오브젝트 탐지)
+	InteractComponent = CreateDefaultSubobject<US1InteractComponent>(TEXT("InteractComponent"));
 
 	// 피격 리액션 브릿지 (GE 적용 감지 → GA_Hit 트리거)
 	ReactBridgeComponent = CreateDefaultSubobject<US1PlayerReactBridgeComponent>(TEXT("ReactBridgeComponent"));
@@ -391,6 +396,36 @@ void AS1Player::HandleJumpGAS()
 		FGameplayEventData EventData;
 		AbilitySystemComponent->HandleGameplayEvent(JumpEventTag, &EventData);
 	}
+}
+
+void AS1Player::TryInteract()
+{
+	if (false == IsValid(InteractComponent))
+	{
+		return;
+	}
+
+	if (AS1PuzzleButton_Gimmick* Target = InteractComponent->GetNearestInteractable())
+	{
+		ServerInteract(Target);
+	}
+}
+
+void AS1Player::ServerInteract_Implementation(AS1PuzzleButton_Gimmick* Target)
+{
+	if (false == IsValid(Target))
+	{
+		return;
+	}
+
+	// 클라가 보고한 대상을 서버가 거리로 재검증(치트/랙 방지).
+	const float DistSq = FVector::DistSquared(GetActorLocation(), Target->GetActorLocation());
+	if (DistSq > FMath::Square(InteractValidationRadius))
+	{
+		return;
+	}
+
+	Target->PressButton();
 }
 
 void AS1Player::Landed(const FHitResult& Hit)

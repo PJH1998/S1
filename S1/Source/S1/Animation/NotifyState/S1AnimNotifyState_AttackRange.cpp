@@ -196,7 +196,7 @@ void US1AnimNotifyState_AttackRange::ApplyRangeDamage(USkeletalMeshComponent* Me
 		DamageHitResult.HitObjectHandle = FActorInstanceHandle(TargetActor);
 		DamageHitResult.Location = TargetActor->GetActorLocation();
 		DamageHitResult.ImpactPoint = DamageHitResult.Location;
-		Monster->ApplyAttackDamage(TargetActor, DamageEffect, DamageRatio, DamageHitResult);
+		Monster->ApplyAttackDamage(TargetActor, DamageEffect, DamageRatio, DamageHitResult, HitStrengthTag, SoundBaseTag);
 	}
 }
 

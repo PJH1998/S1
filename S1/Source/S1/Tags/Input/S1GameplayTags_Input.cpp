@@ -27,6 +27,8 @@ namespace S1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_ChangeLockOnSide,	"Input.Action.ChangeLockOnSide");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_LockOnLeft,			"Input.Action.LockOnLeft");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_LockOnRight,		"Input.Action.LockOnRight");
+
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Interact,			"Input.Action.Interact");
 #pragma endregion
 
 #pragma region UI

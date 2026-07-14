@@ -65,9 +65,9 @@ public:
 	 *  반환: 서버 기준 재생 길이(초). */
 	float PlayMonsterMontage(UAnimMontage* Montage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
 
-	void EnableAttackCollision(const FGameplayTag& CollisionTag, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio);
+	void EnableAttackCollision(const FGameplayTag& CollisionTag, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio, const FGameplayTag& HitStrengthTag, const FGameplayTag& SoundBaseTag);
 	void DisableAttackCollision(const FGameplayTag& CollisionTag);
-	bool ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio, const FHitResult& HitResult);
+	bool ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio, const FHitResult& HitResult, const FGameplayTag& HitStrengthTag, const FGameplayTag& SoundBaseTag);
 
 	void NotifyHasTargetChanged(bool bInHasTarget);
 	US1EnemyLocomotionComponent* GetLocomotionComponent() const { return EnemyLocomotionComponent; }
@@ -192,6 +192,8 @@ private:
 	{
 		TSubclassOf<UGameplayEffect> DamageEffect;
 		float DamageRatio = 1.f;
+		FGameplayTag HitStrengthTag;
+		FGameplayTag SoundBaseTag;
 	};
 
 	UPROPERTY(ReplicatedUsing = OnRep_IsDead)
