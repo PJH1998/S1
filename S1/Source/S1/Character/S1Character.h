@@ -69,10 +69,16 @@ public:
 	// 넉백 종료 후 로컬 정리(Notify NotifyEnd에서 각 머신이 자기 값만 리셋) — 순서 보장 불필요라 멀티캐스트 아님
 	void ClearPendingHitLaunchVelocity() { PendingHitLaunchVelocity = FVector::ZeroVector; }
 
-	// CMC->bOrientRotationToMovement 캐시(넉백 이동 중 회전 스냅 유지용) — Notify는 몽타주에 박힌 공유 UObject라
-	// 재생 주체별 상태를 못 들고 있어서(Effects_Niagara.md §29 경고) Character에 대신 보관
-	void SetCachedOrientRotationToMovement(bool bValue) { bCachedOrientRotationToMovement = bValue; }
-	bool GetCachedOrientRotationToMovement() const { return bCachedOrientRotationToMovement; }
+	// CMC->bOrientRotationToMovement 강제 off 요청을 참조카운트로 관리 — Dodge(Evasion GA)와 HitLaunch Notify처럼
+	// 겹칠 수 있는 여러 시스템이 각자 Push/Pop해도 서로의 복구를 덮어쓰지 않음(먼저 Push한 쪽이 나중에 Pop해도 안전).
+	// 0→1 진입 시 원래 값을 1회 캡처, 마지막 요청이 풀리는 1→0 시점에만 그 값으로 복구
+	void PushOrientRotationOverride();
+	void PopOrientRotationOverride();
+
+	// HitLaunch Notify는 공유 UObject라 자기 자신의 Begin/End 짝을 못 들고 있어서(Effects_Niagara.md §29 경고)
+	// Character에 대신 보관 — 데디 서버 thrash로 Begin/End가 짝 안 맞게 재발화해도 이중 Push/Pop 방지용 가드
+	bool IsHitLaunchOrientOverrideActive() const { return bHitLaunchOrientOverrideActive; }
+	void SetHitLaunchOrientOverrideActive(bool bValue) { bHitLaunchOrientOverrideActive = bValue; }
 
 	// 소켓에 붙여 재생 중인 이펙트를 EffectKey로 등록 — 같은 Key로 이전 이펙트가 끝나기 전에 또 스폰될 수 있어 Key당 배열(큐)로 보관
 	// Replicated 아님 — 각 머신이 자기 로컬 Niagara 인스턴스만 추적(몽타주 자체가 이미 서버/클라 각각 재생되므로 이 함수도 각 머신에서 로컬로 호출됨)
@@ -107,8 +113,10 @@ protected:
 	FVector PendingHitLaunchVelocity = FVector::ZeroVector;
 	FVector PendingHitFacingDirection = FVector::ForwardVector;
 
-	// 각 머신 로컬 스크래치 — 복제 불필요(Notify가 그 머신에서 껐다 그 머신에서 복원)
-	bool bCachedOrientRotationToMovement = true;
+	// 각 머신 로컬 스크래치 — 복제 불필요(각 머신이 자기 CMC를 자기가 껐다 자기가 복원)
+	int32 OrientRotationOverrideCount = 0;
+	bool bBaseOrientRotationToMovement = true;
+	bool bHitLaunchOrientOverrideActive = false;
 
 public:
 	// 데디 서버 NotifyState thrash 방어(§AtkCollision과 동일 원인 — AlwaysTickPoseAndRefreshBones 비렌더 서버에서

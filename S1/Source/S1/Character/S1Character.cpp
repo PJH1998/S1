@@ -98,6 +98,39 @@ void AS1Character::OnRep_GravityScale()
 	}
 }
 
+void AS1Character::PushOrientRotationOverride()
+{
+	UCharacterMovementComponent* CMC = GetCharacterMovement();
+	if (nullptr == CMC)
+	{
+		return;
+	}
+
+	if (0 == OrientRotationOverrideCount)
+	{
+		bBaseOrientRotationToMovement = CMC->bOrientRotationToMovement;
+		CMC->bOrientRotationToMovement = false;
+	}
+	++OrientRotationOverrideCount;
+}
+
+void AS1Character::PopOrientRotationOverride()
+{
+	if (0 == OrientRotationOverrideCount)
+	{
+		return;
+	}
+
+	--OrientRotationOverrideCount;
+	if (0 == OrientRotationOverrideCount)
+	{
+		if (UCharacterMovementComponent* CMC = GetCharacterMovement())
+		{
+			CMC->bOrientRotationToMovement = bBaseOrientRotationToMovement;
+		}
+	}
+}
+
 void AS1Character::MulticastSetHitLaunchData_Implementation(FVector Velocity, FVector Facing)
 {
 	PendingHitLaunchVelocity  = Velocity;

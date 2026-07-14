@@ -42,6 +42,4 @@ private:
 	void ClearInvincibilityTimers();
 
 	TArray<FTimerHandle> InvincibilityTimers;
-
-	bool bCachedOrientToMovement = true;
 };
