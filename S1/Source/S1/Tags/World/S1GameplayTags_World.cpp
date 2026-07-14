@@ -10,6 +10,19 @@ namespace S1PoolingTags
 	UE_DEFINE_GAMEPLAY_TAG(Pool_Decal_AttackRange, "Pool.Decal.AttackRange");
 }
 
+namespace S1SoundTags
+{
+#pragma region HitSound
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_RPR_Weak, "Sound.Hit.RPR.Weak");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_RPR_Strong, "Sound.Hit.RPR.Strong");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_RPR_Guard, "Sound.Hit.RPR.Guard");
+
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_SWD_Weak, "Sound.Hit.SWD.Weak");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_SWD_Strong, "Sound.Hit.SWD.Strong");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_SWD_Guard, "Sound.Hit.SWD.Guard");
+#pragma endregion
+}
+
 namespace S1EffectTags
 {
 #pragma region Decal

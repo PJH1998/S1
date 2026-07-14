@@ -10,6 +10,8 @@
 #include "GameplayEffect.h"
 #include "GameplayEffectTypes.h"
 #include "Tags/S1GameplayTags.h"
+#include "System/S1SoundManager.h"
+#include "Engine/Engine.h"
 
 US1MonsterReactBridgeComponent::US1MonsterReactBridgeComponent()
 {
@@ -75,13 +77,16 @@ void US1MonsterReactBridgeComponent::OnGameplayEffectApplied(
 		return;
 	}
 
-	if (false == Monster->HasAuthority())
+	const ES1HitReactType HitType = S1HitReactLibrary::ParseHitTypeFromSpec(Spec);
+	if (HitType == ES1HitReactType::None)
 	{
 		return;
 	}
 
-	const ES1HitReactType HitType = S1HitReactLibrary::ParseHitTypeFromSpec(Spec);
-	if (HitType == ES1HitReactType::None)
+	// 사운드는 각 머신 로컬 재생이라 서버 권위 체크보다 먼저 처리 — 이후 로직(AI 리액션 요청)만 서버 전용
+	PlayHitSound(HitType, Spec);
+
+	if (false == Monster->HasAuthority())
 	{
 		return;
 	}
@@ -108,6 +113,28 @@ void US1MonsterReactBridgeComponent::OnGameplayEffectApplied(
 	if (AS1AIController* AIController = Cast<AS1AIController>(Monster->GetController()))
 	{
 		AIController->SetHitReactRequest(HitType, HitDirection, Attacker);
+	}
+}
+
+void US1MonsterReactBridgeComponent::PlayHitSound(ES1HitReactType HitType, const FGameplayEffectSpec& Spec)
+{
+	const FGameplayTag SoundBaseTag = S1HitReactLibrary::FindSoundBaseTag(Spec);
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange, FString::Printf(
+			TEXT("[MonsterSound] HitType: %d, SoundBaseTag: %s"),
+			(int32)HitType, SoundBaseTag.IsValid() ? *SoundBaseTag.ToString() : TEXT("INVALID")));
+	}
+
+	if (false == SoundBaseTag.IsValid())
+	{
+		return;
+	}
+
+	if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+	{
+		SoundManager->PlayHitSound(SoundBaseTag, HitType);
 	}
 }
 

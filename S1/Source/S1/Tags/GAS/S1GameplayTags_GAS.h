@@ -54,6 +54,15 @@ namespace S1CooldownTags
 #pragma region Player
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Player_Ground_Skill01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Player_Air_Skill01);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Player_Ground_Skill02);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Player_Air_Skill02);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Player_Ground_Skill03);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Player_Air_Skill03);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Player_Ground_Skill04);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Player_Air_Skill04);
 #pragma endregion
 
 #pragma region Boss000
@@ -81,6 +90,7 @@ namespace S1HitType
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Weak);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Strong);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_ToAir);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Guard);
 }
 
 namespace S1StateTags

@@ -17,6 +17,21 @@ US1PlayerAbilitySystemComponent::US1PlayerAbilitySystemComponent()
 		S1AbilityTags::Ability_Player_Attack_Skill01,
 		S1CooldownTags::Cooldown_Player_Ground_Skill01,
 		S1CooldownTags::Cooldown_Player_Air_Skill01 });
+
+	CooldownVariants.Add(FS1CooldownVariantSet{
+		S1AbilityTags::Ability_Player_Attack_Skill02,
+		S1CooldownTags::Cooldown_Player_Ground_Skill02,
+		S1CooldownTags::Cooldown_Player_Air_Skill02 });
+
+	CooldownVariants.Add(FS1CooldownVariantSet{
+		S1AbilityTags::Ability_Player_Attack_Skill03,
+		S1CooldownTags::Cooldown_Player_Ground_Skill03,
+		S1CooldownTags::Cooldown_Player_Air_Skill03 });
+
+	CooldownVariants.Add(FS1CooldownVariantSet{
+		S1AbilityTags::Ability_Player_Attack_Skill04,
+		S1CooldownTags::Cooldown_Player_Ground_Skill04,
+		S1CooldownTags::Cooldown_Player_Air_Skill04 });
 }
 
 bool US1PlayerAbilitySystemComponent::ActivateAbility(const FGameplayTag& AbilityTag)

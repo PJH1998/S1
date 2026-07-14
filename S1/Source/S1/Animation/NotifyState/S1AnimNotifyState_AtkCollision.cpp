@@ -9,6 +9,23 @@
 
 // 데이터 마커 — 동작 없음. 값은 GA_Attack이 몽타주 스캔으로 읽어 서버 히트 윈도우를 구동한다.
 
+FS1AtkCollisionData US1AnimNotifyState_AtkCollision::GetCollisionData() const
+{
+	FS1AtkCollisionData Data;
+	Data.AtkScale             = AtkScale;
+	Data.HitStrengthTag       = HitStrengthTag;
+	Data.SoundBaseTag         = SoundBaseTag;
+	Data.AttackHand           = AttackHand;
+	Data.bEnableWeaponCollision = bEnableWeaponCollision;
+	Data.VirtualShape         = VirtualShape;
+	Data.VirtualAttachTarget  = VirtualAttachTarget;
+	Data.VirtualSocketName    = VirtualSocketName;
+	Data.VirtualSpawnOffset   = VirtualSpawnOffset;
+	Data.VirtualSphereRadius  = VirtualSphereRadius;
+	Data.VirtualBoxExtent     = VirtualBoxExtent;
+	return Data;
+}
+
 #if WITH_EDITOR
 // 엔진에 반구 프리미티브가 없어 PDI->DrawLine으로 직접 그림 — 적도(잘린 단면) 원 + 전방(Forward=X축) 극까지의 자오선
 // Transform의 Forward 방향이 런타임 DotProduct 필터(전방 180도)와 동일한 축이라 시각화와 실제 판정이 정확히 일치함

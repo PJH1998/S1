@@ -24,12 +24,13 @@ AS1Weapon::AS1Weapon()
 	TrailComponent->bAutoActivate = false;
 }
 
-void AS1Weapon::EnableHitCollision(float InAtkScale, FGameplayTag InHitStrengthTag)
+void AS1Weapon::EnableHitCollision(float InAtkScale, FGameplayTag InHitStrengthTag, FGameplayTag InSoundBaseTag)
 {
 	if (IsValid(AttackBox))
 	{
 		CurrentAtkScale       = InAtkScale;
 		CurrentHitStrengthTag = InHitStrengthTag;
+		CurrentSoundBaseTag   = InSoundBaseTag;
 		OnHitCollisionEnabled.Broadcast();
 		AttackBox->SetGenerateOverlapEvents(true);
 		AttackBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);

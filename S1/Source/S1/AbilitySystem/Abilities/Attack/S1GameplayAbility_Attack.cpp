@@ -113,32 +113,23 @@ void US1GameplayAbility_Attack::ScheduleHitWindows(UAnimMontage* Montage, float 
 			continue;
 		}
 
-		const float           RealBegin  = Event.GetTriggerTime() / EffectiveRate;
-		const float           RealEnd    = (Event.GetTriggerTime() + Event.GetDuration()) / EffectiveRate;
-		const float           AtkScale   = AtkNotify->GetAtkScale();
-		const FGameplayTag    StrengthTag = AtkNotify->GetHitStrengthTag();
-		const ES1AttackHand   Hand       = AtkNotify->GetAttackHand();
-		const bool                  bEnableWeapon       = AtkNotify->IsWeaponCollisionEnabled();
-		const ES1AtkCollisionShape  VirtualShape        = AtkNotify->GetVirtualShape();
-		const ES1EffectAttachTarget VirtualAttachTarget = AtkNotify->GetVirtualAttachTarget();
-		const FName                 VirtualSocketName   = AtkNotify->GetVirtualSocketName();
-		const FTransform             VirtualSpawnOffset = AtkNotify->GetVirtualSpawnOffset();
-		const float                 VirtualSphereRadius = AtkNotify->GetVirtualSphereRadius();
-		const FVector               VirtualBoxExtent    = AtkNotify->GetVirtualBoxExtent();
+		const float RealBegin = Event.GetTriggerTime() / EffectiveRate;
+		const float RealEnd   = (Event.GetTriggerTime() + Event.GetDuration()) / EffectiveRate;
+		const FS1AtkCollisionData Data = AtkNotify->GetCollisionData();
 
 		// Begin
 		FTimerHandle BeginHandle;
 		World->GetTimerManager().SetTimer(
 			BeginHandle,
-			FTimerDelegate::CreateWeakLambda(this, [this, AtkScale, StrengthTag, Hand, bEnableWeapon, VirtualShape, VirtualAttachTarget, VirtualSocketName, VirtualSpawnOffset, VirtualSphereRadius, VirtualBoxExtent]()
+			FTimerDelegate::CreateWeakLambda(this, [this, Data]()
 			{
-				if (bEnableWeapon)
+				if (Data.bEnableWeaponCollision)
 				{
-					EnableWeaponHitCollision(AtkScale, StrengthTag, Hand);
+					EnableWeaponHitCollision(Data.AtkScale, Data.HitStrengthTag, Data.SoundBaseTag, Data.AttackHand);
 				}
-				if (ES1AtkCollisionShape::None != VirtualShape)
+				if (ES1AtkCollisionShape::None != Data.VirtualShape)
 				{
-					EnableVirtualHitCollision(VirtualShape, VirtualAttachTarget, VirtualSocketName, VirtualSpawnOffset, VirtualSphereRadius, VirtualBoxExtent, AtkScale, StrengthTag, Hand);
+					EnableVirtualHitCollision(Data.VirtualShape, Data.VirtualAttachTarget, Data.VirtualSocketName, Data.VirtualSpawnOffset, Data.VirtualSphereRadius, Data.VirtualBoxExtent, Data.AtkScale, Data.HitStrengthTag, Data.SoundBaseTag, Data.AttackHand);
 				}
 			}),
 			FMath::Max(RealBegin, 0.001f), false);
@@ -148,13 +139,13 @@ void US1GameplayAbility_Attack::ScheduleHitWindows(UAnimMontage* Montage, float 
 		FTimerHandle EndHandle;
 		World->GetTimerManager().SetTimer(
 			EndHandle,
-			FTimerDelegate::CreateWeakLambda(this, [this, Hand, bEnableWeapon, VirtualShape]()
+			FTimerDelegate::CreateWeakLambda(this, [this, Data]()
 			{
-				if (bEnableWeapon)
+				if (Data.bEnableWeaponCollision)
 				{
-					DisableWeaponHitCollision(Hand);
+					DisableWeaponHitCollision(Data.AttackHand);
 				}
-				if (ES1AtkCollisionShape::None != VirtualShape)
+				if (ES1AtkCollisionShape::None != Data.VirtualShape)
 				{
 					DisableVirtualHitCollision();
 				}
@@ -176,7 +167,7 @@ void US1GameplayAbility_Attack::ClearHitWindowTimers()
 	HitWindowTimers.Reset();
 }
 
-void US1GameplayAbility_Attack::EnableWeaponHitCollision(float AtkScale, FGameplayTag HitStrengthTag, ES1AttackHand Hand)
+void US1GameplayAbility_Attack::EnableWeaponHitCollision(float AtkScale, FGameplayTag HitStrengthTag, FGameplayTag SoundBaseTag, ES1AttackHand Hand)
 {
 	AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo());
 	if (false == IsValid(Player))
@@ -188,14 +179,14 @@ void US1GameplayAbility_Attack::EnableWeaponHitCollision(float AtkScale, FGamepl
 	{
 		if (AS1Weapon* Weapon = Player->GetEquippedWeapon())
 		{
-			Weapon->EnableHitCollision(AtkScale, HitStrengthTag);
+			Weapon->EnableHitCollision(AtkScale, HitStrengthTag, SoundBaseTag);
 		}
 	}
 	else
 	{
 		if (AS1Weapon* Offhand = Player->GetEquippedOffhandWeapon())
 		{
-			Offhand->EnableHitCollision(AtkScale, HitStrengthTag);
+			Offhand->EnableHitCollision(AtkScale, HitStrengthTag, SoundBaseTag);
 		}
 	}
 }
@@ -224,7 +215,7 @@ void US1GameplayAbility_Attack::DisableWeaponHitCollision(ES1AttackHand Hand)
 	}
 }
 
-void US1GameplayAbility_Attack::EnableVirtualHitCollision(ES1AtkCollisionShape Shape, ES1EffectAttachTarget AttachTarget, FName SocketName, const FTransform& SpawnOffset, float SphereRadius, const FVector& BoxExtent, float AtkScale, FGameplayTag HitStrengthTag, ES1AttackHand Hand)
+void US1GameplayAbility_Attack::EnableVirtualHitCollision(ES1AtkCollisionShape Shape, ES1EffectAttachTarget AttachTarget, FName SocketName, const FTransform& SpawnOffset, float SphereRadius, const FVector& BoxExtent, float AtkScale, FGameplayTag HitStrengthTag, FGameplayTag SoundBaseTag, ES1AttackHand Hand)
 {
 	AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo());
 	if (false == IsValid(Player))
@@ -242,6 +233,7 @@ void US1GameplayAbility_Attack::EnableVirtualHitCollision(ES1AtkCollisionShape S
 
 	PendingVirtualAtkScale       = AtkScale;
 	PendingVirtualHitStrengthTag = HitStrengthTag;
+	PendingVirtualSoundBaseTag   = SoundBaseTag;
 	ActiveVirtualHand            = Hand;
 	bVirtualHemisphereActive     = (ES1AtkCollisionShape::Hemisphere == Shape);
 	VirtualHemisphereOrigin      = ShapeTransform.GetLocation();
@@ -439,16 +431,19 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 
 	float AtkScale = 1.0f;
 	FGameplayTag HitStrengthTag;
+	FGameplayTag SoundBaseTag;
 	if (bIsVirtual)
 	{
 		AtkScale       = PendingVirtualAtkScale;
 		HitStrengthTag = PendingVirtualHitStrengthTag;
+		SoundBaseTag   = PendingVirtualSoundBaseTag;
 	}
 	else
 	{
 		AS1Weapon* DamageWeapon = bIsOffhand ? OffhandWeapon : DamagePlayer->GetEquippedWeapon();
 		AtkScale       = IsValid(DamageWeapon) ? DamageWeapon->GetCurrentAtkScale()       : 1.0f;
 		HitStrengthTag = IsValid(DamageWeapon) ? DamageWeapon->GetCurrentHitStrengthTag() : FGameplayTag();
+		SoundBaseTag   = IsValid(DamageWeapon) ? DamageWeapon->GetCurrentSoundBaseTag()   : FGameplayTag();
 	}
 
 	const float DmgMult      = IsValid(MontageProgression) ? MontageProgression->GetDamageMultiplier() : 1.0f;
@@ -469,6 +464,10 @@ void US1GameplayAbility_Attack::OnAttackBoxOverlap(UPrimitiveComponent* Overlapp
 		if (HitStrengthTag.IsValid())
 		{
 			SpecHandle.Data->AppendDynamicAssetTags(FGameplayTagContainer(HitStrengthTag));
+		}
+		if (SoundBaseTag.IsValid())
+		{
+			SpecHandle.Data->AppendDynamicAssetTags(FGameplayTagContainer(SoundBaseTag));
 		}
 		ApplyGameplayEffectSpecToTarget(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), SpecHandle, TargetDataHandle);
 	}

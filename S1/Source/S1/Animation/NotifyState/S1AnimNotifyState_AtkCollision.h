@@ -10,6 +10,25 @@
 
 class FPrimitiveDrawInterface;
 
+// ScheduleHitWindows가 노티파이 값 전체를 한 번에 읽어 람다로 캡처하기 위한 순수 C++ 집계 구조체.
+// UPROPERTY 아님 — 저장은 여전히 개별 필드로 하고, 이건 읽는 쪽 편의용 스냅샷일 뿐이라
+// 이 구조체를 바꿔도 기존에 몽타주에 배치된 Notify 인스턴스 데이터엔 영향 없음.
+struct FS1AtkCollisionData
+{
+	float AtkScale = 1.0f;
+	FGameplayTag HitStrengthTag;
+	FGameplayTag SoundBaseTag;
+	ES1AttackHand AttackHand = ES1AttackHand::Main;
+	bool bEnableWeaponCollision = true;
+
+	ES1AtkCollisionShape VirtualShape = ES1AtkCollisionShape::None;
+	ES1EffectAttachTarget VirtualAttachTarget = ES1EffectAttachTarget::Character;
+	FName VirtualSocketName;
+	FTransform VirtualSpawnOffset = FTransform::Identity;
+	float VirtualSphereRadius = 50.f;
+	FVector VirtualBoxExtent = FVector(50.f);
+};
+
 // 데이터 마커 — 직접 히트 콜리전을 켜지 않음.
 // GA_Attack이 몽타주의 이 노티파이를 스캔(GetTriggerTime/GetDuration + 아래 값)해서
 // 서버에서 히트 윈도우를 1회씩 타이머로 구동 (비렌더 서버의 노티파이 per-frame thrash 우회).
@@ -19,6 +38,8 @@ class S1_API US1AnimNotifyState_AtkCollision : public UAnimNotifyState
 	GENERATED_BODY()
 
 public:
+	FS1AtkCollisionData GetCollisionData() const;
+
 	float          GetAtkScale()       const { return AtkScale; }
 	FGameplayTag   GetHitStrengthTag() const { return HitStrengthTag; }
 	FGameplayTag   GetSoundBaseTag()   const { return SoundBaseTag; }
@@ -49,7 +70,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	FGameplayTag HitStrengthTag;
 
-	// 무기별 사운드 카테고리 — HitStrengthTag와 조합해 US1SoundManager::PlayHitSound가 재생할 태그를 만든다 (e.g. Sound.Hit.RPR)
+	// 무기 카테고리(Sword/Fist/Bite 등) — HitStrengthTag와 조합해 재생할 사운드를 결정 (e.g. Sound.Hit.Sword)
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	FGameplayTag SoundBaseTag;
 

@@ -12,13 +12,26 @@ namespace S1PoolingTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Pool_Decal_AttackRange);
 }
 
+namespace S1SoundTags
+{
+#pragma region HitSound
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Hit_RPR_Weak);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Hit_RPR_Strong);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Hit_RPR_Guard);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Hit_SWD_Weak);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Hit_SWD_Strong);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Hit_SWD_Guard);
+#pragma endregion
+}
+
 namespace S1EffectTags
 {
 #pragma region Decal
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Decal_AttackRange);
 #pragma endregion
 
-#pragma region RPR
+#pragma region PlayerEffect
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Slash01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Slash02);
 
@@ -30,9 +43,6 @@ namespace S1EffectTags
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Aura01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Aura02);
-#pragma endregion
-
-#pragma region SWD
 #pragma endregion
 
 #pragma region Impact
