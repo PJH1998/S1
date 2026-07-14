@@ -4,15 +4,23 @@
 
 #include "Components/SphereComponent.h"
 #include "Interaction/Gimmick/S1PuzzleButton_Gimmick.h"
+#include "S1Define.h"
 
 US1InteractComponent::US1InteractComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
-	// CreateDefaultSubobject → 뷰포트에 표시 + BP에서 채널 설정 가능
+	// CreateDefaultSubobject → 뷰포트에 표시
 	InteractSphere = CreateDefaultSubobject<USphereComponent>(TEXT("InteractSphere"));
 	InteractSphere->InitSphereRadius(InteractRadius);
 	InteractSphere->SetGenerateOverlapEvents(true);
+
+	// 순수 오버랩 트리거로 고정: Monster 채널을 Block하면 몬스터 캡슐과 겹칠 때 크게 튕겨나간다
+	InteractSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	InteractSphere->SetCollisionObjectType(S1CollisionChannel::CC_Player);
+	InteractSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
+	// S1PuzzleButton_Gimmick::InteractionCollision은 ObjectType 미설정 → 기본 WorldDynamic 채널을 그대로 사용
+	InteractSphere->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
 }
 
 void US1InteractComponent::OnRegister()
