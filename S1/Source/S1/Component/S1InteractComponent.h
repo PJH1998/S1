@@ -9,6 +9,8 @@
 class USphereComponent;
 class AS1PuzzleButton_Gimmick;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FS1NearestInteractableChangedSignature, AS1PuzzleButton_Gimmick*, NewNearest);
+
 /**
  * 플레이어 주변의 상호작용 가능한 버튼(AS1PuzzleButton_Gimmick)을 오버랩으로 탐지한다.
  * US1LockOnComponent와 동일한 스피어+후보집합 패턴 — 오버랩 자체는 각 머신에서 로컬로
@@ -22,8 +24,12 @@ class S1_API US1InteractComponent : public UActorComponent
 public:
 	US1InteractComponent();
 
-	// 탐지된 후보 중 가장 가까운 상호작용 대상(없으면 nullptr).
+	// 탐지된 후보 중 가장 가까운 상호작용 대상(없으면 nullptr). 잠긴 버튼은 후보에서 제외한다.
 	AS1PuzzleButton_Gimmick* GetNearestInteractable() const;
+
+	// 가장 가까운 상호작용 대상이 바뀔 때만 브로드캐스트(HUD 프롬프트 표시용).
+	UPROPERTY(BlueprintAssignable, Category = "Interact")
+	FS1NearestInteractableChangedSignature OnNearestInteractableChanged;
 
 protected:
 	virtual void OnRegister() override;
@@ -39,6 +45,9 @@ private:
 	void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	// 가장 가까운 대상을 다시 계산해 이전과 다르면 OnNearestInteractableChanged를 브로드캐스트한다.
+	void UpdateNearestInteractable();
+
 private:
 	// 뷰포트에서 보이고 에디터에서 채널 설정 가능
 	UPROPERTY(VisibleAnywhere, Category = "Interact")
@@ -48,4 +57,5 @@ private:
 	float InteractRadius = 200.f;
 
 	TSet<TWeakObjectPtr<AActor>> CandidateSet;
+	TWeakObjectPtr<AS1PuzzleButton_Gimmick> CachedNearest;
 };

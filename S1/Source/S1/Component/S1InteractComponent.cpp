@@ -46,6 +46,8 @@ void US1InteractComponent::BeginPlay()
 	{
 		CandidateSet.Add(Actor);
 	}
+
+	UpdateNearestInteractable();
 }
 
 AS1PuzzleButton_Gimmick* US1InteractComponent::GetNearestInteractable() const
@@ -62,7 +64,7 @@ AS1PuzzleButton_Gimmick* US1InteractComponent::GetNearestInteractable() const
 	for (const TWeakObjectPtr<AActor>& Weak : CandidateSet)
 	{
 		AS1PuzzleButton_Gimmick* Button = Cast<AS1PuzzleButton_Gimmick>(Weak.Get());
-		if (nullptr == Button)
+		if (nullptr == Button || Button->IsPuzzleLocked())
 		{
 			continue;
 		}
@@ -88,10 +90,24 @@ void US1InteractComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, A
 	}
 
 	CandidateSet.Add(OtherActor);
+	UpdateNearestInteractable();
 }
 
 void US1InteractComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	CandidateSet.Remove(OtherActor);
+	UpdateNearestInteractable();
+}
+
+void US1InteractComponent::UpdateNearestInteractable()
+{
+	AS1PuzzleButton_Gimmick* NewNearest = GetNearestInteractable();
+	if (NewNearest == CachedNearest.Get())
+	{
+		return;
+	}
+
+	CachedNearest = NewNearest;
+	OnNearestInteractableChanged.Broadcast(NewNearest);
 }

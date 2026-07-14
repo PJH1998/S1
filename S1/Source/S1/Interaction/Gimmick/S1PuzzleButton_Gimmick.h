@@ -35,6 +35,8 @@ public:
 	// 코디네이터 전용: 퍼즐이 완료되면 호출해 잠근다 — 이후 PressButton()은 아무 일도 하지 않는다.
 	void SetPuzzleLocked(bool bLocked);
 
+	bool IsPuzzleLocked() const { return bPuzzleLocked; }
+
 	const TArray<TObjectPtr<AS1TogglePillar_Gimmick>>& GetConnectedPillars() const { return ConnectedPillars; }
 
 	UPROPERTY(BlueprintAssignable, Category = "Gimmick|PuzzleButton")

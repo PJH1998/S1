@@ -7,6 +7,9 @@
 
 #include "UI/Gameplay/Boss/S1BossStatus.h"
 #include "Animation/WidgetAnimation.h"
+#include "Component/S1InteractComponent.h"
+#include "Components/Widget.h"
+#include "Interaction/Gimmick/S1PuzzleButton_Gimmick.h"
 
 US1HUD_Gameplay::US1HUD_Gameplay(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -19,6 +22,8 @@ void US1HUD_Gameplay::NativeConstruct()
 
 	BindBossEvents();
 	SetUpBossStatus();
+	BindInteractEvents();
+	SetUpInteractPrompt();
 }
 
 void US1HUD_Gameplay::NativeDestruct()
@@ -40,6 +45,12 @@ void US1HUD_Gameplay::NativeDestruct()
 
 	BoundBosses.Reset();
 	CurrentBoss = nullptr;
+
+	if (US1InteractComponent* InteractComp = BoundInteractComponent.Get())
+	{
+		InteractComp->OnNearestInteractableChanged.RemoveDynamic(this, &ThisClass::HandleNearestInteractableChanged);
+	}
+	BoundInteractComponent = nullptr;
 
 	Super::NativeDestruct();
 }
@@ -145,5 +156,86 @@ void US1HUD_Gameplay::HandleHideAnimationFinished()
 	if (BossStatus != nullptr)
 	{
 		BossStatus->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void US1HUD_Gameplay::BindInteractEvents()
+{
+	APawn* OwningPawn = GetOwningPlayerPawn();
+	US1InteractComponent* InteractComp = ::IsValid(OwningPawn) ? OwningPawn->FindComponentByClass<US1InteractComponent>() : nullptr;
+	if (InteractComp == nullptr)
+	{
+		return;
+	}
+
+	InteractComp->OnNearestInteractableChanged.AddDynamic(this, &ThisClass::HandleNearestInteractableChanged);
+	BoundInteractComponent = InteractComp;
+}
+
+void US1HUD_Gameplay::SetUpInteractPrompt()
+{
+	if (InteractPrompt == nullptr)
+	{
+		return;
+	}
+
+	InteractPrompt->SetVisibility(ESlateVisibility::Collapsed);
+
+	if (Anim_InteractPrompt_FadeOut)
+	{
+		FWidgetAnimationDynamicEvent EndEvent;
+		EndEvent.BindDynamic(this, &ThisClass::HandleInteractPromptHideAnimationFinished);
+		BindToAnimationFinished(Anim_InteractPrompt_FadeOut, EndEvent);
+	}
+}
+
+void US1HUD_Gameplay::ShowInteractPrompt()
+{
+	if (InteractPrompt == nullptr)
+	{
+		return;
+	}
+
+	InteractPrompt->SetVisibility(ESlateVisibility::HitTestInvisible);
+	if (Anim_InteractPrompt_FadeIn)
+	{
+		PlayAnimation(Anim_InteractPrompt_FadeIn);
+	}
+}
+
+void US1HUD_Gameplay::HideInteractPrompt()
+{
+	if (InteractPrompt == nullptr)
+	{
+		return;
+	}
+
+	if (Anim_InteractPrompt_FadeOut)
+	{
+		PlayAnimation(Anim_InteractPrompt_FadeOut);
+	}
+	else
+	{
+		InteractPrompt->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void US1HUD_Gameplay::HandleNearestInteractableChanged(AS1PuzzleButton_Gimmick* NewNearest)
+{
+	if (NewNearest != nullptr)
+	{
+		ShowInteractPrompt();
+	}
+	else
+	{
+		HideInteractPrompt();
+	}
+}
+
+void US1HUD_Gameplay::HandleInteractPromptHideAnimationFinished()
+{
+	if (InteractPrompt != nullptr)
+	{
+		InteractPrompt->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
