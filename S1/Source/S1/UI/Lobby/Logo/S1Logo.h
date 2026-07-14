@@ -30,6 +30,10 @@ private:
 	void Change_Customize();
 
 public:
+	// 클릭된 순간 즉시 발화 (화면 FadeOut 시작과 동시) — Change_Customize(전환 완료)보다 먼저 옴
+	UPROPERTY()
+	FClickedLogoDelegate OnLogoClickBeginDelegate;
+
 	UPROPERTY()
 	FClickedLogoDelegate OnClickedLogoDelegate;
 

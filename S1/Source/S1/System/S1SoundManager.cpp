@@ -5,10 +5,12 @@
 #include "Components/AudioComponent.h"
 #include "Sound/SoundBase.h"
 #include "Engine/World.h"
+#include "Engine/Engine.h"
 #include "Kismet/GameplayStatics.h"
 #include "System/S1AssetManager.h"
 #include "Data/S1SoundData.h"
 #include "Tags/Asset/S1GameplayTags_Asset.h"
+#include "AbilitySystem/S1HitReactLibrary.h"
 
 void US1SoundManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -81,6 +83,17 @@ void US1SoundManager::PlayBGM(USoundBase* NewBGM, float FadeDuration)
 	GetWorld()->GetTimerManager().SetTimer(FadeTransitionTimerHandle, FadeInDelegate, FadeDuration, false);
 }
 
+void US1SoundManager::StopBGM(float FadeOutDuration)
+{
+	GetWorld()->GetTimerManager().ClearTimer(FadeTransitionTimerHandle);
+
+	UAudioComponent* CurrentComp = GetActiveComponent();
+	if (IsValid(CurrentComp) && CurrentComp->IsPlaying())
+	{
+		CurrentComp->FadeOut(FadeOutDuration, 0.f);
+	}
+}
+
 void US1SoundManager::PlaySound(USoundBase* Sound)
 {
 	if (false == IsValid(Sound))
@@ -91,15 +104,34 @@ void US1SoundManager::PlaySound(USoundBase* Sound)
 	UGameplayStatics::PlaySound2D(this, Sound);
 }
 
-void US1SoundManager::PlayHitSound(const FGameplayTag& BaseTag, const FGameplayTag& OutcomeTag)
+void US1SoundManager::PlayHitSound(const FGameplayTag& BaseTag, ES1HitReactType HitType)
 {
+	const FGameplayTag OutcomeTag = S1HitReactLibrary::HitReactTypeToTag(HitType);
 	const FGameplayTag ComposedTag = ComposeHitSoundTag(BaseTag, OutcomeTag);
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, FString::Printf(
+			TEXT("[SoundManager] BaseTag: %s + OutcomeTag: %s -> ComposedTag: %s"),
+			*BaseTag.ToString(), *OutcomeTag.ToString(),
+			ComposedTag.IsValid() ? *ComposedTag.ToString() : TEXT("INVALID (태그 미선언?)")));
+	}
+
 	if (false == ComposedTag.IsValid())
 	{
 		return;
 	}
 
 	US1SoundData* SoundData = US1AssetManager::GetAssetByTag<US1SoundData>(S1AssetTags::Asset_SoundData);
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, FString::Printf(
+			TEXT("[SoundManager] SoundData: %s, Sound: %s"),
+			IsValid(SoundData) ? TEXT("Valid") : TEXT("nullptr (Asset_SoundData 등록 안 됨?)"),
+			(IsValid(SoundData) && SoundData->FindSound(ComposedTag)) ? TEXT("Found") : TEXT("nullptr (Map에 없음)")));
+	}
+
 	if (false == IsValid(SoundData))
 	{
 		return;

@@ -155,11 +155,12 @@ void AS1Player::PossessedBy(AController* NewController)
 		AbilitySystemComponent->AddCharacterAbilities(DefaultAbilitiesTag);
 	}
 
-	// ReactBridgeComponent도 BeginPlay 시점엔 ASC가 아직 없어서 바인딩 실패 — 여기서(ASC 준비된 시점) 바인딩
-	if (IsValid(ReactBridgeComponent))
-	{
-		ReactBridgeComponent->BindAbilitySystem();
-	}
+	// 피격 리액션 트리거를 US1PlayerSet::PostGameplayEffectExecute로 이전 — ReactBridgeComponent는 당분간 비활성(삭제는 안 함).
+	// 다시 쓰려면 아래 주석 해제 (단, PlayerSet 쪽 HandleGameplayEvent 호출과 동시에 켜면 GA_Hit 중복 트리거됨).
+	// if (IsValid(ReactBridgeComponent))
+	// {
+	// 	ReactBridgeComponent->BindAbilitySystem();
+	// }
 
 	FGameplayTag InitialTag = FGameplayTag::EmptyTag;
 

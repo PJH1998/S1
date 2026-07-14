@@ -32,6 +32,42 @@ ES1HitReactType S1HitReactLibrary::ParseHitTypeFromSpec(const FGameplayEffectSpe
 	return ES1HitReactType::None;
 }
 
+FGameplayTag S1HitReactLibrary::HitReactTypeToTag(ES1HitReactType HitType)
+{
+	switch (HitType)
+	{
+	case ES1HitReactType::Weak:   return S1HitType::HitType_Weak;
+	case ES1HitReactType::Strong: return S1HitType::HitType_Strong;
+	case ES1HitReactType::Launch: return S1HitType::HitType_ToAir;
+	default: break;
+	}
+
+	return FGameplayTag::EmptyTag;
+}
+
+FGameplayTag S1HitReactLibrary::FindSoundBaseTag(const FGameplayEffectSpec& Spec)
+{
+	static const FGameplayTag SoundHitRoot = FGameplayTag::RequestGameplayTag(FName("Sound.Hit"), false);
+	if (false == SoundHitRoot.IsValid())
+	{
+		return FGameplayTag::EmptyTag;
+	}
+
+	FGameplayTagContainer AllTags;
+	AllTags.AppendTags(Spec.DynamicGrantedTags);
+	AllTags.AppendTags(Spec.GetDynamicAssetTags());
+
+	for (const FGameplayTag& Tag : AllTags)
+	{
+		if (Tag.MatchesTag(SoundHitRoot))
+		{
+			return Tag;
+		}
+	}
+
+	return FGameplayTag::EmptyTag;
+}
+
 ES1Direction S1HitReactLibrary::CalcHitDirection(const AActor* Target, const FVector& HitSourceLocation)
 {
 	if (nullptr == Target)

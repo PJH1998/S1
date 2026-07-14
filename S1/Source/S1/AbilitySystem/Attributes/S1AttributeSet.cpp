@@ -3,6 +3,7 @@
 #include "AbilitySystem/Attributes/S1AttributeSet.h"
 #include "GameplayEffectExtension.h"
 #include "Net/UnrealNetwork.h"
+#include "Engine/Engine.h"
 
 US1AttributeSet::US1AttributeSet()
 {
@@ -11,6 +12,13 @@ US1AttributeSet::US1AttributeSet()
 void US1AttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(
+			TEXT("[BaseAttributeSet:%s] PostGameplayEffectExecute — Attribute: %s, Magnitude: %.1f"),
+			*GetClass()->GetName(), *Data.EvaluatedData.Attribute.GetName(), Data.EvaluatedData.Magnitude));
+	}
 
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{

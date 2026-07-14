@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "TimerManager.h"
 #include "S1BGMVolume.generated.h"
 
 class UBoxComponent;
@@ -28,6 +29,9 @@ protected:
 	UFUNCTION()
 	void OnZoneBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UFUNCTION()
+	void OnZoneEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 private:
 	void RequestPlayBGM();
 	bool IsLocationInsideZone(const FVector& Location) const;
@@ -41,4 +45,10 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BGM", meta = (AllowPrivateAccess = "true"))
 	float FadeDuration = 1.5f;
+
+	// 구역 경계에서 왕복 시 재생이 반복 전환되는 걸 막기 위한 디바운스 — 이 시간 이상 머물러야 실제로 전환됨
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BGM", meta = (AllowPrivateAccess = "true"))
+	float DebounceDuration = 1.5f;
+
+	FTimerHandle DebounceTimerHandle;
 };

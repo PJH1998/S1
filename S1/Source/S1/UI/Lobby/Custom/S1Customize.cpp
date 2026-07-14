@@ -7,6 +7,7 @@
 #include "Character/S1SelectCharacter.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Player/S1CharacterSelectController.h"
+#include "System/S1SoundManager.h"
 
 US1Customize::US1Customize(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -36,5 +37,10 @@ void US1Customize::OnStartClicked()
 	if (AS1CharacterSelectController* Controller = GetOwningPlayer<AS1CharacterSelectController>())
 	{
 		Controller->RequestConfirm();
+	}
+
+	if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+	{
+		SoundManager->StopBGM();
 	}
 }

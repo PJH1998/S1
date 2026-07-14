@@ -6,6 +6,7 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "TimerManager.h"
 #include "GameplayTagContainer.h"
+#include "S1Enums.h"
 #include "S1SoundManager.generated.h"
 
 class UAudioComponent;
@@ -22,14 +23,17 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
-	void PlayBGM(USoundBase* NewBGM, float FadeDuration);
+	void PlayBGM(USoundBase* NewBGM, float FadeDuration = 0.f);
+
+	// 새 BGM 없이 현재 재생 중인 BGM만 FadeOut — 전환 종료 시점을 별도로 제어하고 싶을 때(예: UI 연출과 동기화) 사용.
+	void StopBGM(float FadeOutDuration = 0.f);
 
 	// 위치 없는 1회성 재생 — 호출부가 이미 재생할 Sound를 들고 있을 때 사용 (예: UI).
 	void PlaySound(USoundBase* Sound);
 
-	// BaseTag(무기별 사운드 카테고리, 예: Sound.Hit.RPR) + OutcomeTag(HitType_Weak/Strong/ToAir 등)를
-	// 조합해 미리 선언된 태그(예: Sound.Hit.RPR.Strong)로 US1HitSoundData를 조회 후 재생.
-	void PlayHitSound(const FGameplayTag& BaseTag, const FGameplayTag& OutcomeTag);
+	// BaseTag(무기 카테고리: Sword/Fist/Bite 등) + HitType(Weak/Strong/ToAir)을 내부에서 태그로 조합해
+	// US1SoundData를 조회 후 재생.
+	void PlayHitSound(const FGameplayTag& BaseTag, ES1HitReactType HitType);
 
 private:
 	void StartFadeIn(USoundBase* NewBGM, float FadeDuration);

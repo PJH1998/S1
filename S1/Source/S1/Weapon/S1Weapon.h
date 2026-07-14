@@ -22,11 +22,12 @@ class S1_API AS1Weapon : public AActor
 public:
 	AS1Weapon();
 
-	void EnableHitCollision(float InAtkScale = 1.0f, FGameplayTag InHitStrengthTag = FGameplayTag());
+	void EnableHitCollision(float InAtkScale = 1.0f, FGameplayTag InHitStrengthTag = FGameplayTag(), FGameplayTag InSoundBaseTag = FGameplayTag());
 	void DisableHitCollision();
 
 	float        GetCurrentAtkScale()       const { return CurrentAtkScale; }
 	FGameplayTag GetCurrentHitStrengthTag() const { return CurrentHitStrengthTag; }
+	FGameplayTag GetCurrentSoundBaseTag()   const { return CurrentSoundBaseTag; }
 
 	void EnableTrail();
 	void DisableTrail();
@@ -56,4 +57,5 @@ protected:
 private:
 	float        CurrentAtkScale       = 1.0f;
 	FGameplayTag CurrentHitStrengthTag;
+	FGameplayTag CurrentSoundBaseTag;
 };

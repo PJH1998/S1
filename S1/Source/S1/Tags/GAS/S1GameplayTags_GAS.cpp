@@ -52,6 +52,15 @@ namespace S1CooldownTags
 #pragma region Player
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Player_Ground_Skill01, "Cooldown.Player.Ground.Skill01");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Player_Air_Skill01,    "Cooldown.Player.Air.Skill01");
+
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Player_Ground_Skill02, "Cooldown.Player.Ground.Skill02");
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Player_Air_Skill02, "Cooldown.Player.Air.Skill02");
+
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Player_Ground_Skill03, "Cooldown.Player.Ground.Skill03");
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Player_Air_Skill03, "Cooldown.Player.Air.Skill03");
+
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Player_Ground_Skill04, "Cooldown.Player.Ground.Skill04");
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Player_Air_Skill04, "Cooldown.Player.Air.Skill04");
 #pragma endregion
 
 #pragma region Boss000
@@ -103,6 +112,7 @@ namespace S1HitType
 	UE_DEFINE_GAMEPLAY_TAG(HitType_Weak,	"HitType.Weak");
 	UE_DEFINE_GAMEPLAY_TAG(HitType_Strong,	"HitType.Strong");
 	UE_DEFINE_GAMEPLAY_TAG(HitType_ToAir,	"HitType.ToAir");
+	UE_DEFINE_GAMEPLAY_TAG(HitType_Guard,	"HitType.Guard");
 }
 
 namespace S1EventTags

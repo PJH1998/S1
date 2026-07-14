@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "S1Enums.h"
 
 struct FGameplayEffectSpec;
@@ -13,6 +14,12 @@ namespace S1HitReactLibrary
 {
 	// GE Spec의 태그(DynamicGrantedTags/DynamicAssetTags/GrantedTags)에서 HitType 파싱 — 없으면 None
 	ES1HitReactType ParseHitTypeFromSpec(const FGameplayEffectSpec& Spec);
+
+	// ES1HitReactType → HitType 태그 역변환 (사운드 등 태그 조합이 필요한 곳에서 사용) — None이면 EmptyTag
+	FGameplayTag HitReactTypeToTag(ES1HitReactType HitType);
+
+	// GE Spec의 DynamicAssetTags에서 "Sound.Hit" 하위 태그(무기 카테고리: Sword/Fist/Bite 등)를 찾음 — 없으면 EmptyTag
+	FGameplayTag FindSoundBaseTag(const FGameplayEffectSpec& Spec);
 
 	// 피격자 기준 공격원 위치로 4방향(Forward/Back/Left/Right) 판정
 	ES1Direction CalcHitDirection(const AActor* Target, const FVector& HitSourceLocation);
