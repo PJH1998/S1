@@ -42,6 +42,10 @@ namespace S1AssetTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Effect);
 #pragma endregion
 
+#pragma region Sound
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_SoundData);
+#pragma endregion
+
 #pragma region Datas
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_PoolingData);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_QuestData);
