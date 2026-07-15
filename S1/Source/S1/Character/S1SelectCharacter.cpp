@@ -4,6 +4,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Engine/TextureRenderTarget2D.h"
+#include "Kismet/KismetRenderingLibrary.h"
 #include "Data/S1CharacterSelectData.h"
 #include "Data/S1WeaponData.h"
 #include "Weapon/S1Weapon.h"
@@ -50,10 +51,30 @@ void AS1SelectCharacter::BeginPlay()
 
 	if (::IsValid(PreviewCapture))
 	{
-		PreviewCapture->TextureTarget = PreviewRenderTarget;
+		// 멀티 클라에서 SelectCharacter 인스턴스마다 RT를 따로 가지도록 템플릿을 복제 — 공유 에셋을 그대로 쓰면
+		// 여러 인스턴스의 캡처가 같은 RT를 매 프레임 덮어써서 서로의 프리뷰가 뒤섞임
+		if (::IsValid(PreviewRenderTarget))
+		{
+			// DuplicateObject는 GPU 리소스(RHI 텍스처)를 새로 안 만들어 검은 화면이 나옴 —
+			// CreateRenderTarget2D로 템플릿과 같은 크기/포맷의 새 RT를 제대로 초기화해서 생성
+			InstanceRenderTarget = UKismetRenderingLibrary::CreateRenderTarget2D(
+				this,
+				PreviewRenderTarget->SizeX,
+				PreviewRenderTarget->SizeY,
+				PreviewRenderTarget->RenderTargetFormat,
+				PreviewRenderTarget->ClearColor,
+				PreviewRenderTarget->bAutoGenerateMips);
+		}
+
+		PreviewCapture->TextureTarget = GetPreviewRenderTarget();
 		PreviewCapture->ShowOnlyActors.Reset();
 		PreviewCapture->ShowOnlyActors.Add(this);
 	}
+}
+
+UTextureRenderTarget2D* AS1SelectCharacter::GetPreviewRenderTarget() const
+{
+	return ::IsValid(InstanceRenderTarget) ? InstanceRenderTarget.Get() : PreviewRenderTarget.Get();
 }
 
 void AS1SelectCharacter::Tick(float DeltaTime)

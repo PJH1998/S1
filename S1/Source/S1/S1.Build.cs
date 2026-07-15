@@ -31,7 +31,7 @@ public class S1 : ModuleRules
             "CinematicCamera",
         });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "AIModule", "NavigationSystem" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "AIModule", "NavigationSystem", "PhysicsCore" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
