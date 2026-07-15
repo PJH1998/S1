@@ -7,9 +7,13 @@
 UENUM(BlueprintType)
 enum class ES1StencilLayer : uint8
 {
-	None   = 0 UMETA(DisplayName = "None"),
-	Player = 1 UMETA(DisplayName = "Player"),
-	Boss   = 2 UMETA(DisplayName = "Boss"),
+	None             = 0 UMETA(DisplayName = "None"),
+	Player           = 1 UMETA(DisplayName = "Player"),
+	Boss             = 2 UMETA(DisplayName = "Boss"),
+
+	// Ultimate 컷씬 "플레이어만 보이기" PP 전용 — 멀티에서 시전자 이외의 다른 Player(모두 stencil=1 공유)가
+	// 같이 하이라이트되는 것 방지. 시전 중에만 시전자 메시에 이 값을 임시로 덮어씀(UltiCleanup에서 Player로 복구)
+	UltimateSpotlight = 3 UMETA(DisplayName = "UltimateSpotlight"),
 };
 
 UENUM(BlueprintType)

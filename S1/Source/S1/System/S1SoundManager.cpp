@@ -47,7 +47,7 @@ void US1SoundManager::Deinitialize()
 	Super::Deinitialize();
 }
 
-void US1SoundManager::PlayBGM(USoundBase* NewBGM, float FadeDuration)
+void US1SoundManager::PlayBGM(USoundBase* NewBGM, float FadeDuration, float Volume)
 {
 	if (false == IsValid(NewBGM))
 	{
@@ -57,6 +57,8 @@ void US1SoundManager::PlayBGM(USoundBase* NewBGM, float FadeDuration)
 	UAudioComponent* CurrentComp = GetActiveComponent();
 	if (IsValid(CurrentComp) && CurrentComp->Sound == NewBGM && CurrentComp->IsPlaying())
 	{
+		// 같은 곡이 이미 재생 중이어도 볼륨만은 즉시 반영
+		CurrentComp->SetVolumeMultiplier(Volume);
 		return;
 	}
 
@@ -64,7 +66,7 @@ void US1SoundManager::PlayBGM(USoundBase* NewBGM, float FadeDuration)
 
 	if (false == IsValid(CurrentComp) || false == CurrentComp->IsPlaying())
 	{
-		StartFadeIn(NewBGM, FadeDuration);
+		StartFadeIn(NewBGM, FadeDuration, Volume);
 		return;
 	}
 
@@ -73,11 +75,11 @@ void US1SoundManager::PlayBGM(USoundBase* NewBGM, float FadeDuration)
 
 	TWeakObjectPtr<US1SoundManager> WeakThis(this);
 	TWeakObjectPtr<USoundBase> WeakBGM(NewBGM);
-	FTimerDelegate FadeInDelegate = FTimerDelegate::CreateLambda([WeakThis, WeakBGM, FadeDuration]()
+	FTimerDelegate FadeInDelegate = FTimerDelegate::CreateLambda([WeakThis, WeakBGM, FadeDuration, Volume]()
 		{
 			if (WeakThis.IsValid() && WeakBGM.IsValid())
 			{
-				WeakThis->StartFadeIn(WeakBGM.Get(), FadeDuration);
+				WeakThis->StartFadeIn(WeakBGM.Get(), FadeDuration, Volume);
 			}
 		});
 	GetWorld()->GetTimerManager().SetTimer(FadeTransitionTimerHandle, FadeInDelegate, FadeDuration, false);
@@ -158,7 +160,7 @@ FGameplayTag US1SoundManager::ComposeHitSoundTag(const FGameplayTag& BaseTag, co
 	return FGameplayTag::RequestGameplayTag(FName(*ComposedName), /*ErrorIfNotFound=*/false);
 }
 
-void US1SoundManager::StartFadeIn(USoundBase* NewBGM, float FadeDuration)
+void US1SoundManager::StartFadeIn(USoundBase* NewBGM, float FadeDuration, float Volume)
 {
 	UAudioComponent* NextComp = GetInactiveComponent();
 	if (false == IsValid(NextComp))
@@ -167,7 +169,7 @@ void US1SoundManager::StartFadeIn(USoundBase* NewBGM, float FadeDuration)
 	}
 
 	NextComp->SetSound(NewBGM);
-	NextComp->FadeIn(FadeDuration, 1.f);
+	NextComp->FadeIn(FadeDuration, Volume);
 
 	bIsAActive = !bIsAActive;
 }

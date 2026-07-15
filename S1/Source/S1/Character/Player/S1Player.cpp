@@ -745,6 +745,9 @@ void AS1Player::StartUltimateCutscene()
 
 	UltiSequencePlayer->SetTimeController(MakeShared<FMovieSceneTimeController_PlatformClock>());
 
+	// 시전자만 하이라이트되도록 스텐실 전환 (멀티에서 다른 플레이어도 Player=1이라 구분 안 됨)
+	SetUltimateStencilActive(true);
+
 	// 플레이어 앵커만 주입 (반드시 Play 이전) — 카메라는 시퀀스가 Spawnable로 직접 스폰
 	UltiSequenceActor->SetBindingByTag(UltiPlayerBindingTag, { this });
 
@@ -881,6 +884,8 @@ void AS1Player::OnUltiCutsceneFinished()
 
 void AS1Player::UltiCleanup()
 {
+	SetUltimateStencilActive(false);
+
 	if (UWorld* World = GetWorld())
 	{
 		World->GetTimerManager().ClearTimer(UltiExitStartTimer);
@@ -911,5 +916,16 @@ void AS1Player::UltiCleanup()
 
 	UltiSequencePlayer = nullptr;
 	UltiSequence = nullptr;
+}
+
+void AS1Player::SetUltimateStencilActive(bool bActive)
+{
+	const uint8 StencilValue = bActive
+		? (uint8)ES1StencilLayer::UltimateSpotlight
+		: (uint8)ES1StencilLayer::Player;
+
+	GetMesh()->SetCustomDepthStencilValue(StencilValue);
+	HairMesh->SetCustomDepthStencilValue(StencilValue);
+	FaceMesh->SetCustomDepthStencilValue(StencilValue);
 }
 

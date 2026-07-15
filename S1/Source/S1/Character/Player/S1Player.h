@@ -280,6 +280,10 @@ private:
 	UFUNCTION() void OnUltiCutsceneFinished();
 	void UltiCleanup();
 
+	// 컷씬 "플레이어만 보이기" PP가 시전자만 골라내도록, 시전 중엔 메시 스텐실을 UltimateSpotlight로 임시 전환
+	// (평소엔 다른 플레이어와 동일한 Player 값이라 멀티에서 구분 불가 — §S1Enums.h ES1StencilLayer 참조)
+	void SetUltimateStencilActive(bool bActive);
+
 	UPROPERTY(Transient) TObjectPtr<ULevelSequence>       UltiSequence;
 	UPROPERTY(Transient) TObjectPtr<ULevelSequencePlayer> UltiSequencePlayer;
 	UPROPERTY(Transient) TObjectPtr<ALevelSequenceActor>  UltiSequenceActor;

@@ -78,7 +78,7 @@ void AS1BGMVolume::RequestPlayBGM()
 {
 	if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
 	{
-		SoundManager->PlayBGM(ZoneBGM, FadeDuration);
+		SoundManager->PlayBGM(ZoneBGM, FadeDuration, Volume);
 	}
 }
 
