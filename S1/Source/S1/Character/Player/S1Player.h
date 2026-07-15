@@ -108,6 +108,7 @@ public:
 	AS1Weapon*		    GetEquippedWeapon()        const { return EquippedWeapon; }
 	AS1Weapon*		    GetEquippedOffhandWeapon() const { return EquippedOffhandWeapon; }
 	US1LockOnComponent* GetLockOnComponent()   const { return LockOnComponent; }
+	EPlayerGender       GetGender()             const { return Gender; }
 	const TArray<FS1AbilityInputBinding>& GetAbilityInputBindings() const { return AbilityInputBindings; }
 
 	// AtkCollision 노티파이의 VirtualShape가 켜졌을 때 GA_Attack이 켜고 끄는 가상 판정 도형 — Main/Offhand 공용 1개씩
