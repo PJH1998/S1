@@ -2,6 +2,7 @@
 
 
 #include "UI/Gameplay/S1RootWidget_Gameplay.h"
+#include "UI/Gameplay/S1Announce.h"
 #include "UI/Menu/S1Inventory_ItemInfo.h"
 #include "UI/Menu/S1Menu_Inventory.h"
 
@@ -73,4 +74,12 @@ void US1RootWidget_Gameplay::HideAllMenus()
 bool US1RootWidget_Gameplay::IsInventoryMenuOpen() const
 {
 	return Menu_Inventory && Menu_Inventory->IsVisible();
+}
+
+void US1RootWidget_Gameplay::ShowAnnounce(const FGameplayTag& AnnounceTag)
+{
+	if (Announce)
+	{
+		Announce->ShowAnnounce(AnnounceTag);
+	}
 }

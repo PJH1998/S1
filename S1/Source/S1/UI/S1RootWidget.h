@@ -36,6 +36,9 @@ public:
 	virtual bool IsInventoryMenuOpen() const { return false; }
 	virtual US1Inventory_ItemInfo* GetItemInfoWidget() const { return nullptr; }
 
+	// 상황별 텍스처 어나운스(퀘스트/기믹/보스 클리어 등). 레벨별로 필요한 곳(Gameplay)만 override해서 채운다.
+	virtual void ShowAnnounce(const FGameplayTag& AnnounceTag) {}
+
 	void FadeIn(float InDuration = 1.f);
 	void FadeOut(float InDuration = 1.f);
 

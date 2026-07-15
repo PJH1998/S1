@@ -65,4 +65,9 @@ void AS1GimmickObject::ResetGimmick()
 void AS1GimmickObject::OnRep_IsActivated()
 {
 	// 베이스는 상태만 보유. 메쉬 스왑 등 연출은 자식에서 override.
+
+	if (bIsActivated)
+	{
+		OnActivatedCosmetic.Broadcast();
+	}
 }

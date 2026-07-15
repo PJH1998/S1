@@ -58,4 +58,9 @@ namespace S1UIResourceTags
 	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Weapon_SWD, "UI.Icon.Weapon.SWD");
 	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Weapon_DSWD, "UI.Icon.Weapon.DSWD");
 #pragma endregion
+
+#pragma region Announce
+	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Announce_BossCleared, "UI.Icon.Announce.BossCleared");
+	UE_DEFINE_GAMEPLAY_TAG(UI_Icon_Announce_QuestCleared, "UI.Icon.Announce.QuestCleared");
+#pragma endregion
 }

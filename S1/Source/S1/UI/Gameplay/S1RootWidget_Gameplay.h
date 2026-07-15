@@ -6,6 +6,7 @@
 #include "UI/S1RootWidget.h"
 #include "S1RootWidget_Gameplay.generated.h"
 
+class US1Announce;
 class US1Inventory_ItemInfo;
 class US1Menu_Inventory;
 
@@ -25,6 +26,7 @@ public:
 	virtual void HideAllMenus() override;
 	virtual bool IsInventoryMenuOpen() const override;
 	virtual US1Inventory_ItemInfo* GetItemInfoWidget() const override { return ItemInfoWidget; }
+	virtual void ShowAnnounce(const FGameplayTag& AnnounceTag) override;
 
 	UCanvasPanel* GetDamageNumberCanvas() const { return CanvasPanel_DamageNumber; }
 
@@ -41,6 +43,9 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<US1Menu_Inventory> Menu_Inventory;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<US1Announce> Announce;
 
 private:
 	TObjectPtr<US1Inventory_ItemInfo> ItemInfoWidget;

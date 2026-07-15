@@ -84,6 +84,14 @@ void US1UIManager::FadeOut(float InDuration, TFunction<void()> InCallback)
 	RootWidget->FadeOut(InDuration);
 }
 
+void US1UIManager::ShowAnnounce(const FGameplayTag& AnnounceTag)
+{
+	if (RootWidget)
+	{
+		RootWidget->ShowAnnounce(AnnounceTag);
+	}
+}
+
 void US1UIManager::FinishedFade()
 {
 	if (RootWidget == nullptr)
