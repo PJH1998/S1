@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Interaction/Gimmick/S1GimmickObject.h"
 #include "S1SlidingDoor_Gimmick.generated.h"
 
@@ -51,6 +52,14 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gimmick|SlidingDoor", meta = (AllowPrivateAccess = "true"))
 	float OpenDuration = 1.f;
+
+	// 리빌 시퀀스 태그(US1SequenceManager에 등록된 것과 동일해야 함). invalid면 리빌 연출 없이 그냥 열림.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gimmick|SlidingDoor", meta = (AllowPrivateAccess = "true"))
+	FGameplayTag RevealSequenceTag;
+
+	// 문이 다 열린 뒤 리빌 카메라에서 플레이어 카메라로 복귀하는 블렌드 시간.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gimmick|SlidingDoor", meta = (AllowPrivateAccess = "true"))
+	float RevealExitBlendTime = 0.5f;
 
 	FVector LeftClosedRelativeLocation = FVector::ZeroVector;
 	FVector RightClosedRelativeLocation = FVector::ZeroVector;

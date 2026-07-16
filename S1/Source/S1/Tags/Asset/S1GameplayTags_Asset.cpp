@@ -18,6 +18,10 @@ namespace S1AssetTags
 	UE_DEFINE_GAMEPLAY_TAG(Asset_UIResource, "Asset.UIResource");
 #pragma endregion
 
+#pragma region Sequence
+	UE_DEFINE_GAMEPLAY_TAG(Asset_SequenceResource, "Asset.SequenceResource");
+#pragma endregion
+
 #pragma region GameAbilitySystem
 	UE_DEFINE_GAMEPLAY_TAG(Asset_Ability_Player_Default, "Asset.Ability.Player.Default");
 

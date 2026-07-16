@@ -20,6 +20,10 @@ namespace S1AssetTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_UIResource);
 #pragma endregion
 
+#pragma region Sequence
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_SequenceResource);
+#pragma endregion
+
 #pragma region GameAbilitySystem
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Asset_Ability_Player_Default);
 

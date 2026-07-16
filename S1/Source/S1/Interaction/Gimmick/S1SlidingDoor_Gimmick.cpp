@@ -3,6 +3,9 @@
 #include "Interaction/Gimmick/S1SlidingDoor_Gimmick.h"
 
 #include "Components/StaticMeshComponent.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/PlayerController.h"
+#include "System/S1SequenceManager.h"
 
 AS1SlidingDoor_Gimmick::AS1SlidingDoor_Gimmick()
 {
@@ -47,6 +50,26 @@ void AS1SlidingDoor_Gimmick::Tick(float DeltaTime)
 	if (Alpha >= 1.f)
 	{
 		bIsMoving = false;
+
+		// 열림 이동이 막 끝난 시점에만(닫힘 이동 완료는 제외) 리빌 시퀀스를 끊고 카메라/입력을 복구한다.
+		if (bIsActivated && RevealSequenceTag.IsValid())
+		{
+			if (US1SequenceManager* SequenceManager = GetWorld()->GetSubsystem<US1SequenceManager>())
+			{
+				SequenceManager->StopSequenceByTag(RevealSequenceTag);
+			}
+
+			if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+			{
+				// 입력 바인딩은 PlayerController에 있음(AS1PlayerController::SetupInputComponent) — Pawn이 아니라 PC를 Enable해야 함.
+				if (APawn* Pawn = PC->GetPawn())
+				{
+					PC->SetViewTargetWithBlend(Pawn, RevealExitBlendTime, VTBlend_EaseInOut, 2.f);
+				}
+
+				PC->EnableInput(PC);
+			}
+		}
 	}
 }
 
