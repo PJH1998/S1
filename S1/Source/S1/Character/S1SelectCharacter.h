@@ -35,7 +35,7 @@ public:
 	void AddCameraYaw(float DeltaYaw);
 	void AddCameraPitch(float DeltaPitch);
 
-	UTextureRenderTarget2D* GetPreviewRenderTarget() const { return PreviewRenderTarget; }
+	UTextureRenderTarget2D* GetPreviewRenderTarget() const;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -56,8 +56,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USceneCaptureComponent2D> PreviewCapture;
 
+	// 크기/포맷 참조용 템플릿 — 실제로는 이 값을 그대로 쓰지 않고 인스턴스별로 복제해서 사용(아래 InstanceRenderTarget)
 	UPROPERTY(EditDefaultsOnly, Category = "Preview")
 	TObjectPtr<UTextureRenderTarget2D> PreviewRenderTarget;
+
+	// BeginPlay에서 PreviewRenderTarget을 복제해 생성 — 이게 없으면 멀티 클라에서 여러 SelectCharacter 인스턴스가
+	// 같은 RT 에셋에 매 프레임 캡처를 덮어써 서로의 프리뷰가 뒤섞임(1인 PIE에서만 정상 동작하던 원인)
+	UPROPERTY()
+	TObjectPtr<UTextureRenderTarget2D> InstanceRenderTarget;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Data")
 	TObjectPtr<US1CharacterSelectData> CharacterSelectData;

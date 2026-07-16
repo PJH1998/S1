@@ -4,8 +4,11 @@
 
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Tags/S1GameplayTags.h"
 #include "S1DataTableTypes.generated.h"
+
+class USoundBase;
 
 // -------------------------------------------------------
 // 예제 Row 구조체
@@ -110,4 +113,17 @@ struct FS1ItemData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float Price = { 100.f };
+};
+
+// Footstep 트레이스로 얻은 EPhysicalSurface → 재생할 사운드 매핑. 행 이름은 임의(가독성용) — 조회는 SurfaceType 값으로 매칭.
+USTRUCT(BlueprintType)
+struct FS1FootstepSoundRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TEnumAsByte<EPhysicalSurface> SurfaceType = SurfaceType_Default;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<USoundBase> FootstepSound;
 };

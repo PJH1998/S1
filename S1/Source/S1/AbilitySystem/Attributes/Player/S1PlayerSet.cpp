@@ -114,6 +114,13 @@ void US1PlayerSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackDat
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute() && Data.EvaluatedData.Magnitude < 0.f)
 	{
 		UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+
+		// PreAttributeChange가 Health 값 자체는 클램프해도 Magnitude는 그대로라 여기까지 들어옴 — 무적 중엔 리액션/사운드도 스킵
+		if (IsValid(ASC) && ASC->HasMatchingGameplayTag(S1StateTags::State_Invincible))
+		{
+			return;
+		}
+
 		AActor* Avatar = IsValid(ASC) ? ASC->GetAvatarActor() : nullptr;
 
 		if (GEngine)

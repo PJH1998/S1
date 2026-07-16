@@ -46,9 +46,12 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BGM", meta = (AllowPrivateAccess = "true"))
 	float FadeDuration = 1.5f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BGM", meta = (AllowPrivateAccess = "true"))
+	float Volume = 1.0f;
+
 	// 구역 경계에서 왕복 시 재생이 반복 전환되는 걸 막기 위한 디바운스 — 이 시간 이상 머물러야 실제로 전환됨
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BGM", meta = (AllowPrivateAccess = "true"))
-	float DebounceDuration = 1.5f;
+	float DebounceDuration = 1.0f;
 
 	FTimerHandle DebounceTimerHandle;
 };

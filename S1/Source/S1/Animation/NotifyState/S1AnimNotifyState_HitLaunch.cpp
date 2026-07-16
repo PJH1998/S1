@@ -29,7 +29,6 @@ void US1AnimNotifyState_HitLaunch::NotifyBegin(USkeletalMeshComponent* MeshComp,
 		*Character->GetName(), TotalDuration, *Character->GetPendingHitLaunchVelocity().ToString());
 
 	// 데디 서버 NotifyState thrash 방어(§AtkCollision과 동일 원인) — 직전 적용 후 짧은 시간 내 재발화면 중복으로 보고 스킵
-	// (여기서 걸러야 함 — 안 걸면 아래 회전 캐시가 이미 꺼진 값을 "원래값"으로 잘못 저장해 원복이 깨짐)
 	const float CurrentTime = Character->GetWorld() ? Character->GetWorld()->GetTimeSeconds() : 0.f;
 	const float LastAppliedTime = Character->GetLastHitLaunchAppliedTime();
 	if (LastAppliedTime >= 0.f && (CurrentTime - LastAppliedTime) < 0.05f)
@@ -49,8 +48,12 @@ void US1AnimNotifyState_HitLaunch::NotifyBegin(USkeletalMeshComponent* MeshComp,
 	}
 
 	// 회전 스냅이 넉백 이동 중 유지되도록 이동 중 재조준 잠시 해제 (§Evasion과 동일 이유 — 없으면 CMC가 매 틱 이동 방향으로 되돌림)
-	Character->SetCachedOrientRotationToMovement(CMC->bOrientRotationToMovement);
-	CMC->bOrientRotationToMovement = false;
+	// 참조카운트 기반 Push — Dodge(Evasion GA)가 이미 꺼놓은 상태여도 서로 덮어쓰지 않고 안전하게 중첩됨
+	if (false == Character->IsHitLaunchOrientOverrideActive())
+	{
+		Character->PushOrientRotationOverride();
+		Character->SetHitLaunchOrientOverrideActive(true);
+	}
 	Character->SetActorRotation(Character->GetPendingHitFacingDirection().Rotation());
 
 	const FVector LaunchVelocity = Character->GetPendingHitLaunchVelocity();
@@ -108,7 +111,12 @@ void US1AnimNotifyState_HitLaunch::NotifyEnd(USkeletalMeshComponent* MeshComp, U
 	if (UCharacterMovementComponent* CMC = Character->GetCharacterMovement())
 	{
 		CMC->RemoveRootMotionSource(HitLaunchRootMotionName);
-		CMC->bOrientRotationToMovement = Character->GetCachedOrientRotationToMovement();
+	}
+
+	if (Character->IsHitLaunchOrientOverrideActive())
+	{
+		Character->PopOrientRotationOverride();
+		Character->SetHitLaunchOrientOverrideActive(false);
 	}
 	Character->ClearPendingHitLaunchVelocity();
 }

@@ -23,7 +23,7 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
-	void PlayBGM(USoundBase* NewBGM, float FadeDuration = 0.f);
+	void PlayBGM(USoundBase* NewBGM, float FadeDuration = 0.f, float Volume = 1.f);
 
 	// 새 BGM 없이 현재 재생 중인 BGM만 FadeOut — 전환 종료 시점을 별도로 제어하고 싶을 때(예: UI 연출과 동기화) 사용.
 	void StopBGM(float FadeOutDuration = 0.f);
@@ -36,7 +36,7 @@ public:
 	void PlayHitSound(const FGameplayTag& BaseTag, ES1HitReactType HitType);
 
 private:
-	void StartFadeIn(USoundBase* NewBGM, float FadeDuration);
+	void StartFadeIn(USoundBase* NewBGM, float FadeDuration, float Volume);
 	FGameplayTag ComposeHitSoundTag(const FGameplayTag& BaseTag, const FGameplayTag& OutcomeTag) const;
 
 	UAudioComponent* GetActiveComponent() const;

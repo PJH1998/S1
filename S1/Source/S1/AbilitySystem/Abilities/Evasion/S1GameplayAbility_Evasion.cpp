@@ -8,7 +8,7 @@
 #include "Tags/S1GameplayTags.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
-#include "GameFramework/Character.h"
+#include "Character/S1Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 US1GameplayAbility_Evasion::US1GameplayAbility_Evasion()
@@ -26,11 +26,9 @@ void US1GameplayAbility_Evasion::ActivateAbility(const FGameplayAbilitySpecHandl
 	// Super 전 — 몽타주 시작 전 방향 캡처 + 회전 제어권 확보
 	CapturedMoveDirection = ComputeInputDirection();
 
-	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	if (AS1Character* Character = Cast<AS1Character>(GetAvatarActorFromActorInfo()))
 	{
-		UCharacterMovementComponent* CMC = Character->GetCharacterMovement();
-		bCachedOrientToMovement = CMC->bOrientRotationToMovement;
-		CMC->bOrientRotationToMovement = false;
+		Character->PushOrientRotationOverride();
 	}
 
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
@@ -64,9 +62,9 @@ void US1GameplayAbility_Evasion::EndAbility(const FGameplayAbilitySpecHandle Han
 	// 복제 경유로 중력 복구
 	ResetGravityScale();
 
-	if (ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo()))
+	if (AS1Character* Character = Cast<AS1Character>(GetAvatarActorFromActorInfo()))
 	{
-		Character->GetCharacterMovement()->bOrientRotationToMovement = bCachedOrientToMovement;
+		Character->PopOrientRotationOverride();
 	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
