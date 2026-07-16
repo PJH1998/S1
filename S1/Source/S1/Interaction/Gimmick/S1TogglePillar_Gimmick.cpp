@@ -76,6 +76,8 @@ void AS1TogglePillar_Gimmick::OnRep_IsActivated()
 		return;
 	}
 
+	Super::OnRep_IsActivated();   // OnActivatedCosmetic 브로드캐스트
+
 	// 전환 지점(서버 ActivateGimmick/ResetGimmick·클라 OnRep 공통).
 	StartTransition(false == IsUsable(), /*bInstant=*/false);
 }

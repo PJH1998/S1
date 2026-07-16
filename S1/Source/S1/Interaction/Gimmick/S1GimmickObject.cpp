@@ -66,7 +66,10 @@ void AS1GimmickObject::OnRep_IsActivated()
 {
 	// 베이스는 상태만 보유. 메쉬 스왑 등 연출은 자식에서 override.
 
-	if (bIsActivated)
+	// 데디서버 제외 — 서버에서 발화하면 BP가 원격 PC에 SetViewTarget 등을 호출하게 되고,
+	// 엔진(APlayerCameraManager::AssignViewTarget)이 그 클라에 ClientSetViewTarget RPC를 쏴서
+	// 해당 클라의 로컬 카메라 연출을 덮어써버린다.
+	if (bIsActivated && GetNetMode() != NM_DedicatedServer)
 	{
 		OnActivatedCosmetic.Broadcast();
 	}

@@ -27,9 +27,10 @@ public:
 	FGameplayTag GetGimmickTag() const { return GimmickTag; }
 	bool IsUsable() const { return false == bIsActivated; }
 
-	// 클라 전용 연출(VFX/사운드/카메라쉐이크/어나운스 등) BP 바인딩 전용. 서버 로컬 호출 + 클라 OnRep
-	// 양쪽에서 활성화 전환 시(리셋 전환 제외) 정확히 1회씩 발화한다. 드랍/퀘스트 같은 서버 권위 로직은
-	// 여기 바인딩하지 말 것 — 기존 OnPuzzleCompleted류(서버 전용) 델리게이트를 그대로 쓴다.
+	// 클라 전용 연출(VFX/사운드/카메라쉐이크/어나운스 등) BP 바인딩 전용. 활성화 전환 시(리셋 전환 제외)
+	// 로컬 플레이어가 있는 머신(스탠드얼론/리슨서버 호스트/각 클라)에서 정확히 1회씩 발화하며,
+	// 데디케이티드 서버에서는 발화하지 않는다(서버가 원격 PC의 카메라/입력을 건드리는 사고 방지).
+	// 드랍/퀘스트 같은 서버 권위 로직은 여기 바인딩하지 말 것 — 기존 OnPuzzleCompleted류(서버 전용) 델리게이트를 그대로 쓴다.
 	UPROPERTY(BlueprintAssignable, Category = "Gimmick")
 	FS1GimmickActivatedCosmeticSignature OnActivatedCosmetic;
 
