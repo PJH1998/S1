@@ -67,8 +67,7 @@ void AS1SelectCharacter::BeginPlay()
 		}
 
 		PreviewCapture->TextureTarget = GetPreviewRenderTarget();
-		PreviewCapture->ShowOnlyActors.Reset();
-		PreviewCapture->ShowOnlyActors.Add(this);
+		PreviewCapture->ShowOnlyActors.AddUnique(this);
 	}
 }
 
