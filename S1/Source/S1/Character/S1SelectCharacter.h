@@ -35,6 +35,8 @@ public:
 	void AddCameraYaw(float DeltaYaw);
 	void AddCameraPitch(float DeltaPitch);
 
+	void StopPreviewCapture();
+
 	UTextureRenderTarget2D* GetPreviewRenderTarget() const;
 
 protected:

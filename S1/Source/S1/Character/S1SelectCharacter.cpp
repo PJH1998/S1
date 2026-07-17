@@ -224,3 +224,8 @@ void AS1SelectCharacter::AddCameraPitch(float DeltaPitch)
 	Rot.Pitch = FMath::Clamp(Rot.Pitch + DeltaPitch, PitchClamp.X, PitchClamp.Y);
 	SpringArm->SetRelativeRotation(Rot);
 }
+
+void AS1SelectCharacter::StopPreviewCapture()
+{
+	PreviewCapture->bCaptureEveryFrame = false;
+}
