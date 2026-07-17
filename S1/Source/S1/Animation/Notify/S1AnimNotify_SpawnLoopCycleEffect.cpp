@@ -111,7 +111,6 @@ void US1AnimNotify_SpawnLoopCycleEffect::Notify(USkeletalMeshComponent* MeshComp
 				if (nullptr != Component)
 				{
 					Component->SetVariableLinearColor(ColorParameterName, InitialColor);
-					S1EffectSpawnLibrary::ApplyCustomDepthStencil(Component, bUseCustomDepth, CustomDepthStencilValue);
 					Character->RegisterAttachedEffect(EffectTag, Component);
 				}
 			}

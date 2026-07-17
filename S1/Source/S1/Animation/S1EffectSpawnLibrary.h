@@ -8,7 +8,6 @@
 
 class AS1Character;
 class AS1NiagaraEffect;
-class UNiagaraComponent;
 
 // UAnimNotify / UAnimNotifyState는 엔진에서 서로 형제 클래스라 상속으로 로직을 공유할 수 없음 —
 // 이펙트 스폰에 필요한 공용 로직을 여기 static 함수로 모아서 양쪽 다 갖다 씀(중복 정의 방지)
@@ -22,7 +21,4 @@ namespace S1EffectSpawnLibrary
 
 	// 소켓의 월드 트랜스폼에 SpawnOffset을 합성 — 본 스윙 영향 없이 쓰고 싶으면 회전 정보가 없는(고정) 본에 소켓을 잡아서 사용
 	FTransform ComputeSpawnTransform(USkeletalMeshComponent* TargetMesh, FName SocketName, const FTransform& SpawnOffset);
-
-	// bUseCustomDepth면 Component에 CustomDepth 렌더링 + StencilValue 설정 — CustomStencil로 마스킹하는 PP 연출(예: Ultimate "플레이어만 보이기")에 이펙트를 같이 노출시키고 싶을 때 사용
-	void ApplyCustomDepthStencil(UNiagaraComponent* Component, bool bUseCustomDepth, ES1StencilLayer StencilValue);
 }
