@@ -9,6 +9,8 @@
 
 class FLifetimeProperty;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FS1GimmickActivatedCosmeticSignature);
+
 /**
  * 모든 보스/월드 기믹 오브젝트의 공통 베이스.
  * US1GimmickManager에 GimmickTag로 self-register 하며, 활성화/복구 상태(bIsActivated)를 복제한다.
@@ -24,6 +26,13 @@ public:
 
 	FGameplayTag GetGimmickTag() const { return GimmickTag; }
 	bool IsUsable() const { return false == bIsActivated; }
+
+	// 클라 전용 연출(VFX/사운드/카메라쉐이크/어나운스 등) BP 바인딩 전용. 활성화 전환 시(리셋 전환 제외)
+	// 로컬 플레이어가 있는 머신(스탠드얼론/리슨서버 호스트/각 클라)에서 정확히 1회씩 발화하며,
+	// 데디케이티드 서버에서는 발화하지 않는다(서버가 원격 PC의 카메라/입력을 건드리는 사고 방지).
+	// 드랍/퀘스트 같은 서버 권위 로직은 여기 바인딩하지 말 것 — 기존 OnPuzzleCompleted류(서버 전용) 델리게이트를 그대로 쓴다.
+	UPROPERTY(BlueprintAssignable, Category = "Gimmick")
+	FS1GimmickActivatedCosmeticSignature OnActivatedCosmetic;
 
 	// 서버 전용: 활성화 상태로 전환(멱등). 상태/복제는 베이스가 처리, 연출은 자식 OnRep에서.
 	virtual void ActivateGimmick();

@@ -61,4 +61,9 @@ namespace S1UIResourceTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_Weapon_SWD);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_Weapon_DSWD);
 #pragma endregion
+
+#pragma region Announce
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_Announce_BossCleared);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(UI_Icon_Announce_QuestCleared);
+#pragma endregion
 }

@@ -11,3 +11,4 @@
 #include "Tags/World/S1GameplayTags_World.h"
 #include "Tags/Gimmick/S1GameplayTags_Gimmick.h"
 #include "Tags/Quest/S1GameplayTags_Quest.h"
+#include "Tags/Sequence/S1GameplayTags_Sequence.h"

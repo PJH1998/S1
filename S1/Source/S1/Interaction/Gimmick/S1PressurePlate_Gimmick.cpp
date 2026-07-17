@@ -66,6 +66,8 @@ void AS1PressurePlate_Gimmick::Tick(float DeltaTime)
 
 void AS1PressurePlate_Gimmick::OnRep_IsActivated()
 {
+	Super::OnRep_IsActivated();   // OnActivatedCosmetic 브로드캐스트
+
 	// 전환 지점(서버 ActivateGimmick/ResetGimmick·클라 OnRep 공통).
 	StartTransition(false == IsUsable(), /*bInstant=*/false);
 }

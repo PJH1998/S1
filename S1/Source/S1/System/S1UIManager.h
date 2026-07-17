@@ -40,6 +40,11 @@ public:
 
 	US1RootWidget* GetRootWidget() const { return RootWidget; }
 
+	// 상황별 텍스처 어나운스(퀘스트/기믹/보스 클리어 등) 표시. BP 이벤트 그래프에서 바로 호출할 수 있도록
+	// BlueprintCallable로 노출한다.
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowAnnounce(const FGameplayTag& AnnounceTag);
+
 private:
 	UFUNCTION()
 	void FinishedFade();
