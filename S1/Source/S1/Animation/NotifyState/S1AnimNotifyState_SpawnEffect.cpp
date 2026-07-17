@@ -111,6 +111,7 @@ void US1AnimNotifyState_SpawnEffect::NotifyBegin(USkeletalMeshComponent* MeshCom
 	if (nullptr != Component)
 	{
 		Component->SetVariableLinearColor(GetColorParameterName(), GetInitialColor());
+		S1EffectSpawnLibrary::ApplyCustomDepthStencil(Component, ShouldUseCustomDepth(), GetCustomDepthStencilValue());
 	}
 
 	Character->RegisterAttachedEffect(GetEffectTag(), Component);

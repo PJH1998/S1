@@ -116,6 +116,7 @@ void US1AnimNotify_SpawnPersistentEffect::Notify(USkeletalMeshComponent* MeshCom
 	if (nullptr != Component)
 	{
 		Component->SetVariableLinearColor(ColorParameterName, InitialColor);
+		S1EffectSpawnLibrary::ApplyCustomDepthStencil(Component, bUseCustomDepth, CustomDepthStencilValue);
 	}
 
 	Character->RegisterAttachedEffect(EffectTag, Component);

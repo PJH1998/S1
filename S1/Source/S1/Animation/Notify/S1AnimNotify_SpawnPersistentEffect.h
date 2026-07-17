@@ -59,6 +59,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Effect")
 	FName ColorParameterName = TEXT("Color");
 
+	// PP 머티리얼에서 CustomStencil로 마스킹하는 연출(예: Ultimate "플레이어만 보이기")에 이펙트를 같이 노출시킬지
+	UPROPERTY(EditAnywhere, Category = "Effect|CustomDepth")
+	bool bUseCustomDepth = false;
+
+	// bUseCustomDepth일 때 적용할 스텐실 값 — PP 머티리얼이 체크하는 값과 일치해야 보임
+	UPROPERTY(EditAnywhere, Category = "Effect|CustomDepth", meta = (EditCondition = "bUseCustomDepth"))
+	ES1StencilLayer CustomDepthStencilValue = ES1StencilLayer::Player;
+
 #if WITH_EDITORONLY_DATA
 	// 애니메이션/몽타주 에디터 프리뷰 전용 확인용 — 실제 게임플레이·PIE에서는 절대 사용 안 됨
 	UPROPERTY(EditAnywhere, Category = "Effect|Preview")

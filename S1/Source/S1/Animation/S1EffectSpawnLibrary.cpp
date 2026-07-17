@@ -8,6 +8,7 @@
 #include "Character/S1Character.h"
 #include "Character/Player/S1Player.h"
 #include "Weapon/S1Weapon.h"
+#include "NiagaraComponent.h"
 
 AS1NiagaraEffect* S1EffectSpawnLibrary::FindNiagaraEffectCDO(const FGameplayTag& AssetTag, const FGameplayTag& EffectTag)
 {
@@ -49,4 +50,15 @@ USkeletalMeshComponent* S1EffectSpawnLibrary::ResolveTargetMesh(ES1EffectAttachT
 FTransform S1EffectSpawnLibrary::ComputeSpawnTransform(USkeletalMeshComponent* TargetMesh, FName SocketName, const FTransform& SpawnOffset)
 {
 	return SpawnOffset * TargetMesh->GetSocketTransform(SocketName);
+}
+
+void S1EffectSpawnLibrary::ApplyCustomDepthStencil(UNiagaraComponent* Component, bool bUseCustomDepth, ES1StencilLayer StencilValue)
+{
+	if (nullptr == Component || false == bUseCustomDepth)
+	{
+		return;
+	}
+
+	Component->SetRenderCustomDepth(true);
+	Component->SetCustomDepthStencilValue((uint8)StencilValue);
 }
