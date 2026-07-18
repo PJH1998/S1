@@ -63,6 +63,7 @@ namespace S1EffectTags
 	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Wave01, "Effect.Player.Wave01");
 	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Wave02, "Effect.Player.Wave02");
 	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Wave03, "Effect.Player.Wave03");
+	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Wave04, "Effect.Player.Wave04");
 
 	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Aura01, "Effect.Player.Aura01");
 	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Aura02, "Effect.Player.Aura02");

@@ -927,5 +927,15 @@ void AS1Player::SetUltimateStencilActive(bool bActive)
 	GetMesh()->SetCustomDepthStencilValue(StencilValue);
 	HairMesh->SetCustomDepthStencilValue(StencilValue);
 	FaceMesh->SetCustomDepthStencilValue(StencilValue);
+
+	if (IsValid(EquippedWeapon))
+	{
+		EquippedWeapon->GetWeaponMesh()->SetCustomDepthStencilValue(StencilValue);
+	}
+
+	if (IsValid(EquippedOffhandWeapon))
+	{
+		EquippedOffhandWeapon->GetWeaponMesh()->SetCustomDepthStencilValue(StencilValue);
+	}
 }
 

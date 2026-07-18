@@ -67,8 +67,7 @@ void AS1SelectCharacter::BeginPlay()
 		}
 
 		PreviewCapture->TextureTarget = GetPreviewRenderTarget();
-		PreviewCapture->ShowOnlyActors.Reset();
-		PreviewCapture->ShowOnlyActors.Add(this);
+		PreviewCapture->ShowOnlyActors.AddUnique(this);
 	}
 }
 
@@ -223,4 +222,9 @@ void AS1SelectCharacter::AddCameraPitch(float DeltaPitch)
 	FRotator Rot = SpringArm->GetRelativeRotation();
 	Rot.Pitch = FMath::Clamp(Rot.Pitch + DeltaPitch, PitchClamp.X, PitchClamp.Y);
 	SpringArm->SetRelativeRotation(Rot);
+}
+
+void AS1SelectCharacter::StopPreviewCapture()
+{
+	PreviewCapture->bCaptureEveryFrame = false;
 }

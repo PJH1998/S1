@@ -91,6 +91,7 @@ void AS1CharacterSelectController::ServerConfirmSelection_Implementation()
 {
 	if (US1LevelManager* LM = US1LevelManager::Get(this))
 	{
+		PreviewActor->StopPreviewCapture();
 		LM->ChangeLevel(S1Levels::MainMap, FGameplayTag::EmptyTag);
 	}
 }
