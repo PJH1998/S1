@@ -932,5 +932,10 @@ void AS1Player::SetUltimateStencilActive(bool bActive)
 	{
 		EquippedWeapon->GetWeaponMesh()->SetCustomDepthStencilValue(StencilValue);
 	}
+
+	if (IsValid(EquippedOffhandWeapon))
+	{
+		EquippedOffhandWeapon->GetWeaponMesh()->SetCustomDepthStencilValue(StencilValue);
+	}
 }
 
