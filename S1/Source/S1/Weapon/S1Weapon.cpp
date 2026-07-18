@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Weapon/S1Weapon.h"
+#include "Component/S1DissolveComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "NiagaraComponent.h"
@@ -22,6 +23,16 @@ AS1Weapon::AS1Weapon()
 	TrailComponent = CreateDefaultSubobject<UNiagaraComponent>("TrailComponent");
 	TrailComponent->SetupAttachment(WeaponMesh, TipSocketName);
 	TrailComponent->bAutoActivate = false;
+
+	DissolveComponent = CreateDefaultSubobject<US1DissolveComponent>("DissolveComponent");
+}
+
+void AS1Weapon::PlayDissolve(bool bAppear, float Duration)
+{
+	if (IsValid(DissolveComponent) && IsValid(WeaponMesh))
+	{
+		DissolveComponent->PlayDissolve(WeaponMesh, bAppear, Duration);
+	}
 }
 
 void AS1Weapon::EnableHitCollision(float InAtkScale, FGameplayTag InHitStrengthTag, FGameplayTag InSoundBaseTag)

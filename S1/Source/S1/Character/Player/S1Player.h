@@ -27,6 +27,7 @@ class ULevelSequencePlayer;
 class ALevelSequenceActor;
 class ACineCameraActor;
 class UInputComponent;
+class AS1HealItem;
 
 UCLASS()
 class S1_API AS1Player : public AS1Character
@@ -132,6 +133,12 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientStopUltimateCutscene();
 
+	// 힐 아이템 소품 — AS1HealItem을 로컬로 스폰해 소켓에 부착 후 AttachOffset(위치/회전/크기) 적용, Dissolve로 나타남
+	// (ItemMesh가 SetAbsolute로 소켓 회전과 디커플링돼 있어 AttachOffset의 Rotation이 곧 월드 회전 — 라이프타임 무제한, Notify가 명시적으로 디스폰)
+	void SpawnHealItem(TSubclassOf<AS1HealItem> HealItemClass, ES1AttackHand Hand, const FTransform& AttachOffset, const FRotator& RotationRate, float DissolveDuration);
+	// Dissolve로 사라진 뒤 액터가 스스로 Destroy됨
+	void DespawnHealItem(float DissolveDuration);
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> HairMesh;
@@ -187,6 +194,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<US1PlayerReactBridgeComponent> ReactBridgeComponent;
+
+	// 현재 부착 중인 힐 아이템 소품 — SpawnHealItem이 스폰, DespawnHealItem 호출 후 Dissolve 완료 시 액터가 스스로 Destroy
+	UPROPERTY(Transient)
+	TObjectPtr<AS1HealItem> CurrentHealItem;
 
 	// AtkCollision 노티파이의 가상 충돌체(구/반구용) — 기본 NoCollision, GA_Attack이 히트 윈도우에서만 켬
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VirtualCollision")

@@ -11,6 +11,7 @@
 class USkeletalMeshComponent;
 class UBoxComponent;
 class UNiagaraComponent;
+class US1DissolveComponent;
 
 DECLARE_MULTICAST_DELEGATE(FOnS1HitCollisionEnabled)
 
@@ -32,6 +33,9 @@ public:
 	void EnableTrail();
 	void DisableTrail();
 
+	// 무기 메시 Dissolve 애니메이션 재생 — bAppear=true면 나타남(0→1), false면 사라짐(1→0)
+	void PlayDissolve(bool bAppear, float Duration);
+
 	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 	UBoxComponent* GetAttackBox() const { return AttackBox; }
 	ES1WeaponType GetWeaponType() const { return WeaponType; }
@@ -47,6 +51,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraComponent> TrailComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<US1DissolveComponent> DissolveComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	ES1WeaponType WeaponType = ES1WeaponType::None;

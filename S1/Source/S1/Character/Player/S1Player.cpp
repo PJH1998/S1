@@ -20,6 +20,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
+#include "Item/S1HealItem.h"
 #include "Data/S1WeaponData.h"
 #include "System/S1AssetManager.h"
 #include "Weapon/S1Weapon.h"
@@ -299,6 +300,46 @@ void AS1Player::EquipWeapon(const FGameplayTag& ItemTag)
 void AS1Player::ServerRequestEquip_Implementation(const FGameplayTag& ItemTag)
 {
 	EquipWeapon(ItemTag);
+}
+
+void AS1Player::SpawnHealItem(TSubclassOf<AS1HealItem> HealItemClass, ES1AttackHand Hand, const FTransform& AttachOffset, const FRotator& RotationRate, float DissolveDuration)
+{
+	if (nullptr == HealItemClass)
+	{
+		return;
+	}
+
+	if (IsValid(CurrentHealItem))
+	{
+		CurrentHealItem->Destroy();
+		CurrentHealItem = nullptr;
+	}
+
+	const FName TargetSocket = (Hand == ES1AttackHand::Offhand) ? OffhandSocketName : WeaponSocketName;
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	CurrentHealItem = GetWorld()->SpawnActor<AS1HealItem>(HealItemClass, SpawnParams);
+	if (false == IsValid(CurrentHealItem))
+	{
+		return;
+	}
+
+	// 위치만 소켓에 스냅 — 회전은 현재 상대 회전(ItemMesh는 SetAbsolute로 이미 소켓 회전과 디커플링됨)을 그대로 유지
+	static const FAttachmentTransformRules HealItemAttachRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, EAttachmentRule::KeepWorld, false);
+	CurrentHealItem->AttachToComponent(GetMesh(), HealItemAttachRules, TargetSocket);
+	CurrentHealItem->SetActorRelativeTransform(AttachOffset);
+	CurrentHealItem->SetRotationRate(RotationRate);
+	CurrentHealItem->PlaySpawnDissolve(DissolveDuration);
+}
+
+void AS1Player::DespawnHealItem(float DissolveDuration)
+{
+	if (IsValid(CurrentHealItem))
+	{
+		CurrentHealItem->PlayDespawnDissolve(DissolveDuration);
+		CurrentHealItem = nullptr;
+	}
 }
 
 void AS1Player::LinkWeaponAnimLayer(TSubclassOf<US1WeaponAnimLayer> AnimLayerClass)

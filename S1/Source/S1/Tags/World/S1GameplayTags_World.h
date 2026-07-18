@@ -70,6 +70,8 @@ namespace S1EffectTags
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Aura01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Aura02);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_StatUp);
 #pragma endregion
 
 #pragma region Impact

@@ -23,7 +23,7 @@ namespace S1GameplayTags
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Assault);
 
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Ultimate);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_HealItem);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LockOn);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_ChangeLockOnSide);

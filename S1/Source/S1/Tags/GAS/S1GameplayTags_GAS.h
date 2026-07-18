@@ -12,7 +12,7 @@ namespace S1AbilityTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Move_Dodge);
 	#pragma endregion
 
-	#pragma region Attack
+	#pragma region Action
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Ground);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Air);
@@ -23,7 +23,8 @@ namespace S1AbilityTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill03);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill04);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Assault);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Ultimate);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Action_HealItem);
 	#pragma endregion
 
 	#pragma region Hit

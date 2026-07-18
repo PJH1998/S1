@@ -10,7 +10,7 @@ namespace S1AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Move_Dodge, "Ability.Player.Move.Dodge");
 	#pragma endregion
 
-	#pragma region Attack
+	#pragma region Action
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack,					"Ability.Player.Attack");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Ground,			"Ability.Player.Attack.Ground");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Air,				"Ability.Player.Attack.Air");
@@ -21,7 +21,7 @@ namespace S1AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill03,			"Ability.Player.Attack.Skill03");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill04,			"Ability.Player.Attack.Skill04");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Assault,			"Ability.Player.Attack.Assault");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Ultimiate,			"Ability.Player.Attack.Ultimiate");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Action_HealItem,			"Ability.Player.Action.HealItem");
 	#pragma endregion
 
 	#pragma region Hit
