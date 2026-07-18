@@ -74,6 +74,7 @@ namespace S1EffectTags
 	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Aura02, "Effect.Player.Aura02");
 
 	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_StatUp, "Effect.Player.StatUp");
+	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_LevelUp, "Effect.Player.LevelUp");
 #pragma endregion
 
 #pragma region SWD

@@ -10,6 +10,7 @@
 #include "System/S1HitLagManager.h"
 #include "System/S1SoundManager.h"
 #include "AbilitySystem/S1HitReactLibrary.h"
+#include "Character/Player/S1Player.h"
 #include "Tags/S1GameplayTags.h"
 #include "S1LogChannels.h"
 #include "S1Define.h"
@@ -276,6 +277,12 @@ void US1PlayerSet::LevelUp()
 
 	// InitAttributeFromTable이 CurrentXP를 0으로 리셋하므로 이후에 이월 XP 세팅
 	InitCurrentXP(FMath::Max(0.f, CarryOverXP));
+
+	UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+	if (AS1Player* Player = ASC ? Cast<AS1Player>(ASC->GetAvatarActor()) : nullptr)
+	{
+		Player->MulticastPlayLevelUpPresentation();
+	}
 
 	LOG(TEXT("LEVEL UP!"));
 }

@@ -17,9 +17,16 @@ void US1DissolveComponent::PlayDissolve(UMeshComponent* TargetMesh, bool bAppear
 		return;
 	}
 
+	// 재트리거 시 튐 방지 — 이미 재생 중이거나 이전 값이 있으면 하드코딩된 0/1이 아니라 현재 값에서 이어서 시작
+	float CurrentValue = bAppear ? 0.f : 1.f;
+	if (DissolveMIDs.Num() > 0 && DissolveMIDs[0])
+	{
+		DissolveMIDs[0]->GetScalarParameterValue(DissolveParameterName, CurrentValue);
+	}
+
 	InitializeMIDs(TargetMesh);
 
-	StartValue = bAppear ? 0.f : 1.f;
+	StartValue = CurrentValue;
 	EndValue   = bAppear ? 1.f : 0.f;
 	PlayDuration = Duration;
 	ElapsedTime = 0.f;

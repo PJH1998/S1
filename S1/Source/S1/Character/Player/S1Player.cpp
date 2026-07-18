@@ -21,6 +21,10 @@
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
 #include "Item/S1HealItem.h"
+#include "Animation/S1EffectSpawnLibrary.h"
+#include "Effect/NiagaraEffect/S1NiagaraEffect.h"
+#include "NiagaraComponent.h"
+#include "System/S1SoundManager.h"
 #include "Data/S1WeaponData.h"
 #include "System/S1AssetManager.h"
 #include "Weapon/S1Weapon.h"
@@ -342,6 +346,52 @@ void AS1Player::DespawnHealItem(float DissolveDuration)
 	}
 }
 
+void AS1Player::MulticastResetHealItemPresentation_Implementation()
+{
+	// 정상 종료 시 이미 노티파이가 정리했다면 여기서는 전부 아무 동작 안 함(멱등) — 인터럽트로 못 끝났을 때만 실제로 복구
+	const float RecoveryDissolveDuration = 0.15f;
+
+	if (IsValid(CurrentHealItem))
+	{
+		CurrentHealItem->PlayDespawnDissolve(RecoveryDissolveDuration);
+		CurrentHealItem = nullptr;
+	}
+
+	if (IsValid(EquippedWeapon))
+	{
+		EquippedWeapon->PlayDissolve(true, RecoveryDissolveDuration);
+	}
+
+	if (IsValid(EquippedOffhandWeapon))
+	{
+		EquippedOffhandWeapon->PlayDissolve(true, RecoveryDissolveDuration);
+	}
+}
+
+void AS1Player::MulticastPlayLevelUpPresentation_Implementation()
+{
+	if (GetNetMode() != NM_DedicatedServer)
+	{
+		if (AS1NiagaraEffect* EffectCDO = S1EffectSpawnLibrary::FindNiagaraEffectCDO(S1AssetTags::Asset_Effect, S1EffectTags::Effect_Player_LevelUp))
+		{
+			UNiagaraComponent* Component = nullptr;
+			EffectCDO->PlayEffectAttached(GetMesh(), TEXT("VFX_b_C_Base"), FTransform::Identity, &Component);
+
+			if (nullptr != Component)
+			{
+				// Scale은 항상 절대값(부모 스케일 무시), Location/Rotation은 소켓 그대로 추종
+				Component->SetAbsolute(false, false, true);
+			}
+		}
+	}
+
+	if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+	{
+		const FGameplayTag SoundTag = (Gender == EPlayerGender::Female) ? S1SoundTags::Sound_Player_Female_LevelUp : S1SoundTags::Sound_Player_Male_LevelUp;
+		SoundManager->PlaySoundAtLocationByTag(SoundTag, GetActorLocation());
+	}
+}
+
 void AS1Player::LinkWeaponAnimLayer(TSubclassOf<US1WeaponAnimLayer> AnimLayerClass)
 {
 	if (nullptr == AnimLayerClass)
@@ -554,6 +604,8 @@ void AS1Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		PlayerInputComponent->BindKey(EKeys::NumPadEight, IE_Pressed, this, &ThisClass::DebugTriggerHit_Strong);
 		PlayerInputComponent->BindKey(EKeys::NumPadNine,  IE_Pressed, this, &ThisClass::DebugTriggerHit_ToAir);
 		PlayerInputComponent->BindKey(EKeys::Zero,        IE_Pressed, this, &ThisClass::DebugSetUltimateGaugeMax);
+		PlayerInputComponent->BindKey(EKeys::Nine,        IE_Pressed, this, &ThisClass::DebugDamageSelf50Percent);
+		PlayerInputComponent->BindKey(EKeys::Eight,       IE_Pressed, this, &ThisClass::DebugForceLevelUp);
 	}
 #endif
 }
@@ -615,6 +667,56 @@ void AS1Player::ServerDebugSetUltimateGaugeMax_Implementation()
 
 	LOG(TEXT("[DebugUltimateGauge] 게이지 Max 설정 — Current: %.0f / %.0f"),
 		PlayerSet->GetCurrentUltimateGauge(), PlayerSet->GetMaxUltimateGauge());
+#endif
+}
+
+void AS1Player::DebugDamageSelf50Percent()
+{
+	ServerDebugDamageSelf50Percent();
+}
+
+void AS1Player::ServerDebugDamageSelf50Percent_Implementation()
+{
+#if !UE_BUILD_SHIPPING
+	if (false == IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	if (false == IsValid(AttributeSet))
+	{
+		return;
+	}
+
+	const float NewHealth = FMath::Max(0.f, AttributeSet->GetHealth() - AttributeSet->GetMaxHealth() * 0.5f);
+	AttributeSet->SetHealth(NewHealth);
+
+	LOG(TEXT("[DebugDamage] HP 50%% 감소 — Current: %.0f / %.0f"), AttributeSet->GetHealth(), AttributeSet->GetMaxHealth());
+#endif
+}
+
+void AS1Player::DebugForceLevelUp()
+{
+	ServerDebugForceLevelUp();
+}
+
+void AS1Player::ServerDebugForceLevelUp_Implementation()
+{
+#if !UE_BUILD_SHIPPING
+	if (false == IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	US1PlayerSet* PlayerSet = const_cast<US1PlayerSet*>(Cast<US1PlayerSet>(AbilitySystemComponent->GetAttributeSet(US1PlayerSet::StaticClass())));
+	if (nullptr == PlayerSet)
+	{
+		return;
+	}
+
+	PlayerSet->LevelUp();
+
+	LOG(TEXT("[DebugLevelUp] 강제 레벨업 — Level: %.0f"), PlayerSet->GetLevel());
 #endif
 }
 

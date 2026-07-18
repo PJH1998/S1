@@ -77,6 +77,7 @@ namespace S1EffectTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Aura02);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_StatUp);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_LevelUp);
 #pragma endregion
 
 #pragma region Impact

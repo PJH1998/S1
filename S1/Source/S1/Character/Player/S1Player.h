@@ -111,6 +111,18 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerDebugSetUltimateGaugeMax();
 
+	// 디버그 전용 — 키보드 9(넘패드 아님)로 현재 HP 50% 감소
+	void DebugDamageSelf50Percent();
+
+	UFUNCTION(Server, Reliable)
+	void ServerDebugDamageSelf50Percent();
+
+	// 디버그 전용 — 키보드 8(넘패드 아님)로 강제 레벨업
+	void DebugForceLevelUp();
+
+	UFUNCTION(Server, Reliable)
+	void ServerDebugForceLevelUp();
+
 public:
 	AS1Weapon*		    GetEquippedWeapon()        const { return EquippedWeapon; }
 	AS1Weapon*		    GetEquippedOffhandWeapon() const { return EquippedOffhandWeapon; }
@@ -138,6 +150,16 @@ public:
 	void SpawnHealItem(TSubclassOf<AS1HealItem> HealItemClass, ES1AttackHand Hand, const FTransform& AttachOffset, const FRotator& RotationRate, float DissolveDuration);
 	// Dissolve로 사라진 뒤 액터가 스스로 Destroy됨
 	void DespawnHealItem(float DissolveDuration);
+
+	// 힐 몽타주가 끝까지 재생되지 못하고 중간에 끊긴 경우(피격 등)의 안전망 — GA_HealItem::EndAbility(서버)에서 항상 호출
+	// 아이템/무기 Dissolve 상태는 각 머신 로컬이라 Multicast로 전체 머신에서 각자 정리해야 함
+	// 아이템이 남아있으면 Dissolve로 정리하고, 무기가 Dissolve 아웃된 상태였다면 다시 보이게 복구
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastResetHealItemPresentation();
+
+	// 서버 권위(US1PlayerSet::LevelUp)에서 호출 — 전 클라에서 레벨업 이펙트+사운드 재생
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlayLevelUpPresentation();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
