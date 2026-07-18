@@ -42,6 +42,8 @@ namespace S1SoundTags
 
 #pragma region BGM
 	UE_DEFINE_GAMEPLAY_TAG(Sound_BGM_Boss000_Battle, "Sound.BGM.Boss000.Battle");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_BGM_Boss000_Battle_Phase02, "Sound.BGM.Boss000.Battle.Phase02");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_BGM_Boss000_Battle_Fiver, "Sound.BGM.Boss000.Battle.Fiver");
 	UE_DEFINE_GAMEPLAY_TAG(Sound_BGM_Boss000_Field, "Sound.BGM.Boss000.Field");
 #pragma endregion
 }
