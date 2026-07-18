@@ -18,6 +18,12 @@ void US1PlayerSet::PreAttributeChange(const FGameplayAttribute& Attribute, float
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 
+	if (Attribute == GetCurrentUltimateGaugeAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxUltimateGauge());
+		return;
+	}
+
 	if (Attribute != GetHealthAttribute() || NewValue >= GetHealth())
 	{
 		return;
@@ -95,6 +101,10 @@ void US1PlayerSet::InitAttributeFromTable(const FGameplayTag& AssetTag, const FG
 
 	InitMaxXP(Row->MaxXP);
 	InitCurrentXP(0.f);
+
+	InitMaxUltimateGauge(Row->MaxUltimateGauge);
+	InitCurrentUltimateGauge(0.f);
+	UpdateCanUltimateTag();
 }
 
 void US1PlayerSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -195,6 +205,8 @@ void US1PlayerSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME_CONDITION_NOTIFY(US1PlayerSet, CurrentXP, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(US1PlayerSet, MaxXP, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(US1PlayerSet, Level, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(US1PlayerSet, CurrentUltimateGauge, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(US1PlayerSet, MaxUltimateGauge, COND_None, REPNOTIFY_Always);
 }
 
 void US1PlayerSet::OnRep_CurrentXP(const FGameplayAttributeData& OldCurrentXP)
@@ -210,6 +222,47 @@ void US1PlayerSet::OnRep_MaxXP(const FGameplayAttributeData& OldMaxXP)
 void US1PlayerSet::OnRep_Level(const FGameplayAttributeData& OldLevel)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(US1PlayerSet, Level, OldLevel);
+}
+
+void US1PlayerSet::OnRep_CurrentUltimateGauge(const FGameplayAttributeData& OldCurrentUltimateGauge)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(US1PlayerSet, CurrentUltimateGauge, OldCurrentUltimateGauge);
+}
+
+void US1PlayerSet::OnRep_MaxUltimateGauge(const FGameplayAttributeData& OldMaxUltimateGauge)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(US1PlayerSet, MaxUltimateGauge, OldMaxUltimateGauge);
+}
+
+void US1PlayerSet::AddUltimateGauge(float Amount)
+{
+	const float NewGauge = FMath::Clamp(GetCurrentUltimateGauge() + Amount, 0.f, GetMaxUltimateGauge());
+	SetCurrentUltimateGauge(NewGauge);
+	UpdateCanUltimateTag();
+}
+
+void US1PlayerSet::ResetUltimateGauge()
+{
+	SetCurrentUltimateGauge(0.f);
+	UpdateCanUltimateTag();
+}
+
+void US1PlayerSet::UpdateCanUltimateTag()
+{
+	UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+	if (nullptr == ASC)
+	{
+		return;
+	}
+
+	if (GetCurrentUltimateGauge() >= GetMaxUltimateGauge())
+	{
+		ASC->AddLooseGameplayTag(S1StateTags::State_CanUltimate, 1, EGameplayTagReplicationState::TagOnly);
+	}
+	else
+	{
+		ASC->RemoveLooseGameplayTag(S1StateTags::State_CanUltimate, 1, EGameplayTagReplicationState::TagOnly);
+	}
 }
 
 void US1PlayerSet::LevelUp()

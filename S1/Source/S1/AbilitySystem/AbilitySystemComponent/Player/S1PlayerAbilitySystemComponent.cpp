@@ -228,6 +228,13 @@ bool US1PlayerAbilitySystemComponent::GetSkillCooldown(const FGameplayTag& Unifi
 	OutRemainingTime = 0.f;
 	OutDuration = 0.f;
 
+	// 게이지 Max — 이 태그의 실제 발동 후보는 Ultimate(쿨타임 없음)이므로 Skill04 쿨타임 표시를 숨김
+	if (UnifiedCooldownTag == S1AbilityTags::Ability_Player_Attack_Skill04 &&
+		HasMatchingGameplayTag(S1StateTags::State_CanUltimate))
+	{
+		return false;
+	}
+
 	const FS1CooldownVariantSet* Variant = FindCooldownVariant(UnifiedCooldownTag);
 	if (Variant == nullptr)
 	{

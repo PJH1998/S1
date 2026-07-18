@@ -104,6 +104,12 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerDebugTriggerHit(FGameplayTag HitTypeTag);
 
+	// 디버그 전용 — 키보드 0(넘패드 아님)으로 얼티밋 게이지 즉시 Max
+	void DebugSetUltimateGaugeMax();
+
+	UFUNCTION(Server, Reliable)
+	void ServerDebugSetUltimateGaugeMax();
+
 public:
 	AS1Weapon*		    GetEquippedWeapon()        const { return EquippedWeapon; }
 	AS1Weapon*		    GetEquippedOffhandWeapon() const { return EquippedOffhandWeapon; }

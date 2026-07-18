@@ -97,6 +97,7 @@ namespace S1StateTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Action);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_CanNextAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_CanUltimate);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air);
 
 	// 상위 태그 — State.Air 하위가 아니라 별도 트리라서(State.Used.Air.*), 착지 시 State.Air와 별개로 이 트리도 같이 정리해야 함

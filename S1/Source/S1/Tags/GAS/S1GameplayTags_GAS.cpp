@@ -87,6 +87,7 @@ namespace S1StateTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(State_Action,              "State.Action");
 	UE_DEFINE_GAMEPLAY_TAG(State_CanNextAttack,       "State.CanNextAttack");
+	UE_DEFINE_GAMEPLAY_TAG(State_CanUltimate,         "State.CanUltimate");
 	UE_DEFINE_GAMEPLAY_TAG(State_Air,                 "State.Air");
 
 	UE_DEFINE_GAMEPLAY_TAG(State_Used_Air,            "State.Used.Air");

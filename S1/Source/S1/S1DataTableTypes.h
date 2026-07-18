@@ -83,6 +83,9 @@ struct FS1PlayerData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MaxXP = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MaxUltimateGauge = 500.f;
 };
 
 USTRUCT(BlueprintType)

@@ -121,6 +121,14 @@ bool US1AbilitySystemComponent::IsAbilityPredicted(const FGameplayTag& AbilityTa
 			continue;
 		}
 
+		// 같은 AbilityTag 아래 정책이 다른 변형이 섞일 수 있음(예: Skill04 Ground/Air는 LocalPredicted,
+		// 게이지 Max 시 같은 태그로 묶이는 Ultimate는 ServerOnly) — 현재 Required/Blocked 태그를
+		// 실제로 만족하는 후보만 봐야 "지금 발동될 GA"의 정책을 올바르게 판정할 수 있음
+		if (false == Spec->Ability->DoesAbilitySatisfyTagRequirements(*this))
+		{
+			continue;
+		}
+
 		if (EGameplayAbilityNetExecutionPolicy::LocalPredicted == Spec->Ability->GetNetExecutionPolicy())
 		{
 			return true;

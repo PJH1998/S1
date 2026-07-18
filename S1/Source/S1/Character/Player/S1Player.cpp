@@ -512,6 +512,7 @@ void AS1Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		PlayerInputComponent->BindKey(EKeys::NumPadSeven, IE_Pressed, this, &ThisClass::DebugTriggerHit_Weak);
 		PlayerInputComponent->BindKey(EKeys::NumPadEight, IE_Pressed, this, &ThisClass::DebugTriggerHit_Strong);
 		PlayerInputComponent->BindKey(EKeys::NumPadNine,  IE_Pressed, this, &ThisClass::DebugTriggerHit_ToAir);
+		PlayerInputComponent->BindKey(EKeys::Zero,        IE_Pressed, this, &ThisClass::DebugSetUltimateGaugeMax);
 	}
 #endif
 }
@@ -547,6 +548,32 @@ void AS1Player::ServerDebugTriggerHit_Implementation(FGameplayTag HitTypeTag)
 
 	LOG(TEXT("[DebugHit] %s 강제 트리거 (원점 기준)"), *HitTypeTag.ToString());
 	AbilitySystemComponent->HandleGameplayEvent(HitTypeTag, &Payload);
+#endif
+}
+
+void AS1Player::DebugSetUltimateGaugeMax()
+{
+	ServerDebugSetUltimateGaugeMax();
+}
+
+void AS1Player::ServerDebugSetUltimateGaugeMax_Implementation()
+{
+#if !UE_BUILD_SHIPPING
+	if (false == IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	US1PlayerSet* PlayerSet = const_cast<US1PlayerSet*>(Cast<US1PlayerSet>(AbilitySystemComponent->GetAttributeSet(US1PlayerSet::StaticClass())));
+	if (nullptr == PlayerSet)
+	{
+		return;
+	}
+
+	PlayerSet->AddUltimateGauge(PlayerSet->GetMaxUltimateGauge());
+
+	LOG(TEXT("[DebugUltimateGauge] 게이지 Max 설정 — Current: %.0f / %.0f"),
+		PlayerSet->GetCurrentUltimateGauge(), PlayerSet->GetMaxUltimateGauge());
 #endif
 }
 
