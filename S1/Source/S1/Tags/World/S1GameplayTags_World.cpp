@@ -12,6 +12,11 @@ namespace S1PoolingTags
 
 namespace S1SoundTags
 {
+#pragma region PlayerSound
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Player_Female_LevelUp, "Sound.Player.Female.LevelUp");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Player_Male_LevelUp, "Sound.Player.Male.LevelUp");
+#pragma endregion
+
 #pragma region HitSound
 	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_RPR_Weak, "Sound.Hit.RPR.Weak");
 	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_RPR_Strong, "Sound.Hit.RPR.Strong");
