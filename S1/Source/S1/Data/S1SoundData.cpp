@@ -5,7 +5,7 @@
 
 USoundBase* US1SoundData::FindSound(const FGameplayTag& SoundTag) const
 {
-	if (const TObjectPtr<USoundBase>* Found = HitSounds.Find(SoundTag))
+	if (const TObjectPtr<USoundBase>* Found = Sounds.Find(SoundTag))
 	{
 		return *Found;
 	}

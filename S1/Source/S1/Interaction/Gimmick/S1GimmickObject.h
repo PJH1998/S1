@@ -53,6 +53,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gimmick")
 	FGameplayTag GimmickTag;
 
+	// 활성화/비활성화 전환 시 액터 위치에서 재생할 1회성 사운드 태그(무효면 무음).
+	// 각 머신 로컬 재생 — 데디서버 제외는 SoundManager가 처리.
+	UPROPERTY(EditAnywhere, Category = "Gimmick|Sound")
+	FGameplayTag ActivationSoundTag;
+
+	UPROPERTY(EditAnywhere, Category = "Gimmick|Sound")
+	FGameplayTag DeactivationSoundTag;
+
 	UPROPERTY(ReplicatedUsing = OnRep_IsActivated)
 	bool bIsActivated = false;
 };

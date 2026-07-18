@@ -142,6 +142,50 @@ void US1SoundManager::PlayHitSound(const FGameplayTag& BaseTag, ES1HitReactType 
 	PlaySound(SoundData->FindSound(ComposedTag));
 }
 
+void US1SoundManager::PlaySoundByTag(const FGameplayTag& SoundTag)
+{
+	if (GetWorld()->GetNetMode() == NM_DedicatedServer)
+	{
+		return;
+	}
+
+	PlaySound(ResolveSoundByTag(SoundTag));
+}
+
+void US1SoundManager::PlaySoundAtLocationByTag(const FGameplayTag& SoundTag, const FVector& Location)
+{
+	if (GetWorld()->GetNetMode() == NM_DedicatedServer)
+	{
+		return;
+	}
+
+	if (USoundBase* Sound = ResolveSoundByTag(SoundTag))
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, Sound, Location);
+	}
+}
+
+void US1SoundManager::PlayBGMByTag(const FGameplayTag& BGMTag, float FadeDuration, float Volume)
+{
+	if (GetWorld()->GetNetMode() == NM_DedicatedServer)
+	{
+		return;
+	}
+
+	PlayBGM(ResolveSoundByTag(BGMTag), FadeDuration, Volume);
+}
+
+USoundBase* US1SoundManager::ResolveSoundByTag(const FGameplayTag& SoundTag) const
+{
+	if (false == SoundTag.IsValid())
+	{
+		return nullptr;
+	}
+
+	US1SoundData* SoundData = US1AssetManager::GetAssetByTag<US1SoundData>(S1AssetTags::Asset_SoundData);
+	return IsValid(SoundData) ? SoundData->FindSound(SoundTag) : nullptr;
+}
+
 FGameplayTag US1SoundManager::ComposeHitSoundTag(const FGameplayTag& BaseTag, const FGameplayTag& OutcomeTag) const
 {
 	if (false == BaseTag.IsValid() || false == OutcomeTag.IsValid())
