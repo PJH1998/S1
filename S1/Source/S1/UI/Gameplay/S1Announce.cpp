@@ -7,6 +7,7 @@
 #include "Components/Image.h"
 #include "Data/S1UIResource.h"
 #include "System/S1AssetManager.h"
+#include "System/S1SoundManager.h"
 #include "Tags/S1GameplayTags.h"
 
 US1Announce::US1Announce(const FObjectInitializer& ObjectInitializer)
@@ -40,6 +41,22 @@ void US1Announce::ShowAnnounce(const FGameplayTag& AnnounceTag)
 	if (Texture == nullptr)
 	{
 		return;
+	}
+
+	// 팡파레 — UI.Icon.Announce.<Leaf> → Sound.UI.Announce.<Leaf> 조합 조회(미선언이면 무음).
+	// 위젯은 클라에만 존재하므로 별도 데디서버 가드 불필요.
+	FString AnnounceLeaf;
+	if (AnnounceTag.ToString().Split(TEXT("."), nullptr, &AnnounceLeaf, ESearchCase::IgnoreCase, ESearchDir::FromEnd))
+	{
+		const FGameplayTag FanfareTag = FGameplayTag::RequestGameplayTag(
+			FName(TEXT("Sound.UI.Announce.") + AnnounceLeaf), /*ErrorIfNotFound=*/false);
+		if (FanfareTag.IsValid())
+		{
+			if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+			{
+				SoundManager->PlaySoundByTag(FanfareTag);
+			}
+		}
 	}
 
 	Image_Announce->SetBrushFromTexture(Texture);

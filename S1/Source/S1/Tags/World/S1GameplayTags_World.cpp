@@ -21,6 +21,29 @@ namespace S1SoundTags
 	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_SWD_Strong, "Sound.Hit.SWD.Strong");
 	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_SWD_Guard, "Sound.Hit.SWD.Guard");
 #pragma endregion
+
+#pragma region BossSound
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Boss_GuardBlock, "Sound.Boss.GuardBlock");
+#pragma endregion
+
+#pragma region GimmickSound
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Gimmick_Button_Press, "Sound.Gimmick.Button.Press");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Gimmick_Pillar_Move, "Sound.Gimmick.Pillar.Move");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Gimmick_Plate_Step, "Sound.Gimmick.Plate.Step");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Gimmick_Door_Open, "Sound.Gimmick.Door.Open");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Gimmick_Door_OpenComplete, "Sound.Gimmick.Door.OpenComplete");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Gimmick_Boss000Pillar_Break, "Sound.Gimmick.Boss000Pillar.Break");
+#pragma endregion
+
+#pragma region UISound
+	UE_DEFINE_GAMEPLAY_TAG(Sound_UI_Announce_BossCleared, "Sound.UI.Announce.BossCleared");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_UI_Announce_QuestCleared, "Sound.UI.Announce.QuestCleared");
+#pragma endregion
+
+#pragma region BGM
+	UE_DEFINE_GAMEPLAY_TAG(Sound_BGM_Boss000_Battle, "Sound.BGM.Boss000.Battle");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_BGM_Boss000_Field, "Sound.BGM.Boss000.Field");
+#pragma endregion
 }
 
 namespace S1EffectTags

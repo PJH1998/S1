@@ -35,9 +35,21 @@ public:
 	// US1SoundData를 조회 후 재생.
 	void PlayHitSound(const FGameplayTag& BaseTag, ES1HitReactType HitType);
 
+	// 태그로 US1SoundData를 조회 후 2D 재생 — 위치 없는 1회성 이벤트(팡파레/UI). 데디서버에선 no-op.
+	void PlaySoundByTag(const FGameplayTag& SoundTag);
+
+	// 태그 조회 후 월드 위치 3D 재생 — 기믹/보스 등 위치 있는 이벤트. 데디서버에선 no-op.
+	void PlaySoundAtLocationByTag(const FGameplayTag& SoundTag, const FVector& Location);
+
+	// 태그로 BGM을 조회해 PlayBGM에 위임.
+	void PlayBGMByTag(const FGameplayTag& BGMTag, float FadeDuration = 0.f, float Volume = 1.f);
+
 private:
 	void StartFadeIn(USoundBase* NewBGM, float FadeDuration, float Volume);
 	FGameplayTag ComposeHitSoundTag(const FGameplayTag& BaseTag, const FGameplayTag& OutcomeTag) const;
+
+	// Asset_SoundData 획득 + FindSound 공통화.
+	USoundBase* ResolveSoundByTag(const FGameplayTag& SoundTag) const;
 
 	UAudioComponent* GetActiveComponent() const;
 	UAudioComponent* GetInactiveComponent() const;

@@ -4,6 +4,7 @@
 
 #include "Net/UnrealNetwork.h"
 #include "System/S1GimmickManager.h"
+#include "System/S1SoundManager.h"
 
 AS1GimmickObject::AS1GimmickObject()
 {
@@ -65,6 +66,19 @@ void AS1GimmickObject::ResetGimmick()
 void AS1GimmickObject::OnRep_IsActivated()
 {
 	// 베이스는 상태만 보유. 메쉬 스왑 등 연출은 자식에서 override.
+
+	// 전환 사운드 — 초기 복제(late-join 스냅)에서는 OnRep이 BeginPlay보다 먼저 올 수 있어 무음 처리.
+	if (HasActorBegunPlay())
+	{
+		const FGameplayTag& SoundTag = bIsActivated ? ActivationSoundTag : DeactivationSoundTag;
+		if (SoundTag.IsValid())
+		{
+			if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+			{
+				SoundManager->PlaySoundAtLocationByTag(SoundTag, GetActorLocation());
+			}
+		}
+	}
 
 	// 데디서버 제외 — 서버에서 발화하면 BP가 원격 PC에 SetViewTarget 등을 호출하게 되고,
 	// 엔진(APlayerCameraManager::AssignViewTarget)이 그 클라에 ClientSetViewTarget RPC를 쏴서

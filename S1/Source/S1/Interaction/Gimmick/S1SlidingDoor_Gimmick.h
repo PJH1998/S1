@@ -61,6 +61,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gimmick|SlidingDoor", meta = (AllowPrivateAccess = "true"))
 	float RevealExitBlendTime = 0.5f;
 
+	// 열림 이동 완료 시 재생할 1회성 사운드 태그(무효면 무음). 열림 시작음은 베이스의 ActivationSoundTag 사용.
+	UPROPERTY(EditAnywhere, Category = "Gimmick|Sound", meta = (AllowPrivateAccess = "true"))
+	FGameplayTag OpenCompleteSoundTag;
+
 	FVector LeftClosedRelativeLocation = FVector::ZeroVector;
 	FVector RightClosedRelativeLocation = FVector::ZeroVector;
 	FVector LeftMoveStartLocation = FVector::ZeroVector;

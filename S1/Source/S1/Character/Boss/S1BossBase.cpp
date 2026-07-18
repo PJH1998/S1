@@ -6,6 +6,8 @@
 #include "AbilitySystem/Attributes/S1BossSet.h"
 #include "AI/S1BossAIController.h"
 #include "System/S1CombatFeedbackSubsystem.h"
+#include "System/S1SoundManager.h"
+#include "Tags/World/S1GameplayTags_World.h"
 
 ES1EnemyTier AS1BossBase::GetLockOnTier_Implementation()
 {
@@ -50,6 +52,12 @@ void AS1BossBase::MulticastNotifyGuardBlocked_Implementation(const FVector& InBl
 		if (US1CombatFeedbackSubsystem* CombatFeedback = World->GetSubsystem<US1CombatFeedbackSubsystem>())
 		{
 			CombatFeedback->ShowBlockNumber(InBlockLocation);
+		}
+
+		// 가드 차단음 — 각 머신 로컬 재생(데디서버 제외는 SoundManager가 처리).
+		if (US1SoundManager* SoundManager = World->GetSubsystem<US1SoundManager>())
+		{
+			SoundManager->PlaySoundAtLocationByTag(S1SoundTags::Sound_Boss_GuardBlock, InBlockLocation);
 		}
 	}
 }
