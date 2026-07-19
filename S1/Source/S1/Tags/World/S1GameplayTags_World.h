@@ -111,3 +111,8 @@ namespace S1CharacterTag
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Charcter_Select_Asna);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Charcter_Select_Kirito);
 }
+
+namespace S1SpawnTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Spawn_Main_Default);
+}

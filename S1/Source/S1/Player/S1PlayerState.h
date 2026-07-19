@@ -33,6 +33,12 @@ public:
 	void SetSelectedCharacterTag(const FGameplayTag& InTag);
 	FGameplayTag GetSelectedCharacterTag() const { return SelectedCharacterTag; }
 
+	void SetLastSpawnPointTag(const FGameplayTag& InTag);
+	FGameplayTag GetLastSpawnPointTag() const { return LastSpawnPointTag; }
+
+	void SetSelectedWeaponTag(const FGameplayTag& InTag);
+	FGameplayTag GetSelectedWeaponTag() const { return SelectedWeaponTag; }
+
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	// Seamless Travel: 구 PS → 신 PS 복사
@@ -43,6 +49,12 @@ protected:
 private:
 	UPROPERTY(Replicated)
 	FGameplayTag SelectedCharacterTag;
+
+	UPROPERTY(Replicated)
+	FGameplayTag LastSpawnPointTag;
+
+	UPROPERTY(Replicated)
+	FGameplayTag SelectedWeaponTag;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

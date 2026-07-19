@@ -177,9 +177,15 @@ void AS1Player::PossessedBy(AController* NewController)
 
 			InitialTag = EquipComp->GetEquippedItemTag(S1EquipSlotTags::Equip_Type_Weapon);
 		}
+
+		// EquipComponent에 실제 장착 아이템이 없으면(첫 스폰) 캐릭터 선택 화면에서 고른 무기로
+		if (false == InitialTag.IsValid())
+		{
+			InitialTag = PS->GetSelectedWeaponTag();
+		}
 	}
 
-	// EquipComponent 없으면 기본 무기로 초기화
+	// 위 둘 다 없으면(EquipComponent 없음/선택 안 함) EquipWeapon 내부에서 DefaultWeaponTag로 대체
 	EquipWeapon(InitialTag);
 }
 

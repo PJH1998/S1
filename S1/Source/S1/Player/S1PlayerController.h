@@ -10,12 +10,13 @@
 
 class AS1Player;
 struct FS1AbilityInputBinding;
+class US1CharacterSelectComponent;
 
 UCLASS()
 class S1_API AS1PlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
+
 public:
 	AS1PlayerController(const FObjectInitializer& ObjectInitializer);
 
@@ -26,6 +27,8 @@ protected:
 
 public:
 	virtual void HandleGameplayEvent(FGameplayTag EventTag);
+
+	US1CharacterSelectComponent* GetCharacterSelectComponent() const { return CharacterSelectComponent; }
 
 private:
 	void OnMove(const FInputActionValue& Value);
@@ -62,6 +65,9 @@ private:
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<AS1Player> S1Player;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<US1CharacterSelectComponent> CharacterSelectComponent;
 
 	// 커서 모드(인벤토리 열림 또는 Alt 홀드): 커서 표시 + 마우스 자유 + 카메라 회전 멈춤.
 	bool bCursorMode = false;

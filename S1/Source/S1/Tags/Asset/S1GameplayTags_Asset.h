@@ -75,4 +75,5 @@ namespace S1DataTableTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_ItemData);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_HitLagData);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_FootstepSound);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(DataTable_SpawnPoint);
 }

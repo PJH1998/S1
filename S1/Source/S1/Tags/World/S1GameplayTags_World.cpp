@@ -111,3 +111,8 @@ namespace S1CharacterTag
 	UE_DEFINE_GAMEPLAY_TAG(Charcter_Select_Asna, "Character.Select.Asna");
 	UE_DEFINE_GAMEPLAY_TAG(Charcter_Select_Kirito, "Character.Select.Kirito");
 }
+
+namespace S1SpawnTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(Spawn_Main_Default, "Spawn.Main.Default");
+}

@@ -12,7 +12,7 @@
 
 class US1RootWidget;
 /**
- * 
+ *
  */
 
 UCLASS()

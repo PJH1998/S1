@@ -10,15 +10,19 @@
 #include "System/S1AssetManager.h"
 #include "Data/S1InputData.h"
 #include "Character/Player/S1Player.h"
+#include "Component/S1CharacterSelectComponent.h"
 #include "Component/S1LockOnComponent.h"
 
+#include "System/S1GameInstance.h"
 #include "System/S1UIManager.h"
 #include "UI/Menu/S1Inventory_ItemInfo.h"
 #include "UI/S1RootWidget.h"
+#include "S1LogChannels.h"
 
 AS1PlayerController::AS1PlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	CharacterSelectComponent = CreateDefaultSubobject<US1CharacterSelectComponent>(TEXT("CharacterSelectComponent"));
 }
 
 void AS1PlayerController::BeginPlay()
@@ -36,14 +40,34 @@ void AS1PlayerController::BeginPlay()
 	// Server일 때 UI 생성 가드
 	if (!IsLocalController() || GetNetMode() == NM_DedicatedServer) return;
 
+	// Root 위젯은 세션 내내 UI_Root_Gameplay 하나만 사용 — 부스/게임플레이 전환은 RootWidget을 갈아치우는 게 아니라
+	// 그 안의 HUD 패널 콘텐츠만 SetUp_Panel로 교체(Lobby_HUD → Gameplay_HUD, CharacterSelectComponent::HandleGameplayPawnPossessed)
+	US1RootWidget* Root = nullptr;
 	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
 	{
 		UIManager->Create_RootUI(this, S1UITags::UI_Root_Gameplay);
+		Root = UIManager->GetRootWidget();
 
-		if (US1RootWidget* Root = UIManager->GetRootWidget())
+		if (::IsValid(Root))
 		{
-			Root->SetUp_Panel(UI_TYPE::HUD, S1UITags::UI_Gameplay_HUD);
+			Root->SetCursorVisible(true);
+			Root->SetUp_Panel(UI_TYPE::HUD, S1UITags::UI_Lobby_HUD);
 		}
+	}
+
+	// WidgetToFocus를 안 주면 뷰포트/윈도우가 아직 포커스를 안 가진 상태라 첫 클릭이 UI에 전달 안 되고
+	// 포커스 획득에만 소모됨(버튼 OnClicked가 씹히고 두 번째 클릭에야 동작하던 원인) — 위젯 생성 후 명시적으로 포커스 지정
+	FInputModeGameAndUI InputMode;
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	if (::IsValid(Root))
+	{
+		InputMode.SetWidgetToFocus(Root->TakeWidget());
+	}
+	SetInputMode(InputMode);
+
+	if (US1GameInstance* GI = GetGameInstance<US1GameInstance>())
+	{
+		GI->HideBootstrapOverlay();
 	}
 }
 
@@ -51,10 +75,17 @@ void AS1PlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
+	//TEST — 부스 캐릭터 선택 키 바인딩
+	if (US1CharacterSelectComponent* Comp = CharacterSelectComponent.Get())
+	{
+		InputComponent->BindKey(EKeys::NumPadOne, IE_Pressed, Comp, &US1CharacterSelectComponent::OnSelectA);
+		InputComponent->BindKey(EKeys::NumPadTwo, IE_Pressed, Comp, &US1CharacterSelectComponent::OnSelectB);
+		InputComponent->BindKey(EKeys::NumPadThree, IE_Pressed, Comp, &US1CharacterSelectComponent::RequestConfirm);
+	}
+
 	if (const US1InputData * InputData = US1AssetManager::GetAssetByTag<US1InputData>(S1AssetTags::Asset_InputData))
 	{
 		UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
-
 
 #pragma region Move
 		if (const UInputAction* MoveAction = InputData->FindInputActionByTag(S1GameplayTags::Input_Action_Move))
@@ -164,8 +195,23 @@ void AS1PlayerController::AcknowledgePossession(APawn* P)
 {
 	Super::AcknowledgePossession(P);
 
+	LOG(TEXT("PlayerController: AcknowledgePossession — Pawn [%s]"), *GetNameSafe(P));
+
 	// 원격 클라(소유) — 입력 바인딩은 InputComponent가 있는 클라에서 해야 동작
 	InitPawnInput(P);
+
+	// SpringArm의 bUsePawnControlRotation은 ControlRotation을 따라가지 Pawn의 실제 회전을 안 봄 —
+	// 스폰 Transform의 회전을 반영하려면 Possess 직후 ControlRotation을 Pawn 회전에 맞춰줘야 카메라도 같이 돎
+	if (::IsValid(P))
+	{
+		SetControlRotation(P->GetActorRotation());
+	}
+
+	// 부스 확정 후 실제 게임플레이 Pawn으로 처음 Possess된 시점 — 로컬 프리뷰 정리 + UI 전환
+	if (::IsValid(CharacterSelectComponent))
+	{
+		CharacterSelectComponent->HandleGameplayPawnPossessed();
+	}
 }
 
 void AS1PlayerController::InitPawnInput(APawn* InPawn)

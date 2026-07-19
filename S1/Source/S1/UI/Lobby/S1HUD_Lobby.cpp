@@ -6,6 +6,7 @@
 #include "UI/Lobby/Custom/S1Customize.h"
 #include "Components/WidgetSwitcher.h"
 
+#include "UI/S1RootWidget.h"
 #include "System/S1UIManager.h"
 #include "System/S1SoundManager.h"
 
@@ -31,20 +32,25 @@ void US1HUD_Lobby::OnLogoClickBegin()
 {
 	if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
 	{
-		SoundManager->StopBGM(LobbyFadeOutDuration);
+		SoundManager->PlayBGM(SelectedBGM, LobbyFadeOutDuration);
 	}
+
+	//if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+	//{
+	//	SoundManager->StopBGM(LobbyFadeOutDuration);
+	//}
 }
 
 void US1HUD_Lobby::ShowCustomize()
 {
 	WidgetSwitcher_Root->SetActiveWidgetIndex(static_cast<int32>(HUD_LOBBY::CUSTOM));
+
 	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
 	{
-		UIManager->FadeIn(3.f);
-	}
-
-	if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
-	{
-		SoundManager->PlayBGM(SelectedBGM, SelectedFadeInDuration);
+		UIManager->FadeIn(3.f, [UIManager]()
+			{
+				UIManager->GetRootWidget()->SetCursorVisible(true);
+			}
+		);
 	}
 }

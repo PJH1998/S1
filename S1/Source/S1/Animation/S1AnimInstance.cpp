@@ -31,13 +31,11 @@ void US1AnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (false == IsValid(Character))
 	{
-		LOG_WARNING(TEXT("US1AnimInstance : Nullptr Character"));
 		return;
 	}
 
 	if (false == IsValid(MovementComponent))
 	{
-		LOG_WARNING(TEXT("US1AnimInstance : Nullptr MovementComponent"));
 		return;
 	}
 
