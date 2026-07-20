@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "S1LogChannels.h"
+#include "Tags/S1GameplayTags.h"
 
 US1GameplayAbility_Hit::US1GameplayAbility_Hit(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -18,6 +19,10 @@ US1GameplayAbility_Hit::US1GameplayAbility_Hit(const FObjectInitializer& ObjectI
 
 	// 이동/점프로 조기 탈출 불가 — Action 베이스의 EarlyMove 비활성화
 	EarlyMoveEventTag = FGameplayTag();
+
+	// 피격 리액션 중엔 항상 이동/점프 차단 — BP 설정에 맡기지 않고 강제 지정
+	// (AS1Player::AddMovementInput/Jump가 ActionStateTag 보유 여부로 막는데, BP에서 안 채우면 몽타주 중에도 이동됨)
+	ActionStateTag = S1StateTags::State_Action;
 }
 
 void US1GameplayAbility_Hit::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

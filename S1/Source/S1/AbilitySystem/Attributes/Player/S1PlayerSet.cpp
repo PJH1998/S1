@@ -160,11 +160,18 @@ void US1PlayerSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackDat
 					Attacker = Data.EffectSpec.GetContext().GetInstigator();
 				}
 
-				FGameplayEventData Payload;
-				Payload.EventTag   = HitTypeTag;
-				Payload.Instigator = Attacker;
-				Payload.Target     = Avatar;
-				ASC->HandleGameplayEvent(HitTypeTag, &Payload);
+				// HP 0 이하면 Hit 대신 Death GA를 트리거(둘은 상호 배타적) — 원래 피격 타입과 무관하게 GA_Death 하나만 실행(애니메이션 제약).
+				const bool bIsDead = GetHealth() <= 0.f;
+				const FGameplayTag TriggerTag = bIsDead ? S1HitType::HitType_Death : HitTypeTag;
+
+				if (TriggerTag.IsValid())
+				{
+					FGameplayEventData Payload;
+					Payload.EventTag   = TriggerTag;
+					Payload.Instigator = Attacker;
+					Payload.Target     = Avatar;
+					ASC->HandleGameplayEvent(TriggerTag, &Payload);
+				}
 
 				const FGameplayTag SoundBaseTag = S1HitReactLibrary::FindSoundBaseTag(Data.EffectSpec);
 				US1SoundManager* SoundManager = Avatar->GetWorld()->GetSubsystem<US1SoundManager>();

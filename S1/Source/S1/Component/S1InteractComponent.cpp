@@ -3,7 +3,7 @@
 #include "Component/S1InteractComponent.h"
 
 #include "Components/SphereComponent.h"
-#include "Interaction/Gimmick/S1PuzzleButton_Gimmick.h"
+#include "Interface/S1InteractableInterface.h"
 #include "S1Define.h"
 
 US1InteractComponent::US1InteractComponent()
@@ -47,18 +47,21 @@ void US1InteractComponent::BeginPlay()
 	InteractSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnBeginOverlap);
 	InteractSphere->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnEndOverlap);
 
-	// 이미 범위 안에 있는 버튼 수동 등록 (BeginPlay 시점에는 Overlap 이벤트 미발화)
+	// 이미 범위 안에 있는 상호작용 액터 수동 등록 (BeginPlay 시점에는 Overlap 이벤트 미발화)
 	TArray<AActor*> AlreadyOverlapping;
-	InteractSphere->GetOverlappingActors(AlreadyOverlapping, AS1PuzzleButton_Gimmick::StaticClass());
+	InteractSphere->GetOverlappingActors(AlreadyOverlapping);
 	for (AActor* Actor : AlreadyOverlapping)
 	{
-		CandidateSet.Add(Actor);
+		if (Actor && Actor->Implements<US1InteractableInterface>())
+		{
+			CandidateSet.Add(Actor);
+		}
 	}
 
 	UpdateNearestInteractable();
 }
 
-AS1PuzzleButton_Gimmick* US1InteractComponent::GetNearestInteractable() const
+AActor* US1InteractComponent::GetNearestInteractable() const
 {
 	AActor* Owner = GetOwner();
 	if (false == ::IsValid(Owner))
@@ -66,22 +69,23 @@ AS1PuzzleButton_Gimmick* US1InteractComponent::GetNearestInteractable() const
 		return nullptr;
 	}
 
-	AS1PuzzleButton_Gimmick* Nearest = nullptr;
+	AActor* Nearest = nullptr;
 	float NearestDistSq = TNumericLimits<float>::Max();
 
 	for (const TWeakObjectPtr<AActor>& Weak : CandidateSet)
 	{
-		AS1PuzzleButton_Gimmick* Button = Cast<AS1PuzzleButton_Gimmick>(Weak.Get());
-		if (nullptr == Button || Button->IsPuzzleLocked())
+		AActor* Candidate = Weak.Get();
+		IS1InteractableInterface* Interactable = Cast<IS1InteractableInterface>(Candidate);
+		if (nullptr == Interactable || false == Interactable->CanInteract())
 		{
 			continue;
 		}
 
-		const float DistSq = FVector::DistSquared(Owner->GetActorLocation(), Button->GetActorLocation());
+		const float DistSq = FVector::DistSquared(Owner->GetActorLocation(), Candidate->GetActorLocation());
 		if (DistSq < NearestDistSq)
 		{
 			NearestDistSq = DistSq;
-			Nearest = Button;
+			Nearest = Candidate;
 		}
 	}
 
@@ -92,7 +96,7 @@ void US1InteractComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, A
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (nullptr == Cast<AS1PuzzleButton_Gimmick>(OtherActor))
+	if (nullptr == OtherActor || false == OtherActor->Implements<US1InteractableInterface>())
 	{
 		return;
 	}
@@ -110,7 +114,7 @@ void US1InteractComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AAc
 
 void US1InteractComponent::UpdateNearestInteractable()
 {
-	AS1PuzzleButton_Gimmick* NewNearest = GetNearestInteractable();
+	AActor* NewNearest = GetNearestInteractable();
 	if (NewNearest == CachedNearest.Get())
 	{
 		return;

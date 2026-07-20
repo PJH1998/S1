@@ -31,6 +31,9 @@ namespace S1GameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LockOnRight);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Interact);
+
+	// State.Dead.CanRespawn 있을 때만 반응 — 키 또는 UI 버튼 둘 다 AS1PlayerController::TryRespawn()으로 수렴
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Respawn);
 #pragma endregion
 
 #pragma region UI

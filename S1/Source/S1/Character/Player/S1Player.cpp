@@ -5,10 +5,11 @@
 #include "S1Enums.h"
 #include "Camera/S1PlayerCameraComponent.h"
 #include "Component/S1LockOnComponent.h"
+#include "Component/S1DissolveComponent.h"
 #include "Component/S1EquipComponent.h"
 #include "Component/S1InteractComponent.h"
 #include "Component/S1PlayerReactBridgeComponent.h"
-#include "Interaction/Gimmick/S1PuzzleButton_Gimmick.h"
+#include "Interface/S1InteractableInterface.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -84,6 +85,11 @@ AS1Player::AS1Player()
 
 	// 피격 리액션 브릿지 (GE 적용 감지 → GA_Hit 트리거)
 	ReactBridgeComponent = CreateDefaultSubobject<US1PlayerReactBridgeComponent>(TEXT("ReactBridgeComponent"));
+
+	// 리스폰 Dissolve — 무기/아이템과 동일 컴포넌트, 메시(Body/Hair/Face)당 하나씩
+	BodyDissolveComponent = CreateDefaultSubobject<US1DissolveComponent>(TEXT("BodyDissolveComponent"));
+	HairDissolveComponent = CreateDefaultSubobject<US1DissolveComponent>(TEXT("HairDissolveComponent"));
+	FaceDissolveComponent = CreateDefaultSubobject<US1DissolveComponent>(TEXT("FaceDissolveComponent"));
 
 	// AtkCollision 가상 충돌체 — AS1Weapon::AttackBox와 동일한 콜리전 프로파일(기본 NoCollision), GA_Attack이 히트 윈도우에서만 켬
 	VirtualSphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("VirtualSphereCollision"));
@@ -398,6 +404,27 @@ void AS1Player::MulticastPlayLevelUpPresentation_Implementation()
 	}
 }
 
+void AS1Player::ServerPlayDissolve_Implementation(bool bAppear, float Duration)
+{
+	MulticastPlayDissolve(bAppear, Duration);
+}
+
+void AS1Player::MulticastPlayDissolve_Implementation(bool bAppear, float Duration)
+{
+	if (::IsValid(BodyDissolveComponent))
+	{
+		BodyDissolveComponent->PlayDissolve(GetMesh(), bAppear, Duration);
+	}
+	if (::IsValid(HairDissolveComponent))
+	{
+		HairDissolveComponent->PlayDissolve(HairMesh, bAppear, Duration);
+	}
+	if (::IsValid(FaceDissolveComponent))
+	{
+		FaceDissolveComponent->PlayDissolve(FaceMesh, bAppear, Duration);
+	}
+}
+
 void AS1Player::LinkWeaponAnimLayer(TSubclassOf<US1WeaponAnimLayer> AnimLayerClass)
 {
 	if (nullptr == AnimLayerClass)
@@ -503,15 +530,16 @@ void AS1Player::TryInteract()
 		return;
 	}
 
-	if (AS1PuzzleButton_Gimmick* Target = InteractComponent->GetNearestInteractable())
+	if (AActor* Target = InteractComponent->GetNearestInteractable())
 	{
 		ServerInteract(Target);
 	}
 }
 
-void AS1Player::ServerInteract_Implementation(AS1PuzzleButton_Gimmick* Target)
+void AS1Player::ServerInteract_Implementation(AActor* Target)
 {
-	if (false == IsValid(Target))
+	IS1InteractableInterface* Interactable = Cast<IS1InteractableInterface>(Target);
+	if (nullptr == Interactable)
 	{
 		return;
 	}
@@ -523,7 +551,43 @@ void AS1Player::ServerInteract_Implementation(AS1PuzzleButton_Gimmick* Target)
 		return;
 	}
 
-	Target->PressButton();
+	Interactable->Interact(this);
+}
+
+void AS1Player::DisableCollisionForDeath()
+{
+	if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+	{
+		Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	if (USkeletalMeshComponent* Body = GetMesh())
+	{
+		Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	if (::IsValid(HairMesh))
+	{
+		HairMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	if (::IsValid(FaceMesh))
+	{
+		FaceMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	if (::IsValid(EquippedWeapon))
+	{
+		EquippedWeapon->DisableHitCollision();
+	}
+	if (::IsValid(EquippedOffhandWeapon))
+	{
+		EquippedOffhandWeapon->DisableHitCollision();
+	}
+	if (::IsValid(VirtualSphereCollision))
+	{
+		VirtualSphereCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	if (::IsValid(VirtualBoxCollision))
+	{
+		VirtualBoxCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 void AS1Player::Landed(const FHitResult& Hit)
@@ -634,19 +698,25 @@ void AS1Player::DebugTriggerHit_ToAir()
 void AS1Player::ServerDebugTriggerHit_Implementation(FGameplayTag HitTypeTag)
 {
 #if !UE_BUILD_SHIPPING
-	if (false == IsValid(AbilitySystemComponent) || false == HitTypeTag.IsValid())
+	if (false == IsValid(AbilitySystemComponent) || false == HitTypeTag.IsValid() || nullptr == DebugDamageEffect)
 	{
 		return;
 	}
 
-	// 공격원 없이 테스트 — 월드 원점(WorldSettings 위치, 보통 0,0,0)을 공격원 위치로 취급
-	FGameplayEventData Payload;
-	Payload.EventTag   = HitTypeTag;
-	Payload.Instigator = GetWorld() ? GetWorld()->GetWorldSettings() : nullptr;
-	Payload.Target     = this;
+	// HandleGameplayEvent 직접 호출 대신 실제 전투와 동일하게 데미지 GE를 적용 — PostGameplayEffectExecute가
+	// GE의 DynamicAssetTags에서 HitType을 파싱해 Hit/Death(HP<=0)를 알아서 트리거한다.
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DebugDamageEffect, 1.f, EffectContext);
+	if (false == SpecHandle.IsValid())
+	{
+		return;
+	}
 
-	LOG(TEXT("[DebugHit] %s 강제 트리거 (원점 기준)"), *HitTypeTag.ToString());
-	AbilitySystemComponent->HandleGameplayEvent(HitTypeTag, &Payload);
+	SpecHandle.Data->SetSetByCallerMagnitude(S1SetByCallerTags::SetByCaller_Damage, -DebugDamageAmount);
+	SpecHandle.Data->AppendDynamicAssetTags(FGameplayTagContainer(HitTypeTag));
+
+	LOG(TEXT("[DebugHit] %s 강제 트리거 — 데미지 %.0f 적용"), *HitTypeTag.ToString(), DebugDamageAmount);
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 #endif
 }
 

@@ -36,6 +36,12 @@ public:
 	void SetLastSpawnPointTag(const FGameplayTag& InTag);
 	FGameplayTag GetLastSpawnPointTag() const { return LastSpawnPointTag; }
 
+	// 리스폰 기둥 등 로컬 전용 연출(색상 갱신)이 태그 변경 시점을 알 수 있도록 하는 알림용 델리게이트.
+	// 복제되는 건 LastSpawnPointTag 하나뿐 — 이 델리게이트 자체는 각 머신에서 로컬로만 브로드캐스트된다
+	// (권위 측은 SetLastSpawnPointTag에서, 원격 클라는 OnRep_LastSpawnPointTag에서).
+	DECLARE_MULTICAST_DELEGATE_OneParam(FS1LastSpawnPointTagChangedSignature, FGameplayTag);
+	FS1LastSpawnPointTagChangedSignature OnLastSpawnPointTagChanged;
+
 	void SetSelectedWeaponTag(const FGameplayTag& InTag);
 	FGameplayTag GetSelectedWeaponTag() const { return SelectedWeaponTag; }
 
@@ -50,8 +56,11 @@ private:
 	UPROPERTY(Replicated)
 	FGameplayTag SelectedCharacterTag;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_LastSpawnPointTag)
 	FGameplayTag LastSpawnPointTag;
+
+	UFUNCTION()
+	void OnRep_LastSpawnPointTag();
 
 	UPROPERTY(Replicated)
 	FGameplayTag SelectedWeaponTag;

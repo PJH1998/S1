@@ -29,6 +29,10 @@ namespace S1AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Hit_Strong, "Ability.Player.Hit.Strong");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Hit_ToAir,  "Ability.Player.Hit.ToAir");
 	#pragma endregion
+
+	#pragma region Death
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Death,   "Ability.Player.Death");
+	#pragma endregion
 #pragma endregion
 
 #pragma region Boss000
@@ -106,6 +110,9 @@ namespace S1StateTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Hit_Launch,          "State.Hit.Launch");
 	UE_DEFINE_GAMEPLAY_TAG(State_Hit_Knockdown,       "State.Hit.Knockdown");
 	UE_DEFINE_GAMEPLAY_TAG(State_Hit_GetUp,           "State.Hit.GetUp");
+
+	UE_DEFINE_GAMEPLAY_TAG(State_Dead,                "State.Dead");
+	UE_DEFINE_GAMEPLAY_TAG(State_Dead_CanRespawn,     "State.Dead.CanRespawn");
 }
 
 namespace S1HitType
@@ -114,6 +121,8 @@ namespace S1HitType
 	UE_DEFINE_GAMEPLAY_TAG(HitType_Strong,	"HitType.Strong");
 	UE_DEFINE_GAMEPLAY_TAG(HitType_ToAir,	"HitType.ToAir");
 	UE_DEFINE_GAMEPLAY_TAG(HitType_Guard,	"HitType.Guard");
+
+	UE_DEFINE_GAMEPLAY_TAG(HitType_Death, "HitType.Death");
 }
 
 namespace S1EventTags

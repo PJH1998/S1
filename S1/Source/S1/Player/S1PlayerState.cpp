@@ -73,6 +73,12 @@ void AS1PlayerState::SetSelectedCharacterTag(const FGameplayTag& InTag)
 void AS1PlayerState::SetLastSpawnPointTag(const FGameplayTag& InTag)
 {
 	LastSpawnPointTag = InTag;
+	OnLastSpawnPointTagChanged.Broadcast(LastSpawnPointTag);
+}
+
+void AS1PlayerState::OnRep_LastSpawnPointTag()
+{
+	OnLastSpawnPointTagChanged.Broadcast(LastSpawnPointTag);
 }
 
 void AS1PlayerState::SetSelectedWeaponTag(const FGameplayTag& InTag)

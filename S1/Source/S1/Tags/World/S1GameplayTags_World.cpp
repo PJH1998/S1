@@ -115,4 +115,5 @@ namespace S1CharacterTag
 namespace S1SpawnTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(Spawn_Main_Default, "Spawn.Main.Default");
+	UE_DEFINE_GAMEPLAY_TAG(Spawn_Main_Boss01, "Spawn.Main.Boss01");
 }

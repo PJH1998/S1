@@ -17,6 +17,14 @@ void US1AbilitySystemComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 void US1AbilitySystemComponent::AddCharacterAbilities(const FGameplayTag& AssetTag)
 {
+	// 이미 부여된 그룹이면 재부여 안 함 — 안 막으면 리스폰처럼 같은 ASC에 PossessedBy가 다시 호출되는
+	// 경우(ASC는 PlayerState 소속이라 Pawn과 달리 리스폰에도 안 사라짐) 같은 어빌리티가 중복 부여되어
+	// GameplayEvent 트리거 시 여러 인스턴스가 동시에 활성화·서로 CancelAllAbilities로 취소하는 문제 발생.
+	if (GroupToSpecHandles.Contains(AssetTag))
+	{
+		return;
+	}
+
 	US1AbilityData* AbilityData = US1AssetManager::GetAssetByTag<US1AbilityData>(AssetTag);
 
 	TArray<FGameplayAbilitySpecHandle>& GroupHandles = GroupToSpecHandles.FindOrAdd(AssetTag);

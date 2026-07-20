@@ -32,6 +32,10 @@ namespace S1AbilityTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Hit_Strong);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Hit_ToAir);
 	#pragma endregion
+
+	#pragma region Death
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Death);
+	#pragma endregion
 #pragma endregion
 
 #pragma region Boss000
@@ -92,6 +96,9 @@ namespace S1HitType
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Strong);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_ToAir);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Guard);
+
+	// 사망 시(HP<=0) 원래 피격 타입과 무관하게 이 태그 하나만 발송 — GA_Death는 애니메이션 제약상 단일 클래스
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Death);
 }
 
 namespace S1StateTags
@@ -120,6 +127,10 @@ namespace S1StateTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_Launch);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_Knockdown);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_GetUp);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Dead);
+	// Death 몽타주가 Loop 구간에 진입한 뒤에만 부여 — 이 태그가 있을 때만 리스폰 입력을 받는다.
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Dead_CanRespawn);
 }
 
 namespace S1EventTags

@@ -29,6 +29,7 @@ namespace S1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_LockOnRight,		"Input.Action.LockOnRight");
 
 	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Interact,			"Input.Action.Interact");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Action_Respawn,			"Input.Action.Respawn");
 #pragma endregion
 
 #pragma region UI

@@ -8,11 +8,11 @@
 
 class AS1BossBase;
 class AS1Monster;
-class AS1PuzzleButton_Gimmick;
 class US1BossStatus;
 class US1InteractComponent;
 class UWidget;
 class UWidgetAnimation;
+class US1RespawnPrompt;
 /**
  *
  */
@@ -41,6 +41,12 @@ private:
 	void ShowInteractPrompt();
 	void HideInteractPrompt();
 
+	void BindRespawnEvents();
+	void SetUpRespawnPrompt();
+
+	void ShowRespawnPrompt();
+	void HideRespawnPrompt();
+
 private:
 	UFUNCTION()
 	void HandleBossHasTargetChanged(AS1Monster* InMonster, bool bInHasTarget);
@@ -49,10 +55,16 @@ private:
 	void HandleHideAnimationFinished();
 
 	UFUNCTION()
-	void HandleNearestInteractableChanged(AS1PuzzleButton_Gimmick* NewNearest);
+	void HandleNearestInteractableChanged(AActor* NewNearest);
 
 	UFUNCTION()
 	void HandleInteractPromptHideAnimationFinished();
+
+	UFUNCTION()
+	void HandleRespawnPromptHideAnimationFinished();
+
+	// ASC->RegisterGameplayTagEvent 콜백 — State.Dead.CanRespawn 부여/해제 시 호출
+	void HandleCanRespawnTagChanged(const FGameplayTag Tag, int32 NewCount);
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -73,6 +85,17 @@ private:
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	TObjectPtr<UWidgetAnimation> Anim_InteractPrompt_FadeOut;
 
+	// State.Dead.CanRespawn 부여 시 노출되는 리스폰 프롬프트(Button+이미지) — 클릭 처리는 US1RespawnPrompt
+	// 자신이 하므로, 여기(부모)서는 Show/Hide+Animation만 담당.
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<US1RespawnPrompt> RespawnPrompt;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> Anim_RespawnPrompt_FadeIn;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> Anim_RespawnPrompt_FadeOut;
+
 private:
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<AS1BossBase>> BoundBosses;
@@ -82,4 +105,7 @@ private:
 
 	UPROPERTY(Transient)
 	TWeakObjectPtr<US1InteractComponent> BoundInteractComponent;
+
+	// ASC->RegisterGameplayTagEvent 구독 해제용
+	FDelegateHandle CanRespawnTagEventHandle;
 };
