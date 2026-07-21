@@ -2,7 +2,9 @@
 
 
 #include "Character/Player/S1Player.h"
+#include "S1Define.h"
 #include "S1Enums.h"
+#include "Animation/NotifyState/S1AnimNotifyState_MoveEvent.h"
 #include "Camera/S1PlayerCameraComponent.h"
 #include "Component/S1LockOnComponent.h"
 #include "Component/S1DissolveComponent.h"
@@ -939,6 +941,52 @@ void AS1Player::AddMovementInput(FVector WorldDirection, float ScaleValue, bool 
 void AS1Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	CheckActionMoveBlocked();
+}
+
+void AS1Player::CheckActionMoveBlocked()
+{
+	UCharacterMovementComponent* CMC = GetCharacterMovement();
+	if (nullptr == CMC)
+	{
+		return;
+	}
+
+	// 액션(공격/대시) 이동 RootMotion이 진행 중일 때만 검사 — HitLaunch 등 다른 루트모션엔 관여하지 않음
+	if (false == CMC->GetRootMotionSource(US1AnimNotifyState_MoveEvent::RootMotionSourceName).IsValid())
+	{
+		return;
+	}
+
+	FVector Direction = GetVelocity();
+	Direction.Z = 0.f;
+	if (Direction.IsNearlyZero())
+	{
+		return;
+	}
+	Direction.Normalize();
+
+	const FVector Center = GetCapsuleComponent()->GetComponentLocation();
+	const float   Radius = GetCapsuleComponent()->GetScaledCapsuleRadius();
+
+	FCollisionObjectQueryParams ObjectParams(ActionMoveBlockCheckChannel);
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(ActionMoveBlockCheck), false, this);
+
+	FHitResult Hit;
+	const bool bBlocked = GetWorld()->SweepSingleByObjectType(
+		Hit,
+		Center,
+		Center + Direction * ActionMoveBlockCheckDistance,
+		FQuat::Identity,
+		ObjectParams,
+		FCollisionShape::MakeSphere(Radius),
+		QueryParams);
+
+	if (bBlocked)
+	{
+		CMC->RemoveRootMotionSource(US1AnimNotifyState_MoveEvent::RootMotionSourceName);
+	}
 }
 
 // ── Ultimate 컷씬 (시전 클라 로컬 프레젠테이션) ──────────────────────────

@@ -19,6 +19,9 @@ public:
 	// 이동 거리 — GA가 활성화 시점에 몽타주를 스캔해 읽는 데이터 (LocalPredicted 예측 루트모션용)
 	float GetMoveDistance() const { return MoveDistance; }
 
+	// 이 노티파이/AbilityTask가 적용하는 RootMotionSource 식별자 — 이동 차단 판정(AS1Player)이 이 이름으로 소스를 찾아 제거
+	static const FName RootMotionSourceName;
+
 private:
 	UPROPERTY(EditAnywhere, Category = "MoveEvent")
 	FGameplayTag MoveBeginEventTag;
