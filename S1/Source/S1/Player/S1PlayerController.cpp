@@ -23,6 +23,7 @@
 #include "System/S1UIManager.h"
 #include "UI/Menu/S1Inventory_ItemInfo.h"
 #include "UI/S1RootWidget.h"
+#include "System/S1SoundManager.h"
 #include "S1LogChannels.h"
 
 AS1PlayerController::AS1PlayerController(const FObjectInitializer& ObjectInitializer)
@@ -517,8 +518,6 @@ void AS1PlayerController::OnInteract(const FInputActionValue& Value)
 void AS1PlayerController::OnRespawnInput(const FInputActionValue& Value)
 {
 	TryRespawn();
-
-	LOG(TEXT("RESPAWN"));
 }
 
 void AS1PlayerController::TryRespawn()
@@ -534,6 +533,11 @@ void AS1PlayerController::TryRespawn()
 	if (::IsValid(S1Player))
 	{
 		S1Player->ServerPlayDissolve(false, RespawnFadeDuration);
+
+		if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+		{
+			SoundManager->PlaySoundAtLocationByTag(S1SoundTags::Sound_Player_Despawn, S1Player->GetActorLocation());
+		}
 	}
 
 	// 리스폰 프롬프트 UI(버튼/커서)를 확정 즉시 숨김 — 실제 ServerRespawn()은 FadeOut이 끝난 뒤에야 호출되므로
@@ -641,6 +645,11 @@ void AS1PlayerController::ServerRespawn_Implementation()
 
 	Possess(NewPawn);
 	SetViewTarget(NewPawn);
+
+	if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+	{
+		SoundManager->PlaySoundAtLocationByTag(S1SoundTags::Sound_Player_Respawn, S1Player->GetActorLocation());
+	}
 }
 
 void AS1PlayerController::OnChangeLockOnSide(const FInputActionValue& Value)

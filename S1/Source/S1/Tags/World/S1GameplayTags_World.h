@@ -17,6 +17,9 @@ namespace S1SoundTags
 #pragma region PlayerSound
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Player_Female_LevelUp);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Player_Male_LevelUp);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Player_Despawn);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Player_Respawn);
 #pragma endregion
 
 #pragma region HitSound
@@ -36,6 +39,10 @@ namespace S1SoundTags
 
 #pragma region BossSound
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Boss_GuardBlock);
+#pragma endregion
+
+#pragma region InteractionSound
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Interaction_RespawnPillar);
 #pragma endregion
 
 #pragma region GimmickSound

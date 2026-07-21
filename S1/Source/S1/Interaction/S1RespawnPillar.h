@@ -52,6 +52,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "RespawnPillar")
 	FGameplayTag SpawnPointTag;
 
+	UPROPERTY(EditAnywhere, Category = "RespawnPillar|Sound")
+	FGameplayTag InteractionSoundTag;
+
 	// 머티리얼의 활성화 Scalar 파라미터 이름 — BP에서 머티리얼에 맞게 재지정 가능.
 	UPROPERTY(EditDefaultsOnly, Category = "RespawnPillar|Visual")
 	FName ActivatedParamName = TEXT("Activate");

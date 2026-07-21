@@ -15,6 +15,9 @@ namespace S1SoundTags
 #pragma region PlayerSound
 	UE_DEFINE_GAMEPLAY_TAG(Sound_Player_Female_LevelUp, "Sound.Player.Female.LevelUp");
 	UE_DEFINE_GAMEPLAY_TAG(Sound_Player_Male_LevelUp, "Sound.Player.Male.LevelUp");
+
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Player_Despawn, "Sound.Player.Despawn");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Player_Respawn, "Sound.Player.Respawn");
 #pragma endregion
 
 #pragma region HitSound
@@ -34,6 +37,10 @@ namespace S1SoundTags
 
 #pragma region BossSound
 	UE_DEFINE_GAMEPLAY_TAG(Sound_Boss_GuardBlock, "Sound.Boss.GuardBlock");
+#pragma endregion
+
+#pragma region InteractionSound
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Interaction_RespawnPillar, "Sound.Interaction.RespawnPillar");
 #pragma endregion
 
 #pragma region GimmickSound
