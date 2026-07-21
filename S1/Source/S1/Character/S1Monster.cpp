@@ -52,9 +52,12 @@ void AS1Monster::BeginPlay()
 
 void AS1Monster::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (US1MonsterManager* MonsterManager = GetWorld()->GetSubsystem<US1MonsterManager>())
+	if (UWorld* World = GetWorld())
 	{
-		MonsterManager->UnregisterMonster(this);
+		if (US1MonsterManager* MonsterManager = World->GetSubsystem<US1MonsterManager>())
+		{
+			MonsterManager->UnregisterMonster(this);
+		}
 	}
 
 	UninitializeAttackCollisions();

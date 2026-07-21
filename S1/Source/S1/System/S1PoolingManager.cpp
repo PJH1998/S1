@@ -25,17 +25,9 @@ void US1PoolingManager::OnWorldBeginPlay(UWorld& InWorld)
 
 void US1PoolingManager::Deinitialize()
 {
-	for (auto& Pair : Pool)
-	{
-		for (AActor* Actor : Pair.Value)
-		{
-			if (IsValid(Actor))
-			{
-				Actor->Destroy();
-			}
-		}
-	}
-
+	// 월드 전체가 정리되는 시점(UWorld::CleanupWorld)에만 호출되므로,
+	// 풀에 남은 액터를 여기서 Destroy()하면 이미 진행 중인 월드 종료 절차와 경합한다.
+	// 레벨과 함께 자연히 GC되도록 컨테이너만 비운다.
 	Pool.Empty();
 	WorldToPoolTags.Empty();
 	LocalPoolTags.Empty();
