@@ -10,11 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/RootMotionSource.h"
 
-namespace
-{
-	// 노티파이 루트모션 소스 식별자 (조기 중단 시 이름으로 제거)
-	static const FName MoveEventRootMotionName(TEXT("S1MoveEvent"));
-}
+const FName US1AnimNotifyState_MoveEvent::RootMotionSourceName(TEXT("S1MoveEvent"));
 
 void US1AnimNotifyState_MoveEvent::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
@@ -63,7 +59,7 @@ void US1AnimNotifyState_MoveEvent::NotifyBegin(USkeletalMeshComponent* MeshComp,
 	const float Speed = MoveDistance / TotalDuration;	// 음수 = 후방 이동
 
 	TSharedPtr<FRootMotionSource_ConstantForce> Force = MakeShared<FRootMotionSource_ConstantForce>();
-	Force->InstanceName        = MoveEventRootMotionName;
+	Force->InstanceName        = RootMotionSourceName;
 	Force->AccumulateMode      = ERootMotionAccumulateMode::Override;
 	Force->Priority            = 5;
 	Force->Force               = Character->GetActorForwardVector() * Speed;
@@ -99,6 +95,6 @@ void US1AnimNotifyState_MoveEvent::NotifyEnd(USkeletalMeshComponent* MeshComp, U
 	// 조기 중단(몽타주 인터럽트) 대비 — 전체 머신에서 루트모션 소스 제거 (정상 종료 시엔 이미 만료)
 	if (UCharacterMovementComponent* CMC = Character->GetCharacterMovement())
 	{
-		CMC->RemoveRootMotionSource(MoveEventRootMotionName);
+		CMC->RemoveRootMotionSource(RootMotionSourceName);
 	}
 }

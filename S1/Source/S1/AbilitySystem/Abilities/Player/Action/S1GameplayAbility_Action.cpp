@@ -337,7 +337,7 @@ void US1GameplayAbility_Action::ApplyMontageRootMotion(UAnimMontage* Montage, fl
 
 	MoveTask = UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
 		this,
-		NAME_None,
+		US1AnimNotifyState_MoveEvent::RootMotionSourceName,
 		MoveDir,
 		Speed,
 		TotalDuration,

@@ -6,6 +6,7 @@
 #include "Character/S1Character.h"
 #include "Data/S1InputData.h"
 #include "GameplayPrediction.h"
+#include "S1Define.h"
 #include "S1Enums.h"
 #include "S1Player.generated.h"
 
@@ -285,6 +286,15 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float SprintSpeed = 1000.f;
+
+	// 돌진성 액션 RootMotion(공격/대시) 이동 중 몬스터를 관통해 미끄러지는 것 방지 — 매 틱 이동방향 스윕
+	void CheckActionMoveBlocked();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|ActionMoveBlock")
+	TEnumAsByte<ECollisionChannel> ActionMoveBlockCheckChannel = S1CollisionChannel::CC_Monster;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|ActionMoveBlock")
+	float ActionMoveBlockCheckDistance = 60.f;
 
 	// 소유 클라는 로컬 예측값 유지(COND_SkipOwner), 타 클라/서버 애니메이션용 복제
 	UPROPERTY(Replicated)
