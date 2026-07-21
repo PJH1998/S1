@@ -5,6 +5,8 @@
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 #include "System/S1UIManager.h"
+#include "System/S1SoundManager.h"
+#include "Tags/S1GameplayTags.h"
 
 US1Logo::US1Logo(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -36,6 +38,11 @@ FReply US1Logo::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
 	{
 		OnLogoClickBeginDelegate.Broadcast();
+
+		if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+		{
+			SoundManager->PlaySoundByTag(S1SoundTags::Sound_UI_Click);
+		}
 
 		if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
 		{

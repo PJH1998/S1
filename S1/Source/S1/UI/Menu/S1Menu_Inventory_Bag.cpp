@@ -11,6 +11,7 @@
 #include "S1DataTableTypes.h"
 #include "Tags/S1GameplayTags.h"
 #include "System/S1ItemManager.h"
+#include "System/S1SoundManager.h"
 #include "UI/Menu/S1Inventory_Slot.h"
 #include "UI/Menu/S1Menu_Inventory.h"
 
@@ -78,12 +79,22 @@ void US1Menu_Inventory_Bag::OnTabEquipClicked()
 {
 	ActiveTab = ES1InventoryBagTab::Equip;
 	RefreshSlots();
+	PlayClickSound();
 }
 
 void US1Menu_Inventory_Bag::OnTabOtherClicked()
 {
 	ActiveTab = ES1InventoryBagTab::Other;
 	RefreshSlots();
+	PlayClickSound();
+}
+
+void US1Menu_Inventory_Bag::PlayClickSound() const
+{
+	if (US1SoundManager* SoundManager = GetWorld() ? GetWorld()->GetSubsystem<US1SoundManager>() : nullptr)
+	{
+		SoundManager->PlaySoundByTag(S1SoundTags::Sound_UI_Click);
+	}
 }
 
 void US1Menu_Inventory_Bag::OnInventoryChanged()
@@ -140,6 +151,11 @@ void US1Menu_Inventory_Bag::OnSlotRightClicked(FGameplayTag ItemTag, int32 SlotI
 	if (US1EquipComponent* EquipComponent = PlayerState->GetEquipComponent())
 	{
 		EquipComponent->RequestEquipItem(ItemTag);
+
+		if (US1SoundManager* SoundManager = GetWorld() ? GetWorld()->GetSubsystem<US1SoundManager>() : nullptr)
+		{
+			SoundManager->PlaySoundByTag(S1SoundTags::Sound_UI_Confirm);
+		}
 	}
 }
 

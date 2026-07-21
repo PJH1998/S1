@@ -8,6 +8,7 @@
 
 #include "Tags/S1GameplayTags.h"
 #include "System/S1AssetManager.h"
+#include "System/S1SoundManager.h"
 #include "Data/S1UIData.h"
 
 US1RootWidget_Gameplay::US1RootWidget_Gameplay(const FObjectInitializer& ObjectInitializer)
@@ -50,6 +51,12 @@ void US1RootWidget_Gameplay::ShowMenu(const FGameplayTag& UITag)
 	{
 		const ESlateVisibility NewVisibility = Menu_Inventory->IsVisible() ? ESlateVisibility::Collapsed : ESlateVisibility::Visible;
 		Menu_Inventory->SetVisibility(NewVisibility);
+
+		if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+		{
+			const bool bOpened = (NewVisibility == ESlateVisibility::Visible);
+			SoundManager->PlaySoundByTag(bOpened ? S1SoundTags::Sound_UI_Menu_Open : S1SoundTags::Sound_UI_Menu_Close);
+		}
 
 		if (NewVisibility == ESlateVisibility::Visible)
 		{

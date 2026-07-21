@@ -9,6 +9,7 @@
 #include "S1DataTableTypes.h"
 #include "System/S1AssetManager.h"
 #include "System/S1ItemManager.h"
+#include "System/S1SoundManager.h"
 #include "Tags/S1GameplayTags.h"
 
 void US1SelectWeapon_Slot::NativeConstruct()
@@ -69,6 +70,12 @@ FReply US1SelectWeapon_Slot::NativeOnMouseButtonDown(const FGeometry& InGeometry
 	{
 		SetSelected(true);
 		OnSlotClicked.Broadcast();
+
+		if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+		{
+			SoundManager->PlaySoundByTag(S1SoundTags::Sound_UI_CharacterSelect);
+		}
+
 		return FReply::Handled();
 	}
 

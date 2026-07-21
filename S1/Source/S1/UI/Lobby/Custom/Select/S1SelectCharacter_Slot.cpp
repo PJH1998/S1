@@ -4,6 +4,8 @@
 #include "S1SelectCharacter_Slot.h"
 #include "Components/Image.h"
 #include "Engine/Texture2D.h"
+#include "System/S1SoundManager.h"
+#include "Tags/S1GameplayTags.h"
 
 void US1SelectCharacter_Slot::NativeConstruct()
 {
@@ -50,6 +52,12 @@ FReply US1SelectCharacter_Slot::NativeOnMouseButtonDown(const FGeometry& InGeome
 	{
 		SetSelected(true);
 		OnSlotClicked.Broadcast();
+
+		if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+		{
+			SoundManager->PlaySoundByTag(S1SoundTags::Sound_UI_CharacterSelect);
+		}
+
 		return FReply::Handled();
 	}
 

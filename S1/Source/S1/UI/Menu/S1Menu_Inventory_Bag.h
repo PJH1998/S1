@@ -58,6 +58,7 @@ private:
 	void EnsureInventoryBound();
 	bool PassesTabFilter(const FGameplayTag& ItemType) const;
 	AS1PlayerState* GetOwnerPlayerState() const;
+	void PlayClickSound() const;
 
 private:
 	UPROPERTY(meta = (BindWidget))

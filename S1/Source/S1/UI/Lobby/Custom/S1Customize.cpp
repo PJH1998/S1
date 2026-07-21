@@ -10,6 +10,7 @@
 #include "System/S1SoundManager.h"
 #include "TimerManager.h"
 #include "Engine/World.h"
+#include "Tags/S1GameplayTags.h"
 
 US1Customize::US1Customize(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -61,6 +62,7 @@ void US1Customize::OnStartClicked()
 
 	if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
 	{
+		SoundManager->PlaySoundByTag(S1SoundTags::Sound_UI_Confirm);
 		SoundManager->StopBGM();
 	}
 }

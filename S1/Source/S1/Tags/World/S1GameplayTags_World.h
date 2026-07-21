@@ -41,6 +41,12 @@ namespace S1SoundTags
 	// leaf는 UI.Icon.Announce.* 의 leaf와 일치해야 함 — US1Announce::ShowAnnounce에서 조합해 조회.
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_UI_Announce_BossCleared);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_UI_Announce_QuestCleared);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_UI_Click);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_UI_Confirm);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_UI_CharacterSelect);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_UI_Menu_Open);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_UI_Menu_Close);
 #pragma endregion
 
 #pragma region BGM

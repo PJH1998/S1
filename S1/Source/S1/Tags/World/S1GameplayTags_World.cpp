@@ -38,6 +38,12 @@ namespace S1SoundTags
 #pragma region UISound
 	UE_DEFINE_GAMEPLAY_TAG(Sound_UI_Announce_BossCleared, "Sound.UI.Announce.BossCleared");
 	UE_DEFINE_GAMEPLAY_TAG(Sound_UI_Announce_QuestCleared, "Sound.UI.Announce.QuestCleared");
+
+	UE_DEFINE_GAMEPLAY_TAG(Sound_UI_Click, "Sound.UI.Click");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_UI_Confirm, "Sound.UI.Confirm");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_UI_CharacterSelect, "Sound.UI.CharacterSelect");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_UI_Menu_Open, "Sound.UI.Menu.Open");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_UI_Menu_Close, "Sound.UI.Menu.Close");
 #pragma endregion
 
 #pragma region BGM
