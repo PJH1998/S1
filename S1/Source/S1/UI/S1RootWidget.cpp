@@ -16,6 +16,18 @@ US1RootWidget::US1RootWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	PanelSlots.SetNum(static_cast<int32>(UI_TYPE::END));
+	PanelWidgets.SetNum(static_cast<int32>(UI_TYPE::END));
+}
+
+US1BaseWidget* US1RootWidget::GetPanelWidget(UI_TYPE PanelType) const
+{
+	const int32 LocalType = static_cast<int32>(PanelType);
+	if (false == PanelWidgets.IsValidIndex(LocalType))
+	{
+		return nullptr;
+	}
+
+	return PanelWidgets[LocalType];
 }
 
 UCanvasPanel* US1RootWidget::GetCanvasPanel(UI_TYPE PanelType) const

@@ -175,6 +175,13 @@ void US1HUD_Gameplay::HandleHideAnimationFinished()
 
 void US1HUD_Gameplay::BindInteractEvents()
 {
+	// 재호출 대비 — 옛(파괴됐을 수 있는) Pawn의 컴포넌트에 남아있던 구독 해제.
+	if (US1InteractComponent* OldInteractComp = BoundInteractComponent.Get())
+	{
+		OldInteractComp->OnNearestInteractableChanged.RemoveDynamic(this, &ThisClass::HandleNearestInteractableChanged);
+	}
+	BoundInteractComponent = nullptr;
+
 	APawn* OwningPawn = GetOwningPlayerPawn();
 	US1InteractComponent* InteractComp = ::IsValid(OwningPawn) ? OwningPawn->FindComponentByClass<US1InteractComponent>() : nullptr;
 	if (InteractComp == nullptr)
@@ -184,6 +191,9 @@ void US1HUD_Gameplay::BindInteractEvents()
 
 	InteractComp->OnNearestInteractableChanged.AddDynamic(this, &ThisClass::HandleNearestInteractableChanged);
 	BoundInteractComponent = InteractComp;
+
+	// 새 Pawn 기준으로 프롬프트 상태도 즉시 갱신(재바인딩 시점엔 아직 오버랩 이벤트가 안 왔을 수 있어 nullptr 취급).
+	HandleNearestInteractableChanged(InteractComp->GetNearestInteractable());
 }
 
 void US1HUD_Gameplay::SetUpInteractPrompt()

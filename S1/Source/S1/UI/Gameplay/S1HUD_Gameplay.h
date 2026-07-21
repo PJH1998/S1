@@ -24,6 +24,11 @@ class S1_API US1HUD_Gameplay : public US1BaseWidget
 public:
 	US1HUD_Gameplay(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	// 리스폰으로 Pawn이 바뀌면 GetOwningPlayerPawn()도 새 Pawn을 가리키게 되지만, NativeConstruct 때 1회
+	// 바인딩해둔 델리게이트는 옛(파괴된) Pawn의 InteractComponent를 그대로 구독 중이라 새 Pawn 걸로
+	// 다시 불러줘야 함(AS1PlayerController::AcknowledgePossession에서 호출) — 재호출해도 안전(기존 바인딩 해제 후 재바인딩).
+	void BindInteractEvents();
+
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
@@ -35,7 +40,6 @@ private:
 	void ShowBossUI(AS1BossBase* InBoss);
 	void HideBossUI(AS1BossBase* InBoss);
 
-	void BindInteractEvents();
 	void SetUpInteractPrompt();
 
 	void ShowInteractPrompt();

@@ -21,6 +21,7 @@
 
 #include "System/S1GameInstance.h"
 #include "System/S1UIManager.h"
+#include "UI/Gameplay/S1HUD_Gameplay.h"
 #include "UI/Menu/S1Inventory_ItemInfo.h"
 #include "UI/S1RootWidget.h"
 #include "System/S1SoundManager.h"
@@ -225,6 +226,20 @@ void AS1PlayerController::AcknowledgePossession(APawn* P)
 	if (::IsValid(CharacterSelectComponent))
 	{
 		CharacterSelectComponent->HandleGameplayPawnPossessed();
+	}
+
+	// 리스폰으로 Pawn이 바뀔 때마다 HUD의 InteractComponent 구독을 새 Pawn 걸로 다시 걸어줌 —
+	// HUD는 세션 내내 재사용되고 NativeConstruct에서 1회만 바인딩해서, 안 해주면 옛(파괴된) Pawn의
+	// 델리게이트를 계속 구독한 채로 남아 상호작용 프롬프트가 다시는 안 뜸.
+	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
+	{
+		if (US1RootWidget* Root = UIManager->GetRootWidget())
+		{
+			if (US1HUD_Gameplay* HUD = Cast<US1HUD_Gameplay>(Root->GetPanelWidget(UI_TYPE::HUD)))
+			{
+				HUD->BindInteractEvents();
+			}
+		}
 	}
 }
 
