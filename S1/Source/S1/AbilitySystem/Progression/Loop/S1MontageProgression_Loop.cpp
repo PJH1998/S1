@@ -190,7 +190,14 @@ void US1MontageProgression_Loop::PlayLoopMontage()
 		return;
 	}
 
+	// OnProgressionLoopStarted는 Loop 진입 시(사이클 반복 아님) 1회만 — 이벤트 경로/BlendingOut 폴백 경로 둘 다 여기로 모이므로
+	// 어느 경로를 쓰든 정확히 한 번만 불리도록 여기서 처리한다.
+	const bool bWasInLoopPhase = bInLoopPhase;
 	bInLoopPhase = true;
+	if (false == bWasInLoopPhase && GA.IsValid())
+	{
+		GA->OnProgressionLoopStarted();
+	}
 
 	if (LoopCycleEventTag.IsValid())
 	{
@@ -323,10 +330,6 @@ void US1MontageProgression_Loop::OnLoopStartEventReceived(const FGameplayEventDa
 	else
 	{
 		PlayLoopMontage();
-		if (GA.IsValid())
-		{
-			GA->OnProgressionLoopStarted();
-		}
 	}
 }
 

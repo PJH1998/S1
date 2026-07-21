@@ -12,7 +12,7 @@ namespace S1AbilityTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Move_Dodge);
 	#pragma endregion
 
-	#pragma region Attack
+	#pragma region Action
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Ground);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Air);
@@ -23,13 +23,18 @@ namespace S1AbilityTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill03);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Skill04);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Assault);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Attack_Ultimate);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Action_HealItem);
 	#pragma endregion
 
 	#pragma region Hit
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Hit_Weak);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Hit_Strong);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Hit_ToAir);
+	#pragma endregion
+
+	#pragma region Death
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Death);
 	#pragma endregion
 #pragma endregion
 
@@ -91,12 +96,16 @@ namespace S1HitType
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Strong);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_ToAir);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Guard);
+
+	// 사망 시(HP<=0) 원래 피격 타입과 무관하게 이 태그 하나만 발송 — GA_Death는 애니메이션 제약상 단일 클래스
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(HitType_Death);
 }
 
 namespace S1StateTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Action);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_CanNextAttack);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_CanUltimate);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air);
 
 	// 상위 태그 — State.Air 하위가 아니라 별도 트리라서(State.Used.Air.*), 착지 시 State.Air와 별개로 이 트리도 같이 정리해야 함
@@ -118,6 +127,10 @@ namespace S1StateTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_Launch);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_Knockdown);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Hit_GetUp);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Dead);
+	// Death 몽타주가 Loop 구간에 진입한 뒤에만 부여 — 이 태그가 있을 때만 리스폰 입력을 받는다.
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Dead_CanRespawn);
 }
 
 namespace S1EventTags

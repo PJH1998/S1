@@ -10,6 +10,7 @@
 #include "System/S1HitLagManager.h"
 #include "System/S1SoundManager.h"
 #include "AbilitySystem/S1HitReactLibrary.h"
+#include "Character/Player/S1Player.h"
 #include "Tags/S1GameplayTags.h"
 #include "S1LogChannels.h"
 #include "S1Define.h"
@@ -17,6 +18,12 @@
 void US1PlayerSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
+
+	if (Attribute == GetCurrentUltimateGaugeAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxUltimateGauge());
+		return;
+	}
 
 	if (Attribute != GetHealthAttribute() || NewValue >= GetHealth())
 	{
@@ -95,6 +102,10 @@ void US1PlayerSet::InitAttributeFromTable(const FGameplayTag& AssetTag, const FG
 
 	InitMaxXP(Row->MaxXP);
 	InitCurrentXP(0.f);
+
+	InitMaxUltimateGauge(Row->MaxUltimateGauge);
+	InitCurrentUltimateGauge(0.f);
+	UpdateCanUltimateTag();
 }
 
 void US1PlayerSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -149,11 +160,18 @@ void US1PlayerSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackDat
 					Attacker = Data.EffectSpec.GetContext().GetInstigator();
 				}
 
-				FGameplayEventData Payload;
-				Payload.EventTag   = HitTypeTag;
-				Payload.Instigator = Attacker;
-				Payload.Target     = Avatar;
-				ASC->HandleGameplayEvent(HitTypeTag, &Payload);
+				// HP 0 이하면 Hit 대신 Death GA를 트리거(둘은 상호 배타적) — 원래 피격 타입과 무관하게 GA_Death 하나만 실행(애니메이션 제약).
+				const bool bIsDead = GetHealth() <= 0.f;
+				const FGameplayTag TriggerTag = bIsDead ? S1HitType::HitType_Death : HitTypeTag;
+
+				if (TriggerTag.IsValid())
+				{
+					FGameplayEventData Payload;
+					Payload.EventTag   = TriggerTag;
+					Payload.Instigator = Attacker;
+					Payload.Target     = Avatar;
+					ASC->HandleGameplayEvent(TriggerTag, &Payload);
+				}
 
 				const FGameplayTag SoundBaseTag = S1HitReactLibrary::FindSoundBaseTag(Data.EffectSpec);
 				US1SoundManager* SoundManager = Avatar->GetWorld()->GetSubsystem<US1SoundManager>();
@@ -195,6 +213,8 @@ void US1PlayerSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME_CONDITION_NOTIFY(US1PlayerSet, CurrentXP, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(US1PlayerSet, MaxXP, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(US1PlayerSet, Level, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(US1PlayerSet, CurrentUltimateGauge, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(US1PlayerSet, MaxUltimateGauge, COND_None, REPNOTIFY_Always);
 }
 
 void US1PlayerSet::OnRep_CurrentXP(const FGameplayAttributeData& OldCurrentXP)
@@ -212,6 +232,47 @@ void US1PlayerSet::OnRep_Level(const FGameplayAttributeData& OldLevel)
 	GAMEPLAYATTRIBUTE_REPNOTIFY(US1PlayerSet, Level, OldLevel);
 }
 
+void US1PlayerSet::OnRep_CurrentUltimateGauge(const FGameplayAttributeData& OldCurrentUltimateGauge)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(US1PlayerSet, CurrentUltimateGauge, OldCurrentUltimateGauge);
+}
+
+void US1PlayerSet::OnRep_MaxUltimateGauge(const FGameplayAttributeData& OldMaxUltimateGauge)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(US1PlayerSet, MaxUltimateGauge, OldMaxUltimateGauge);
+}
+
+void US1PlayerSet::AddUltimateGauge(float Amount)
+{
+	const float NewGauge = FMath::Clamp(GetCurrentUltimateGauge() + Amount, 0.f, GetMaxUltimateGauge());
+	SetCurrentUltimateGauge(NewGauge);
+	UpdateCanUltimateTag();
+}
+
+void US1PlayerSet::ResetUltimateGauge()
+{
+	SetCurrentUltimateGauge(0.f);
+	UpdateCanUltimateTag();
+}
+
+void US1PlayerSet::UpdateCanUltimateTag()
+{
+	UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+	if (nullptr == ASC)
+	{
+		return;
+	}
+
+	if (GetCurrentUltimateGauge() >= GetMaxUltimateGauge())
+	{
+		ASC->AddLooseGameplayTag(S1StateTags::State_CanUltimate, 1, EGameplayTagReplicationState::TagOnly);
+	}
+	else
+	{
+		ASC->RemoveLooseGameplayTag(S1StateTags::State_CanUltimate, 1, EGameplayTagReplicationState::TagOnly);
+	}
+}
+
 void US1PlayerSet::LevelUp()
 {
 	const float CarryOverXP = GetCurrentXP() - GetMaxXP();
@@ -223,6 +284,12 @@ void US1PlayerSet::LevelUp()
 
 	// InitAttributeFromTable이 CurrentXP를 0으로 리셋하므로 이후에 이월 XP 세팅
 	InitCurrentXP(FMath::Max(0.f, CarryOverXP));
+
+	UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+	if (AS1Player* Player = ASC ? Cast<AS1Player>(ASC->GetAvatarActor()) : nullptr)
+	{
+		Player->MulticastPlayLevelUpPresentation();
+	}
 
 	LOG(TEXT("LEVEL UP!"));
 }

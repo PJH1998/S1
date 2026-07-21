@@ -23,6 +23,11 @@ AS1PuzzleButton_Gimmick::AS1PuzzleButton_Gimmick()
 	InteractionCollision->SetGenerateOverlapEvents(true);
 }
 
+void AS1PuzzleButton_Gimmick::Interact(AActor* Interactor)
+{
+	PressButton();
+}
+
 void AS1PuzzleButton_Gimmick::SetConnectedPillars(const TArray<AS1TogglePillar_Gimmick*>& InPillars)
 {
 	ConnectedPillars.Reset(InPillars.Num());

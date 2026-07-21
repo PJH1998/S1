@@ -12,6 +12,11 @@ namespace S1PoolingTags
 
 namespace S1SoundTags
 {
+#pragma region PlayerSound
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Player_Female_LevelUp, "Sound.Player.Female.LevelUp");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Player_Male_LevelUp, "Sound.Player.Male.LevelUp");
+#pragma endregion
+
 #pragma region HitSound
 	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_RPR_Weak, "Sound.Hit.RPR.Weak");
 	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_RPR_Strong, "Sound.Hit.RPR.Strong");
@@ -73,6 +78,9 @@ namespace S1EffectTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Aura01, "Effect.Player.Aura01");
 	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_Aura02, "Effect.Player.Aura02");
+
+	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_StatUp, "Effect.Player.StatUp");
+	UE_DEFINE_GAMEPLAY_TAG(Effect_Player_LevelUp, "Effect.Player.LevelUp");
 #pragma endregion
 
 #pragma region SWD
@@ -108,4 +116,10 @@ namespace S1CharacterTag
 {
 	UE_DEFINE_GAMEPLAY_TAG(Charcter_Select_Asna, "Character.Select.Asna");
 	UE_DEFINE_GAMEPLAY_TAG(Charcter_Select_Kirito, "Character.Select.Kirito");
+}
+
+namespace S1SpawnTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(Spawn_Main_Default, "Spawn.Main.Default");
+	UE_DEFINE_GAMEPLAY_TAG(Spawn_Main_Boss01, "Spawn.Main.Boss01");
 }

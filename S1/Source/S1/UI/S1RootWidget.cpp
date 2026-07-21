@@ -1,7 +1,8 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "UI/S1RootWidget.h"
+#include "GameFramework/PlayerController.h"
 #include "System/S1UIManager.h"
 #include "UI/Cursor/S1Cursor.h"
 #include "UI/Fade/S1Fade.h"

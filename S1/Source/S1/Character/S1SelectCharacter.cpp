@@ -42,7 +42,6 @@ AS1SelectCharacter::AS1SelectCharacter()
 	PreviewCapture->bCaptureEveryFrame = true;
 	PreviewCapture->bCaptureOnMovement = false;
 	PreviewCapture->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
-	PreviewCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
 }
 
 void AS1SelectCharacter::BeginPlay()
@@ -67,7 +66,6 @@ void AS1SelectCharacter::BeginPlay()
 		}
 
 		PreviewCapture->TextureTarget = GetPreviewRenderTarget();
-		PreviewCapture->ShowOnlyActors.AddUnique(this);
 	}
 }
 
@@ -117,20 +115,12 @@ void AS1SelectCharacter::ChangeWeapon(const FGameplayTag& WeaponTag)
 {
 	if (::IsValid(EquippedWeapon))
 	{
-		if (::IsValid(PreviewCapture))
-		{
-			PreviewCapture->ShowOnlyActors.Remove(EquippedWeapon);
-		}
 		EquippedWeapon->Destroy();
 		EquippedWeapon = nullptr;
 	}
 
 	if (::IsValid(EquippedOffhandWeapon))
 	{
-		if (::IsValid(PreviewCapture))
-		{
-			PreviewCapture->ShowOnlyActors.Remove(EquippedOffhandWeapon);
-		}
 		EquippedOffhandWeapon->Destroy();
 		EquippedOffhandWeapon = nullptr;
 	}
@@ -170,11 +160,6 @@ void AS1SelectCharacter::ChangeWeapon(const FGameplayTag& WeaponTag)
 		{
 			EquippedWeapon->AttachToComponent(BodyMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
 			EquippedWeapon->SetActorRelativeRotation(FRotator(0.f, 0.f, -90.f));
-
-			if (::IsValid(PreviewCapture))
-			{
-				PreviewCapture->ShowOnlyActors.AddUnique(EquippedWeapon);
-			}
 		}
 	}
 
@@ -196,11 +181,6 @@ void AS1SelectCharacter::ChangeWeapon(const FGameplayTag& WeaponTag)
 		{
 			EquippedOffhandWeapon->AttachToComponent(BodyMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, OffhandSocketName);
 			EquippedOffhandWeapon->SetActorRelativeRotation(FRotator(0.f, 0.f, -90.f));
-
-			if (::IsValid(PreviewCapture))
-			{
-				PreviewCapture->ShowOnlyActors.AddUnique(EquippedOffhandWeapon);
-			}
 		}
 	}
 }

@@ -17,7 +17,6 @@ class AS1PlayerController;
 class AS1Weapon;
 class US1LockOnComponent;
 class US1InteractComponent;
-class AS1PuzzleButton_Gimmick;
 class US1PlayerCameraComponent;
 class US1PlayerReactBridgeComponent;
 class US1WeaponAnimLayer;
@@ -27,6 +26,9 @@ class ULevelSequencePlayer;
 class ALevelSequenceActor;
 class ACineCameraActor;
 class UInputComponent;
+class AS1HealItem;
+class UGameplayEffect;
+class US1DissolveComponent;
 
 UCLASS()
 class S1_API AS1Player : public AS1Character
@@ -62,6 +64,9 @@ public:
 	// InteractComponent가 찾은 가장 가까운 버튼을 눌러본다(대상 없으면 아무 일도 안 함).
 	void			    TryInteract();
 
+	// GA_Death 전용 — 캡슐/메시류(Body/Hair/Face)/무기(Main/Offhand)/가상 판정 콜리전을 전부 비활성화한다.
+	void			    DisableCollisionForDeath();
+
 private:
 	// 입력 → 서버 라우팅 (ServerOnly GA — 서버에서 활성화/콤보/크로스 전부 처리)
 	// bInAir: 입력 시점 클라의 공중 상태 — 서버 이동상태 랙 보정용 (지상/공중 공격 정확 판정)
@@ -80,9 +85,9 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerNotifyJump();
 
-	// Interact 입력 → 서버 라우팅. 서버에서 거리 재검증 후 Target->PressButton() 호출.
+	// Interact 입력 → 서버 라우팅. 서버에서 거리 재검증 후 IS1InteractableInterface::Interact() 호출.
 	UFUNCTION(Server, Reliable)
-	void ServerInteract(AS1PuzzleButton_Gimmick* Target);
+	void ServerInteract(AActor* Target);
 
 	// 점프 GAS 처리 본체 — 소유 클라/서버 각 머신에서 로컬 실행
 	void HandleJumpGAS();
@@ -103,6 +108,32 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void ServerDebugTriggerHit(FGameplayTag HitTypeTag);
+
+	// 디버그 히트 트리거가 실제로 깎을 데미지 GE/수치 — HandleGameplayEvent 직접 호출 대신 이 GE를 적용해서
+	// PostGameplayEffectExecute의 Hit/Death 분기(HP<=0 감지)까지 실제 전투와 동일하게 태우기 위함.
+	UPROPERTY(EditDefaultsOnly, Category = "Debug")
+	TSubclassOf<UGameplayEffect> DebugDamageEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Debug")
+	float DebugDamageAmount = 30.f;
+
+	// 디버그 전용 — 키보드 0(넘패드 아님)으로 얼티밋 게이지 즉시 Max
+	void DebugSetUltimateGaugeMax();
+
+	UFUNCTION(Server, Reliable)
+	void ServerDebugSetUltimateGaugeMax();
+
+	// 디버그 전용 — 키보드 9(넘패드 아님)로 현재 HP 50% 감소
+	void DebugDamageSelf50Percent();
+
+	UFUNCTION(Server, Reliable)
+	void ServerDebugDamageSelf50Percent();
+
+	// 디버그 전용 — 키보드 8(넘패드 아님)로 강제 레벨업
+	void DebugForceLevelUp();
+
+	UFUNCTION(Server, Reliable)
+	void ServerDebugForceLevelUp();
 
 public:
 	AS1Weapon*		    GetEquippedWeapon()        const { return EquippedWeapon; }
@@ -125,6 +156,29 @@ public:
 	// Ultimate 취소 시 컷씬 즉시 중단 + 카메라 복귀
 	UFUNCTION(Client, Reliable)
 	void ClientStopUltimateCutscene();
+
+	// 힐 아이템 소품 — AS1HealItem을 로컬로 스폰해 소켓에 부착 후 AttachOffset(위치/회전/크기) 적용, Dissolve로 나타남
+	// (ItemMesh가 SetAbsolute로 소켓 회전과 디커플링돼 있어 AttachOffset의 Rotation이 곧 월드 회전 — 라이프타임 무제한, Notify가 명시적으로 디스폰)
+	void SpawnHealItem(TSubclassOf<AS1HealItem> HealItemClass, ES1AttackHand Hand, const FTransform& AttachOffset, const FRotator& RotationRate, float DissolveDuration);
+	// Dissolve로 사라진 뒤 액터가 스스로 Destroy됨
+	void DespawnHealItem(float DissolveDuration);
+
+	// 힐 몽타주가 끝까지 재생되지 못하고 중간에 끊긴 경우(피격 등)의 안전망 — GA_HealItem::EndAbility(서버)에서 항상 호출
+	// 아이템/무기 Dissolve 상태는 각 머신 로컬이라 Multicast로 전체 머신에서 각자 정리해야 함
+	// 아이템이 남아있으면 Dissolve로 정리하고, 무기가 Dissolve 아웃된 상태였다면 다시 보이게 복구
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastResetHealItemPresentation();
+
+	// 서버 권위(US1PlayerSet::LevelUp)에서 호출 — 전 클라에서 레벨업 이펙트+사운드 재생
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlayLevelUpPresentation();
+
+	// 리스폰용 본체 Dissolve — 클라(AS1PlayerController::TryRespawn)가 요청, 서버가 전 머신에 Multicast
+	UFUNCTION(Server, Reliable)
+	void ServerPlayDissolve(bool bAppear, float Duration);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlayDissolve(bool bAppear, float Duration);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -181,6 +235,22 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<US1PlayerReactBridgeComponent> ReactBridgeComponent;
+
+	// 현재 부착 중인 힐 아이템 소품 — SpawnHealItem이 스폰, DespawnHealItem 호출 후 Dissolve 완료 시 액터가 스스로 Destroy
+	UPROPERTY(Transient)
+	TObjectPtr<AS1HealItem> CurrentHealItem;
+
+	// 리스폰 시 Dissolve 연출 — 기존 무기/아이템과 동일 컴포넌트지만, 메시(Body/Hair/Face) 셋을 동시에 애니메이션해야 해서
+	// US1DissolveComponent 하나로는 안 됨(PlayDissolve 호출마다 내부 MID 배열을 그 메시 기준으로 새로 잡음 — 동시에 여러
+	// 메시 못 추적) → 메시당 컴포넌트 하나씩.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Respawn")
+	TObjectPtr<US1DissolveComponent> BodyDissolveComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Respawn")
+	TObjectPtr<US1DissolveComponent> HairDissolveComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Respawn")
+	TObjectPtr<US1DissolveComponent> FaceDissolveComponent;
 
 	// AtkCollision 노티파이의 가상 충돌체(구/반구용) — 기본 NoCollision, GA_Attack이 히트 윈도우에서만 켬
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VirtualCollision")

@@ -1,4 +1,5 @@
 #include "AbilitySystem/Abilities/Attack/Ultimate/S1GameplayAbility_Ultimate.h"
+#include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
 #include "Character/S1Monster.h"
 #include "Character/Player/S1Player.h"
 #include "System/S1MonsterManager.h"
@@ -18,6 +19,15 @@ US1GameplayAbility_Ultimate::US1GameplayAbility_Ultimate(const FObjectInitialize
 void US1GameplayAbility_Ultimate::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	bCutsceneActive = false;
+
+	// 발동 즉시 게이지 소모(0으로 리셋) — State.CanUltimate 제거로 다음 Z 입력은 다시 Skill04로 라우팅됨
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		if (US1PlayerSet* PlayerSet = const_cast<US1PlayerSet*>(Cast<US1PlayerSet>(ASC->GetAttributeSet(US1PlayerSet::StaticClass()))))
+		{
+			PlayerSet->ResetUltimateGauge();
+		}
+	}
 
 	// 몽타주(Progression)는 서버에서 재생 → 모든 클라 복제
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);

@@ -111,11 +111,13 @@ private:
 	void InternalMoveBeginCallback(const FGameplayEventData* Payload);
 	void InternalMoveEndCallback(const FGameplayEventData* Payload);
 
-	// 액션 중 상태 태그 (ex. State.Action)
+protected:
+	// 액션 중 상태 태그 (ex. State.Action) — AS1Player::AddMovementInput/Jump가 이 태그로 이동/점프를 막음.
+	// BP에서 안 채우면(또는 서브클래스가 비워두면) 이동이 안 막히므로 주의 — protected로 열어둬서 서브클래스
+	// 생성자에서 강제 지정 가능(ex. GA_Hit, EarlyMoveEventTag와 동일한 이유의 protected).
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	FGameplayTag ActionStateTag;
 
-protected:
 	// 이 이벤트 수신 시 OnEarlyMoveEnabled 호출 (empty = EarlyMove 비활성) — 서브클래스 생성자에서 비활성화할 수 있도록 protected(ex. GA_Hit)
 	UPROPERTY(EditDefaultsOnly, Category = "Action|EarlyMove")
 	FGameplayTag EarlyMoveEventTag;

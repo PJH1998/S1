@@ -17,6 +17,14 @@ void US1AbilitySystemComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 void US1AbilitySystemComponent::AddCharacterAbilities(const FGameplayTag& AssetTag)
 {
+	// 이미 부여된 그룹이면 재부여 안 함 — 안 막으면 리스폰처럼 같은 ASC에 PossessedBy가 다시 호출되는
+	// 경우(ASC는 PlayerState 소속이라 Pawn과 달리 리스폰에도 안 사라짐) 같은 어빌리티가 중복 부여되어
+	// GameplayEvent 트리거 시 여러 인스턴스가 동시에 활성화·서로 CancelAllAbilities로 취소하는 문제 발생.
+	if (GroupToSpecHandles.Contains(AssetTag))
+	{
+		return;
+	}
+
 	US1AbilityData* AbilityData = US1AssetManager::GetAssetByTag<US1AbilityData>(AssetTag);
 
 	TArray<FGameplayAbilitySpecHandle>& GroupHandles = GroupToSpecHandles.FindOrAdd(AssetTag);
@@ -117,6 +125,14 @@ bool US1AbilitySystemComponent::IsAbilityPredicted(const FGameplayTag& AbilityTa
 	{
 		FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(Handle);
 		if (nullptr == Spec || nullptr == Spec->Ability)
+		{
+			continue;
+		}
+
+		// 같은 AbilityTag 아래 정책이 다른 변형이 섞일 수 있음(예: Skill04 Ground/Air는 LocalPredicted,
+		// 게이지 Max 시 같은 태그로 묶이는 Ultimate는 ServerOnly) — 현재 Required/Blocked 태그를
+		// 실제로 만족하는 후보만 봐야 "지금 발동될 GA"의 정책을 올바르게 판정할 수 있음
+		if (false == Spec->Ability->DoesAbilitySatisfyTagRequirements(*this))
 		{
 			continue;
 		}

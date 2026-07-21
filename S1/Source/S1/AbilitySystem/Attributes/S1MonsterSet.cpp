@@ -3,6 +3,7 @@
 #include "AbilitySystem/Attributes/S1MonsterSet.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
 #include "Character/S1Monster.h"
 #include "Data/S1DataTableData.h"
 #include "Engine/World.h"
@@ -49,6 +50,15 @@ void US1MonsterSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackDa
 
 		// 데미지 폰트는 클라이언트 HP바(S1MonsterHPBar::NativeTick)에서 HP 감소를 감지하여 출력
 		// — PostGameplayEffectExecute는 서버 전용이므로 여기서 직접 호출하지 않음
+
+		// 공격한 플레이어의 얼티밋 게이지를 실제 적용된(방어력 반영) 데미지만큼 증가
+		if (UAbilitySystemComponent* SourceASC = Data.EffectSpec.GetContext().GetInstigatorAbilitySystemComponent())
+		{
+			if (US1PlayerSet* SourcePlayerSet = const_cast<US1PlayerSet*>(Cast<US1PlayerSet>(SourceASC->GetAttributeSet(US1PlayerSet::StaticClass()))))
+			{
+				SourcePlayerSet->AddUltimateGauge(-Data.EvaluatedData.Magnitude);
+			}
+		}
 	}
 
 	if (GetHealth() > 0.f)

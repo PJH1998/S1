@@ -74,4 +74,5 @@ namespace S1DataTableTags
 	UE_DEFINE_GAMEPLAY_TAG(DataTable_ItemData,    "DataTable.ItemData");
 	UE_DEFINE_GAMEPLAY_TAG(DataTable_HitLagData,  "DataTable.HitLagData");
 	UE_DEFINE_GAMEPLAY_TAG(DataTable_FootstepSound, "DataTable.FootstepSound");
+	UE_DEFINE_GAMEPLAY_TAG(DataTable_SpawnPoint,  "DataTable.SpawnPoint");
 }

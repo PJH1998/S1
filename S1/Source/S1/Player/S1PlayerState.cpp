@@ -61,11 +61,29 @@ void AS1PlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AS1PlayerState, SelectedCharacterTag);
+	DOREPLIFETIME(AS1PlayerState, LastSpawnPointTag);
+	DOREPLIFETIME(AS1PlayerState, SelectedWeaponTag);
 }
 
 void AS1PlayerState::SetSelectedCharacterTag(const FGameplayTag& InTag)
 {
 	SelectedCharacterTag = InTag;
+}
+
+void AS1PlayerState::SetLastSpawnPointTag(const FGameplayTag& InTag)
+{
+	LastSpawnPointTag = InTag;
+	OnLastSpawnPointTagChanged.Broadcast(LastSpawnPointTag);
+}
+
+void AS1PlayerState::OnRep_LastSpawnPointTag()
+{
+	OnLastSpawnPointTagChanged.Broadcast(LastSpawnPointTag);
+}
+
+void AS1PlayerState::SetSelectedWeaponTag(const FGameplayTag& InTag)
+{
+	SelectedWeaponTag = InTag;
 }
 
 void AS1PlayerState::CopyProperties(APlayerState* PlayerState)
@@ -75,6 +93,8 @@ void AS1PlayerState::CopyProperties(APlayerState* PlayerState)
 	if (AS1PlayerState* S1PS = Cast<AS1PlayerState>(PlayerState))
 	{
 		S1PS->SelectedCharacterTag = SelectedCharacterTag;
+		S1PS->LastSpawnPointTag = LastSpawnPointTag;
+		S1PS->SelectedWeaponTag = SelectedWeaponTag;
 	}
 }
 
@@ -85,5 +105,7 @@ void AS1PlayerState::OverrideWith(APlayerState* PlayerState)
 	if (AS1PlayerState* S1PS = Cast<AS1PlayerState>(PlayerState))
 	{
 		SelectedCharacterTag = S1PS->SelectedCharacterTag;
+		LastSpawnPointTag = S1PS->LastSpawnPointTag;
+		SelectedWeaponTag = S1PS->SelectedWeaponTag;
 	}
 }

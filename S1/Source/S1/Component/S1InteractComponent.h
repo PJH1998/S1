@@ -7,12 +7,11 @@
 #include "S1InteractComponent.generated.h"
 
 class USphereComponent;
-class AS1PuzzleButton_Gimmick;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FS1NearestInteractableChangedSignature, AS1PuzzleButton_Gimmick*, NewNearest);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FS1NearestInteractableChangedSignature, AActor*, NewNearest);
 
 /**
- * 플레이어 주변의 상호작용 가능한 버튼(AS1PuzzleButton_Gimmick)을 오버랩으로 탐지한다.
+ * 플레이어 주변의 IS1InteractableInterface 구현 액터를 오버랩으로 탐지한다.
  * US1LockOnComponent와 동일한 스피어+후보집합 패턴 — 오버랩 자체는 각 머신에서 로컬로
  * 굴러가는 순수 탐지용이라 서버 인증이 필요 없다(실제 상태 변경은 AS1Player::ServerInteract에서 처리).
  */
@@ -24,8 +23,8 @@ class S1_API US1InteractComponent : public UActorComponent
 public:
 	US1InteractComponent();
 
-	// 탐지된 후보 중 가장 가까운 상호작용 대상(없으면 nullptr). 잠긴 버튼은 후보에서 제외한다.
-	AS1PuzzleButton_Gimmick* GetNearestInteractable() const;
+	// 탐지된 후보 중 가장 가까운 상호작용 대상(없으면 nullptr). CanInteract()가 false인 후보는 제외한다.
+	AActor* GetNearestInteractable() const;
 
 	// 가장 가까운 상호작용 대상이 바뀔 때만 브로드캐스트(HUD 프롬프트 표시용).
 	UPROPERTY(BlueprintAssignable, Category = "Interact")
@@ -57,5 +56,5 @@ private:
 	float InteractRadius = 200.f;
 
 	TSet<TWeakObjectPtr<AActor>> CandidateSet;
-	TWeakObjectPtr<AS1PuzzleButton_Gimmick> CachedNearest;
+	TWeakObjectPtr<AActor> CachedNearest;
 };

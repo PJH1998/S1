@@ -5,7 +5,8 @@
 #include "UI/Lobby/Custom/Select/S1SelectCharacter_Slot.h"
 #include "UI/Lobby/Custom/Select/S1SelectWeapon_Slot.h"
 #include "Components/TextBlock.h"
-#include "Player/S1CharacterSelectController.h"
+#include "Component/S1CharacterSelectComponent.h"
+#include "Player/S1PlayerController.h"
 #include "Tags/S1GameplayTags.h"
 
 void US1Menu_SelectCharacter::NativeConstruct()
@@ -42,9 +43,12 @@ void US1Menu_SelectCharacter::OnSlotMClicked()
 	SelectSlot(SelectCharSlot_M, SelectCharSlot_F, FText::FromString(TEXT("키리토")));
 	SetupWeaponSlots(S1ItemTags::Item_Weapon_DSWD01, S1ItemTags::Item_Weapon_SWD00);
 
-	if (AS1CharacterSelectController* Controller = GetOwningPlayer<AS1CharacterSelectController>())
+	if (AS1PlayerController* Controller = GetOwningPlayer<AS1PlayerController>())
 	{
-		Controller->OnSelectB();
+		if (US1CharacterSelectComponent* Comp = Controller->GetCharacterSelectComponent())
+		{
+			Comp->OnSelectB();
+		}
 	}
 }
 
@@ -53,9 +57,12 @@ void US1Menu_SelectCharacter::OnSlotFClicked()
 	SelectSlot(SelectCharSlot_F, SelectCharSlot_M, FText::FromString(TEXT("아스나")));
 	SetupWeaponSlots(S1ItemTags::Item_Weapon_RPR00, S1ItemTags::Item_Weapon_SWD00);
 
-	if (AS1CharacterSelectController* Controller = GetOwningPlayer<AS1CharacterSelectController>())
+	if (AS1PlayerController* Controller = GetOwningPlayer<AS1PlayerController>())
 	{
-		Controller->OnSelectA();
+		if (US1CharacterSelectComponent* Comp = Controller->GetCharacterSelectComponent())
+		{
+			Comp->OnSelectA();
+		}
 	}
 }
 
@@ -63,9 +70,12 @@ void US1Menu_SelectCharacter::OnWeaponSlot01Clicked()
 {
 	SelectWeaponSlot(SelectWeapon_01, SelectWeapon_02);
 
-	if (AS1CharacterSelectController* Controller = GetOwningPlayer<AS1CharacterSelectController>())
+	if (AS1PlayerController* Controller = GetOwningPlayer<AS1PlayerController>())
 	{
-		Controller->OnWeaponSelect(SelectWeapon_01->GetWeaponTag());
+		if (US1CharacterSelectComponent* Comp = Controller->GetCharacterSelectComponent())
+		{
+			Comp->OnWeaponSelect(SelectWeapon_01->GetWeaponTag());
+		}
 	}
 }
 
@@ -73,9 +83,12 @@ void US1Menu_SelectCharacter::OnWeaponSlot02Clicked()
 {
 	SelectWeaponSlot(SelectWeapon_02, SelectWeapon_01);
 
-	if (AS1CharacterSelectController* Controller = GetOwningPlayer<AS1CharacterSelectController>())
+	if (AS1PlayerController* Controller = GetOwningPlayer<AS1PlayerController>())
 	{
-		Controller->OnWeaponSelect(SelectWeapon_02->GetWeaponTag());
+		if (US1CharacterSelectComponent* Comp = Controller->GetCharacterSelectComponent())
+		{
+			Comp->OnWeaponSelect(SelectWeapon_02->GetWeaponTag());
+		}
 	}
 }
 
@@ -123,5 +136,15 @@ void US1Menu_SelectCharacter::SetupWeaponSlots(const FGameplayTag& Slot01WeaponT
 	}
 
 	SelectWeaponSlot(SelectWeapon_01, SelectWeapon_02);
+
+	// 최초 진입/캐릭터 전환 시 슬롯1이 암묵적으로 "선택됨"으로 표시되는데, 실제로 클릭하기 전까지는 서버에 반영이 안 됐었음 —
+	// 여기서 매번 동기화해서 Start 확정 시 실제 Pawn이 화면에 보이는 무기와 다른 걸로 스폰되는 문제 방지
+	if (AS1PlayerController* Controller = GetOwningPlayer<AS1PlayerController>())
+	{
+		if (US1CharacterSelectComponent* Comp = Controller->GetCharacterSelectComponent())
+		{
+			Comp->OnWeaponSelect(Slot01WeaponTag);
+		}
+	}
 }
 

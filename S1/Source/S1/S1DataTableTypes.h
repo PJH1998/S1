@@ -83,6 +83,9 @@ struct FS1PlayerData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MaxXP = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MaxUltimateGauge = 500.f;
 };
 
 USTRUCT(BlueprintType)
@@ -126,4 +129,14 @@ struct FS1FootstepSoundRow : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<USoundBase> FootstepSound;
+};
+
+// 스폰 지점 Tag → Transform 매핑. 행 이름은 조회에 쓰이는 Tag 문자열과 일치해야 함 (FindRow(Tag.GetTagName())).
+USTRUCT(BlueprintType)
+struct FS1SpawnPointRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FTransform SpawnTransform;
 };

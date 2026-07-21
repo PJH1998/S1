@@ -5,10 +5,12 @@
 #include "Components/Image.h"
 #include "Components/Button.h"
 #include "Character/S1SelectCharacter.h"
+#include "Component/S1CharacterSelectComponent.h"
 #include "Engine/TextureRenderTarget2D.h"
-#include "Player/S1CharacterSelectController.h"
+#include "Player/S1PlayerController.h"
 #include "System/S1SoundManager.h"
 #include "TimerManager.h"
+#include "System/S1UIManager.h"
 #include "Engine/World.h"
 #include "Tags/S1GameplayTags.h"
 
@@ -41,7 +43,9 @@ void US1Customize::NativeConstruct()
 
 void US1Customize::BindPreviewRenderTarget()
 {
-	AS1SelectCharacter* PreviewActor = GetOwningPlayerPawn<AS1SelectCharacter>();
+	AS1PlayerController* Controller = GetOwningPlayer<AS1PlayerController>();
+	US1CharacterSelectComponent* Comp = Controller ? Controller->GetCharacterSelectComponent() : nullptr;
+	AS1SelectCharacter* PreviewActor = Comp ? Comp->GetPreviewActor() : nullptr;
 	if (false == ::IsValid(PreviewActor))
 	{
 		return;
@@ -55,14 +59,40 @@ void US1Customize::BindPreviewRenderTarget()
 
 void US1Customize::OnStartClicked()
 {
-	if (AS1CharacterSelectController* Controller = GetOwningPlayer<AS1CharacterSelectController>())
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+
+	UE_LOG(LogTemp, Warning, TEXT("MouseCursor : %d"), PC->bShowMouseCursor);
+
+	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
 	{
-		Controller->RequestConfirm();
+		UIManager->FadeOut(1.5f, [this]()
+			{
+				this->OnSpawnSelectCharacter();
+			});
 	}
 
 	if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
 	{
 		SoundManager->PlaySoundByTag(S1SoundTags::Sound_UI_Confirm);
-		SoundManager->StopBGM();
+		SoundManager->StopBGM(1.5f);
+	}
+}
+
+void US1Customize::OnSpawnSelectCharacter()
+{
+	// Root 위젯(과 그 안의 Fade)이 세션 내내 유지되고 HUD 패널 콘텐츠만 바뀌는 구조로 바뀌어서,
+	// 이 위젯(S1HUD_Lobby 하위)이 나중에 SetUp_Panel로 교체되며 파괴되더라도 Fade 애니메이션은 Root에 남아
+	// 끊기지 않고 계속 재생됨 — RequestConfirm() 직후 바로 FadeIn을 걸어도 안전함.
+	if (AS1PlayerController* Controller = GetOwningPlayer<AS1PlayerController>())
+	{
+		if (US1CharacterSelectComponent* Comp = Controller->GetCharacterSelectComponent())
+		{
+			Comp->RequestConfirm();
+		}
+	}
+
+	if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
+	{
+		UIManager->FadeIn(1.5f);
 	}
 }

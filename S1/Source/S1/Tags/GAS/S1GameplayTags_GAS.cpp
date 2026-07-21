@@ -10,7 +10,7 @@ namespace S1AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Move_Dodge, "Ability.Player.Move.Dodge");
 	#pragma endregion
 
-	#pragma region Attack
+	#pragma region Action
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack,					"Ability.Player.Attack");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Ground,			"Ability.Player.Attack.Ground");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Air,				"Ability.Player.Attack.Air");
@@ -21,13 +21,17 @@ namespace S1AbilityTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill03,			"Ability.Player.Attack.Skill03");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Skill04,			"Ability.Player.Attack.Skill04");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Assault,			"Ability.Player.Attack.Assault");
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Attack_Ultimiate,			"Ability.Player.Attack.Ultimiate");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Action_HealItem,			"Ability.Player.Action.HealItem");
 	#pragma endregion
 
 	#pragma region Hit
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Hit_Weak,   "Ability.Player.Hit.Weak");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Hit_Strong, "Ability.Player.Hit.Strong");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Hit_ToAir,  "Ability.Player.Hit.ToAir");
+	#pragma endregion
+
+	#pragma region Death
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Death,   "Ability.Player.Death");
 	#pragma endregion
 #pragma endregion
 
@@ -87,6 +91,7 @@ namespace S1StateTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(State_Action,              "State.Action");
 	UE_DEFINE_GAMEPLAY_TAG(State_CanNextAttack,       "State.CanNextAttack");
+	UE_DEFINE_GAMEPLAY_TAG(State_CanUltimate,         "State.CanUltimate");
 	UE_DEFINE_GAMEPLAY_TAG(State_Air,                 "State.Air");
 
 	UE_DEFINE_GAMEPLAY_TAG(State_Used_Air,            "State.Used.Air");
@@ -105,6 +110,9 @@ namespace S1StateTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Hit_Launch,          "State.Hit.Launch");
 	UE_DEFINE_GAMEPLAY_TAG(State_Hit_Knockdown,       "State.Hit.Knockdown");
 	UE_DEFINE_GAMEPLAY_TAG(State_Hit_GetUp,           "State.Hit.GetUp");
+
+	UE_DEFINE_GAMEPLAY_TAG(State_Dead,                "State.Dead");
+	UE_DEFINE_GAMEPLAY_TAG(State_Dead_CanRespawn,     "State.Dead.CanRespawn");
 }
 
 namespace S1HitType
@@ -113,6 +121,8 @@ namespace S1HitType
 	UE_DEFINE_GAMEPLAY_TAG(HitType_Strong,	"HitType.Strong");
 	UE_DEFINE_GAMEPLAY_TAG(HitType_ToAir,	"HitType.ToAir");
 	UE_DEFINE_GAMEPLAY_TAG(HitType_Guard,	"HitType.Guard");
+
+	UE_DEFINE_GAMEPLAY_TAG(HitType_Death, "HitType.Death");
 }
 
 namespace S1EventTags

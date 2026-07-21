@@ -14,6 +14,11 @@ namespace S1PoolingTags
 
 namespace S1SoundTags
 {
+#pragma region PlayerSound
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Player_Female_LevelUp);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Player_Male_LevelUp);
+#pragma endregion
+
 #pragma region HitSound
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Hit_RPR_Weak);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Hit_RPR_Strong);
@@ -76,6 +81,9 @@ namespace S1EffectTags
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Aura01);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_Aura02);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_StatUp);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Effect_Player_LevelUp);
 #pragma endregion
 
 #pragma region Impact
@@ -108,4 +116,10 @@ namespace S1CharacterTag
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Charcter_Select_Asna);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Charcter_Select_Kirito);
+}
+
+namespace S1SpawnTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Spawn_Main_Default);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Spawn_Main_Boss01);
 }

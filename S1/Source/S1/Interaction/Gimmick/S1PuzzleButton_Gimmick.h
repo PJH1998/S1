@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Interaction/Gimmick/S1GimmickObject.h"
+#include "Interface/S1InteractableInterface.h"
 #include "S1PuzzleButton_Gimmick.generated.h"
 
 class UBoxComponent;
@@ -19,12 +20,16 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FS1ButtonToggledSignature, AS1Puzzle
  * 자신의 bIsActivated는 퍼즐 판정과 무관한 레버 눌림 비주얼 용도로만 재사용.
  */
 UCLASS()
-class S1_API AS1PuzzleButton_Gimmick : public AS1GimmickObject
+class S1_API AS1PuzzleButton_Gimmick : public AS1GimmickObject, public IS1InteractableInterface
 {
 	GENERATED_BODY()
 
 public:
 	AS1PuzzleButton_Gimmick();
+
+	// IS1InteractableInterface: US1InteractComponent가 감지한 후보 필터링/Interact 라우팅에 사용.
+	virtual void Interact(AActor* Interactor) override;
+	virtual bool CanInteract() const override { return false == bPuzzleLocked; }
 
 	// 서버 전용: 연결된 기둥들을 전부 토글하고 OnButtonToggled를 브로드캐스트한다.
 	void PressButton();

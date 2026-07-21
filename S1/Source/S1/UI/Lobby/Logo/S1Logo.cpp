@@ -4,6 +4,8 @@
 #include "UI/Lobby/Logo/S1Logo.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
+
+#include "UI/S1RootWidget.h"
 #include "System/S1UIManager.h"
 #include "System/S1SoundManager.h"
 #include "Tags/S1GameplayTags.h"
@@ -46,9 +48,10 @@ FReply US1Logo::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 
 		if (US1UIManager* UIManager = SUBSYSTEM(US1UIManager))
 		{
-			UIManager->FadeOut(3.f, [this]()
+			UIManager->FadeOut(3.f, [this, UIManager]()
 				{
 					//UGameplayStatics::OpenLevel(UIManager, FName(TEXT("Devmap")));
+					UIManager->GetRootWidget()->SetCursorVisible(false);
 					Change_Customize();
 				});
 		}
