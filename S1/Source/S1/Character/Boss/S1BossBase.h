@@ -29,12 +29,22 @@ public:
 	// HP 50% 미만 감지 시 호출(서버). 1회만 블랙보드 페이즈 전환 펜딩 플래그를 세운다.
 	void RequestPhaseTransition();
 
+	// HP 20% 미만 감지 시 호출(서버). 1회만 저HP BGM 전환을 알린다.
+	void RequestLowHpBgm();
+
 	// 가드 정면 차단 콘의 절반 각도(도). S1BossSet의 방향 판정이 읽는다.
 	float GetGuardFrontalHalfAngleDeg() const { return GuardFrontalHalfAngleDeg; }
 
 	// 가드 차단 발생을 전체 클라(+서버)에 알린다. S1BossSet의 정면 차단 분기에서 호출된다.
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastNotifyGuardBlocked(const FVector& InBlockLocation);
+
+	// 저HP BGM 전환을 전체 클라(+서버)에 알린다. S1BossSet의 20% 감지 분기에서 호출된다.
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlayLowHpBgm();
+
+protected:
+	virtual void OnDeathPresentationComplete() override;
 
 protected:
 	FName BossName = {};
@@ -46,4 +56,7 @@ protected:
 private:
 	// 페이즈 전환 1회성 보장(서버 전용 transient).
 	bool bPhaseTransitionTriggered = false;
+
+	// 저HP BGM 전환 1회성 보장(서버 전용 transient).
+	bool bLowHpBgmTriggered = false;
 };

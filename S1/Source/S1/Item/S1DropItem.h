@@ -57,6 +57,10 @@ protected:
 	UFUNCTION()
 	void OnRep_DropState();
 
+	// 픽업 성공을 owner 클라(+서버)에 알려 사운드를 재생시킨다. bOnlyRelevantToOwner라 다른 클라에는 전달되지 않는다.
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlayPickupSound();
+
 	UFUNCTION()
 	void OnPickupSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 

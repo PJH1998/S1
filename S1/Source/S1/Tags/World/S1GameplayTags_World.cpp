@@ -27,6 +27,11 @@ namespace S1SoundTags
 	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_SWD_Guard, "Sound.Hit.SWD.Guard");
 #pragma endregion
 
+#pragma region HitVoiceSound
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_Voice_Boss000, "Sound.Hit.Voice.Boss000");
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Hit_Voice_Enemy001, "Sound.Hit.Voice.Enemy001");
+#pragma endregion
+
 #pragma region BossSound
 	UE_DEFINE_GAMEPLAY_TAG(Sound_Boss_GuardBlock, "Sound.Boss.GuardBlock");
 #pragma endregion
@@ -56,6 +61,10 @@ namespace S1SoundTags
 	UE_DEFINE_GAMEPLAY_TAG(Sound_BGM_Boss000_Battle_Phase02, "Sound.BGM.Boss000.Battle.Phase02");
 	UE_DEFINE_GAMEPLAY_TAG(Sound_BGM_Boss000_Battle_Fiver, "Sound.BGM.Boss000.Battle.Fiver");
 	UE_DEFINE_GAMEPLAY_TAG(Sound_BGM_Boss000_Field, "Sound.BGM.Boss000.Field");
+#pragma endregion
+
+#pragma region ItemSound
+	UE_DEFINE_GAMEPLAY_TAG(Sound_Item_Pickup, "Sound.Item.Pickup");
 #pragma endregion
 }
 

@@ -64,5 +64,17 @@ void US1BossSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData&
 			}
 		}
 	}
+
+	// HP 20% 미만 저HP BGM 전환 감지.
+	if (GetMaxHealth() > 0.f && GetHealth() / GetMaxHealth() < 0.2f)
+	{
+		if (UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent())
+		{
+			if (AS1BossBase* Boss = Cast<AS1BossBase>(ASC->GetAvatarActor()))
+			{
+				Boss->RequestLowHpBgm();
+			}
+		}
+	}
 }
 

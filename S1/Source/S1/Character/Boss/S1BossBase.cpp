@@ -5,9 +5,11 @@
 
 #include "AbilitySystem/Attributes/S1BossSet.h"
 #include "AI/S1BossAIController.h"
+#include "Engine/LocalPlayer.h"
 #include "System/S1CombatFeedbackSubsystem.h"
 #include "System/S1SoundManager.h"
-#include "Tags/World/S1GameplayTags_World.h"
+#include "System/S1UIManager.h"
+#include "Tags/S1GameplayTags.h"
 
 ES1EnemyTier AS1BossBase::GetLockOnTier_Implementation()
 {
@@ -35,6 +37,17 @@ void AS1BossBase::RequestPhaseTransition()
 	}
 }
 
+void AS1BossBase::RequestLowHpBgm()
+{
+	if (false == HasAuthority() || bLowHpBgmTriggered)
+	{
+		return;
+	}
+	bLowHpBgmTriggered = true;
+
+	MulticastPlayLowHpBgm();
+}
+
 US1BossSet* AS1BossBase::GetS1BossSet() const
 {
 	return Cast<US1BossSet>(AttributeSet);
@@ -58,6 +71,39 @@ void AS1BossBase::MulticastNotifyGuardBlocked_Implementation(const FVector& InBl
 		if (US1SoundManager* SoundManager = World->GetSubsystem<US1SoundManager>())
 		{
 			SoundManager->PlaySoundAtLocationByTag(S1SoundTags::Sound_Boss_GuardBlock, InBlockLocation);
+		}
+	}
+}
+
+void AS1BossBase::MulticastPlayLowHpBgm_Implementation()
+{
+	if (UWorld* World = GetWorld())
+	{
+		if (US1SoundManager* SoundManager = World->GetSubsystem<US1SoundManager>())
+		{
+			SoundManager->PlayBGMByTag(S1SoundTags::Sound_BGM_Boss000_Battle_Fiver, 1.5f);
+		}
+	}
+}
+
+void AS1BossBase::OnDeathPresentationComplete()
+{
+	Super::OnDeathPresentationComplete();
+
+	if (UWorld* World = GetWorld())
+	{
+		if (US1SoundManager* SoundManager = World->GetSubsystem<US1SoundManager>())
+		{
+			SoundManager->PlayBGMByTag(S1SoundTags::Sound_BGM_Boss000_Field, 1.5f);
+		}
+
+		// US1UIManager는 ULocalPlayerSubsystem이라 World->GetSubsystem으로 접근 불가 — 로컬 플레이어 경유.
+		// 데디서버는 로컬 플레이어가 없어 자연히 no-op.
+		APlayerController* PC = World->GetFirstPlayerController();
+		ULocalPlayer* LocalPlayer = PC ? PC->GetLocalPlayer() : nullptr;
+		if (US1UIManager* UIManager = LocalPlayer ? LocalPlayer->GetSubsystem<US1UIManager>() : nullptr)
+		{
+			UIManager->ShowAnnounce(S1UIResourceTags::UI_Icon_Announce_BossCleared);
 		}
 	}
 }

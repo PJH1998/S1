@@ -84,7 +84,7 @@ void US1MonsterReactBridgeComponent::OnGameplayEffectApplied(
 	}
 
 	// 사운드는 각 머신 로컬 재생이라 서버 권위 체크보다 먼저 처리 — 이후 로직(AI 리액션 요청)만 서버 전용
-	PlayHitSound(HitType, Spec);
+	PlayHitSound(Monster, HitType, Spec);
 
 	if (false == Monster->HasAuthority())
 	{
@@ -116,7 +116,7 @@ void US1MonsterReactBridgeComponent::OnGameplayEffectApplied(
 	}
 }
 
-void US1MonsterReactBridgeComponent::PlayHitSound(ES1HitReactType HitType, const FGameplayEffectSpec& Spec)
+void US1MonsterReactBridgeComponent::PlayHitSound(AS1Monster* Monster, ES1HitReactType HitType, const FGameplayEffectSpec& Spec)
 {
 	const FGameplayTag SoundBaseTag = S1HitReactLibrary::FindSoundBaseTag(Spec);
 
@@ -127,14 +127,17 @@ void US1MonsterReactBridgeComponent::PlayHitSound(ES1HitReactType HitType, const
 			(int32)HitType, SoundBaseTag.IsValid() ? *SoundBaseTag.ToString() : TEXT("INVALID")));
 	}
 
-	if (false == SoundBaseTag.IsValid())
-	{
-		return;
-	}
+	US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>();
 
-	if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+	if (SoundManager && SoundBaseTag.IsValid())
 	{
 		SoundManager->PlayHitSound(SoundBaseTag, HitType);
+	}
+
+	const FGameplayTag VoiceTag = Monster->GetHitVoiceSoundTag();
+	if (SoundManager && VoiceTag.IsValid())
+	{
+		SoundManager->PlaySoundAtLocationByTag(VoiceTag, Monster->GetActorLocation());
 	}
 }
 

@@ -41,6 +41,7 @@ public:
 	bool				IsDead()				const { return bIsDead; }
 	bool				HasTarget()				const { return bHasTarget; }
 	FGameplayTag		GetDropTableTag()	const { return DropTableTag; }
+	FGameplayTag		GetHitVoiceSoundTag() const { return HitVoiceSoundTag; }
 	const FText&		GetMonsterName()	const { return MonsterName; }
 	void				SetMonsterName(const FText& InMonsterName);
 
@@ -118,7 +119,7 @@ protected:
 	/** 애니 고정(일어남 방지). */
 	void FinalizeDeath();
 	/** 연출 끝: 풀 반환 등. */
-	void OnDeathPresentationComplete();
+	virtual void OnDeathPresentationComplete();
 	/** 풀 Spawn 시 살아 있는 상태 + AI 복구. */
 	void ResetForPoolSpawn();
 	/** 체력·이동·충돌·애니 복원. */
@@ -174,6 +175,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Drop")
 	FGameplayTag DropTableTag;
+
+	// 피격 보이스 사운드 태그(무효면 무음, 강도 구분 없이 1개).
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	FGameplayTag HitVoiceSoundTag;
 
 	UPROPERTY(ReplicatedUsing = OnRep_MonsterName, EditDefaultsOnly, BlueprintReadOnly, Category = "Monster")
 	FText MonsterName;

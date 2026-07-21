@@ -13,6 +13,7 @@
 #include "S1Define.h"
 #include "System/S1AssetManager.h"
 #include "System/S1ItemManager.h"
+#include "System/S1SoundManager.h"
 #include "Tags/S1GameplayTags.h"
 
 namespace
@@ -359,6 +360,8 @@ void AS1DropItem::Pickup()
 		return;
 	}
 
+	MulticastPlayPickupSound();
+
 	if (PoolTag.IsValid())
 	{
 		ReturnSelf();
@@ -366,6 +369,14 @@ void AS1DropItem::Pickup()
 	}
 
 	Destroy();
+}
+
+void AS1DropItem::MulticastPlayPickupSound_Implementation()
+{
+	if (US1SoundManager* SoundManager = GetWorld() ? GetWorld()->GetSubsystem<US1SoundManager>() : nullptr)
+	{
+		SoundManager->PlaySoundByTag(S1SoundTags::Sound_Item_Pickup);
+	}
 }
 
 void AS1DropItem::ApplyReplicatedDropState()

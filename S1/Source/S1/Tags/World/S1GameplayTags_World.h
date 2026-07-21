@@ -29,6 +29,11 @@ namespace S1SoundTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Hit_SWD_Guard);
 #pragma endregion
 
+#pragma region HitVoiceSound
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Hit_Voice_Boss000);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Hit_Voice_Enemy001);
+#pragma endregion
+
 #pragma region BossSound
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Boss_GuardBlock);
 #pragma endregion
@@ -59,6 +64,10 @@ namespace S1SoundTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_BGM_Boss000_Battle_Phase02);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_BGM_Boss000_Battle_Fiver);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_BGM_Boss000_Field);
+#pragma endregion
+
+#pragma region ItemSound
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Sound_Item_Pickup);
 #pragma endregion
 }
 
