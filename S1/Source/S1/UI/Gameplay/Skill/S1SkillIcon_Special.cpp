@@ -10,6 +10,7 @@
 #include "Materials/MaterialInstance.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Player/S1PlayerState.h"
+#include "AbilitySystem/AbilitySystemComponent/Player/S1PlayerAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
 #include "System/S1AssetManager.h"
 #include "Tags/S1GameplayTags.h"
@@ -19,6 +20,7 @@ void US1SkillIcon_Special::NativeConstruct()
 	Super::NativeConstruct();
 
 	InitializeGaugeMaterial();
+	InitializeCooldownMaterial();
 
 	if (AS1PlayerState* PS = Cast<AS1PlayerState>(GetOwningPlayerState()))
 	{
@@ -51,10 +53,22 @@ void US1SkillIcon_Special::NativeTick(const FGeometry& MyGeometry, float InDelta
 		InitializeIconTexture();
 	}
 
-	//CurrentGaugeValue = PlayerSet->GetCurrentUltimateGauge();
-	//MaxGaugeValue = PlayerSet->GetMaxUltimateGauge();
-	CurrentGaugeValue += InDeltaTime * 10.f;
-	MaxGaugeValue = 100.f;
+	CurrentGaugeValue = PlayerSet->GetCurrentUltimateGauge();
+	MaxGaugeValue = PlayerSet->GetMaxUltimateGauge();
+
+	AS1PlayerState* PS = GetOwningPlayerState<AS1PlayerState>();
+	US1PlayerAbilitySystemComponent* ASC = PS ? Cast<US1PlayerAbilitySystemComponent>(PS->GetS1AbilitySystemComponent()) : nullptr;
+	if (ASC)
+	{
+		float Remaining = 0.f;
+		float Duration = 0.f;
+		ASC->GetSkillCooldown(S1AbilityTags::Ability_Player_Attack_Skill04, Remaining, Duration);
+
+		CooldownDuration = FMath::Max(Duration, 0.f);
+		CooldownRemainingTime = CooldownDuration > 0.f ? FMath::Clamp(Remaining, 0.f, CooldownDuration) : 0.f;
+		CooldownRemainingTime = CooldownRemainingTime < 0.01f ? 0.f : CooldownRemainingTime;
+	}
+	UpdateCooldownVisual();
 
 	if (LerpGaugeValue <= CurrentGaugeValue)
 	{
@@ -84,6 +98,23 @@ void US1SkillIcon_Special::InitializeGaugeMaterial()
 	}
 
 	Image_Gauge->SetBrushFromMaterial(GaugeMID);
+}
+
+void US1SkillIcon_Special::InitializeCooldownMaterial()
+{
+	if (Image_CoolTimeMask == nullptr || CooldownMaskMaterial == nullptr)
+	{
+		return;
+	}
+
+	CooldownMaskMID = UMaterialInstanceDynamic::Create(CooldownMaskMaterial, this);
+	if (CooldownMaskMID == nullptr)
+	{
+		UE_LOG(LogWindows, Error, TEXT("Failed to Create : CooldownMask MID"));
+		return;
+	}
+
+	Image_CoolTimeMask->SetBrushFromMaterial(CooldownMaskMID);
 }
 
 void US1SkillIcon_Special::InitializeIconTexture()
@@ -116,6 +147,7 @@ void US1SkillIcon_Special::InitializeIconTexture()
 	}
 
 	Image_Icon->SetBrushFromTexture(IconTexture);
+
 	bIconTextureInitialized = true;
 }
 
@@ -159,5 +191,15 @@ void US1SkillIcon_Special::UpdateGaugeVisual()
 	}
 
 	bWasGaugeFull = bIsGaugeFull;
+}
+
+void US1SkillIcon_Special::UpdateCooldownVisual()
+{
+	const float CooldownRatio = CooldownDuration > KINDA_SMALL_NUMBER ? CooldownRemainingTime / CooldownDuration : 0.f;
+
+	if (CooldownMaskMID)
+	{
+		CooldownMaskMID->SetScalarParameterValue(CooldownRatioParameterName, CooldownRatio);
+	}
 }
 

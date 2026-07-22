@@ -13,6 +13,7 @@ class UMaterialInstance;
 class UMaterialInstanceDynamic;
 class UWidgetAnimation;
 class US1PlayerSet;
+class US1PlayerAbilitySystemComponent;
 
 /**
  *
@@ -28,8 +29,10 @@ protected:
 
 private:
 	void InitializeGaugeMaterial();
+	void InitializeCooldownMaterial();
 	void InitializeIconTexture();
 	void UpdateGaugeVisual();
+	void UpdateCooldownVisual();
 
 	static FGameplayTag AppendGenderSuffix(const FGameplayTag& BaseTag, EPlayerGender Gender);
 
@@ -45,6 +48,9 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_Screen;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> Image_CoolTimeMask;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_Effect;
@@ -63,6 +69,18 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "SkillIcon|Gauge")
 	FName LerpRatioParameterName = TEXT("LerpRatio");
+
+	UPROPERTY(EditDefaultsOnly, Category = "SkillIcon|Cooldown")
+	TObjectPtr<UMaterialInstance> CooldownMaskMaterial;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UMaterialInstanceDynamic> CooldownMaskMID;
+
+	UPROPERTY(EditDefaultsOnly, Category = "SkillIcon|Cooldown")
+	FName CooldownRatioParameterName = TEXT("CooldownRatio");
+
+	float CooldownRemainingTime = {};
+	float CooldownDuration = {};
 
 private:
 	UPROPERTY(Transient)
