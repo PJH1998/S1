@@ -44,6 +44,10 @@ public:
 
 	void SetCursorVisible(bool bVisible);
 
+	// 현재 그 슬롯(HUD 등)에 올라가 있는 패널 위젯 — 리스폰처럼 Pawn이 바뀌어서 HUD 쪽 재바인딩이 필요할 때
+	// PlayerController가 여기로 찾아와서 캐스팅해 쓴다(HUD가 세션 내내 재사용되니 NativeConstruct 1회 바인딩만으론 부족).
+	US1BaseWidget* GetPanelWidget(UI_TYPE PanelType) const;
+
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
@@ -80,6 +84,7 @@ private:
 
 protected:
 	TArray<TObjectPtr<UCanvasPanelSlot>> PanelSlots;
+	TArray<TObjectPtr<US1BaseWidget>> PanelWidgets;
 };
 
 template <typename T>
@@ -101,6 +106,7 @@ T* US1RootWidget::Register_Panel(UI_TYPE type, TSubclassOf<T> SubClass, TObjectP
 	int32 LocalType = static_cast<int32>(type);
 	PanelSlots[LocalType] = CanvasPanel->AddChildToCanvas(NewWidget);
 	PanelSlots[LocalType]->SetAutoSize(bAutoSize);
+	PanelWidgets[LocalType] = NewWidget;
 
 	return NewWidget;
 }

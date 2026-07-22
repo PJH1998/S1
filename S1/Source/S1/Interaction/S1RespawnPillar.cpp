@@ -9,6 +9,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Player/S1PlayerState.h"
+#include "System/S1SoundManager.h"
 #include "S1Define.h"
 
 AS1RespawnPillar::AS1RespawnPillar()
@@ -58,6 +59,11 @@ void AS1RespawnPillar::Interact(AActor* Interactor)
 	if (AttributeSet)
 	{
 		AttributeSet->SetHealth(AttributeSet->GetMaxHealth());
+	}
+
+	if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())
+	{
+		SoundManager->PlaySoundAtLocationByTag(InteractionSoundTag, GetActorLocation());
 	}
 }
 
