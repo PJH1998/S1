@@ -65,6 +65,8 @@ namespace S1CooldownTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Player_Ground_Skill04, "Cooldown.Player.Ground.Skill04");
 	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Player_Air_Skill04, "Cooldown.Player.Air.Skill04");
+
+	UE_DEFINE_GAMEPLAY_TAG(Cooldown_Player_HealItem, "Cooldown.Player.HealItem");
 #pragma endregion
 
 #pragma region Boss000
