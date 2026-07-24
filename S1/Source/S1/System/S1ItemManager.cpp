@@ -63,6 +63,40 @@ const FS1ItemData* US1ItemManager::FindItemData(FGameplayTag ItemTag) const
 	return ItemDataTable->FindRow<FS1ItemData>(ItemTag.GetTagName(), TEXT(""));
 }
 
+FGameplayTag US1ItemManager::FindWeaponItemTagByTypeAndRarity(ES1WeaponType WeaponType, FGameplayTag RarityTag) const
+{
+	if (ES1WeaponType::None == WeaponType || false == RarityTag.IsValid())
+	{
+		return FGameplayTag();
+	}
+
+	US1DataTableData* DataTableData = US1AssetManager::GetAssetByTag<US1DataTableData>(S1AssetTags::Asset_DataTable);
+	if (false == IsValid(DataTableData))
+	{
+		return FGameplayTag();
+	}
+
+	UDataTable* ItemDataTable = DataTableData->GetDataTable(S1DataTableTags::DataTable_ItemData);
+	if (false == IsValid(ItemDataTable))
+	{
+		return FGameplayTag();
+	}
+
+	// 행 이름이 곧 아이템 태그 — 계열당 등급별 무기는 1개라는 전제로 첫 매칭을 그대로 사용
+	for (const TPair<FName, uint8*>& Row : ItemDataTable->GetRowMap())
+	{
+		const FS1ItemData* ItemData = reinterpret_cast<const FS1ItemData*>(Row.Value);
+		if (ItemData == nullptr || ItemData->WeaponType != WeaponType || ItemData->Rarity != RarityTag)
+		{
+			continue;
+		}
+
+		return FGameplayTag::RequestGameplayTag(Row.Key, /*ErrorIfNotFound=*/false);
+	}
+
+	return FGameplayTag();
+}
+
 bool US1ItemManager::ApplyExp(AS1PlayerState* PlayerState, int32 Amount) const
 {
 	if (false == IsValid(PlayerState) || Amount <= 0)

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Data/Monster/S1DropItemResource.h"
+#include "S1Enums.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "S1ItemManager.generated.h"
 
@@ -19,6 +20,9 @@ class S1_API US1ItemManager : public UWorldSubsystem
 public:
 	bool ApplyPickup(AController* OwnerController, ES1DropItemType DropType, FGameplayTag ItemTag, FGameplayTag RarityTag, int32 Amount);
 	const FS1ItemData* FindItemData(FGameplayTag ItemTag) const;
+
+	// ItemData에서 (무기 계열, 등급)이 모두 일치하는 첫 행의 아이템 태그를 반환 — 없으면 무효 태그
+	FGameplayTag FindWeaponItemTagByTypeAndRarity(ES1WeaponType WeaponType, FGameplayTag RarityTag) const;
 
 private:
 	bool ApplyExp(AS1PlayerState* PlayerState, int32 Amount) const;

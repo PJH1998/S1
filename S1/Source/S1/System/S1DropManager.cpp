@@ -2,13 +2,16 @@
 
 
 #include "System/S1DropManager.h"
+#include "Character/Player/S1Player.h"
 #include "Character/S1Monster.h"
 #include "Engine/World.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerController.h"
 #include "Item/S1DropItem.h"
+#include "S1DataTableTypes.h"
 #include "Tags/S1GameplayTags.h"
 #include "System/S1AssetManager.h"
+#include "System/S1ItemManager.h"
 #include "System/S1PoolingManager.h"
 
 void US1DropManager::HandleMonsterDeath(AS1Monster* DeadMonster)
@@ -127,7 +130,8 @@ void US1DropManager::SpawnDropsForOwner(const US1MonsterDropTable& DropTable, FV
 
 			const int32 MinCount = FMath::Max(DropItem->MinCount, 1);
 			const int32 MaxCount = FMath::Max(DropItem->MaxCount, MinCount);
-			SpawnDropItem(ES1DropItemType::Item, FMath::RandRange(MinCount, MaxCount), DropItem->ItemTag, DropItem->RarityTag, OriginLocation, OwnerController);
+			const FGameplayTag ResolvedItemTag = ResolveWeaponItemTagForOwner(DropItem->ItemTag, DropItem->RarityTag, OwnerController);
+			SpawnDropItem(ES1DropItemType::Item, FMath::RandRange(MinCount, MaxCount), ResolvedItemTag, DropItem->RarityTag, OriginLocation, OwnerController);
 		}
 	}
 }
@@ -171,6 +175,39 @@ void US1DropManager::SpawnDropItem(ES1DropItemType DropType, int32 Amount, FGame
 	}
 
 	DropItem->InitializeDrop(DropType, Amount, ItemTag, RarityTag, *Resource, VisualParams, OwnerController);
+}
+
+FGameplayTag US1DropManager::ResolveWeaponItemTagForOwner(FGameplayTag ItemTag, FGameplayTag RarityTag, AController* OwnerController) const
+{
+	UWorld* World = GetWorld();
+	US1ItemManager* ItemManager = World ? World->GetSubsystem<US1ItemManager>() : nullptr;
+	if (false == IsValid(ItemManager))
+	{
+		return ItemTag;
+	}
+
+	// WeaponType이 None이면 비무기 아이템 — 치환 대상 아님
+	const FS1ItemData* SourceItemData = ItemManager->FindItemData(ItemTag);
+	if (SourceItemData == nullptr || ES1WeaponType::None == SourceItemData->WeaponType)
+	{
+		return ItemTag;
+	}
+
+	const AS1Player* Player = IsValid(OwnerController) ? Cast<AS1Player>(OwnerController->GetPawn()) : nullptr;
+	if (false == IsValid(Player))
+	{
+		return ItemTag;
+	}
+
+	// 맨손(Item.Weapon.Default)은 ItemData 행이 없어 여기서 걸러짐 → 원본 태그 유지
+	const FS1ItemData* EquippedItemData = ItemManager->FindItemData(Player->GetEquippedItemTag());
+	if (EquippedItemData == nullptr || ES1WeaponType::None == EquippedItemData->WeaponType)
+	{
+		return ItemTag;
+	}
+
+	const FGameplayTag ResolvedItemTag = ItemManager->FindWeaponItemTagByTypeAndRarity(EquippedItemData->WeaponType, RarityTag);
+	return ResolvedItemTag.IsValid() ? ResolvedItemTag : ItemTag;
 }
 
 const FS1DropItemEntry* US1DropManager::SelectDropItem(const FS1DropPool& DropPool) const

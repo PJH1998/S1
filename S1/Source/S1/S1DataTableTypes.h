@@ -5,6 +5,7 @@
 #include "Engine/DataTable.h"
 #include "GameplayTagContainer.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "S1Enums.h"
 #include "Tags/S1GameplayTags.h"
 #include "S1DataTableTypes.generated.h"
 
@@ -104,6 +105,10 @@ struct FS1ItemData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FGameplayTag EquipSlot;
+
+	// 무기 아이템만 설정 — 드랍 시 획득자가 장착한 무기와 같은 계열로 치환하는 데 쓰임(비무기는 None 유지)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	ES1WeaponType WeaponType = ES1WeaponType::None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float BaseHealth = { 10.f };
