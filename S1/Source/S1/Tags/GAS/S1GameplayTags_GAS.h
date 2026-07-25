@@ -68,6 +68,9 @@ namespace S1CooldownTags
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Player_Ground_Skill04);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Player_Air_Skill04);
+
+	// 힐은 State.Air가 ActivationBlockedTags라 Ground/Air 변형이 없음 — 쿨다운 태그도 하나만
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_Player_HealItem);
 #pragma endregion
 
 #pragma region Boss000

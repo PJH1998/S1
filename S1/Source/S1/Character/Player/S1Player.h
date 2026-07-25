@@ -139,6 +139,9 @@ private:
 public:
 	AS1Weapon*		    GetEquippedWeapon()        const { return EquippedWeapon; }
 	AS1Weapon*		    GetEquippedOffhandWeapon() const { return EquippedOffhandWeapon; }
+	// 실제 장착 중인 무기 아이템 태그(맨손 폴백 반영값) — 쌍검이 한손검 WeaponClass를 재사용하므로
+	// 무기 종류 판별은 무기 액터가 아니라 이 태그를 거쳐야 함
+	FGameplayTag        GetEquippedItemTag()       const { return EquippedItemTag; }
 	US1LockOnComponent* GetLockOnComponent()   const { return LockOnComponent; }
 	EPlayerGender       GetGender()             const { return Gender; }
 	const TArray<FS1AbilityInputBinding>& GetAbilityInputBindings() const { return AbilityInputBindings; }

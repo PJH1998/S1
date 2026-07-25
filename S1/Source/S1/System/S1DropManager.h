@@ -32,6 +32,9 @@ private:
 	void SpawnDropsForOwner(const US1MonsterDropTable& DropTable, FVector OriginLocation, AController* OwnerController);
 	void SpawnDropItem(ES1DropItemType DropType, int32 Amount, FGameplayTag ItemTag, FGameplayTag RarityTag, FVector OriginLocation, AController* OwnerController);
 
+	// 무기 아이템 드랍이면 획득자가 장착한 무기 계열의 같은 등급 무기로 치환 — 비무기이거나 해석 실패 시 원본 태그 반환
+	FGameplayTag ResolveWeaponItemTagForOwner(FGameplayTag ItemTag, FGameplayTag RarityTag, AController* OwnerController) const;
+
 	const FS1DropItemEntry* SelectDropItem(const FS1DropPool& DropPool) const;
 	bool ShouldDropPool(const FS1DropPool& DropPool) const;
 };

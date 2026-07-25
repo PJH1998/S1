@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "UI/Gameplay/Skill/S1PlayerSkill.h"
@@ -43,14 +43,15 @@ void US1PlayerSkill::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		return;
 	}
 
-	static const FGameplayTag SkillTags[3] =
+	static const FGameplayTag SkillTags[4] =
 	{
 		S1AbilityTags::Ability_Player_Attack_Skill01,
 		S1AbilityTags::Ability_Player_Attack_Skill02,
 		S1AbilityTags::Ability_Player_Attack_Skill03,
+		S1AbilityTags::Ability_Player_Action_HealItem,
 	};
 
-	for (int32 Index = 0; Index < 3; ++Index)
+	for (int32 Index = 0; Index < 4; ++Index)
 	{
 		if (!CooldownRemainingTimes.IsValidIndex(Index) || !CooldownDurations.IsValidIndex(Index))
 		{

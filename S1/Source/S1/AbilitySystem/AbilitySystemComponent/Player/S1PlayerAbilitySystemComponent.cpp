@@ -32,6 +32,12 @@ US1PlayerAbilitySystemComponent::US1PlayerAbilitySystemComponent()
 		S1AbilityTags::Ability_Player_Attack_Skill04,
 		S1CooldownTags::Cooldown_Player_Ground_Skill04,
 		S1CooldownTags::Cooldown_Player_Air_Skill04 });
+
+	// Air 변형 없음 — GetSkillCooldown이 AirCooldownTag 무효 시 Ground 태그로 폴백
+	CooldownVariants.Add(FS1CooldownVariantSet{
+		S1AbilityTags::Ability_Player_Action_HealItem,
+		S1CooldownTags::Cooldown_Player_HealItem,
+		FGameplayTag() });
 }
 
 bool US1PlayerAbilitySystemComponent::ActivateAbility(const FGameplayTag& AbilityTag)
