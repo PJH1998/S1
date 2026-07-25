@@ -30,9 +30,6 @@ private:
 
 	void OnGameplayEffectApplied(UAbilitySystemComponent* TargetASC, const FGameplayEffectSpec& Spec, FActiveGameplayEffectHandle ActiveHandle);
 
-	// 권위 여부와 무관하게(각 머신 로컬) 재생 — HasAuthority 체크보다 먼저 호출해야 함
-	void PlayHitSound(AS1Monster* Monster, ES1HitReactType HitType, const FGameplayEffectSpec& Spec);
-
 	static bool ShouldPlayHitReact(ES1HitReactType HitType, const UAbilitySystemComponent* ASC);
 
 private:

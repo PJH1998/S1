@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "GameplayEffectExtension.h"
+#include "AbilitySystem/S1HitReactLibrary.h"
 #include "Character/Boss/S1BossBase.h"
 #include "Tags/GAS/S1GameplayTags_GAS.h"
 
@@ -33,8 +34,12 @@ void US1BossSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData&
 					const float CosHalfAngle = FMath::Cos(FMath::DegreesToRadians(Boss->GetGuardFrontalHalfAngleDeg()));
 					if (ForwardDot >= CosHalfAngle)
 					{
-						// 정면 콘 안 → 차단. 적용된 데미지 원복 후 Super(데미지 넘버/사망 처리) 스킵.
+						// 정면 콘 안 → 차단. 적용된 데미지 원복 후 Super(일반 히트음/데미지 넘버/사망) 스킵.
 						SetHealth(GetHealth() - Data.EvaluatedData.Magnitude);
+
+						// 가드음: 일반 히트음 시스템을 HitType::Guard로 재사용 → Sound.Hit.<무기>.Guard(무기별). 블록 넘버는 별도 유지.
+						const FGameplayTag SoundBaseTag = S1HitReactLibrary::FindSoundBaseTag(Data.EffectSpec);
+						Boss->MulticastPlayHitSound(SoundBaseTag, ES1HitReactType::Guard, Boss->GetActorLocation());
 						Boss->MulticastNotifyGuardBlocked(Boss->GetActorLocation());
 						return;
 					}

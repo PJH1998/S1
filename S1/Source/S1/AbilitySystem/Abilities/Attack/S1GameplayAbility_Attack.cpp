@@ -17,6 +17,23 @@
 #include "Animation/AnimMontage.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "S1LogChannels.h"
+
+// [AirCombo] 진단용 — 원인 확정 후 제거
+namespace
+{
+	const TCHAR* AirComboRoleStr(const AActor* Actor)
+	{
+		if (nullptr == Actor) { return TEXT("?"); }
+		switch (Actor->GetLocalRole())
+		{
+		case ROLE_Authority:      return TEXT("AUTH");
+		case ROLE_AutonomousProxy: return TEXT("AUTO");   // 소유 클라(조인 클라) — 버그 재현 대상
+		case ROLE_SimulatedProxy:  return TEXT("SIM");
+		default:                   return TEXT("NONE");
+		}
+	}
+}
 
 US1GameplayAbility_Attack::US1GameplayAbility_Attack(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -43,6 +60,18 @@ void US1GameplayAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle
 		GetAbilitySystemComponentFromActorInfo()->AddLooseGameplayTag(UsedTag);
 	}
 
+	// [AirCombo] 진단
+	{
+		const AActor* Av = GetAvatarActorFromActorInfo();
+		UAbilitySystemComponent* AscLog = GetAbilitySystemComponentFromActorInfo();
+		LOG(TEXT("[AirCombo][%s] Attack ACTIVATE(new) tag=%s Air=%d Used(%s)=%d"),
+			AirComboRoleStr(Av),
+			*GetName(),
+			(AscLog && AscLog->HasMatchingGameplayTag(S1StateTags::State_Air)) ? 1 : 0,
+			UsedTag.IsValid() ? *UsedTag.ToString() : TEXT("none"),
+			(AscLog && UsedTag.IsValid() && AscLog->HasMatchingGameplayTag(UsedTag)) ? 1 : 0);
+	}
+
 	if (bRotateToCamera)
 	{
 		StartRotateToCamera();
@@ -59,6 +88,17 @@ void US1GameplayAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle
 
 void US1GameplayAbility_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	// [AirCombo] 진단 — 공중 콤보가 hit1↔hit2 사이에서 여기 찍히면 GA 조기 종료(새 활성화로 떨어짐) 확정
+	{
+		const AActor* Av = GetAvatarActorFromActorInfo();
+		UAbilitySystemComponent* AscLog = GetAbilitySystemComponentFromActorInfo();
+		LOG(TEXT("[AirCombo][%s] Attack END tag=%s cancelled=%d Air=%d"),
+			AirComboRoleStr(Av),
+			*GetName(),
+			bWasCancelled ? 1 : 0,
+			(AscLog && AscLog->HasMatchingGameplayTag(S1StateTags::State_Air)) ? 1 : 0);
+	}
+
 	ClearHitWindowTimers();
 	DisableWeaponHitCollision(ES1AttackHand::Main);
 	DisableWeaponHitCollision(ES1AttackHand::Offhand);

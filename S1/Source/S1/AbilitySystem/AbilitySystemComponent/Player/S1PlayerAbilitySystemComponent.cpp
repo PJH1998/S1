@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "Character/Player/S1Player.h"
 #include "Tags/S1GameplayTags.h"
+#include "S1LogChannels.h"
 
 US1PlayerAbilitySystemComponent::US1PlayerAbilitySystemComponent()
 {
@@ -84,6 +85,10 @@ bool US1PlayerAbilitySystemComponent::ActivateAbility(const FGameplayTag& Abilit
 				bConsumed = GA->OnInputReactivated();
 			}
 
+			// [AirCombo] 진단 — 재입력 시 클라가 활성 GA를 찾아 재활성 시도함(=여기 찍힘). bConsumed=0이면 콤보 진행 거부됨
+			LOG(TEXT("[AirCombo][%s] reactivate FOUND-ACTIVE tag=%s bConsumed=%d"),
+				IsOwnerActorAuthoritative() ? TEXT("AUTH") : TEXT("AUTO"), *AbilityTag.ToString(), bConsumed ? 1 : 0);
+
 			if (false == bConsumed)
 			{
 				// 입력 미소비 (콤보 윈도우 미오픈 등) → GA의 FlushTag로 버퍼에 저장
@@ -95,6 +100,10 @@ bool US1PlayerAbilitySystemComponent::ActivateAbility(const FGameplayTag& Abilit
 		ClearQueue();
 		return true;
 	}
+
+	// [AirCombo] 진단 — 여기 찍히면 재입력 시 활성 GA가 없어 재활성 불가 → 새 활성화로 떨어짐(State.Used 차단 대상)
+	LOG(TEXT("[AirCombo][%s] reactivate NO-ACTIVE-SPEC tag=%s -> new-activation path"),
+		IsOwnerActorAuthoritative() ? TEXT("AUTH") : TEXT("AUTO"), *AbilityTag.ToString());
 
 	// 대상 GA의 AbilityTags 수집 (크로스 콤보 비교용)
 	FGameplayTagContainer TargetAbilityTags;

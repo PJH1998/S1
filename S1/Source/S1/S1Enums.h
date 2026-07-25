@@ -63,6 +63,7 @@ enum class ES1HitReactType : uint8
 	Weak    = 1 UMETA(DisplayName = "Weak"),
 	Strong  = 2 UMETA(DisplayName = "Strong"),
 	Launch  = 3 UMETA(DisplayName = "Launch"),
+	Guard   = 4 UMETA(DisplayName = "Guard"),  // 가드 차단 시 사운드 전용(AI 리액션/몽타주 경로엔 안 흐름)
 };
 
 UENUM(BlueprintType)

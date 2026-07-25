@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GameplayTagContainer.h"
 #include "AbilitySystemInterface.h"
+#include "S1Enums.h"
 #include "S1Character.generated.h"
 
 class US1AbilitySystemComponent;
@@ -62,6 +63,15 @@ public:
 	// 이펙트 추적이 각 머신 로컬이라 Multicast로 전체 머신에서 각자 정리해야 함
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastClearAllAttachedEffects();
+
+	// 피격 사운드를 전 클라에서 로컬 3D 재생 — GE는 서버에서만 실행(몬스터 ASC Minimal / 플레이어도 PostGameplayEffectExecute
+	// 서버 전용)되므로 사운드는 멀티캐스트로 각 머신에 전파해야 데디/리모트 클라에서 들림. 코스메틱이라 Unreliable.
+	// HitType이 Guard면 임팩트음만(막은 거라 피격 보이스 생략).
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastPlayHitSound(FGameplayTag SoundBaseTag, ES1HitReactType HitType, FVector Location);
+
+	// 피격 보이스(그런트) 태그 — 베이스는 무효(플레이어는 몽타주 노티파이로 처리), 몬스터가 override
+	virtual FGameplayTag GetHitVoiceSoundTag() const { return FGameplayTag(); }
 
 	FVector GetPendingHitLaunchVelocity() const { return PendingHitLaunchVelocity; }
 	FVector GetPendingHitFacingDirection() const { return PendingHitFacingDirection; }

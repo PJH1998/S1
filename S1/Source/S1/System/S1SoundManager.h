@@ -35,6 +35,9 @@ public:
 	// US1SoundData를 조회 후 재생.
 	void PlayHitSound(const FGameplayTag& BaseTag, ES1HitReactType HitType);
 
+	// 위와 동일하되 3D 위치 재생 — 피격 사운드를 각 클라 로컬에서 거리감 있게 재생(멀티캐스트 경유). 데디서버 no-op.
+	void PlayHitSoundAtLocation(const FGameplayTag& BaseTag, ES1HitReactType HitType, const FVector& Location);
+
 	// 태그로 US1SoundData를 조회 후 2D 재생 — 위치 없는 1회성 이벤트(팡파레/UI). 데디서버에선 no-op.
 	void PlaySoundByTag(const FGameplayTag& SoundTag);
 

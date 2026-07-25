@@ -41,7 +41,7 @@ public:
 	bool				IsDead()				const { return bIsDead; }
 	bool				HasTarget()				const { return bHasTarget; }
 	FGameplayTag		GetDropTableTag()	const { return DropTableTag; }
-	FGameplayTag		GetHitVoiceSoundTag() const { return HitVoiceSoundTag; }
+	virtual FGameplayTag GetHitVoiceSoundTag() const override { return HitVoiceSoundTag; }
 	const FText&		GetMonsterName()	const { return MonsterName; }
 	void				SetMonsterName(const FText& InMonsterName);
 

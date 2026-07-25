@@ -142,6 +142,32 @@ void US1SoundManager::PlayHitSound(const FGameplayTag& BaseTag, ES1HitReactType 
 	PlaySound(SoundData->FindSound(ComposedTag));
 }
 
+void US1SoundManager::PlayHitSoundAtLocation(const FGameplayTag& BaseTag, ES1HitReactType HitType, const FVector& Location)
+{
+	if (GetWorld()->GetNetMode() == NM_DedicatedServer)
+	{
+		return;
+	}
+
+	const FGameplayTag OutcomeTag = S1HitReactLibrary::HitReactTypeToTag(HitType);
+	const FGameplayTag ComposedTag = ComposeHitSoundTag(BaseTag, OutcomeTag);
+	if (false == ComposedTag.IsValid())
+	{
+		return;
+	}
+
+	US1SoundData* SoundData = US1AssetManager::GetAssetByTag<US1SoundData>(S1AssetTags::Asset_SoundData);
+	if (false == IsValid(SoundData))
+	{
+		return;
+	}
+
+	if (USoundBase* Sound = SoundData->FindSound(ComposedTag))
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, Sound, Location);
+	}
+}
+
 void US1SoundManager::PlaySoundByTag(const FGameplayTag& SoundTag)
 {
 	if (GetWorld()->GetNetMode() == NM_DedicatedServer)

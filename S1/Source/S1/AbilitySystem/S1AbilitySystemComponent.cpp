@@ -121,6 +121,24 @@ bool US1AbilitySystemComponent::IsAbilityPredicted(const FGameplayTag& AbilityTa
 		return false;
 	}
 
+	// 재입력(콤보 진행)은 새 활성화가 아니라 "이미 활성 중인 GA의 재활성"이다.
+	// 활성 GA의 Blocked 태그(예: State.Used.Air.*)는 새 활성화만 막고 재활성은 안 막으므로,
+	// DoesAbilitySatisfyTagRequirements로 판정하면 공중 재입력 때 모든 변형이 탈락→false→ServerOnly 경로로 새어
+	// 소유 클라의 예측 재활성이 깨진다(서버만 콤보 진행, 클라는 1타에서 멈춤). → 활성 GA가 있으면 그 정책으로 먼저 판정.
+	for (auto& Handle : *Handles)
+	{
+		FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(Handle);
+		if (nullptr == Spec || nullptr == Spec->Ability || false == Spec->IsActive())
+		{
+			continue;
+		}
+
+		return EGameplayAbilityNetExecutionPolicy::LocalPredicted == Spec->Ability->GetNetExecutionPolicy();
+	}
+
+	// 활성 GA 없음 = 새 활성화 — 같은 AbilityTag 아래 정책이 다른 변형이 섞일 수 있으니(예: Skill04 Ground/Air는
+	// LocalPredicted, 게이지 Max 시 같은 태그의 Ultimate는 ServerOnly) 현재 Required/Blocked 태그를 실제로
+	// 만족하는 후보만 봐야 "지금 발동될 GA"의 정책을 올바르게 판정할 수 있음
 	for (auto& Handle : *Handles)
 	{
 		FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(Handle);
@@ -129,9 +147,6 @@ bool US1AbilitySystemComponent::IsAbilityPredicted(const FGameplayTag& AbilityTa
 			continue;
 		}
 
-		// 같은 AbilityTag 아래 정책이 다른 변형이 섞일 수 있음(예: Skill04 Ground/Air는 LocalPredicted,
-		// 게이지 Max 시 같은 태그로 묶이는 Ultimate는 ServerOnly) — 현재 Required/Blocked 태그를
-		// 실제로 만족하는 후보만 봐야 "지금 발동될 GA"의 정책을 올바르게 판정할 수 있음
 		if (false == Spec->Ability->DoesAbilitySatisfyTagRequirements(*this))
 		{
 			continue;
