@@ -86,6 +86,11 @@ void US1BossStatus::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	{
 		LerpValue = CurrentValue;
 	}
+	else if (GetLineCount(CurrentValue) != GetLineCount(LerpValue))
+	{
+		// 라인 경계를 넘으면 트레일을 새 라인 기준으로 리셋(이전 라인 값이 새 라인 비율 계산에 새어 들어가 투명하게 보이는 것 방지).
+		LerpValue = CurrentValue;
+	}
 	else
 	{
 		const float LerpDelta = FMath::Max(MaxValue, 1.f) * LerpSpeed * InDeltaTime;

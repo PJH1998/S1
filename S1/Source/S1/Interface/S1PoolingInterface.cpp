@@ -37,7 +37,10 @@ void IS1PoolingInterface::OnReturnToPool()
 		}
 		Self->SetActorEnableCollision(false);
 		Self->SetActorTickEnabled(false);
+
+		// 도먼트 전환 직전 상태(Hidden 등)를 1회 강제 복제 — 안 하면 도먼트 전환과 경합해 클라에 누락될 수 있음.
 		Self->SetNetDormancy(ENetDormancy::DORM_DormantAll);
+		Self->FlushNetDormancy();
 	}
 }
 

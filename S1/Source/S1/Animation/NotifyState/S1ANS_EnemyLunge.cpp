@@ -5,6 +5,7 @@
 #include "AI/S1AIController.h"
 #include "AIController.h"
 #include "Animation/AnimInstance.h"
+#include "Character/S1Character.h"
 #include "Character/S1Monster.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -157,10 +158,13 @@ void US1ANS_EnemyLunge::FinishLunge(USkeletalMeshComponent* MeshComp, ACharacter
 			Velocity.X = 0.f;
 			Velocity.Y = 0.f;
 			Movement->Velocity = Velocity;
+		}
 
-			if (bEnableGravity == false)
+		if (bEnableGravity == false)
+		{
+			if (AS1Character* S1Char = Cast<AS1Character>(Character))
 			{
-				Movement->GravityScale = State.CachedGravityScale;
+				S1Char->SetReplicatedGravityScale(State.CachedGravityScale);
 			}
 		}
 	}
@@ -184,6 +188,12 @@ void US1ANS_EnemyLunge::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSeque
 
 	AS1Monster* Monster = Cast<AS1Monster>(MeshComp->GetOwner());
 	if (Monster == nullptr || Monster->IsDead())
+	{
+		return;
+	}
+
+	// 이동 계산은 서버 권한에서만 — 클라는 캐릭터 무브먼트 복제로 따라온다(S1ANS_WallKickDash와 동일 패턴).
+	if (false == Monster->HasAuthority())
 	{
 		return;
 	}
@@ -213,7 +223,7 @@ void US1ANS_EnemyLunge::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSeque
 		State.CachedGravityScale = Movement->GravityScale;
 		if (bEnableGravity == false)
 		{
-			Movement->GravityScale = 0.f;
+			Monster->SetReplicatedGravityScale(0.f);
 		}
 	}
 }

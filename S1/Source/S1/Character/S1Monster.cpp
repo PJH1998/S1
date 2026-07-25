@@ -615,6 +615,13 @@ void AS1Monster::ResetForPoolSpawn()
 // bIsDead 해제, 체력·이동·캡슐·스켈레탈 애니를 전투 가능 상태로 복원.
 void AS1Monster::RestoreAliveState()
 {
+	// 디졸브 파라미터 리셋 — HasAuthority 가드 없이: 서버(ResetForPoolSpawn)뿐 아니라 클라(OnRep_IsDead)도 이 경로로만 부활하므로
+	// 여기서 안 하면 클라 로컬 디졸브 틱이 서버 리스폰 복제보다 늦게 끝났을 때 재사용된 메시가 디졸브된 채로 남는다.
+	if (US1DeathPresentationComponent* DeathPresentation = GetDeathPresentationComponent())
+	{
+		DeathPresentation->StopPresentation();
+	}
+
 	bIsDead = false;
 	bDeathPoseFrozen = false;
 	bDeathPresentationStarted = false;

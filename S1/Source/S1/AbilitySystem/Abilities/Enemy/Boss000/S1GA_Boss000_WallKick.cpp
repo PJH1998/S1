@@ -7,11 +7,13 @@
 #include "AI/S1AIController.h"
 #include "Animation/AnimInstance.h"
 #include "Character/Boss/Boss000/S1Boss_000.h"
+#include "Character/Player/S1Player.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Data/S1AnimData.h"
 #include "Engine/World.h"
 #include "Interaction/Gimmick/S1Boss000_Gimmick.h"
+#include "Kismet/GameplayStatics.h"
 #include "System/S1AssetManager.h"
 #include "System/S1GimmickManager.h"
 
@@ -43,7 +45,8 @@ void US1GA_Boss000_WallKick::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 		return;
 	}
 
-	// 패턴 동안 중력·캡슐 콜리전 off — 기둥에 안 걸리고 홉 사이에 기둥 위에 머물게. EndAbility에서 복원.
+	// 패턴 동안 중력 off — 홉 사이에 기둥 위에 머물게. EndAbility에서 복원.
+	// 첫 홉은 바닥→기둥이라 무시할 "현재 기둥"이 아직 없음 — 다음 Move/Slash 페이즈 시작 시점에 그때의 CurrentPillar(=착지한 기둥)를 무시 처리.
 	BeginPatternMovement();
 
 	const FVector FirstTarget = CurrentPillar->GetJumpTopLocation();
@@ -148,6 +151,8 @@ bool US1GA_Boss000_WallKick::StartMovePhase()
 		return false;
 	}
 
+	// 지금 밟고 서 있는(출발할) 기둥만 무시 대상으로 — 다음 값으로 덮어쓰기 전에 캡처.
+	SetIgnoredPillar(CurrentPillar.Get());
 	CurrentPillar = NextPillar;
 	const FVector NextTarget = NextPillar->GetJumpTopLocation();
 	Monster->SetWallKickTarget(NextTarget);
@@ -173,6 +178,9 @@ void US1GA_Boss000_WallKick::StartSlashPhase()
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
+
+	// 마지막으로 밟고 있던 기둥에서 플레이어 쪽으로 이탈 — 그 기둥만 무시 대상으로.
+	SetIgnoredPillar(CurrentPillar.Get());
 
 	CurrentPhase = EWallKickPhase::Slash;
 	ActiveMontage = Montage;
@@ -286,12 +294,7 @@ void US1GA_Boss000_WallKick::BeginPatternMovement()
 	}
 
 	SetGravityScale(0.f);
-
-	// 캡슐 콜리전 off — dash가 기둥(WorldStatic)에 막히지 않게. 공격 콜리전 컴포넌트는 별개라 영향 없음.
-	//if (UCapsuleComponent* Capsule = Monster->GetCapsuleComponent())
-	//{
-	//	Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//}
+	IgnoreAllPlayers(true);
 
 	bPatternMovementActive = true;
 }
@@ -304,17 +307,65 @@ void US1GA_Boss000_WallKick::EndPatternMovement()
 	}
 
 	ResetGravityScale();
-
-	// 살아있는 상태의 캡슐 콜리전으로 복원(RestoreAliveState와 동일).
-	//if (AS1Boss_000* Monster = GetMonster())
-	//{
-	//	if (UCapsuleComponent* Capsule = Monster->GetCapsuleComponent())
-	//	{
-	//		Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	//	}
-	//}
+	SetIgnoredPillar(nullptr);
+	IgnoreAllPlayers(false);
 
 	bPatternMovementActive = false;
+}
+
+void US1GA_Boss000_WallKick::IgnoreAllPlayers(bool bShouldIgnore)
+{
+	AS1Boss_000* Monster = GetMonster();
+	UCapsuleComponent* Capsule = Monster ? Monster->GetCapsuleComponent() : nullptr;
+	if (nullptr == Capsule)
+	{
+		return;
+	}
+
+	if (bShouldIgnore)
+	{
+		TArray<AActor*> Players;
+		UGameplayStatics::GetAllActorsOfClass(Monster->GetWorld(), AS1Player::StaticClass(), Players);
+		for (AActor* Player : Players)
+		{
+			Capsule->IgnoreActorWhenMoving(Player, true);
+			IgnoredPlayers.Add(Player);
+		}
+	}
+	else
+	{
+		for (const TWeakObjectPtr<AActor>& Player : IgnoredPlayers)
+		{
+			if (Player.IsValid())
+			{
+				Capsule->IgnoreActorWhenMoving(Player.Get(), false);
+			}
+		}
+		IgnoredPlayers.Empty();
+	}
+}
+
+void US1GA_Boss000_WallKick::SetIgnoredPillar(AS1Boss000_Gimmick* NewPillar)
+{
+	if (IgnoredPillar.Get() == NewPillar)
+	{
+		return;
+	}
+
+	AS1Boss_000* Monster = GetMonster();
+	UCapsuleComponent* Capsule = Monster ? Monster->GetCapsuleComponent() : nullptr;
+
+	if (Capsule && IgnoredPillar.IsValid())
+	{
+		Capsule->IgnoreActorWhenMoving(IgnoredPillar.Get(), false);
+	}
+
+	IgnoredPillar = NewPillar;
+
+	if (Capsule && NewPillar)
+	{
+		Capsule->IgnoreActorWhenMoving(NewPillar, true);
+	}
 }
 
 void US1GA_Boss000_WallKick::FaceTowards(const FVector& TargetLocation) const

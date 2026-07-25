@@ -207,6 +207,25 @@ void US1DeathPresentationComponent::ResetFadeMaterials()
 	if (PresentationMode == EDeathPresentation::Dissolve)
 	{
 		ApplyDissolveAmount(0.f);
+
+		// 엣지 발광도 함께 꺼야 한다 — DissolveAmount만 0으로 되돌리면 InitializeFadeMaterials가 심은
+		// HDR 엣지 컬러/폭이 MID에 남아, 노이즈 하위 텍셀이 점점이 빛나는 채로 풀 재사용된다.
+		for (UMaterialInstanceDynamic* MID : FadeMIDs)
+		{
+			if (MID == nullptr)
+			{
+				continue;
+			}
+
+			if (DissolveEdgeWidthParameterName != NAME_None)
+			{
+				MID->SetScalarParameterValue(DissolveEdgeWidthParameterName, 0.f);
+			}
+			if (DissolveEdgeColorParameterName != NAME_None)
+			{
+				MID->SetVectorParameterValue(DissolveEdgeColorParameterName, FLinearColor::Black);
+			}
+		}
 	}
 	else
 	{

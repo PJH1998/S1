@@ -61,9 +61,15 @@ private:
 	// 타깃 방향으로 보스를 즉시 회전(페이즈 시작 시 호출 — 이동 전 어색한 방향 응시 방지).
 	void FaceTowards(const FVector& TargetLocation) const;
 
-	// 패턴 동안 중력 off + 캡슐 콜리전 off(기둥에 안 걸리고 올라탄 상태 유지), 종료 시 복원. 어빌리티 단위.
+	// 패턴 동안 중력 off, 종료 시 복원. 어빌리티 단위.
 	void BeginPatternMovement();
 	void EndPatternMovement();
+
+	// 현재 밟고 있는 기둥만 캡슐 콜리전 무시 대상으로 교체(가장자리에 걸려 낑기는 것 방지). 목표 기둥은 그대로 막혀 있어 착지 지점 역할.
+	void SetIgnoredPillar(AS1Boss000_Gimmick* NewPillar);
+
+	// 패턴 동안 모든 플레이어를 캡슐 콜리전 무시 대상으로(대시가 플레이어에 막혀 흔들리는 것 방지). 코옵 대비 접속된 전원 대상.
+	void IgnoreAllPlayers(bool bShouldIgnore);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "WallKick")
@@ -107,7 +113,13 @@ private:
 	int32 TargetHops = 0;
 	TWeakObjectPtr<AS1Boss000_Gimmick> CurrentPillar;
 
-	// 패턴 이동 상태 복원용(중력 + 캡슐 콜리전). 중력은 SetGravityScale/ResetGravityScale이 이전값을 캐싱.
+	// 캡슐 콜리전을 현재 무시 중인 기둥(SetIgnoredPillar로만 교체). 어빌리티 종료 시 반드시 원복.
+	TWeakObjectPtr<AS1Boss000_Gimmick> IgnoredPillar;
+
+	// IgnoreAllPlayers(true)로 무시 처리한 플레이어 목록 — false 호출 시 정확히 이 목록만 원복.
+	TArray<TWeakObjectPtr<AActor>> IgnoredPlayers;
+
+	// 패턴 이동 상태 복원용(중력). SetGravityScale/ResetGravityScale이 이전값을 캐싱.
 	bool bPatternMovementActive = false;
 
 	// 페이즈 전환 중(이전 몽타주 블렌드아웃 중에 다음 것을 시작) 자기-중단 콜백 무시용.
