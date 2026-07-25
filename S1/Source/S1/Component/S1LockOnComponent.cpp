@@ -5,7 +5,7 @@
 
 US1LockOnComponent::US1LockOnComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	// CreateDefaultSubobject → 뷰포트에 표시 + BP에서 채널 설정 가능
 	LockOnSphere = CreateDefaultSubobject<USphereComponent>(TEXT("LockOnSphere"));
@@ -46,23 +46,6 @@ void US1LockOnComponent::BeginPlay()
 		if (false == Actor->Implements<US1LockOnInterface>()) { continue; }
 		CandidateSet.Add(Actor);
 	}
-}
-
-// ── Tick ─────────────────────────────────────────────────────────────────────
-
-void US1LockOnComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-#if ENABLE_DRAW_DEBUG
-	for (const TWeakObjectPtr<AActor>& Weak : CandidateSet)
-	{
-		if (Weak.IsValid())
-		{
-			DrawDebugSphere(GetWorld(), Weak->GetActorLocation(), 60.f, 12, FColor::Red, false, -1.f, 0, 2.f);
-		}
-	}
-#endif
 }
 
 // ── 입력 ─────────────────────────────────────────────────────────────────────

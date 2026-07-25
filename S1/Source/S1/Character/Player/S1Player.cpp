@@ -596,6 +596,10 @@ void AS1Player::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
+	// [AirCombo] 진단 — 조인 클라(AUTO)에서 공중 콤보 중 이게 찍히면 거짓 착지 확정
+	LOG(TEXT("[AirCombo][%s] Landed()"),
+		GetLocalRole() == ROLE_Authority ? TEXT("AUTH") : GetLocalRole() == ROLE_AutonomousProxy ? TEXT("AUTO") : TEXT("SIM"));
+
 	// 공중 태그 제거는 OnMovementModeChanged(MOVE_Walking 진입)가 처리 — 여기선 착지 이벤트만
 	if (false == IsValid(AbilitySystemComponent))
 	{
@@ -628,6 +632,11 @@ void AS1Player::ApplyAirState(bool bInAir)
 	{
 		return;
 	}
+
+	// [AirCombo] 진단 — 조인 클라(AUTO)에서 공중 콤보 중 bInAir=0이 찍히면 State.Air/State.Used가 여기서 풀림
+	LOG(TEXT("[AirCombo][%s] ApplyAirState bInAir=%d"),
+		GetLocalRole() == ROLE_Authority ? TEXT("AUTH") : GetLocalRole() == ROLE_AutonomousProxy ? TEXT("AUTO") : TEXT("SIM"),
+		bInAir ? 1 : 0);
 
 	if (bInAir)
 	{
@@ -856,6 +865,9 @@ void AS1Player::ActivateAbility(const FGameplayTag& AbilityTag)
 		if (US1PlayerAbilitySystemComponent* PlayerASC = Cast<US1PlayerAbilitySystemComponent>(AbilitySystemComponent))
 		{
 			const FPredictionKey ReactivationKey = PlayerASC->ConsumePendingReactivationKey();
+			// [AirCombo] 진단 — 조인 클라 재입력: keyValid=1이면 재활성이 서버로 전달됨, 0이면 재활성 실패(새활성화로 처리됨)
+			LOG(TEXT("[AirCombo][AUTO] ActivateAbility(predicted) tag=%s reactivateKeyValid=%d"),
+				*AbilityTag.ToString(), ReactivationKey.IsValidKey() ? 1 : 0);
 			if (ReactivationKey.IsValidKey())
 			{
 				ServerReactivateAbility(AbilityTag, ReactivationKey);

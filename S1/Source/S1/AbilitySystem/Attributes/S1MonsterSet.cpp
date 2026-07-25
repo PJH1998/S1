@@ -4,6 +4,7 @@
 #include "GameplayEffectExtension.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
+#include "AbilitySystem/S1HitReactLibrary.h"
 #include "Character/S1Monster.h"
 #include "Data/S1DataTableData.h"
 #include "Engine/World.h"
@@ -50,6 +51,12 @@ void US1MonsterSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackDa
 
 		// 데미지 폰트는 클라이언트 HP바(S1MonsterHPBar::NativeTick)에서 HP 감소를 감지하여 출력
 		// — PostGameplayEffectExecute는 서버 전용이므로 여기서 직접 호출하지 않음
+
+		// 피격음 — 서버 전용 훅이라 멀티캐스트로 전 클라 3D 재생(플레이어와 동일하게 HP 실제 감소 시에만).
+		// 보스 가드 정면 차단은 US1BossSet가 Super 호출 전에 return하므로 여기까지 안 옴 → 가드음은 BossSet가 담당.
+		const ES1HitReactType HitType = S1HitReactLibrary::ParseHitTypeFromSpec(Data.EffectSpec);
+		const FGameplayTag SoundBaseTag = S1HitReactLibrary::FindSoundBaseTag(Data.EffectSpec);
+		Monster->MulticastPlayHitSound(SoundBaseTag, HitType, DamageLocation);
 
 		// 공격한 플레이어의 얼티밋 게이지를 실제 적용된(방어력 반영) 데미지만큼 증가
 		if (UAbilitySystemComponent* SourceASC = Data.EffectSpec.GetContext().GetInstigatorAbilitySystemComponent())

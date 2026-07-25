@@ -67,11 +67,7 @@ void AS1BossBase::MulticastNotifyGuardBlocked_Implementation(const FVector& InBl
 			CombatFeedback->ShowBlockNumber(InBlockLocation);
 		}
 
-		// 가드 차단음 — 각 머신 로컬 재생(데디서버 제외는 SoundManager가 처리).
-		if (US1SoundManager* SoundManager = World->GetSubsystem<US1SoundManager>())
-		{
-			SoundManager->PlaySoundAtLocationByTag(S1SoundTags::Sound_Boss_GuardBlock, InBlockLocation);
-		}
+		// 가드 차단음은 US1BossSet가 MulticastPlayHitSound(HitType::Guard)로 무기별 재생 — 여기선 블록 넘버만.
 	}
 }
 

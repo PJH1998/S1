@@ -68,4 +68,6 @@ private:
 
 	FGameplayTag CachedAssetTag;
 	FGameplayTag CachedTableTag;
+
+	float GaugeMagnification = 5.f;
 };

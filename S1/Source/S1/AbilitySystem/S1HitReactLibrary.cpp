@@ -39,6 +39,7 @@ FGameplayTag S1HitReactLibrary::HitReactTypeToTag(ES1HitReactType HitType)
 	case ES1HitReactType::Weak:   return S1HitType::HitType_Weak;
 	case ES1HitReactType::Strong: return S1HitType::HitType_Strong;
 	case ES1HitReactType::Launch: return S1HitType::HitType_ToAir;
+	case ES1HitReactType::Guard:  return S1HitType::HitType_Guard;
 	default: break;
 	}
 

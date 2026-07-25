@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AbilitySystem/Attributes/Player/S1PlayerSet.h"
 #include "AbilitySystemComponent.h"
@@ -7,7 +7,6 @@
 #include "Data/S1DataTableData.h"
 #include "S1DataTableTypes.h"
 #include "System/S1AssetManager.h"
-#include "System/S1HitLagManager.h"
 #include "System/S1SoundManager.h"
 #include "AbilitySystem/S1HitReactLibrary.h"
 #include "Character/Player/S1Player.h"
@@ -41,18 +40,8 @@ void US1PlayerSet::PreAttributeChange(const FGameplayAttribute& Attribute, float
 		return;
 	}
 
+	// 무적(회피) 중 데미지 무효화 — 퍼펙트닷지 HitLag(슬로우모션)은 제거됨
 	NewValue = GetHealth();
-
-	UGameInstance* GI = ASC->GetWorld()->GetGameInstance();
-	if (nullptr == GI)
-	{
-		return;
-	}
-
-	if (US1HitLagManager* HitLag = GI->GetSubsystem<US1HitLagManager>())
-	{
-		HitLag->TriggerHitLag(S1HitLagTags::HitLag_PerfectDodge);
-	}
 }
 
 void US1PlayerSet::InitAttributeFromTable(const FGameplayTag& AssetTag, const FGameplayTag& TableTag, FName RowName)
@@ -112,16 +101,7 @@ void US1PlayerSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackDat
 {
 	Super::PostGameplayEffectExecute(Data);
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(
-			TEXT("[PlayerSet] PostGameplayEffectExecute 호출됨 — Attribute: %s, Magnitude: %.1f"),
-			*Data.EvaluatedData.Attribute.GetName(), Data.EvaluatedData.Magnitude));
-	}
-
-	// 피격 리액션(GA_Hit) 트리거 + 사운드 — ReactComponent 대신 여기서 처리(HP 감소 시에만 정확히 발동).
-	// ⚠️ 간단 테스트용: PostGameplayEffectExecute는 서버 전용이라 사운드는 서버(리슨 서버 호스트)에서만 들림 —
-	// 리모트 클라 전파 여부는 아직 검증 안 됨.
+	// 피격 리액션(GA_Hit) 트리거는 여기서(서버), 사운드는 MulticastPlayHitSound로 전 클라 재생 — HP 감소 시에만.
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute() && Data.EvaluatedData.Magnitude < 0.f)
 	{
 		UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
@@ -134,23 +114,10 @@ void US1PlayerSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackDat
 
 		AActor* Avatar = IsValid(ASC) ? ASC->GetAvatarActor() : nullptr;
 
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("[PlayerSet] PostGameplayEffectExecute 진입 (HP 감소 감지)"));
-		}
-
-		LOG(TEXT("[PlayerSet] HP -%.1f 감지 — Avatar: %s, NetMode: %d, HasAuthority: %s"),
-			-Data.EvaluatedData.Magnitude,
-			IsValid(Avatar) ? *Avatar->GetName() : TEXT("None"),
-			Avatar ? (int32)Avatar->GetNetMode() : -1,
-			(IsValid(Avatar) && Avatar->HasAuthority()) ? TEXT("true") : TEXT("false"));
-
 		if (IsValid(Avatar) && Avatar->HasAuthority())
 		{
 			const ES1HitReactType HitType = S1HitReactLibrary::ParseHitTypeFromSpec(Data.EffectSpec);
 			const FGameplayTag HitTypeTag = S1HitReactLibrary::HitReactTypeToTag(HitType);
-
-			LOG(TEXT("[PlayerSet] HitType: %d, HitTypeTag: %s"), (int32)HitType, *HitTypeTag.ToString());
 
 			if (HitTypeTag.IsValid())
 			{
@@ -173,16 +140,21 @@ void US1PlayerSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackDat
 					ASC->HandleGameplayEvent(TriggerTag, &Payload);
 				}
 
+				// 피격음 — PostGameplayEffectExecute는 서버 전용이라 직접 재생하면 데디/리모트 클라에서 안 들림.
+				// AS1Character 멀티캐스트로 전 클라 3D 재생. HP 0 이하(사망)여도 피격음 자체는 재생.
 				const FGameplayTag SoundBaseTag = S1HitReactLibrary::FindSoundBaseTag(Data.EffectSpec);
-				US1SoundManager* SoundManager = Avatar->GetWorld()->GetSubsystem<US1SoundManager>();
-
-				LOG(TEXT("[PlayerSet] SoundBaseTag: %s, SoundManager: %s"),
-					*SoundBaseTag.ToString(),
-					IsValid(SoundManager) ? TEXT("Valid") : TEXT("nullptr"));
-
-				if (SoundManager)
+				FVector HitLocation = Avatar->GetActorLocation();
+				if (const FHitResult* HitResult = Data.EffectSpec.GetContext().GetHitResult())
 				{
-					SoundManager->PlayHitSound(SoundBaseTag, HitType);
+					if (false == HitResult->ImpactPoint.IsNearlyZero())
+					{
+						HitLocation = HitResult->ImpactPoint;
+					}
+				}
+
+				if (AS1Player* Player = Cast<AS1Player>(Avatar))
+				{
+					Player->MulticastPlayHitSound(SoundBaseTag, HitType, HitLocation);
 				}
 			}
 		}
@@ -244,7 +216,9 @@ void US1PlayerSet::OnRep_MaxUltimateGauge(const FGameplayAttributeData& OldMaxUl
 
 void US1PlayerSet::AddUltimateGauge(float Amount)
 {
-	const float NewGauge = FMath::Clamp(GetCurrentUltimateGauge() + Amount, 0.f, GetMaxUltimateGauge());
+	float IncreaseGauge = Amount * GaugeMagnification;
+
+	const float NewGauge = FMath::Clamp(GetCurrentUltimateGauge() + IncreaseGauge, 0.f, GetMaxUltimateGauge());
 	SetCurrentUltimateGauge(NewGauge);
 	UpdateCanUltimateTag();
 }

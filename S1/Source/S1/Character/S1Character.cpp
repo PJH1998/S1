@@ -9,6 +9,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "NiagaraComponent.h"
+#include "Engine/World.h"
+#include "System/S1SoundManager.h"
 
 // Sets default values
 AS1Character::AS1Character()
@@ -39,6 +41,36 @@ UAbilitySystemComponent* AS1Character::GetAbilitySystemComponent() const
 
 void AS1Character::InitSystem()
 {
+}
+
+void AS1Character::MulticastPlayHitSound_Implementation(FGameplayTag SoundBaseTag, ES1HitReactType HitType, FVector Location)
+{
+	UWorld* World = GetWorld();
+	if (false == ::IsValid(World))
+	{
+		return;
+	}
+
+	US1SoundManager* SoundManager = World->GetSubsystem<US1SoundManager>();
+	if (false == ::IsValid(SoundManager))
+	{
+		return;
+	}
+
+	if (SoundBaseTag.IsValid())
+	{
+		SoundManager->PlayHitSoundAtLocation(SoundBaseTag, HitType, Location);
+	}
+
+	// 가드는 막은 거라 피격 보이스(그런트) 생략 — 실제 피격(Weak/Strong/Launch)에만 재생
+	if (HitType != ES1HitReactType::Guard)
+	{
+		const FGameplayTag VoiceTag = GetHitVoiceSoundTag();
+		if (VoiceTag.IsValid())
+		{
+			SoundManager->PlaySoundAtLocationByTag(VoiceTag, Location);
+		}
+	}
 }
 
 void AS1Character::MulticastPlayMontage_Implementation(UAnimMontage* Montage, float Rate, FName StartSection)
