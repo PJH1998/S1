@@ -115,8 +115,10 @@ void AS1Monster::SetReplicatedLocomotionState(EEnemyLocomotionMode Mode, EEnemyL
 
 void AS1Monster::MulticastSetTimeFrozen_Implementation(bool bFrozen)
 {
-	// 서버 호출 → 전체 클라(+서버)에서 실행. CustomTimeDilation=0이면 AnimInstance 틱 델타도 0 → 몽타주/로코모션 정지
-	CustomTimeDilation = bFrozen ? 0.f : 1.f;
+	// 서버 호출 → 전체 클라(+서버)에서 실행. CustomTimeDilation=0이면 AnimInstance 틱 델타도 0 → 몽타주/로코모션 정지.
+	// 참조 카운트(push/pop): 궁극기 컷씬이 겹쳐도 마지막 Unfreeze 전까지는 정지 유지. Multicast가 freeze/unfreeze 대칭 호출이라 전 머신에서 카운트 균형.
+	TimeFreezeCount = FMath::Max(0, TimeFreezeCount + (bFrozen ? 1 : -1));
+	CustomTimeDilation = (TimeFreezeCount > 0) ? 0.f : 1.f;
 }
 
 void AS1Monster::OnRep_ReplicatedLocomotionState()

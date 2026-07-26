@@ -219,6 +219,9 @@ private:
 	bool bDeathPoseFrozen = { false };
 	bool bDeathPresentationStarted = { false };
 
+	/** 시간 정지 참조 카운트 — 여러 궁극기가 겹쳐도 마지막 Unfreeze까지 정지 유지 (push/pop). */
+	int32 TimeFreezeCount = { 0 };
+
 	/** 공중 점프 상태(서버 Tick에서 정점 감지용). */
 	bool bApexPending = { false };
 	float AirborneStartZ = { 0.f };
