@@ -54,7 +54,13 @@ public:
 	virtual void OnProgressionCycleCompleted(FGameplayTag EffectTag, int32 CycleCount, int32 MaxCycleCount) {}
 
 	// 몽타주 재생 직후 훅 (e.g. GA_Attack: AtkCollision 노티파이 스캔 → 서버 히트 윈도우 스케줄)
-	virtual void OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate) {}
+	// SectionName: 재생 시작 섹션 (NAME_None이면 몽타주 처음부터)
+	virtual void OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate, FName SectionName) {}
+
+	// 노티파이 스캔 범위를 몽타주 시간으로 돌려준다. SectionName이 NAME_None이거나 몽타주에
+	// 없는 이름이면 몽타주 전체 — 엔진의 Montage_JumpToSection도 무효 섹션이면 조용히 무시하고
+	// 0에서 재생하므로 범위와 재생 시작점이 일치한다
+	static bool GetMontageScanRange(const UAnimMontage* Montage, FName SectionName, float& OutStartTime, float& OutEndTime);
 
 	// protected인 GetAnimInstance를 Progression에서 호출 가능하도록 노출
 	US1AnimInstance* GetAnimInstanceForProgression() const;
@@ -93,7 +99,7 @@ protected:
 	// 몽타주의 MoveEvent 노티파이(데이터)를 읽어 활성화 시점(예측 스코프)에 루트모션 task 생성
 	// StrengthOverTime 커브로 노티파이 구간에만 force 적용 → 예측키 확보 + 구간 타이밍 정확
 	// Rate × Montage RateScale 배속을 반영해 montage-time을 real-time으로 변환
-	void ApplyMontageRootMotion(UAnimMontage* Montage, float Rate);
+	void ApplyMontageRootMotion(UAnimMontage* Montage, float Rate, FName SectionName);
 
 	// 이동 루트모션 중력 적용 — true면 XY만 루트모션/Z는 물리(§36). 자체 중력 제어(GravityScale=0) 서브클래스는 false
 	UPROPERTY(EditDefaultsOnly, Category = "Action|Move")
@@ -127,4 +133,9 @@ private:
 	// (empty = 점프 감지 안 함)
 	UPROPERTY(EditDefaultsOnly, Category = "Action|EarlyMove")
 	FGameplayTag JumpEventTag;
+
+	// 액션 상태 태그 부여/해제 — 넷 정책별로 태그·복제 방식을 고름. EarlyMove 후 EndAbility처럼 해제가 두 번 와도 1회만 처리
+	void SetActionStateTagHeld(bool bHeld);
+
+	bool bActionStateTagHeld = false;
 };

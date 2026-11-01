@@ -27,7 +27,7 @@ public:
 	virtual void OnProgressionMontageStarted() override;
 
 	// 몽타주 재생 시 — AtkCollision 노티파이 스캔 → 서버 히트 윈도우 타이머 스케줄
-	virtual void OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate) override;
+	virtual void OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate, FName SectionName) override;
 
 protected:
 	void StartRotateToCamera();
@@ -65,7 +65,7 @@ private:
 	void OnAttackBoxOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	// 서버 권위에서만 — 몽타주의 AtkCollision 윈도우(begin/end)를 real-time 타이머로 스케줄
-	void ScheduleHitWindows(UAnimMontage* Montage, float Rate);
+	void ScheduleHitWindows(UAnimMontage* Montage, float Rate, FName SectionName);
 	void ClearHitWindowTimers();
 	void EnableWeaponHitCollision(float AtkScale, FGameplayTag HitStrengthTag, FGameplayTag SoundBaseTag, ES1AttackHand Hand);
 	void DisableWeaponHitCollision(ES1AttackHand Hand);

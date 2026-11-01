@@ -4,8 +4,10 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/S1AttributeSet.h"
+#include "Component/S1InteractComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Player/S1PlayerState.h"
@@ -134,6 +136,14 @@ void AS1RespawnPillar::BindLocalPlayerState()
 void AS1RespawnPillar::OnLocalSpawnPointTagChanged(FGameplayTag NewTag)
 {
 	RefreshActivatedVisual();
+
+	// CanInteract() 결과가 방금 바뀌었지만 US1InteractComponent는 오버랩 이벤트에서만 재평가한다 —
+	// 여기서 갱신하지 않으면 범위를 벗어날 때까지 프롬프트가 남는다.
+	APawn* Pawn = BoundPlayerState.IsValid() ? BoundPlayerState->GetPawn() : nullptr;
+	if (US1InteractComponent* Interact = ::IsValid(Pawn) ? Pawn->FindComponentByClass<US1InteractComponent>() : nullptr)
+	{
+		Interact->UpdateNearestInteractable();
+	}
 }
 
 void AS1RespawnPillar::RefreshActivatedVisual()

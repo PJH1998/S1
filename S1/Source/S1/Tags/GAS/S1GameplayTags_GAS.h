@@ -107,6 +107,10 @@ namespace S1HitType
 namespace S1StateTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Action);
+	// ServerOnly 액션 GA 전용 — 소유 클라는 GA를 안 돌리므로 입력 차단을 복제로 받아야 함.
+	// LocalPredicted GA가 로컬로 쓰는 State.Action과 같은 명시 태그를 쓰면 클라 OnRep(SetTagMapCount, 명시 카운트 기준)이
+	// 로컬 예측 카운트를 덮어씀 → 하위 태그로 분리. Player 입력 검사는 State.Action 계층 매칭이라 둘 다 걸림
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Action_Replicated);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_CanNextAttack);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_CanUltimate);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Air);

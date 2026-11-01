@@ -53,6 +53,8 @@
 #include "CineCameraActor.h"
 #include "GameFramework/PlayerController.h"
 
+#include "System/S1ItemManager.h"
+
 AS1Player::AS1Player()
 {
 	bUseControllerRotationPitch = false;
@@ -596,10 +598,6 @@ void AS1Player::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	// [AirCombo] 진단 — 조인 클라(AUTO)에서 공중 콤보 중 이게 찍히면 거짓 착지 확정
-	LOG(TEXT("[AirCombo][%s] Landed()"),
-		GetLocalRole() == ROLE_Authority ? TEXT("AUTH") : GetLocalRole() == ROLE_AutonomousProxy ? TEXT("AUTO") : TEXT("SIM"));
-
 	// 공중 태그 제거는 OnMovementModeChanged(MOVE_Walking 진입)가 처리 — 여기선 착지 이벤트만
 	if (false == IsValid(AbilitySystemComponent))
 	{
@@ -632,11 +630,6 @@ void AS1Player::ApplyAirState(bool bInAir)
 	{
 		return;
 	}
-
-	// [AirCombo] 진단 — 조인 클라(AUTO)에서 공중 콤보 중 bInAir=0이 찍히면 State.Air/State.Used가 여기서 풀림
-	LOG(TEXT("[AirCombo][%s] ApplyAirState bInAir=%d"),
-		GetLocalRole() == ROLE_Authority ? TEXT("AUTH") : GetLocalRole() == ROLE_AutonomousProxy ? TEXT("AUTO") : TEXT("SIM"),
-		bInAir ? 1 : 0);
 
 	if (bInAir)
 	{
@@ -681,6 +674,7 @@ void AS1Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 #if !UE_BUILD_SHIPPING
 	if (IsValid(PlayerInputComponent))
 	{
+		PlayerInputComponent->BindKey(EKeys::NumPadSix, IE_Pressed, this, &ThisClass::DebugTriggerAddItem);
 		PlayerInputComponent->BindKey(EKeys::NumPadSeven, IE_Pressed, this, &ThisClass::DebugTriggerHit_Weak);
 		PlayerInputComponent->BindKey(EKeys::NumPadEight, IE_Pressed, this, &ThisClass::DebugTriggerHit_Strong);
 		PlayerInputComponent->BindKey(EKeys::NumPadNine,  IE_Pressed, this, &ThisClass::DebugTriggerHit_ToAir);
@@ -704,6 +698,23 @@ void AS1Player::DebugTriggerHit_Strong()
 void AS1Player::DebugTriggerHit_ToAir()
 {
 	ServerDebugTriggerHit(S1HitType::HitType_ToAir);
+}
+
+void AS1Player::DebugTriggerAddItem()
+{
+	ServerDebugTriggerAddItem();
+}
+
+void AS1Player::ServerDebugTriggerAddItem_Implementation()
+{
+#if !UE_BUILD_SHIPPING
+	US1ItemManager* ItemManager = GetWorld() ? GetWorld()->GetSubsystem<US1ItemManager>() : nullptr;
+
+	AController* OtherController = GetController();
+
+	ItemManager->ApplyPickup(OtherController, ES1DropItemType::Item, S1ItemTags::Item_Weapon_RPR02, S1ItemRarityTags::Item_Rarity_Rare, 1);
+	ItemManager->ApplyPickup(OtherController, ES1DropItemType::Item, S1ItemTags::Item_Weapon_SWD02, S1ItemRarityTags::Item_Rarity_Rare, 1);
+#endif
 }
 
 void AS1Player::ServerDebugTriggerHit_Implementation(FGameplayTag HitTypeTag)
@@ -765,20 +776,25 @@ void AS1Player::DebugDamageSelf50Percent()
 void AS1Player::ServerDebugDamageSelf50Percent_Implementation()
 {
 #if !UE_BUILD_SHIPPING
-	if (false == IsValid(AbilitySystemComponent))
+	if (false == IsValid(AbilitySystemComponent) || nullptr == DebugDamageEffect)
 	{
 		return;
 	}
 
-	if (false == IsValid(AttributeSet))
+	// HandleGameplayEvent 직접 호출 대신 실제 전투와 동일하게 데미지 GE를 적용 — PostGameplayEffectExecute가
+	// GE의 DynamicAssetTags에서 HitType을 파싱해 Hit/Death(HP<=0)를 알아서 트리거한다.
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DebugDamageEffect, 1.f, EffectContext);
+	if (false == SpecHandle.IsValid())
 	{
 		return;
 	}
 
-	const float NewHealth = FMath::Max(0.f, AttributeSet->GetHealth() - AttributeSet->GetMaxHealth() * 0.5f);
-	AttributeSet->SetHealth(NewHealth);
+	const float Damage = FMath::Max(0.f, AttributeSet->GetHealth());
+	SpecHandle.Data->SetSetByCallerMagnitude(S1SetByCallerTags::SetByCaller_Damage, -Damage);
+	SpecHandle.Data->AppendDynamicAssetTags(FGameplayTagContainer(S1HitType::HitType_Weak));
 
-	LOG(TEXT("[DebugDamage] HP 50%% 감소 — Current: %.0f / %.0f"), AttributeSet->GetHealth(), AttributeSet->GetMaxHealth());
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 #endif
 }
 
@@ -865,9 +881,6 @@ void AS1Player::ActivateAbility(const FGameplayTag& AbilityTag)
 		if (US1PlayerAbilitySystemComponent* PlayerASC = Cast<US1PlayerAbilitySystemComponent>(AbilitySystemComponent))
 		{
 			const FPredictionKey ReactivationKey = PlayerASC->ConsumePendingReactivationKey();
-			// [AirCombo] 진단 — 조인 클라 재입력: keyValid=1이면 재활성이 서버로 전달됨, 0이면 재활성 실패(새활성화로 처리됨)
-			LOG(TEXT("[AirCombo][AUTO] ActivateAbility(predicted) tag=%s reactivateKeyValid=%d"),
-				*AbilityTag.ToString(), ReactivationKey.IsValidKey() ? 1 : 0);
 			if (ReactivationKey.IsValidKey())
 			{
 				ServerReactivateAbility(AbilityTag, ReactivationKey);

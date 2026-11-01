@@ -26,6 +26,10 @@ public:
 	// 탐지된 후보 중 가장 가까운 상호작용 대상(없으면 nullptr). CanInteract()가 false인 후보는 제외한다.
 	AActor* GetNearestInteractable() const;
 
+	// 가장 가까운 대상을 다시 계산해 이전과 다르면 OnNearestInteractableChanged를 브로드캐스트한다.
+	// 후보의 CanInteract() 결과가 오버랩 이벤트 없이 바뀌었을 때 외부에서 재평가를 요청하는 경로.
+	void UpdateNearestInteractable();
+
 	// 가장 가까운 상호작용 대상이 바뀔 때만 브로드캐스트(HUD 프롬프트 표시용).
 	UPROPERTY(BlueprintAssignable, Category = "Interact")
 	FS1NearestInteractableChangedSignature OnNearestInteractableChanged;
@@ -43,9 +47,6 @@ private:
 	UFUNCTION()
 	void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-	// 가장 가까운 대상을 다시 계산해 이전과 다르면 OnNearestInteractableChanged를 브로드캐스트한다.
-	void UpdateNearestInteractable();
 
 private:
 	// 뷰포트에서 보이고 에디터에서 채널 설정 가능

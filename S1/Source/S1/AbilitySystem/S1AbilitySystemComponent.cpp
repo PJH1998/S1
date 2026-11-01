@@ -5,16 +5,6 @@
 #include "System/S1AssetManager.h"
 #include "Tags/S1GameplayTags.h"
 #include "Data/S1AbilityData.h"
-#include "Net/UnrealNetwork.h"
-
-void US1AbilitySystemComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	// 소유 클라만 — LocalPredicted 활성화 조회에만 필요
-	DOREPLIFETIME_CONDITION(US1AbilitySystemComponent, ReplicatedTagSpecs, COND_OwnerOnly);
-}
-
 void US1AbilitySystemComponent::AddCharacterAbilities(const FGameplayTag& AssetTag)
 {
 	// 이미 부여된 그룹이면 재부여 안 함 — 안 막으면 리스폰처럼 같은 ASC에 PossessedBy가 다시 호출되는
@@ -32,16 +22,11 @@ void US1AbilitySystemComponent::AddCharacterAbilities(const FGameplayTag& AssetT
 	for (auto& AbilitySet : AbilityData->Abilities)
 	{
 		FGameplayAbilitySpec AbilitySpec(AbilitySet.Abilitiy, AbilitySet.AbilityLevel);
+		// 입력 태그를 스펙에 실어 복제한다 — OnGiveAbility가 이 태그로 TagToSpecHandles를 채운다
+		AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.AbilityTag);
 		FGameplayAbilitySpecHandle Handle = GiveAbility(AbilitySpec);
 
 		GroupHandles.Add(Handle);
-		TagToSpecHandles.FindOrAdd(AbilitySet.AbilityTag).Add(Handle);
-
-		// 소유 클라 복제용 매핑 기록
-		FS1AbilityTagSpec TagSpec;
-		TagSpec.Tag = AbilitySet.AbilityTag;
-		TagSpec.Handle = Handle;
-		ReplicatedTagSpecs.Add(TagSpec);
 	}
 }
 
@@ -53,39 +38,62 @@ void US1AbilitySystemComponent::RemoveCharacterAbilities(const FGameplayTag& Ass
 		return;
 	}
 
-	// 복제 매핑에서 이 그룹의 핸들 제거
-	ReplicatedTagSpecs.RemoveAll([GroupHandles](const FS1AbilityTagSpec& Entry)
-	{
-		return GroupHandles->Contains(Entry.Handle);
-	});
-
+	// TagToSpecHandles 정리는 ClearAbility → OnRemoveAbility가 핸들 단위로 처리한다
 	for (auto& Handle : *GroupHandles)
 	{
 		ClearAbility(Handle);
 	}
 
-	US1AbilityData* AbilityData = US1AssetManager::GetAssetByTag<US1AbilityData>(AssetTag);
-	for (auto& AbilitySet : AbilityData->Abilities)
-	{
-		TagToSpecHandles.Remove(AbilitySet.AbilityTag);
-	}
-
 	GroupToSpecHandles.Remove(AssetTag);
 }
 
-void US1AbilitySystemComponent::OnRep_ReplicatedTagSpecs()
+void US1AbilitySystemComponent::OnGiveAbility(FGameplayAbilitySpec& AbilitySpec)
 {
-	// 클라: 서버가 복제한 매핑으로 TagToSpecHandles 재구성
-	RebuildTagToSpecHandlesFromReplicated();
+	Super::OnGiveAbility(AbilitySpec);
+
+	for (const FGameplayTag& Tag : AbilitySpec.GetDynamicSpecSourceTags())
+	{
+		TagToSpecHandles.FindOrAdd(Tag).AddUnique(AbilitySpec.Handle);
+	}
 }
 
-void US1AbilitySystemComponent::RebuildTagToSpecHandlesFromReplicated()
+void US1AbilitySystemComponent::OnRemoveAbility(FGameplayAbilitySpec& AbilitySpec)
+{
+	Super::OnRemoveAbility(AbilitySpec);
+
+	// 핸들 단위로만 지운다 — 같은 AbilityTag를 다른 AbilityData 그룹이 공유할 때
+	// 배열을 통째로 비우면 아직 유효한 핸들까지 날아간다(기존 Remove(Tag) 함정)
+	for (const FGameplayTag& Tag : AbilitySpec.GetDynamicSpecSourceTags())
+	{
+		if (TArray<FGameplayAbilitySpecHandle>* Handles = TagToSpecHandles.Find(Tag))
+		{
+			Handles->RemoveSingle(AbilitySpec.Handle);
+			if (Handles->Num() <= 0)
+			{
+				TagToSpecHandles.Remove(Tag);
+			}
+		}
+	}
+}
+
+void US1AbilitySystemComponent::OnRep_ActivateAbilities()
+{
+	Super::OnRep_ActivateAbilities();
+	RebuildTagToSpecHandles();
+}
+
+void US1AbilitySystemComponent::RebuildTagToSpecHandles()
 {
 	TagToSpecHandles.Reset();
 
-	for (const FS1AbilityTagSpec& Entry : ReplicatedTagSpecs)
+	ABILITYLIST_SCOPE_LOCK();
+
+	for (const FGameplayAbilitySpec& Spec : GetActivatableAbilities())
 	{
-		TagToSpecHandles.FindOrAdd(Entry.Tag).Add(Entry.Handle);
+		for (const FGameplayTag& Tag : Spec.GetDynamicSpecSourceTags())
+		{
+			TagToSpecHandles.FindOrAdd(Tag).AddUnique(Spec.Handle);
+		}
 	}
 }
 

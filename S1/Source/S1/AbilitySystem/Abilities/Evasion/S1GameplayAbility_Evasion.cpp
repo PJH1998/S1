@@ -104,13 +104,13 @@ FVector US1GameplayAbility_Evasion::ComputeInputDirection() const
 	return InputDir.GetSafeNormal();
 }
 
-void US1GameplayAbility_Evasion::OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate)
+void US1GameplayAbility_Evasion::OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate, FName SectionName)
 {
 	ClearInvincibilityTimers();
-	ScheduleInvincibilityWindows(Montage, Rate);
+	ScheduleInvincibilityWindows(Montage, Rate, SectionName);
 }
 
-void US1GameplayAbility_Evasion::ScheduleInvincibilityWindows(UAnimMontage* Montage, float Rate)
+void US1GameplayAbility_Evasion::ScheduleInvincibilityWindows(UAnimMontage* Montage, float Rate, FName SectionName)
 {
 	// 데미지 블록(PreAttributeChange)은 서버에서만 판정 → 무적 태그도 서버에서만 관리
 	AActor* Avatar = GetAvatarActorFromActorInfo();
@@ -133,6 +133,13 @@ void US1GameplayAbility_Evasion::ScheduleInvincibilityWindows(UAnimMontage* Mont
 
 	const float EffectiveRate = FMath::Max(Rate * Montage->RateScale, KINDA_SMALL_NUMBER);
 
+	float ScanStart = 0.f;
+	float ScanEnd   = 0.f;
+	if (false == GetMontageScanRange(Montage, SectionName, ScanStart, ScanEnd))
+	{
+		return;
+	}
+
 	for (const FAnimNotifyEvent& Event : Montage->Notifies)
 	{
 		const US1AnimNotifyState_LooseGameplayTag* TagNotify = Cast<US1AnimNotifyState_LooseGameplayTag>(Event.NotifyStateClass);
@@ -141,8 +148,16 @@ void US1GameplayAbility_Evasion::ScheduleInvincibilityWindows(UAnimMontage* Mont
 			continue;
 		}
 
-		const float RealBegin = Event.GetTriggerTime() / EffectiveRate;
-		const float RealEnd   = (Event.GetTriggerTime() + Event.GetDuration()) / EffectiveRate;
+		// 구간에 속한 것만 (시작 시각 기준 — 이전 섹션에서 걸쳐 들어온 건 그 섹션 몫)
+		const float TriggerTime = Event.GetTriggerTime();
+		if (TriggerTime < ScanStart || TriggerTime >= ScanEnd)
+		{
+			continue;
+		}
+
+		// 재생이 구간 시작에서 출발하므로 구간 시작을 0으로 환산
+		const float RealBegin = (TriggerTime - ScanStart) / EffectiveRate;
+		const float RealEnd   = (TriggerTime + Event.GetDuration() - ScanStart) / EffectiveRate;
 
 		FTimerHandle BeginHandle;
 		World->GetTimerManager().SetTimer(

@@ -17,23 +17,6 @@
 #include "Animation/AnimMontage.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
-#include "S1LogChannels.h"
-
-// [AirCombo] 진단용 — 원인 확정 후 제거
-namespace
-{
-	const TCHAR* AirComboRoleStr(const AActor* Actor)
-	{
-		if (nullptr == Actor) { return TEXT("?"); }
-		switch (Actor->GetLocalRole())
-		{
-		case ROLE_Authority:      return TEXT("AUTH");
-		case ROLE_AutonomousProxy: return TEXT("AUTO");   // 소유 클라(조인 클라) — 버그 재현 대상
-		case ROLE_SimulatedProxy:  return TEXT("SIM");
-		default:                   return TEXT("NONE");
-		}
-	}
-}
 
 US1GameplayAbility_Attack::US1GameplayAbility_Attack(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -60,18 +43,6 @@ void US1GameplayAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle
 		GetAbilitySystemComponentFromActorInfo()->AddLooseGameplayTag(UsedTag);
 	}
 
-	// [AirCombo] 진단
-	{
-		const AActor* Av = GetAvatarActorFromActorInfo();
-		UAbilitySystemComponent* AscLog = GetAbilitySystemComponentFromActorInfo();
-		LOG(TEXT("[AirCombo][%s] Attack ACTIVATE(new) tag=%s Air=%d Used(%s)=%d"),
-			AirComboRoleStr(Av),
-			*GetName(),
-			(AscLog && AscLog->HasMatchingGameplayTag(S1StateTags::State_Air)) ? 1 : 0,
-			UsedTag.IsValid() ? *UsedTag.ToString() : TEXT("none"),
-			(AscLog && UsedTag.IsValid() && AscLog->HasMatchingGameplayTag(UsedTag)) ? 1 : 0);
-	}
-
 	if (bRotateToCamera)
 	{
 		StartRotateToCamera();
@@ -88,17 +59,6 @@ void US1GameplayAbility_Attack::ActivateAbility(const FGameplayAbilitySpecHandle
 
 void US1GameplayAbility_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	// [AirCombo] 진단 — 공중 콤보가 hit1↔hit2 사이에서 여기 찍히면 GA 조기 종료(새 활성화로 떨어짐) 확정
-	{
-		const AActor* Av = GetAvatarActorFromActorInfo();
-		UAbilitySystemComponent* AscLog = GetAbilitySystemComponentFromActorInfo();
-		LOG(TEXT("[AirCombo][%s] Attack END tag=%s cancelled=%d Air=%d"),
-			AirComboRoleStr(Av),
-			*GetName(),
-			bWasCancelled ? 1 : 0,
-			(AscLog && AscLog->HasMatchingGameplayTag(S1StateTags::State_Air)) ? 1 : 0);
-	}
-
 	ClearHitWindowTimers();
 	DisableWeaponHitCollision(ES1AttackHand::Main);
 	DisableWeaponHitCollision(ES1AttackHand::Offhand);
@@ -118,16 +78,16 @@ void US1GameplayAbility_Attack::OnProgressionMontageStarted()
 	}
 }
 
-void US1GameplayAbility_Attack::OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate)
+void US1GameplayAbility_Attack::OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate, FName SectionName)
 {
 	// 새 몽타주(스윙) 진입 — 이전 윈도우 정리 후 이 몽타주의 AtkCollision 윈도우를 서버에서 스케줄
 	ClearHitWindowTimers();
 	DisableWeaponHitCollision(ES1AttackHand::Main);
 	DisableWeaponHitCollision(ES1AttackHand::Offhand);
-	ScheduleHitWindows(Montage, Rate);
+	ScheduleHitWindows(Montage, Rate, SectionName);
 }
 
-void US1GameplayAbility_Attack::ScheduleHitWindows(UAnimMontage* Montage, float Rate)
+void US1GameplayAbility_Attack::ScheduleHitWindows(UAnimMontage* Montage, float Rate, FName SectionName)
 {
 	// 데미지는 서버 권위 → 히트 윈도우도 서버에서만 구동 (클라 노티파이는 데이터 마커로 무동작)
 	AActor* Avatar = GetAvatarActorFromActorInfo();
@@ -145,6 +105,13 @@ void US1GameplayAbility_Attack::ScheduleHitWindows(UAnimMontage* Montage, float 
 	// 몽타주는 Rate × RateScale 배속 재생 → montage-time을 real-time으로 변환 (÷ 배속)
 	const float EffectiveRate = FMath::Max(Rate * Montage->RateScale, KINDA_SMALL_NUMBER);
 
+	float ScanStart = 0.f;
+	float ScanEnd   = 0.f;
+	if (false == GetMontageScanRange(Montage, SectionName, ScanStart, ScanEnd))
+	{
+		return;
+	}
+
 	for (const FAnimNotifyEvent& Event : Montage->Notifies)
 	{
 		const US1AnimNotifyState_AtkCollision* AtkNotify = Cast<US1AnimNotifyState_AtkCollision>(Event.NotifyStateClass);
@@ -153,8 +120,16 @@ void US1GameplayAbility_Attack::ScheduleHitWindows(UAnimMontage* Montage, float 
 			continue;
 		}
 
-		const float RealBegin = Event.GetTriggerTime() / EffectiveRate;
-		const float RealEnd   = (Event.GetTriggerTime() + Event.GetDuration()) / EffectiveRate;
+		// 구간에 속한 것만 (시작 시각 기준 — 이전 섹션에서 걸쳐 들어온 건 그 섹션 몫)
+		const float TriggerTime = Event.GetTriggerTime();
+		if (TriggerTime < ScanStart || TriggerTime >= ScanEnd)
+		{
+			continue;
+		}
+
+		// 재생이 구간 시작에서 출발하므로 구간 시작을 0으로 환산
+		const float RealBegin = (TriggerTime - ScanStart) / EffectiveRate;
+		const float RealEnd   = (TriggerTime + Event.GetDuration() - ScanStart) / EffectiveRate;
 		const FS1AtkCollisionData Data = AtkNotify->GetCollisionData();
 
 		// Begin

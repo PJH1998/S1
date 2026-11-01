@@ -70,7 +70,9 @@ public:
 	void DisableAttackCollision(const FGameplayTag& CollisionTag);
 	bool ApplyAttackDamage(AActor* TargetActor, TSubclassOf<UGameplayEffect> DamageEffect, float DamageRatio, const FHitResult& HitResult, const FGameplayTag& HitStrengthTag, const FGameplayTag& SoundBaseTag);
 
+	UFUNCTION(BlueprintCallable, Category = "AI")
 	void NotifyHasTargetChanged(bool bInHasTarget);
+
 	US1EnemyLocomotionComponent* GetLocomotionComponent() const { return EnemyLocomotionComponent; }
 
 	/** 서버 전용: Locomotion ABP 상태를 클라이언트에 복제한다. */

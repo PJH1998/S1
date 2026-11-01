@@ -5,8 +5,6 @@
 #include "AbilitySystemComponent.h"
 #include "Animation/S1AnimInstance.h"
 #include "GameFramework/Pawn.h"
-#include "Tags/S1GameplayTags.h"
-#include "S1LogChannels.h"
 
 void US1MontageProgression_Sequence::OnActivated()
 {
@@ -67,15 +65,7 @@ void US1MontageProgression_Sequence::PlayMontageAtIndex()
 	UAnimMontage* CurrentMontage = ComboMontages[CurrentComboIndex];
 
 	// ASC 경유 재생 → 클라 복제
-	const float PlayDuration = GA->PlayAbilityMontage(CurrentMontage);
-
-	// [AirCombo] 진단 — 조인 클라(AUTO)에서 duration<=0이면 몽타주가 실제로 안 돎(예측 재생 실패) → GA 조기 종료 원인
-	{
-		const AActor* Av = GA->GetAvatarActorFromActorInfo();
-		LOG(TEXT("[AirCombo][%s] PlayMontageAtIndex idx=%d montage=%s duration=%.2f"),
-			Av ? (Av->GetLocalRole() == ROLE_Authority ? TEXT("AUTH") : Av->GetLocalRole() == ROLE_AutonomousProxy ? TEXT("AUTO") : TEXT("SIM")) : TEXT("?"),
-			CurrentComboIndex, *CurrentMontage->GetName(), PlayDuration);
-	}
+	GA->PlayAbilityMontage(CurrentMontage);
 
 	US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression();
 	if (IsValid(AnimInst))
@@ -94,16 +84,6 @@ bool US1MontageProgression_Sequence::TryAdvanceCombo()
 	}
 
 	UAbilitySystemComponent* ASC = GA->GetAbilitySystemComponentFromActorInfo();
-
-	// [AirCombo] 진단 — 조인 클라(AUTO)에서 재입력 시 canNextTag=0이면 콤보 윈도우가 안 열려 진행 거부됨
-	{
-		const AActor* Av = GA->GetAvatarActorFromActorInfo();
-		LOG(TEXT("[AirCombo][%s] TryAdvanceCombo idx=%d canNextTag=%d air=%d"),
-			Av ? (Av->GetLocalRole() == ROLE_Authority ? TEXT("AUTH") : Av->GetLocalRole() == ROLE_AutonomousProxy ? TEXT("AUTO") : TEXT("SIM")) : TEXT("?"),
-			CurrentComboIndex,
-			(IsValid(ASC) && ASC->HasMatchingGameplayTag(CanNextAttackTag)) ? 1 : 0,
-			(IsValid(ASC) && ASC->HasMatchingGameplayTag(S1StateTags::State_Air)) ? 1 : 0);
-	}
 
 	if (false == IsValid(ASC) || false == CanNextAction(ASC))
 	{

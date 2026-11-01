@@ -30,7 +30,7 @@ protected:
 	virtual FVector GetCapturedMoveDirection() const override;
 
 	// 몽타주 재생 직후 — LooseGameplayTag 노티파이 스캔 → 서버 무적 윈도우 타이머 스케줄
-	virtual void OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate) override;
+	virtual void OnAbilityMontagePlayed(UAnimMontage* Montage, float Rate, FName SectionName) override;
 
 
 	// ActivateAbility 시 캡처한 이동 방향 (Dodge에서 회전 대상으로도 활용)
@@ -38,7 +38,7 @@ protected:
 
 private:
 	// 서버 권위에서만 — 몽타주의 LooseGameplayTag(State.Invincible) 윈도우를 타이머로 스케줄
-	void ScheduleInvincibilityWindows(UAnimMontage* Montage, float Rate);
+	void ScheduleInvincibilityWindows(UAnimMontage* Montage, float Rate, FName SectionName);
 	void ClearInvincibilityTimers();
 
 	TArray<FTimerHandle> InvincibilityTimers;

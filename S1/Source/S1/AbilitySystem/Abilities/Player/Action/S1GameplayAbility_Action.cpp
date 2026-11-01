@@ -31,14 +31,7 @@ void US1GameplayAbility_Action::ActivateAbility(const FGameplayAbilitySpecHandle
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	// 액션 중 상태 태그 부여 — Jump()/AddMovementInput() 차단 조건
-	// ServerOnly GA라 서버에서만 부여 → 클라의 이동/점프 검사가 보도록 TagOnly로 복제
-	if (ActionStateTag.IsValid())
-	{
-		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
-		{
-			ASC->AddLooseGameplayTag(ActionStateTag, 1, EGameplayTagReplicationState::TagOnly);
-		}
-	}
+	SetActionStateTagHeld(true);
 
 	// 이동 방향을 활성화 시점에 1회 캡처 (컨트롤 회전=카메라 방향, 복제되어 클라/서버 일치)
 	if (const APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo()))
@@ -81,16 +74,7 @@ void US1GameplayAbility_Action::ActivateAbility(const FGameplayAbilitySpecHandle
 
 void US1GameplayAbility_Action::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (ActionStateTag.IsValid())
-	{
-		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
-		{
-			if (ASC->HasMatchingGameplayTag(ActionStateTag))
-			{
-				ASC->RemoveLooseGameplayTag(ActionStateTag, 1, EGameplayTagReplicationState::TagOnly);
-			}
-		}
-	}
+	SetActionStateTagHeld(false);
 
 	if (IsValid(MontageProgression))
 	{
@@ -231,7 +215,7 @@ float US1GameplayAbility_Action::PlayAbilityMontage(UAnimMontage* Montage, FName
 
 	// 서브클래스 훅 — GA_Attack이 이 몽타주의 AtkCollision 노티파이를 스캔해 서버에서 히트 윈도우 타이머 스케줄
 	// (서버 노티파이 per-frame thrash 우회: 노티파이는 데이터 마커, 실제 on/off는 GA가 1회씩 구동)
-	OnAbilityMontagePlayed(Montage, Rate);
+	OnAbilityMontagePlayed(Montage, Rate, StartSection);
 
 	// LocalPredicted: GAS 네이티브 예측 몽타주 — 소유 클라는 예측 재생(1회), 서버는 RepAnimMontage로 시뮬프록시에만 복제(소유자 스킵)
 	// MulticastPlayMontage를 쓰면 소유 클라가 (예측 재생 + 서버 멀티캐스트) 이중 재생 → 몽타주 재시작으로 노티파이 NotifyEnd 조기 발화(MoveBegin/End 붕괴)
@@ -247,7 +231,7 @@ float US1GameplayAbility_Action::PlayAbilityMontage(UAnimMontage* Montage, FName
 
 		// 예측 스코프(ActivateAbility 호출 스택) 안에서 루트모션 생성 — 몽타주의 MoveEvent 노티파이를 데이터로 읽음
 		// 노티파이에서 직접 만들면 클라/서버 독립 발화라 공유 예측키가 없어 서버에 네트워킹 안 됨 (틱/스냅백)
-		ApplyMontageRootMotion(Montage, Rate);
+		ApplyMontageRootMotion(Montage, Rate, StartSection);
 
 		return Duration;
 	}
@@ -265,7 +249,32 @@ FVector US1GameplayAbility_Action::GetCapturedMoveDirection() const
 	return CapturedActionMoveDir;
 }
 
-void US1GameplayAbility_Action::ApplyMontageRootMotion(UAnimMontage* Montage, float Rate)
+bool US1GameplayAbility_Action::GetMontageScanRange(const UAnimMontage* Montage, FName SectionName, float& OutStartTime, float& OutEndTime)
+{
+	if (nullptr == Montage)
+	{
+		return false;
+	}
+
+	OutStartTime = 0.f;
+	OutEndTime   = Montage->GetPlayLength();
+
+	if (SectionName.IsNone())
+	{
+		return true;
+	}
+
+	const int32 SectionIndex = Montage->GetSectionIndex(SectionName);
+	if (INDEX_NONE == SectionIndex)
+	{
+		return true;
+	}
+
+	Montage->GetSectionStartAndEndTime(SectionIndex, OutStartTime, OutEndTime);
+	return true;
+}
+
+void US1GameplayAbility_Action::ApplyMontageRootMotion(UAnimMontage* Montage, float Rate, FName SectionName)
 {
 	// 예측 어빌리티만 — 예측키가 있어야 루트모션이 서버까지 네트워킹됨 (ServerOnly는 notify 직접 경로 사용)
 	if (EGameplayAbilityNetExecutionPolicy::LocalPredicted != GetNetExecutionPolicy())
@@ -277,7 +286,14 @@ void US1GameplayAbility_Action::ApplyMontageRootMotion(UAnimMontage* Montage, fl
 		return;
 	}
 
-	// 몽타주에서 MoveEvent 노티파이를 데이터 마커로 스캔 — 첫 번째 구간 (다중 구간은 추후)
+	float ScanStart = 0.f;
+	float ScanEnd   = 0.f;
+	if (false == GetMontageScanRange(Montage, SectionName, ScanStart, ScanEnd))
+	{
+		return;
+	}
+
+	// 몽타주에서 MoveEvent 노티파이를 데이터 마커로 스캔 — 구간 내 첫 번째 (다중 구간은 추후)
 	float StartTime = -1.f;
 	float WindowDuration = 0.f;
 	float MoveDistance = 0.f;
@@ -285,7 +301,15 @@ void US1GameplayAbility_Action::ApplyMontageRootMotion(UAnimMontage* Montage, fl
 	{
 		if (const US1AnimNotifyState_MoveEvent* MoveNotify = Cast<US1AnimNotifyState_MoveEvent>(Event.NotifyStateClass))
 		{
-			StartTime      = Event.GetTriggerTime();
+			// 구간에 속한 것만 (시작 시각 기준 — 이전 섹션에서 걸쳐 들어온 건 그 섹션 몫)
+			const float TriggerTime = Event.GetTriggerTime();
+			if (TriggerTime < ScanStart || TriggerTime >= ScanEnd)
+			{
+				continue;
+			}
+
+			// 재생이 구간 시작에서 출발하므로 구간 시작을 0으로 환산
+			StartTime      = TriggerTime - ScanStart;
 			WindowDuration = Event.GetDuration();
 			MoveDistance   = MoveNotify->GetMoveDistance();
 			break;
@@ -380,13 +404,7 @@ void US1GameplayAbility_Action::OnEarlyMoveEventReceived(FGameplayEventData Payl
 void US1GameplayAbility_Action::OnEarlyMoveEnabled()
 {
 	// 점프 차단 해제
-	if (ActionStateTag.IsValid())
-	{
-		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
-		{
-			ASC->RemoveLooseGameplayTag(ActionStateTag, 1, EGameplayTagReplicationState::TagOnly);
-		}
-	}
+	SetActionStateTagHeld(false);
 
 	// 이동/점프 입력 감지 시작 → TriggerInputDetected
 	US1AbilityTask_EarlyExitChecker* Task = US1AbilityTask_EarlyExitChecker::Run(this, JumpEventTag);
@@ -404,4 +422,35 @@ void US1GameplayAbility_Action::OnEarlyMoveTriggered()
 		}
 	}
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+void US1GameplayAbility_Action::SetActionStateTagHeld(bool bHeld)
+{
+	if (bHeld == bActionStateTagHeld || false == ActionStateTag.IsValid())
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (nullptr == ASC)
+	{
+		return;
+	}
+
+	// LocalPredicted: 소유 클라가 GA를 직접 실행 → 각 머신이 로컬로 관리(복제 X)
+	// ServerOnly: 소유 클라는 GA를 안 돌림 → 복제 하위 태그 사용(State_Action_Replicated 선언부 주석 참조)
+	const bool bReplicate = EGameplayAbilityNetExecutionPolicy::LocalPredicted != GetNetExecutionPolicy();
+	const FGameplayTag Tag = bReplicate ? S1StateTags::State_Action_Replicated : ActionStateTag;
+	const EGameplayTagReplicationState RepState = bReplicate ? EGameplayTagReplicationState::TagOnly : EGameplayTagReplicationState::None;
+
+	if (bHeld)
+	{
+		ASC->AddLooseGameplayTag(Tag, 1, RepState);
+	}
+	else
+	{
+		ASC->RemoveLooseGameplayTag(Tag, 1, RepState);
+	}
+
+	bActionStateTagHeld = bHeld;
 }

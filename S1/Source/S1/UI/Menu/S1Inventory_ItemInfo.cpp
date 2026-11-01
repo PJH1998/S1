@@ -3,6 +3,7 @@
 #include "UI/Menu/S1Inventory_ItemInfo.h"
 
 #include "Components/CanvasPanelSlot.h"
+#include "Components/PanelWidget.h"
 #include "Components/TextBlock.h"
 #include "S1DataTableTypes.h"
 #include "System/S1ItemManager.h"
@@ -38,14 +39,21 @@ void US1Inventory_ItemInfo::SetItemInfo(FGameplayTag ItemTag)
 	}
 }
 
-void US1Inventory_ItemInfo::ShowAt(const FVector2D& ScreenPosition)
+void US1Inventory_ItemInfo::ShowAt(const FVector2D& AbsolutePosition)
 {
 	SetVisibility(ESlateVisibility::HitTestInvisible);
 
-	if (UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(Slot))
+	UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(Slot);
+	UPanelWidget* ParentPanel = GetParent();
+	if (CanvasSlot == nullptr || ParentPanel == nullptr)
 	{
-		CanvasSlot->SetPosition(ScreenPosition + FVector2D(16.f, 16.f));
+		return;
 	}
+
+	// GetCursorPos()는 데스크톱 절대 좌표(물리 픽셀) — 캔버스 로컬 좌표(DPI 적용 슬레이트 단위)로 변환하지 않으면
+	// 창 위치와 DPI 스케일만큼 어긋난다. US1RootWidget의 커서 위치 갱신과 동일한 처리.
+	const FVector2D LocalPosition = ParentPanel->GetCachedGeometry().AbsoluteToLocal(AbsolutePosition);
+	CanvasSlot->SetPosition(LocalPosition + FVector2D(16.f, 16.f));
 }
 
 void US1Inventory_ItemInfo::HideInfo()

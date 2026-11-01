@@ -107,6 +107,11 @@ private:
 	void DebugTriggerHit_Strong();
 	void DebugTriggerHit_ToAir();
 
+	void DebugTriggerAddItem();
+
+	UFUNCTION(Server, Reliable)
+	void ServerDebugTriggerAddItem();
+
 	UFUNCTION(Server, Reliable)
 	void ServerDebugTriggerHit(FGameplayTag HitTypeTag);
 
@@ -116,7 +121,7 @@ private:
 	TSubclassOf<UGameplayEffect> DebugDamageEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Debug")
-	float DebugDamageAmount = 30.f;
+	float DebugDamageAmount = 10.f;
 
 	// 디버그 전용 — 키보드 0(넘패드 아님)으로 얼티밋 게이지 즉시 Max
 	void DebugSetUltimateGaugeMax();
