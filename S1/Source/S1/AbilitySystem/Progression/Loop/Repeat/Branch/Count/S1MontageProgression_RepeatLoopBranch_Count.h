@@ -6,7 +6,7 @@
 #include "AbilitySystem/Progression/Loop/Repeat/Branch/S1MontageProgression_RepeatLoopBranch.h"
 #include "S1MontageProgression_RepeatLoopBranch_Count.generated.h"
 
-// LoopCount 기반 분기 — Threshold 미만이면 EndMontage, 이상이면 EndMontage_B
+// LoopCount 기반 분기 — Threshold 미만이면 EndSectionName, 이상이면 EndSectionName_B
 // LoopCount / MaxLoopCount / ShouldExitLoop 는 _RepeatLoop에서 상속
 UCLASS()
 class S1_API US1MontageProgression_RepeatLoopBranch_Count : public US1MontageProgression_RepeatLoopBranch
@@ -14,9 +14,9 @@ class S1_API US1MontageProgression_RepeatLoopBranch_Count : public US1MontagePro
 	GENERATED_BODY()
 
 protected:
-	virtual UAnimMontage* SelectEndMontage() const override;
+	virtual FName SelectEndSectionName() const override;
 
-	// 키업 시 분기 기준 — 미만이면 EndMontage, 이상이면 EndMontage_B
+	// 키업 시 분기 기준 — 미만이면 EndSectionName, 이상이면 EndSectionName_B
 	UPROPERTY(EditDefaultsOnly, Category = "Loop|Branch")
 	int32 Threshold = 1;
 };

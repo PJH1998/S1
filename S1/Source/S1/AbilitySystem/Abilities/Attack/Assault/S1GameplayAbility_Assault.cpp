@@ -42,7 +42,7 @@ void US1GameplayAbility_Assault::ActivateAbility(const FGameplayAbilitySpecHandl
 		Character->GetCharacterMovement()->Velocity = FVector::ZeroVector;
 	}
 
-	// 이동(루트모션)은 GA_Action::PlayAbilityMontage→ApplyMontageRootMotion가 활성화 시점(예측 스코프)에 처리
+	// 이동(루트모션)은 GA_Action::PlayAbilityMontageTask→ApplyMontageRootMotion가 활성화 시점(예측 스코프)에 처리
 	// 히트 콜리전은 베이스 GA_Attack이 몽타주의 AtkCollision 노티파이를 스캔해 처리(§ 가상 공격 콜리전)
 }
 

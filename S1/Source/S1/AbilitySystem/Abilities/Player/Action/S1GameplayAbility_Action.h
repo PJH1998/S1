@@ -10,6 +10,7 @@
 class US1MontageProgression;
 class US1AnimInstance;
 class US1AbilityTask_DelayedRootMotionForce;
+class UAbilityTask_PlayMontageAndWait;
 class UAnimMontage;
 
 // 액션 중 상태(State.Action) 관리 + EarlyMove(이동/점프 입력 시 조기 종료) 공통 베이스
@@ -65,15 +66,27 @@ public:
 	// protected인 GetAnimInstance를 Progression에서 호출 가능하도록 노출
 	US1AnimInstance* GetAnimInstanceForProgression() const;
 
-	// 몽타주를 ASC 경유로 재생 — RepAnimMontageInfo로 소유 클라 포함 전체 복제
-	// (PlayMontageAndWait 태스크와 동일 메커니즘. 반환: 재생 시간, 실패 시 0)
-	float PlayAbilityMontage(UAnimMontage* Montage, FName StartSection = NAME_None, float Rate = 1.f);
+	// GA가 소유 클라에서도 실행되는 정책인가 — 몽타주 재생 경로, 섹션 점프 허용,
+	// 루트모션 주입 주체, 상태 태그 복제 여부를 모두 이 판정으로 가른다.
+	// ServerOnly만 소유 클라가 GA를 안 돌린다
+	bool RunsOnOwningClient() const;
+
+	// 몽타주를 엔진 PlayMontageAndWait 태스크로 재생할 준비를 한다.
+	// ⚠️ 반환된 태스크에 호출자가 델리게이트를 붙인 뒤 ReadyForActivation()을 불러야 재생된다 —
+	//    ASC->PlayMontage는 그 시점에 일어난다(태스크 생성만으로는 재생되지 않음).
+	// nullptr = 재생 불가. ServerOnly 정책이면 소유 클라에서 GA가 안 돌아 태스크를 쓸 수 없다
+	UAbilityTask_PlayMontageAndWait* PlayAbilityMontageTask(UAnimMontage* Montage, FName StartSection = NAME_None, float Rate = 1.f);
 
 	// 섹션 점프 + 새 구간의 히트 윈도우/루트모션 재스케줄 (Progression 섹션 모드 전용)
 	// UGameplayAbility::MontageJumpToSection이 protected라 래퍼로 노출.
 	// 점프 자체는 엔진이 서버로 자동 전달하지만(ServerCurrentMontageJumpToSectionName),
 	// 구간 스캔은 각 머신이 자기 쪽에서 돌아야 하므로 둘을 묶어 호출 누락을 막는다
 	void JumpToMontageSection(UAnimMontage* Montage, FName SectionName, float Rate = 1.f);
+
+	// 재생 중인 몽타주의 섹션 Next 링크를 런타임에 바꾼다 (UGameplayAbility::MontageSetNextSectionName이 protected라 노출).
+	// 엔진이 서버로 자동 전달한다(ServerCurrentMontageSetNextSectionName) — 애셋에 저작된 Next에 의존하지 않고
+	// 코드가 흐름을 정하므로, Loop 반복(Loop→Loop)이나 분기(Start→End_X)를 섹션만으로 구성할 수 있다
+	void SetMontageNextSection(FName FromSection, FName ToSection);
 
 private:
 	UFUNCTION()

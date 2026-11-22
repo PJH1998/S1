@@ -49,15 +49,6 @@ public:
 	// 서버에서 호출. 전체 클라(소유자 포함)에 복제되어 OnRep에서 CMC에 적용
 	void SetReplicatedGravityScale(float Scale);
 
-	// 피격 넉백 속도/회전 방향을 몽타주 재생 트리거 "직전"에 명시적으로 멀티캐스트 — US1AnimNotifyState_HitLaunch가
-	// 전체 머신에서 읽어 루트모션/회전에 사용. ⚠️ 일반 Replicated 프로퍼티였다가 실측에서 레이스 확인됨(§ 아래) →
-	// 같은 액터의 Reliable Multicast끼리는 도착 순서가 보장되므로, 이 호출을 몽타주 재생(MulticastPlayMontage 등) 직전에
-	// 명시적으로 호출하면 노티파이가 발화하는 시점엔 항상 값이 이미 세팅되어 있음이 보장됨
-	// (예전엔 별도 Replicated 프로퍼티로 전달 — 몽타주 Multicast와 다른 복제 채널이라 도착 순서 보장이 안 돼서
-	//  일부 머신에서 노티파이가 먼저 발화해 값이 0으로 읽히는 레이스가 실측으로 확인됨)
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastSetHitLaunchData(FVector Velocity, FVector Facing);
-
 	// 보유 중인 ActiveAttachedEffects 전부 강제 Detach+Deactivate — Assault 등 SpawnPersistentEffect로 띄운 이펙트가
 	// 몽타주 인터럽트(피격 등)로 DespawnEffect 노티파이를 못 받아 영구 잔류하는 경우의 안전망
 	// 이펙트 추적이 각 머신 로컬이라 Multicast로 전체 머신에서 각자 정리해야 함
@@ -73,20 +64,14 @@ public:
 	// 피격 보이스(그런트) 태그 — 베이스는 무효(플레이어는 몽타주 노티파이로 처리), 몬스터가 override
 	virtual FGameplayTag GetHitVoiceSoundTag() const { return FGameplayTag(); }
 
-	FVector GetPendingHitLaunchVelocity() const { return PendingHitLaunchVelocity; }
-	FVector GetPendingHitFacingDirection() const { return PendingHitFacingDirection; }
-
-	// 넉백 종료 후 로컬 정리(Notify NotifyEnd에서 각 머신이 자기 값만 리셋) — 순서 보장 불필요라 멀티캐스트 아님
-	void ClearPendingHitLaunchVelocity() { PendingHitLaunchVelocity = FVector::ZeroVector; }
-
 	// CMC->bOrientRotationToMovement 강제 off 요청을 참조카운트로 관리 — Dodge(Evasion GA)와 HitLaunch Notify처럼
 	// 겹칠 수 있는 여러 시스템이 각자 Push/Pop해도 서로의 복구를 덮어쓰지 않음(먼저 Push한 쪽이 나중에 Pop해도 안전).
 	// 0→1 진입 시 원래 값을 1회 캡처, 마지막 요청이 풀리는 1→0 시점에만 그 값으로 복구
 	void PushOrientRotationOverride();
 	void PopOrientRotationOverride();
 
-	// HitLaunch Notify는 공유 UObject라 자기 자신의 Begin/End 짝을 못 들고 있어서(Effects_Niagara.md §29 경고)
-	// Character에 대신 보관 — 데디 서버 thrash로 Begin/End가 짝 안 맞게 재발화해도 이중 Push/Pop 방지용 가드
+	// US1GameplayAbility_Hit가 넉백 시작(CacheHitLaunch)에 Push하고 EndAbility에 Pop한다 — GA가
+	// InstancedPerActor라 인스턴스가 재사용되므로, 이중 Push/Pop 방지 가드는 Character가 들고 있다
 	bool IsHitLaunchOrientOverrideActive() const { return bHitLaunchOrientOverrideActive; }
 	void SetHitLaunchOrientOverrideActive(bool bValue) { bHitLaunchOrientOverrideActive = bValue; }
 
@@ -119,23 +104,10 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_GravityScale)
 	float RepGravityScale = 1.f;
 
-	// MulticastSetHitLaunchData로 전체 머신에 동일하게 세팅 — 일반 Replicated 프로퍼티 아님(레이스 방지, 위 설명 참조)
-	FVector PendingHitLaunchVelocity = FVector::ZeroVector;
-	FVector PendingHitFacingDirection = FVector::ForwardVector;
-
 	// 각 머신 로컬 스크래치 — 복제 불필요(각 머신이 자기 CMC를 자기가 껐다 자기가 복원)
 	int32 OrientRotationOverrideCount = 0;
 	bool bBaseOrientRotationToMovement = true;
 	bool bHitLaunchOrientOverrideActive = false;
-
-public:
-	// 데디 서버 NotifyState thrash 방어(§AtkCollision과 동일 원인 — AlwaysTickPoseAndRefreshBones 비렌더 서버에서
-	// NotifyBegin/End가 매 프레임 재발화) — 직전 적용 시각과 너무 가까우면 중복 적용으로 보고 스킵
-	float GetLastHitLaunchAppliedTime() const { return LastHitLaunchAppliedTime; }
-	void SetLastHitLaunchAppliedTime(float Time) { LastHitLaunchAppliedTime = Time; }
-
-private:
-	float LastHitLaunchAppliedTime = -1.f;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

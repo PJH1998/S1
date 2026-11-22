@@ -16,7 +16,6 @@ class S1_API US1MontageProgression_Directional : public US1MontageProgression
 
 public:
 	virtual void OnActivated() override;
-	virtual void OnDeactivated() override;
 	virtual bool WillHandleAbilityEnd() const override { return true; }
 
 	// OnActivated 전에 호출 — 어느 몽타주를 재생할지 결정
@@ -28,8 +27,11 @@ private:
 
 	ES1Direction PendingDirection = ES1Direction::Forward;
 
-	TObjectPtr<UAnimMontage> ActiveMontage;
+	// 태스크 델리게이트는 무인자다. 어느 몽타주였는지는 태스크가 자기 것만 보므로 불필요하고,
+	// 어빌리티 종료 시 태스크가 델리게이트를 직접 끊으므로(StopPlayingMontage) 지연 콜백 가드도 불필요하다
+	UFUNCTION()
+	void OnMontageFinished();
 
 	UFUNCTION()
-	void OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted, int32 Epoch);
+	void OnMontageAborted();
 };

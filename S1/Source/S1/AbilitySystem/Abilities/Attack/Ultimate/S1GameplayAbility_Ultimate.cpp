@@ -11,17 +11,20 @@
 US1GameplayAbility_Ultimate::US1GameplayAbility_Ultimate(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	// 컷씬/몬스터 프리즈는 서버 권위 — 캐릭터 정지라 예측할 이동 없음.
-	// Attack 베이스가 LocalPredicted로 바뀌므로 여기서 ServerOnly로 되돌림.
-	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
+	// 컷씬 연출/몬스터 프리즈는 서버 권위지만 몽타주는 소유 클라에서도 재생돼야 한다 —
+	// 그래야 엔진 복제 경로(ASC->PlayMontage)를 타고 섹션 점프도 가능해진다(ServerOnly는 조용히 거부됨).
+	// Attack 베이스의 LocalPredicted는 예측할 근거(클라 입력 기반 이동)가 없어 여기서 ServerInitiated로 내림.
+	// 아래 서버 권위 동작들은 HasAuthority 가드로 분리한다
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
 }
 
 void US1GameplayAbility_Ultimate::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	bCutsceneActive = false;
 
-	// 발동 즉시 게이지 소모(0으로 리셋) — State.CanUltimate 제거로 다음 Z 입력은 다시 Skill04로 라우팅됨
-	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	// 발동 즉시 게이지 소모(0으로 리셋) — State.CanUltimate 제거로 다음 Z 입력은 다시 Skill04로 라우팅됨.
+	// 어트리뷰트는 서버 권위 — 클라에서 쓰면 복제로 되돌려지며 깜빡인다
+	if (UAbilitySystemComponent* ASC = HasAuthority(&ActivationInfo) ? GetAbilitySystemComponentFromActorInfo() : nullptr)
 	{
 		if (US1PlayerSet* PlayerSet = const_cast<US1PlayerSet*>(Cast<US1PlayerSet>(ASC->GetAttributeSet(US1PlayerSet::StaticClass()))))
 		{
@@ -50,6 +53,14 @@ void US1GameplayAbility_Ultimate::ActivateAbility(const FGameplayAbilitySpecHand
 		return;
 	}
 
+	// 여기부터는 서버 권위 동작 — ServerInitiated라 이 함수가 소유 클라에서도 돈다.
+	// 클라가 Client RPC를 부르면 경고 없이 로컬 실행되어(FunctionCallspace::Local) 컷씬이 이중 재생되고,
+	// 타이머까지 돌면 서버의 ClientEndAbility와 종료가 경쟁한다
+	if (false == HasAuthority(&ActivationInfo))
+	{
+		return;
+	}
+
 	// 몬스터 프리즈 — 서버 권위 (전체)
 	FreezeMonsters(World);
 
@@ -71,8 +82,10 @@ void US1GameplayAbility_Ultimate::ActivateAbility(const FGameplayAbilitySpecHand
 
 void US1GameplayAbility_Ultimate::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	// 컷씬 진행 중 몽타주가 먼저 끝나도 defer — 서버 타이머(OnServerCutsceneComplete)가 종료
-	if (false == bWasCancelled && bCutsceneActive)
+	// 컷씬 진행 중 몽타주가 먼저 끝나도 defer — 서버 타이머(OnServerCutsceneComplete)가 종료.
+	// ⚠️ 서버에서만. 클라는 bCutsceneActive를 지울 타이머가 없어서 defer하면 어빌리티가 영영 안 끝난다
+	// (서버가 보내는 ClientEndAbility를 그대로 따르게 둔다)
+	if (HasAuthority(&ActivationInfo) && false == bWasCancelled && bCutsceneActive)
 	{
 		return;
 	}
@@ -94,7 +107,7 @@ void US1GameplayAbility_Ultimate::DoEndAbility(const FGameplayAbilitySpecHandle&
 	// 취소 시: 시전 클라 컷씬 즉시 중단 + 카메라 복귀
 	if (bWasCancelled)
 	{
-		if (AS1Player* Player = Cast<AS1Player>(GetAvatarActorFromActorInfo()))
+		if (AS1Player* Player = HasAuthority(&ActivationInfo) ? Cast<AS1Player>(GetAvatarActorFromActorInfo()) : nullptr)
 		{
 			Player->ClientStopUltimateCutscene();
 		}

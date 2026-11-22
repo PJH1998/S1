@@ -34,17 +34,6 @@ public:
 	virtual void OnBranchRequested(FGameplayTag InKey) {}
 
 protected:
-	// 활성화마다 증가하는 세대 번호. 몽타주 콜백은 바인딩 시점의 번호를 payload로 받아
-	// 자기 세대가 맞는지 확인한다.
-	//
-	// 왜 필요한가: GA가 InstancedPerActor라 Progression이 재사용되는데, Montage_Stop의
-	// 블렌드아웃이 끝나기 전에 새 활성화가 들어오면 이전 활성화의 콜백이 뒤늦게 발화해
-	// 방금 시작한 어빌리티를 끝내버린다. "현재 몽타주인가"로 거르던 기존 방식은 새 활성화가
-	// 같은 애셋을 재생하면 통과하고(섹션 모드는 몽타주가 아예 하나다), 그래서 애셋이 아니라
-	// 세대로 판별한다.
-	int32 ActivationEpoch = 0;
-
-	bool IsCurrentEpoch(int32 InEpoch) const { return InEpoch == ActivationEpoch; }
 
 	TWeakObjectPtr<US1GameplayAbility_Action> GA;
 };

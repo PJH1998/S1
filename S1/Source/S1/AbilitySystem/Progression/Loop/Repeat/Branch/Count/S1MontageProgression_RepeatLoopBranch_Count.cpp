@@ -2,7 +2,7 @@
 
 #include "AbilitySystem/Progression/Loop/Repeat/Branch/Count/S1MontageProgression_RepeatLoopBranch_Count.h"
 
-UAnimMontage* US1MontageProgression_RepeatLoopBranch_Count::SelectEndMontage() const
+FName US1MontageProgression_RepeatLoopBranch_Count::SelectEndSectionName() const
 {
-	return (LoopCount >= Threshold) ? EndMontage_B.Get() : EndMontage.Get();
+	return (LoopCount >= Threshold) ? EndSectionName_B : EndSectionName;
 }

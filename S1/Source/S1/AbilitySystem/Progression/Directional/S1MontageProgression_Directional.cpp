@@ -2,12 +2,10 @@
 
 #include "AbilitySystem/Progression/Directional/S1MontageProgression_Directional.h"
 #include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
-#include "Animation/S1AnimInstance.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 
 void US1MontageProgression_Directional::OnActivated()
 {
-	ActiveMontage = nullptr;
-
 	if (false == GA.IsValid())
 	{
 		return;
@@ -20,45 +18,36 @@ void US1MontageProgression_Directional::OnActivated()
 		return;
 	}
 
-	ActiveMontage = *Found;
-
-	// ASC 경유 재생 → 클라 복제
-	const float Duration = GA->PlayAbilityMontage(ActiveMontage);
-	if (Duration <= 0.f)
+	UAbilityTask_PlayMontageAndWait* Task = GA->PlayAbilityMontageTask(*Found);
+	if (nullptr == Task)
 	{
 		GA->RequestEndAbility(true);
 		return;
 	}
 
-	US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression();
-	if (IsValid(AnimInst))
-	{
-		FOnMontageEnded EndDelegate;
-		EndDelegate.BindUObject(this, &ThisClass::OnMontageEnded, ActivationEpoch);
-		AnimInst->Montage_SetEndDelegate(EndDelegate, ActiveMontage);
-	}
+	// 네 개를 다 붙여야 중단 시 어빌리티가 끝난다 — OnCompleted만 걸면 인터럽트에서 멈춘다.
+	// OnCompleted/OnBlendOut이 연달아 올 수 있지만 EndAbility가 IsEndAbilityValid로 걸러낸다
+	Task->OnCompleted.AddDynamic(this, &ThisClass::OnMontageFinished);
+	Task->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageFinished);
+	Task->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageAborted);
+	Task->OnCancelled.AddDynamic(this, &ThisClass::OnMontageAborted);
+
+	// 재생은 여기서 시작된다. 몽타주가 null이거나 재생 실패면 이 안에서 OnCancelled가 즉시 발화한다
+	Task->ReadyForActivation();
 }
 
-void US1MontageProgression_Directional::OnDeactivated()
+void US1MontageProgression_Directional::OnMontageFinished()
 {
-	ActiveMontage = nullptr;
-}
-
-void US1MontageProgression_Directional::OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted, int32 Epoch)
-{
-	// 이전 활성화의 지연 콜백 — 무시하지 않으면 방금 시작한 어빌리티가 끝난다
-	if (false == IsCurrentEpoch(Epoch))
-	{
-		return;
-	}
-
-	if (InMontage != ActiveMontage)
-	{
-		return;
-	}
-
 	if (GA.IsValid())
 	{
-		GA->RequestEndAbility(bInterrupted);
+		GA->RequestEndAbility(false);
+	}
+}
+
+void US1MontageProgression_Directional::OnMontageAborted()
+{
+	if (GA.IsValid())
+	{
+		GA->RequestEndAbility(true);
 	}
 }

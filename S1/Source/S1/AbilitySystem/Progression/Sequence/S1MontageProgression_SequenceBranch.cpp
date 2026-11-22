@@ -2,35 +2,45 @@
 
 #include "AbilitySystem/Progression/Sequence/S1MontageProgression_SequenceBranch.h"
 #include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Animation/S1AnimInstance.h"
 
 void US1MontageProgression_SequenceBranch::OnActivated()
 {
-	CurrentEndMontage = nullptr;
-
 	if (false == GA.IsValid())
 	{
 		return;
 	}
 
-	if (false == IsValid(BeginMontage))
+	if (false == ::IsValid(SectionMontage))
 	{
 		GA->RequestEndAbility(true);
 		return;
 	}
 
-	// ASC 경유 재생 → 클라 복제
-	const float Duration = GA->PlayAbilityMontage(BeginMontage);
-	if (Duration <= 0.f)
+	ReleaseMontageTask();
+
+	ActiveMontageTask = GA->PlayAbilityMontageTask(SectionMontage, StartSectionName);
+	if (false == ::IsValid(ActiveMontageTask))
 	{
 		GA->RequestEndAbility(true);
 		return;
 	}
+
+	// 네 개를 다 붙여야 중단 시 어빌리티가 끝난다 — OnCompleted만 걸면 인터럽트에서 멈춘다
+	ActiveMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageFinished);
+	ActiveMontageTask->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageFinished);
+	ActiveMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageAborted);
+	ActiveMontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageAborted);
+	ActiveMontageTask->ReadyForActivation();
+
+	// 분기가 늦게 와도 몽타주가 Start 경계에서 끝나지 않게 한다 (FallbackEndSectionName 주석 참조)
+	GA->SetMontageNextSection(StartSectionName, FallbackEndSectionName);
 }
 
 void US1MontageProgression_SequenceBranch::OnDeactivated()
 {
-	CurrentEndMontage = nullptr;
+	ReleaseMontageTask();
 }
 
 void US1MontageProgression_SequenceBranch::OnBranchRequested(FGameplayTag InKey)
@@ -40,53 +50,55 @@ void US1MontageProgression_SequenceBranch::OnBranchRequested(FGameplayTag InKey)
 		return;
 	}
 
-	TObjectPtr<UAnimMontage>* Found = EndMontages.Find(InKey);
-	UAnimMontage* EndMontage = Found ? Found->Get() : nullptr;
-
-	if (false == IsValid(EndMontage))
+	const FName* Found = EndSectionNames.Find(InKey);
+	if (nullptr == Found || Found->IsNone())
 	{
 		GA->RequestEndAbility(true);
 		return;
 	}
 
-	US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression();
-	if (false == IsValid(AnimInst))
+	// 섹션 점프는 하드컷이라 포즈를 직접 이어준다
+	if (BranchInertializationBlendTime > 0.f)
 	{
-		GA->RequestEndAbility(true);
-		return;
+		if (US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression())
+		{
+			AnimInst->RequestInertialization(BranchInertializationBlendTime);
+		}
 	}
 
-
-	CurrentEndMontage = EndMontage;
-
-	// ASC 경유 재생 → 클라 복제
-	const float Duration = GA->PlayAbilityMontage(EndMontage);
-	if (Duration <= 0.f)
-	{
-		CurrentEndMontage = nullptr;
-		GA->RequestEndAbility(true);
-		return;
-	}
-
-	FOnMontageEnded EndDelegate;
-	EndDelegate.BindUObject(this, &ThisClass::OnEndMontageEnded, ActivationEpoch);
-	AnimInst->Montage_SetEndDelegate(EndDelegate, EndMontage);
+	// End 섹션이 끝나면 몽타주도 끝나고 태스크의 OnCompleted가 어빌리티를 종료한다
+	GA->SetMontageNextSection(*Found, NAME_None);
+	GA->JumpToMontageSection(SectionMontage, *Found);
 }
 
-void US1MontageProgression_SequenceBranch::OnEndMontageEnded(UAnimMontage* InMontage, bool bInterrupted, int32 Epoch)
+void US1MontageProgression_SequenceBranch::ReleaseMontageTask()
 {
-	// 이전 활성화의 지연 콜백 — 무시하지 않으면 방금 시작한 어빌리티가 끝난다
-	if (false == IsCurrentEpoch(Epoch))
+	if (false == ::IsValid(ActiveMontageTask))
 	{
-		return;
-	}
-	if (InMontage != CurrentEndMontage)
-	{
+		ActiveMontageTask = nullptr;
 		return;
 	}
 
+	ActiveMontageTask->OnCompleted.RemoveAll(this);
+	ActiveMontageTask->OnBlendOut.RemoveAll(this);
+	ActiveMontageTask->OnInterrupted.RemoveAll(this);
+	ActiveMontageTask->OnCancelled.RemoveAll(this);
+	ActiveMontageTask->EndTask();
+	ActiveMontageTask = nullptr;
+}
+
+void US1MontageProgression_SequenceBranch::OnMontageFinished()
+{
 	if (GA.IsValid())
 	{
-		GA->RequestEndAbility(bInterrupted);
+		GA->RequestEndAbility(false);
+	}
+}
+
+void US1MontageProgression_SequenceBranch::OnMontageAborted()
+{
+	if (GA.IsValid())
+	{
+		GA->RequestEndAbility(true);
 	}
 }

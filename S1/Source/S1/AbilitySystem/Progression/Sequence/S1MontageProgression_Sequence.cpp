@@ -4,16 +4,21 @@
 #include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
 #include "AbilitySystemComponent.h"
 #include "Animation/S1AnimInstance.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "GameFramework/Pawn.h"
 
 void US1MontageProgression_Sequence::OnActivated()
 {
+	ReleaseMontageTask();
+
 	CurrentComboIndex = 0;
-	PlayMontageAtIndex();
+	PlayComboAtIndex();
 }
 
 void US1MontageProgression_Sequence::OnDeactivated()
 {
+	ReleaseMontageTask();
+
 	CurrentComboIndex = 0;
 }
 
@@ -49,64 +54,30 @@ bool US1MontageProgression_Sequence::OnCrossInput(const FGameplayTagContainer& T
 	return true;
 }
 
-void US1MontageProgression_Sequence::PlayMontageAtIndex()
+void US1MontageProgression_Sequence::PlayComboAtIndex()
 {
 	if (false == GA.IsValid())
 	{
 		return;
 	}
 
-	if (true == IsSectionMode())
-	{
-		PlaySectionAtIndex();
-		return;
-	}
-
-	if (false == ComboMontages.IsValidIndex(CurrentComboIndex) || false == IsValid(ComboMontages[CurrentComboIndex]))
+	if (false == ::IsValid(SectionMontage))
 	{
 		GA->RequestEndAbility(true);
 		return;
 	}
 
-	UAnimMontage* CurrentMontage = ComboMontages[CurrentComboIndex];
+	// SectionNames가 비어 있으면 NAME_None → 몽타주 처음부터 전체를 1타로 재생
+	const FName SectionName = SectionNames.IsValidIndex(CurrentComboIndex) ? SectionNames[CurrentComboIndex] : NAME_None;
 
-	// ASC 경유 재생 → 클라 복제
-	GA->PlayAbilityMontage(CurrentMontage);
-
-	US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression();
-	if (IsValid(AnimInst))
-	{
-		FOnMontageEnded EndDelegate;
-		EndDelegate.BindUObject(this, &ThisClass::OnMontageEnded, ActivationEpoch);
-		AnimInst->Montage_SetEndDelegate(EndDelegate, CurrentMontage);
-	}
-}
-
-void US1MontageProgression_Sequence::PlaySectionAtIndex()
-{
-	if (false == SectionNames.IsValidIndex(CurrentComboIndex))
-	{
-		GA->RequestEndAbility(true);
-		return;
-	}
-
-	const FName SectionName = SectionNames[CurrentComboIndex];
-
-	// 1타만 재생 — 2타+는 재생 중인 몽타주 안에서 섹션 점프
+	// 1타만 몽타주를 재생한다 — 2타+는 재생 중인 몽타주 안에서 섹션 점프이므로 태스크가 그대로 살아 있다
 	if (0 == CurrentComboIndex)
 	{
-		GA->PlayAbilityMontage(SectionMontage, SectionName);
-
-		US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression();
-		if (IsValid(AnimInst))
-		{
-			FOnMontageEnded EndDelegate;
-			EndDelegate.BindUObject(this, &ThisClass::OnMontageEnded, ActivationEpoch);
-			AnimInst->Montage_SetEndDelegate(EndDelegate, SectionMontage);
-		}
+		StartMontageTask(SectionMontage, SectionName);
 		return;
 	}
 
+	// 섹션 점프는 하드컷 — 몽타주 분리와 달리 Blend In/Out이 안 붙어서 포즈를 직접 이어줘야 한다
 	if (SectionInertializationBlendTime > 0.f)
 	{
 		if (US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression())
@@ -118,14 +89,10 @@ void US1MontageProgression_Sequence::PlaySectionAtIndex()
 	GA->JumpToMontageSection(SectionMontage, SectionName);
 }
 
-bool US1MontageProgression_Sequence::IsSectionMode() const
-{
-	return ::IsValid(SectionMontage) && SectionNames.Num() > 0;
-}
-
 int32 US1MontageProgression_Sequence::GetComboCount() const
 {
-	return IsSectionMode() ? SectionNames.Num() : ComboMontages.Num();
+	// SectionNames가 비면 1타짜리
+	return FMath::Max(SectionNames.Num(), 1);
 }
 
 bool US1MontageProgression_Sequence::TryAdvanceCombo()
@@ -160,7 +127,7 @@ bool US1MontageProgression_Sequence::TryAdvanceCombo()
 
 	CurrentComboIndex = NextIndex;
 	ASC->RemoveLooseGameplayTag(CanNextAttackTag);
-	PlayMontageAtIndex();
+	PlayComboAtIndex();
 	GA->OnProgressionMontageStarted();
 
 	return true;
@@ -185,29 +152,58 @@ bool US1MontageProgression_Sequence::CanNextAction(UAbilitySystemComponent* ASC)
 	return ASC->HasMatchingGameplayTag(CanNextAttackTag);
 }
 
-void US1MontageProgression_Sequence::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted, int32 Epoch)
+void US1MontageProgression_Sequence::StartMontageTask(UAnimMontage* Montage, FName SectionName)
 {
-	// 이전 활성화의 지연 콜백 — 무시하지 않으면 방금 시작한 어빌리티가 끝난다
-	if (false == IsCurrentEpoch(Epoch))
+	ReleaseMontageTask();
+
+	ActiveMontageTask = GA->PlayAbilityMontageTask(Montage, SectionName);
+	if (false == ::IsValid(ActiveMontageTask))
 	{
+		GA->RequestEndAbility(true);
 		return;
 	}
 
-	// 섹션 모드는 몽타주가 하나라 인덱스 검사가 불필요
-	if (true == IsSectionMode())
+	// 네 개를 다 붙여야 중단 시 어빌리티가 끝난다 — OnCompleted만 걸면 인터럽트에서 멈춘다.
+	// OnCompleted/OnBlendOut이 연달아 올 수 있지만 EndAbility가 IsEndAbilityValid로 걸러낸다
+	ActiveMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageFinished);
+	ActiveMontageTask->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageFinished);
+	ActiveMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageAborted);
+	ActiveMontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageAborted);
+
+	// 재생은 여기서 시작된다. 몽타주가 null이거나 재생 실패면 이 안에서 OnCancelled가 즉시 발화한다
+	ActiveMontageTask->ReadyForActivation();
+}
+
+void US1MontageProgression_Sequence::ReleaseMontageTask()
+{
+	if (false == ::IsValid(ActiveMontageTask))
 	{
-		if (Montage != SectionMontage)
-		{
-			return;
-		}
-	}
-	else if (false == ComboMontages.IsValidIndex(CurrentComboIndex) || Montage != ComboMontages[CurrentComboIndex])
-	{
+		ActiveMontageTask = nullptr;
 		return;
 	}
 
+	// 바인딩을 먼저 끊는다 — 다음 타의 몽타주가 이전 몽타주를 인터럽트하면서 이전 태스크의
+	// OnInterrupted가 발화해 콤보 도중 어빌리티를 끝내는 것을 막는다
+	ActiveMontageTask->OnCompleted.RemoveAll(this);
+	ActiveMontageTask->OnBlendOut.RemoveAll(this);
+	ActiveMontageTask->OnInterrupted.RemoveAll(this);
+	ActiveMontageTask->OnCancelled.RemoveAll(this);
+	ActiveMontageTask->EndTask();
+	ActiveMontageTask = nullptr;
+}
+
+void US1MontageProgression_Sequence::OnMontageFinished()
+{
 	if (GA.IsValid())
 	{
-		GA->RequestEndAbility(bInterrupted);
+		GA->RequestEndAbility(false);
+	}
+}
+
+void US1MontageProgression_Sequence::OnMontageAborted()
+{
+	if (GA.IsValid())
+	{
+		GA->RequestEndAbility(true);
 	}
 }

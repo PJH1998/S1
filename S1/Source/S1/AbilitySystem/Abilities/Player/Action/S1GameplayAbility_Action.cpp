@@ -5,6 +5,7 @@
 #include "AbilitySystem/Task/S1AbilityTask_EarlyExitChecker.h"
 #include "AbilitySystem/Progression/S1MontageProgression.h"
 #include "AbilitySystem/Task/S1AbilityTask_DelayedRootMotionForce.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystemComponent.h"
 #include "GameFramework/RootMotionSource.h"
@@ -200,49 +201,42 @@ US1AnimInstance* US1GameplayAbility_Action::GetAnimInstanceForProgression() cons
 	return GetAnimInstance();
 }
 
-float US1GameplayAbility_Action::PlayAbilityMontage(UAnimMontage* Montage, FName StartSection, float Rate)
+bool US1GameplayAbility_Action::RunsOnOwningClient() const
+{
+	const EGameplayAbilityNetExecutionPolicy::Type Policy = GetNetExecutionPolicy();
+	return EGameplayAbilityNetExecutionPolicy::LocalPredicted == Policy
+		|| EGameplayAbilityNetExecutionPolicy::ServerInitiated == Policy;
+}
+
+UAbilityTask_PlayMontageAndWait* US1GameplayAbility_Action::PlayAbilityMontageTask(UAnimMontage* Montage, FName StartSection, float Rate)
 {
 	if (nullptr == Montage)
 	{
-		return 0.f;
+		return nullptr;
 	}
 
-	AS1Character* Character = Cast<AS1Character>(GetAvatarActorFromActorInfo());
-	if (false == ::IsValid(Character))
+	// ServerOnly GA는 소유 클라에서 돌지 않아 태스크를 쓸 수 없다 (플레이어 GA는 전부 LocalPredicted/ServerInitiated)
+	if (false == RunsOnOwningClient())
 	{
-		return 0.f;
+		LOG_WARNING(TEXT("PlayAbilityMontageTask는 소유 클라에서 도는 GA 전용 — nullptr 반환 (%s)"), *GetName());
+		return nullptr;
 	}
 
-	// 서브클래스 훅 — GA_Attack이 이 몽타주의 AtkCollision 노티파이를 스캔해 서버에서 히트 윈도우 타이머 스케줄
-	// (서버 노티파이 per-frame thrash 우회: 노티파이는 데이터 마커, 실제 on/off는 GA가 1회씩 구동)
+	// 서브클래스 훅 — GA_Attack이 이 몽타주의 AtkCollision 노티파이를 스캔해 서버 히트 윈도우 타이머를 예약
 	OnAbilityMontagePlayed(Montage, Rate, StartSection);
 
-	// LocalPredicted: GAS 네이티브 예측 몽타주 — 소유 클라는 예측 재생(1회), 서버는 RepAnimMontage로 시뮬프록시에만 복제(소유자 스킵)
-	// MulticastPlayMontage를 쓰면 소유 클라가 (예측 재생 + 서버 멀티캐스트) 이중 재생 → 몽타주 재시작으로 노티파이 NotifyEnd 조기 발화(MoveBegin/End 붕괴)
-	if (EGameplayAbilityNetExecutionPolicy::LocalPredicted == GetNetExecutionPolicy())
+	UAbilityTask_PlayMontageAndWait* Task = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+		this, NAME_None, Montage, Rate, StartSection);
+	if (nullptr == Task)
 	{
-		UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-		if (nullptr == ASC)
-		{
-			return 0.f;
-		}
-
-		const float Duration = ASC->PlayMontage(this, GetCurrentActivationInfo(), Montage, Rate, StartSection);
-
-		// 활성화 스코프에서 루트모션 생성 — 몽타주의 MoveEvent 노티파이를 데이터로 읽음
-		// 노티파이 콜백에서 만들면 클라(예측 즉시)/서버(RPC 도착 후) 발화 시각이 어긋나 스냅백 (실측, 원인 미상)
-		// 루트모션 자체는 예측키를 쓰지 않는다 — 클라/서버 정합은 CMC가 saved move로 한다
-		ApplyMontageRootMotion(Montage, Rate, StartSection);
-
-		return Duration;
+		return nullptr;
 	}
 
-	// ServerOnly — 서버 권위 GA의 몽타주를 전체 클라(소유자 포함)+서버에서 재생
-	// 서버는 동기 실행되어 이어지는 Montage_SetEndDelegate/섹션 제어가 서버 AnimInstance에 정상 바인딩
-	Character->MulticastPlayMontage(Montage, Rate, StartSection);
+	// 활성화 스코프에서 루트모션 생성 (§03/§16). 몽타주 재생은 호출자의 ReadyForActivation()에서
+	// 시작되지만 같은 프레임이라 구간 타이밍에 영향이 없다
+	ApplyMontageRootMotion(Montage, Rate, StartSection);
 
-	// 실패 판정용 길이 반환 (실제 종료는 서버 측 종료 델리게이트가 처리)
-	return Montage->GetPlayLength();
+	return Task;
 }
 
 FVector US1GameplayAbility_Action::GetCapturedMoveDirection() const
@@ -257,11 +251,11 @@ void US1GameplayAbility_Action::JumpToMontageSection(UAnimMontage* Montage, FNam
 		return;
 	}
 
-	// ServerOnly GA는 MulticastPlayMontage로 재생해 ASC의 LocalAnimMontageInfo가 비어 있다 →
+	// ServerOnly GA는 ASC 경유로 재생하지 않아 LocalAnimMontageInfo가 비어 있다 →
 	// 엔진 MontageJumpToSection이 IsAnimatingAbility 가드에서 조용히 무시한다
-	if (EGameplayAbilityNetExecutionPolicy::LocalPredicted != GetNetExecutionPolicy())
+	if (false == RunsOnOwningClient())
 	{
-		LOG_WARNING(TEXT("JumpToMontageSection은 LocalPredicted GA 전용 — 무시됨 (%s)"), *GetName());
+		LOG_WARNING(TEXT("JumpToMontageSection은 소유 클라에서 도는 GA 전용 — 무시됨 (%s)"), *GetName());
 		return;
 	}
 
@@ -269,6 +263,24 @@ void US1GameplayAbility_Action::JumpToMontageSection(UAnimMontage* Montage, FNam
 
 	OnAbilityMontagePlayed(Montage, Rate, SectionName);
 	ApplyMontageRootMotion(Montage, Rate, SectionName);
+}
+
+void US1GameplayAbility_Action::SetMontageNextSection(FName FromSection, FName ToSection)
+{
+	if (FromSection.IsNone())
+	{
+		return;
+	}
+
+	// ServerOnly GA는 ASC 경유로 재생하지 않아 LocalAnimMontageInfo가 비어 있다 →
+	// 엔진 가드에서 조용히 무시된다 (JumpToMontageSection과 동일 제약)
+	if (false == RunsOnOwningClient())
+	{
+		LOG_WARNING(TEXT("SetMontageNextSection은 소유 클라에서 도는 GA 전용 — 무시됨 (%s)"), *GetName());
+		return;
+	}
+
+	MontageSetNextSectionName(FromSection, ToSection);
 }
 
 bool US1GameplayAbility_Action::GetMontageScanRange(const UAnimMontage* Montage, FName SectionName, float& OutStartTime, float& OutEndTime)
@@ -298,8 +310,8 @@ bool US1GameplayAbility_Action::GetMontageScanRange(const UAnimMontage* Montage,
 
 void US1GameplayAbility_Action::ApplyMontageRootMotion(UAnimMontage* Montage, float Rate, FName SectionName)
 {
-	// 예측 어빌리티만 — ServerOnly는 notify가 CMC에 직접 주입하는 경로를 쓴다
-	if (EGameplayAbilityNetExecutionPolicy::LocalPredicted != GetNetExecutionPolicy())
+	// 소유 클라에서도 도는 정책만 — ServerOnly는 notify(HitLaunch 등)가 CMC에 직접 주입하는 경로를 쓴다
+	if (false == RunsOnOwningClient())
 	{
 		return;
 	}
@@ -381,11 +393,12 @@ void US1GameplayAbility_Action::ApplyMontageRootMotion(UAnimMontage* Montage, fl
 		0.f,									// ClampVelocityOnFinish
 		bMoveEnableGravity);
 	MoveTask->ReadyForActivation();
+
 }
 
 void US1GameplayAbility_Action::OnMoveBeginReceived(const FGameplayEventData* Payload)
 {
-	// 이동은 PlayAbilityMontage→ApplyMontageRootMotion가 활성화 시점(예측 스코프)에 처리
+	// 이동은 PlayAbilityMontageTask→ApplyMontageRootMotion가 활성화 시점(예측 스코프)에 처리
 	// 베이스는 비움 — 서브클래스(Assault 등)가 히트 콜리전 등 비이동 로직만 override
 }
 
@@ -446,9 +459,10 @@ void US1GameplayAbility_Action::SetActionStateTagHeld(bool bHeld)
 		return;
 	}
 
-	// LocalPredicted: 소유 클라가 GA를 직접 실행 → 각 머신이 로컬로 관리(복제 X)
-	// ServerOnly: 소유 클라는 GA를 안 돌림 → 복제 하위 태그 사용(State_Action_Replicated 선언부 주석 참조)
-	const bool bReplicate = EGameplayAbilityNetExecutionPolicy::LocalPredicted != GetNetExecutionPolicy();
+	// 소유 클라에서도 GA가 도는 정책이면 각 머신이 로컬로 관리(복제 X).
+	// ServerOnly만 복제 하위 태그가 필요하다(State_Action_Replicated 선언부 주석 참조).
+	// ⚠️ ServerInitiated에서 복제 분기를 타면 소유 클라가 "로컬 추가 + OnRep"으로 이중 카운트된다
+	const bool bReplicate = false == RunsOnOwningClient();
 	const FGameplayTag Tag = bReplicate ? S1StateTags::State_Action_Replicated : ActionStateTag;
 	const EGameplayTagReplicationState RepState = bReplicate ? EGameplayTagReplicationState::TagOnly : EGameplayTagReplicationState::None;
 

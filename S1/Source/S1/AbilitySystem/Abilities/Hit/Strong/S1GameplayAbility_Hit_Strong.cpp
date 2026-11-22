@@ -38,11 +38,11 @@ void US1GameplayAbility_Hit_Strong::ActivateAbility(const FGameplayAbilitySpecHa
 	LaunchVelocity.Z = LaunchUpSpeed;
 
 	// 앞이면 공격원을 정면으로, 뒤면 공격원을 등지도록(뒤에 두고) 스냅 — Strong 전용 회전 규칙
-	FVector FacingDirection = bHitFromBack ? -HitDirection : HitDirection;
+	const FVector FacingDirection = bHitFromBack ? -HitDirection : HitDirection;
 
-	// 몽타주 재생(Multicast) 직전에 명시적으로 멀티캐스트 — 같은 액터의 Reliable Multicast는 순서 보장되어
-	// HitLaunch 노티파이가 발화하는 시점엔 항상 값이 세팅돼있음이 보장됨 (일반 Replicated 프로퍼티는 레이스 발생 확인됨)
-	Character->MulticastSetHitLaunchData(LaunchVelocity, FacingDirection);
+	// 서버와 소유 클라가 각자 같은 TriggerEventData로 계산한다 — 전송 채널이 없어 레이스가 없다.
+	// 실제 루트모션 태스크는 몽타주 재생 직전 OnAbilityMontagePlayed에서 노티파이를 스캔해 만든다
+	CacheHitLaunch(LaunchVelocity, FacingDirection);
 
 	if (US1MontageProgression_DirectionalLoop* DirLoopProg = Cast<US1MontageProgression_DirectionalLoop>(MontageProgression))
 	{

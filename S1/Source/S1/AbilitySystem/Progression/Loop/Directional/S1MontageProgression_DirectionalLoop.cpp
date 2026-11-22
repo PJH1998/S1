@@ -4,10 +4,8 @@
 
 void US1MontageProgression_DirectionalLoop::SetDirection(ES1Direction InDirection)
 {
-	if (const FS1DirectionalMontageSet* Set = DirectionalMontages.Find(InDirection))
+	if (const TObjectPtr<UAnimMontage>* Found = DirectionalMontages.Find(InDirection))
 	{
-		StartMontage = Set->Start;
-		LoopMontage  = Set->Loop;
-		EndMontage   = Set->End;
+		SectionMontage = *Found;
 	}
 }

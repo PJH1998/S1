@@ -3,6 +3,7 @@
 #include "AbilitySystem/Progression/Loop/S1MontageProgression_Loop.h"
 #include "Tags/GAS/S1GameplayTags_GAS.h"
 #include "AbilitySystem/Abilities/Player/Action/S1GameplayAbility_Action.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystemComponent.h"
 #include "Animation/S1AnimInstance.h"
@@ -18,16 +19,16 @@ US1MontageProgression_Loop::US1MontageProgression_Loop()
 
 void US1MontageProgression_Loop::OnActivated()
 {
-	bEndRequested  = false;
-	bInLoopPhase   = false;
-	CurrentEndMontage = EndMontage;
+	bEndRequested         = false;
+	bInLoopPhase          = false;
+	CurrentEndSectionName = EndSectionName;
 
 	if (false == GA.IsValid())
 	{
 		return;
 	}
 
-	if (false == IsValid(LoopMontage))
+	if (false == ::IsValid(SectionMontage) || LoopSectionName.IsNone())
 	{
 		GA->RequestEndAbility(true);
 		return;
@@ -42,41 +43,38 @@ void US1MontageProgression_Loop::OnActivated()
 
 	Character->GetCharacterMovement()->Velocity = FVector::ZeroVector;
 
-	if (IsValid(StartMontage))
+	const bool bHasStart = false == StartSectionName.IsNone();
+	StartMontageTask(bHasStart ? StartSectionName : LoopSectionName);
+	if (false == ::IsValid(ActiveMontageTask))
 	{
-		const float Duration = GA->PlayAbilityMontage(StartMontage);
-		if (Duration <= 0.f)
-		{
-			GA->RequestEndAbility(true);
-			return;
-		}
+		return;		// StartMontageTask가 이미 EndAbility를 요청했다
+	}
 
-		if (LoopStartEventTag.IsValid())
+	// 섹션 흐름을 코드가 정한다 — 애셋에 저작된 Next 링크에 의존하지 않는다.
+	// Loop → Loop 가 사이클 반복을 자동 처리하므로 재생 호출을 매 사이클 하지 않아도 된다
+	if (bHasStart)
+	{
+		GA->SetMontageNextSection(StartSectionName, LoopSectionName);
+	}
+	GA->SetMontageNextSection(LoopSectionName, LoopSectionName);
+	GA->SetMontageNextSection(EndSectionName, NAME_None);
+
+	// 사이클 경계 통지는 활성화 시점에 걸어둔다 — Loop 진입 통지(LoopStartEventTag)가 비어 있어도
+	// 사이클을 놓치지 않도록
+	SubscribeLoopCycle();
+
+	if (bHasStart && LoopStartEventTag.IsValid())
+	{
+		if (UAbilitySystemComponent* ASC = GA->GetAbilitySystemComponentFromActorInfo())
 		{
-			// 이벤트 기반: StartMontage 마지막 프레임 AnimNotify → LoopMontage 시작
-			// StartDive 등 이전 notify는 이미 발화된 상태 → 순서 보장
-			UAbilitySystemComponent* ASC = GA->GetAbilitySystemComponentFromActorInfo();
-			if (IsValid(ASC))
-			{
-				ASC->GenericGameplayEventCallbacks.FindOrAdd(LoopStartEventTag)
-					.AddUObject(this, &ThisClass::OnLoopStartEventReceived);
-			}
-		}
-		else
-		{
-			// 폴백: BlendingOut 기반 (StartMontage BlendOut > 0 필요)
-			US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression();
-			if (IsValid(AnimInst))
-			{
-				FOnMontageBlendingOutStarted BlendingOutDelegate;
-				BlendingOutDelegate.BindUObject(this, &ThisClass::OnStartMontageBlendingOut, ActivationEpoch);
-				AnimInst->Montage_SetBlendingOutDelegate(BlendingOutDelegate, StartMontage);
-			}
+			ASC->GenericGameplayEventCallbacks.FindOrAdd(LoopStartEventTag)
+				.AddUObject(this, &ThisClass::OnLoopStartEventReceived);
 		}
 	}
 	else
 	{
-		PlayLoopMontage();
+		// Start가 없거나 진입 통지가 설정되지 않았다 → 처음부터 Loop 단계로 간주
+		EnterLoopPhase();
 	}
 
 	if (LoopEndEventTag.IsValid())
@@ -93,8 +91,7 @@ void US1MontageProgression_Loop::OnDeactivated()
 	// LoopEndEventTag는 AbilityTask가 처리 — 해제 불필요
 	if (GA.IsValid())
 	{
-		UAbilitySystemComponent* ASC = GA->GetAbilitySystemComponentFromActorInfo();
-		if (IsValid(ASC))
+		if (UAbilitySystemComponent* ASC = GA->GetAbilitySystemComponentFromActorInfo())
 		{
 			if (LoopStartEventTag.IsValid())
 			{
@@ -107,9 +104,11 @@ void US1MontageProgression_Loop::OnDeactivated()
 		}
 	}
 
-	bEndRequested     = false;
-	bInLoopPhase      = false;
-	CurrentEndMontage = nullptr;
+	ReleaseMontageTask();
+
+	bEndRequested         = false;
+	bInLoopPhase          = false;
+	CurrentEndSectionName = NAME_None;
 }
 
 bool US1MontageProgression_Loop::OnInputReactivated()
@@ -151,203 +150,126 @@ bool US1MontageProgression_Loop::OnCrossInput(const FGameplayTagContainer& Targe
 	return true;
 }
 
-void US1MontageProgression_Loop::ExitLoop(UAnimMontage* TargetEnd, bool bImmediate)
+void US1MontageProgression_Loop::ExitLoop(FName TargetEndSection, bool bImmediate)
 {
 	if (bEndRequested)
 	{
 		return;
 	}
 
-	bEndRequested     = true;
-	CurrentEndMontage = IsValid(TargetEnd) ? TargetEnd : EndMontage.Get();
+	bEndRequested         = true;
+	CurrentEndSectionName = TargetEndSection.IsNone() ? EndSectionName : TargetEndSection;
+
+	if (false == GA.IsValid() || CurrentEndSectionName.IsNone())
+	{
+		return;
+	}
 
 	if (bImmediate && bInLoopPhase)
 	{
-		// Loop 단계에서만 즉시 중단 — Start 재생 중엔 LoopStart Notify가 처리
-		US1AnimInstance* AnimInst = GA.IsValid() ? GA->GetAnimInstanceForProgression() : nullptr;
-		if (IsValid(AnimInst))
-		{
-			AnimInst->Montage_Stop(0.0f, LoopMontage);
-		}
-		PlayEndMontage();
+		// Loop 단계에서만 즉시 점프 — Start 재생 중이면 아래 Next 변경이 처리한다
+		RequestSectionBlend();
+		GA->JumpToMontageSection(SectionMontage, CurrentEndSectionName);
+		return;
 	}
-	// else: LoopStart Notify or OnLoopMontageBlendingOut 에서 처리
+
+	// 현재 섹션이 끝나면 End로 흐르게 한다. Start 중에 요청이 들어왔으면 Loop를 건너 바로 End로
+	GA->SetMontageNextSection(LoopSectionName, CurrentEndSectionName);
+	if (false == StartSectionName.IsNone())
+	{
+		GA->SetMontageNextSection(StartSectionName, CurrentEndSectionName);
+	}
 }
 
-void US1MontageProgression_Loop::PlayLoopMontage()
+void US1MontageProgression_Loop::RequestSectionBlend()
 {
-	if (false == GA.IsValid())
+	if (LoopInertializationBlendTime <= 0.f || false == GA.IsValid())
 	{
 		return;
 	}
 
-	LOG_WARNING(TEXT("PlayLoopMontage ENTER"));
+	if (US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression())
+	{
+		AnimInst->RequestInertialization(LoopInertializationBlendTime);
+	}
+}
 
-	const float Duration = GA->PlayAbilityMontage(LoopMontage);
-	if (Duration <= 0.f)
+void US1MontageProgression_Loop::StartMontageTask(FName StartSection)
+{
+	ReleaseMontageTask();
+
+	ActiveMontageTask = GA->PlayAbilityMontageTask(SectionMontage, StartSection);
+	if (false == ::IsValid(ActiveMontageTask))
 	{
 		GA->RequestEndAbility(true);
 		return;
 	}
 
-	// OnProgressionLoopStarted는 Loop 진입 시(사이클 반복 아님) 1회만 — 이벤트 경로/BlendingOut 폴백 경로 둘 다 여기로 모이므로
-	// 어느 경로를 쓰든 정확히 한 번만 불리도록 여기서 처리한다.
-	const bool bWasInLoopPhase = bInLoopPhase;
+	// 네 개를 다 붙여야 중단 시 어빌리티가 끝난다 — OnCompleted만 걸면 인터럽트에서 멈춘다.
+	// 섹션 반복/점프는 몽타주를 끊지 않으므로 이 태스크는 End 섹션이 끝날 때까지 산다
+	ActiveMontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageFinished);
+	ActiveMontageTask->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageFinished);
+	ActiveMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnMontageAborted);
+	ActiveMontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnMontageAborted);
+
+	ActiveMontageTask->ReadyForActivation();
+}
+
+void US1MontageProgression_Loop::ReleaseMontageTask()
+{
+	if (false == ::IsValid(ActiveMontageTask))
+	{
+		ActiveMontageTask = nullptr;
+		return;
+	}
+
+	ActiveMontageTask->OnCompleted.RemoveAll(this);
+	ActiveMontageTask->OnBlendOut.RemoveAll(this);
+	ActiveMontageTask->OnInterrupted.RemoveAll(this);
+	ActiveMontageTask->OnCancelled.RemoveAll(this);
+	ActiveMontageTask->EndTask();
+	ActiveMontageTask = nullptr;
+}
+
+void US1MontageProgression_Loop::EnterLoopPhase()
+{
+	if (bInLoopPhase)
+	{
+		return;
+	}
+
 	bInLoopPhase = true;
-	if (false == bWasInLoopPhase && GA.IsValid())
-	{
-		GA->OnProgressionLoopStarted();
-	}
-
-	if (LoopCycleEventTag.IsValid())
-	{
-		// 이벤트 기반: LoopMontage 끝 직전 AnimNotify → count 증가 + Loop or End 즉시 결정
-		// RemoveAll 후 AddUObject — PlayLoopMontage 재호출 시 중복 바인딩 방지
-		UAbilitySystemComponent* ASC = GA->GetAbilitySystemComponentFromActorInfo();
-		if (IsValid(ASC))
-		{
-			auto& EventDelegate = ASC->GenericGameplayEventCallbacks.FindOrAdd(LoopCycleEventTag);
-			EventDelegate.RemoveAll(this);
-			EventDelegate.AddUObject(this, &ThisClass::OnLoopCycleEventReceived);
-		}
-	}
-	else
-	{
-		// 폴백: BlendingOut 기반 (LoopMontage BlendOut > 0 필요)
-		US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression();
-		if (IsValid(AnimInst))
-		{
-			FOnMontageBlendingOutStarted BlendingOutDelegate;
-			BlendingOutDelegate.BindUObject(this, &ThisClass::OnLoopMontageBlendingOut, ActivationEpoch);
-			AnimInst->Montage_SetBlendingOutDelegate(BlendingOutDelegate, LoopMontage);
-		}
-	}
-}
-
-void US1MontageProgression_Loop::PlayEndMontage()
-{
-	if (false == GA.IsValid())
-	{
-		return;
-	}
-
-	if (false == IsValid(CurrentEndMontage))
-	{
-		GA->RequestEndAbility(false);
-		return;
-	}
-
-	const float Duration = GA->PlayAbilityMontage(CurrentEndMontage);
-	if (Duration <= 0.f)
-	{
-		GA->RequestEndAbility(true);
-		return;
-	}
-
-	US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression();
-	if (IsValid(AnimInst))
-	{
-		FOnMontageEnded EndDelegate;
-		EndDelegate.BindUObject(this, &ThisClass::OnEndMontageEnded, ActivationEpoch);
-		AnimInst->Montage_SetEndDelegate(EndDelegate, CurrentEndMontage);
-	}
-}
-
-void US1MontageProgression_Loop::OnStartMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted, int32 Epoch)
-{
-	// 이전 활성화의 지연 콜백 — 무시하지 않으면 방금 시작한 어빌리티가 끝난다
-	if (false == IsCurrentEpoch(Epoch))
-	{
-		return;
-	}
-
-	if (Montage != StartMontage || bInterrupted)
-	{
-		// bInterrupted=true: ExitLoop(bImmediate) 에서 이미 처리됨
-		return;
-	}
-
-	if (bEndRequested)
-	{
-		PlayEndMontage();
-	}
-	else
-	{
-		PlayLoopMontage();
-	}
-}
-
-void US1MontageProgression_Loop::OnLoopMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted, int32 Epoch)
-{
-	// 이전 활성화의 지연 콜백 — 무시하지 않으면 방금 시작한 어빌리티가 끝난다
-	if (false == IsCurrentEpoch(Epoch))
-	{
-		return;
-	}
-
-	if (Montage != LoopMontage || bInterrupted)
-	{
-		// bInterrupted=true: ExitLoop(bImmediate) 에서 이미 처리됨
-		return;
-	}
-
-	OnLoopCycleCompleted(FGameplayTag());
-
-	if (bEndRequested || ShouldExitLoop())
-	{
-		if (false == bEndRequested)
-		{
-			bEndRequested     = true;
-			CurrentEndMontage = GetAutoExitMontage();
-			if (false == IsValid(CurrentEndMontage))
-			{
-				CurrentEndMontage = EndMontage.Get();
-			}
-		}
-		PlayEndMontage();
-	}
-	else
-	{
-		if (LoopInertializationBlendTime > 0.f)
-		{
-			US1AnimInstance* AnimInst = GA.IsValid() ? GA->GetAnimInstanceForProgression() : nullptr;
-			if (IsValid(AnimInst))
-			{
-				AnimInst->RequestInertialization(LoopInertializationBlendTime);
-			}
-		}
-		PlayLoopMontage();
-	}
-}
-
-void US1MontageProgression_Loop::OnEndMontageEnded(UAnimMontage* Montage, bool bInterrupted, int32 Epoch)
-{
-	// 이전 활성화의 지연 콜백 — 무시하지 않으면 방금 시작한 어빌리티가 끝난다
-	if (false == IsCurrentEpoch(Epoch))
-	{
-		return;
-	}
-
-	if (Montage != CurrentEndMontage)
-	{
-		return;
-	}
 
 	if (GA.IsValid())
 	{
-		GA->RequestEndAbility(bInterrupted);
+		GA->OnProgressionLoopStarted();
+	}
+}
+
+void US1MontageProgression_Loop::SubscribeLoopCycle()
+{
+	if (false == LoopCycleEventTag.IsValid() || false == GA.IsValid())
+	{
+		LOG_WARNING(TEXT("LoopCycleEventTag 미설정 — 섹션 모드에선 사이클 경계를 알 수 없어 Loop를 탈출하지 못한다 (%s)"),
+			*GetNameSafe(SectionMontage));
+		return;
+	}
+
+	if (UAbilitySystemComponent* ASC = GA->GetAbilitySystemComponentFromActorInfo())
+	{
+		auto& EventDelegate = ASC->GenericGameplayEventCallbacks.FindOrAdd(LoopCycleEventTag);
+		EventDelegate.RemoveAll(this);
+		EventDelegate.AddUObject(this, &ThisClass::OnLoopCycleEventReceived);
 	}
 }
 
 void US1MontageProgression_Loop::OnLoopStartEventReceived(const FGameplayEventData* Payload)
 {
-	if (bEndRequested)
+	// 전환 자체는 섹션 Next가 처리한다 — 여기서는 Loop 진입 통지만.
+	// 이미 탈출이 요청된 상태면 Start → End로 흐르므로 Loop 단계에 들어가지 않는다
+	if (false == bEndRequested)
 	{
-		PlayEndMontage();
-	}
-	else
-	{
-		PlayLoopMontage();
+		EnterLoopPhase();
 	}
 }
 
@@ -360,36 +282,55 @@ void US1MontageProgression_Loop::OnLoopCycleEventReceived(const FGameplayEventDa
 		EffectTag = Payload->InstigatorTags.GetByIndex(0);
 	}
 
+	// Start 없이 Loop부터 시작했거나 진입 통지를 놓친 경우 보정
+	EnterLoopPhase();
+
 	OnLoopCycleCompleted(EffectTag);
+
+	if (false == GA.IsValid())
+	{
+		return;
+	}
 
 	if (bEndRequested || ShouldExitLoop())
 	{
 		if (false == bEndRequested)
 		{
-			bEndRequested     = true;
-			CurrentEndMontage = GetAutoExitMontage();
-			if (false == IsValid(CurrentEndMontage))
+			bEndRequested         = true;
+			CurrentEndSectionName = GetAutoExitSectionName();
+			if (CurrentEndSectionName.IsNone())
 			{
-				CurrentEndMontage = EndMontage.Get();
+				CurrentEndSectionName = EndSectionName;
 			}
 		}
-		PlayEndMontage();
+
+		// 현재 Loop 사이클이 끝나면 End로 흐른다. 섹션 전환은 하드컷이라 포즈를 이어준다
+		RequestSectionBlend();
+		GA->SetMontageNextSection(LoopSectionName, CurrentEndSectionName);
+		return;
 	}
-	else
-	{
-		if (LoopInertializationBlendTime > 0.f)
-		{
-			US1AnimInstance* AnimInst = GA.IsValid() ? GA->GetAnimInstanceForProgression() : nullptr;
-			if (IsValid(AnimInst))
-			{
-				AnimInst->RequestInertialization(LoopInertializationBlendTime);
-			}
-		}
-		PlayLoopMontage();
-	}
+
+	// Next가 Loop 그대로라 자동 반복된다 — 되돌아가는 지점이 하드컷이므로 포즈만 이어준다
+	RequestSectionBlend();
 }
 
 void US1MontageProgression_Loop::OnLoopEndEventReceived(FGameplayEventData Payload)
 {
-	ExitLoop(nullptr, bImmediateExitOnLoopEnd);
+	ExitLoop(NAME_None, bImmediateExitOnLoopEnd);
+}
+
+void US1MontageProgression_Loop::OnMontageFinished()
+{
+	if (GA.IsValid())
+	{
+		GA->RequestEndAbility(false);
+	}
+}
+
+void US1MontageProgression_Loop::OnMontageAborted()
+{
+	if (GA.IsValid())
+	{
+		GA->RequestEndAbility(true);
+	}
 }

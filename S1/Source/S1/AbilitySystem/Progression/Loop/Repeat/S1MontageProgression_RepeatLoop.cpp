@@ -24,7 +24,7 @@ void US1MontageProgression_RepeatLoop::OnInputReleased()
 		bPendingKeyRelease = true;
 		return;
 	}
-	ExitLoop(nullptr, bImmediateExitOnKeyUp);
+	ExitLoop(NAME_None, bImmediateExitOnKeyUp);
 }
 
 void US1MontageProgression_RepeatLoop::OnLoopCycleCompleted(FGameplayTag EffectTag)

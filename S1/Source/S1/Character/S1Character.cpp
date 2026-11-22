@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Character/S1Character.h"
 #include "AbilitySystem/S1AbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/S1AttributeSet.h"
@@ -161,12 +160,6 @@ void AS1Character::PopOrientRotationOverride()
 			CMC->bOrientRotationToMovement = bBaseOrientRotationToMovement;
 		}
 	}
-}
-
-void AS1Character::MulticastSetHitLaunchData_Implementation(FVector Velocity, FVector Facing)
-{
-	PendingHitLaunchVelocity  = Velocity;
-	PendingHitFacingDirection = Facing;
 }
 
 void AS1Character::RegisterAttachedEffect(FGameplayTag EffectKey, UNiagaraComponent* Component)

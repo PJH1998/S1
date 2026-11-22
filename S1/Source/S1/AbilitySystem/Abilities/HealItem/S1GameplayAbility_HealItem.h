@@ -11,6 +11,9 @@ class S1_API US1GameplayAbility_HealItem : public US1GameplayAbility_Action
 {
 	GENERATED_BODY()
 
+public:
+	US1GameplayAbility_HealItem(const FObjectInitializer& ObjectInitializer);
+
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 

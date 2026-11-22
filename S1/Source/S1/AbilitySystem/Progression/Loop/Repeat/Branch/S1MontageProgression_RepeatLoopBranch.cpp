@@ -9,10 +9,10 @@ void US1MontageProgression_RepeatLoopBranch::OnInputReleased()
 		bPendingKeyRelease = true;
 		return;
 	}
-	ExitLoop(SelectEndMontage(), bImmediateExitOnKeyUp);
+	ExitLoop(SelectEndSectionName(), bImmediateExitOnKeyUp);
 }
 
-UAnimMontage* US1MontageProgression_RepeatLoopBranch::SelectEndMontage() const
+FName US1MontageProgression_RepeatLoopBranch::SelectEndSectionName() const
 {
-	return EndMontage.Get();
+	return EndSectionName;
 }
