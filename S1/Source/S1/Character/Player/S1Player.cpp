@@ -873,11 +873,11 @@ void AS1Player::ActivateAbility(const FGameplayTag& AbilityTag)
 	}
 	else if (AbilitySystemComponent->IsAbilityPredicted(AbilityTag))
 	{
-		// LocalPredicted — 클라에서 직접 활성화 → GAS가 예측키 붙여 서버에 동기화 (루트모션 AbilityTask 예측 가능)
+		// LocalPredicted — 클라에서 직접 활성화 → GAS가 예측키를 붙여 ServerTryActivateAbility로 서버도 활성화
 		AbilitySystemComponent->ActivateAbility(AbilityTag);
 
-		// 콤보 어드밴스(재활성화)였다면 GAS 자동 RPC가 없으므로, 클라가 생성한 예측키를 서버에 직접 전달
-		// → 서버가 같은 키로 재활성화를 미러 (콤보 타별 루트모션이 공유 키로 네트워킹됨)
+		// 콤보 어드밴스(재활성화)는 GAS 자동 RPC가 없으므로 서버에 직접 알린다 — 안 보내면 서버가
+		// 콤보 진행 자체를 몰라 몽타주도 루트모션도 안 만든다. 예측키는 같은 스코프 처리를 위해 동봉
 		if (US1PlayerAbilitySystemComponent* PlayerASC = Cast<US1PlayerAbilitySystemComponent>(AbilitySystemComponent))
 		{
 			const FPredictionKey ReactivationKey = PlayerASC->ConsumePendingReactivationKey();
@@ -917,7 +917,7 @@ void AS1Player::ServerReactivateAbility_Implementation(const FGameplayTag& Abili
 		return;
 	}
 
-	// 클라가 생성한 예측키로 스코프 → 서버 재활성화의 루트모션이 클라와 같은 키로 생성되어 동기화됨
+	// 클라가 생성한 예측키로 스코프 → 서버가 같은 예측 스코프에서 재활성화를 미러
 	FScopedPredictionWindow ScopedPrediction(PlayerASC, Key);
 	PlayerASC->HandleServerInputPressed(AbilityTag);
 }

@@ -62,8 +62,8 @@ bool US1PlayerAbilitySystemComponent::ActivateAbility(const FGameplayTag& Abilit
 		US1GameplayAbility* GA = Cast<US1GameplayAbility>(Spec->GetPrimaryInstance());
 		if (GA)
 		{
-			// 예측 GA + 소유 클라(비권위)면 새 예측키 스코프 안에서 재활성화 → 콤보 어드밴스 루트모션이
-			// 공유 키로 생성됨 (서버는 ServerReactivateAbility에서 같은 키로 미러 → 서버가 클라 이동 인정)
+			// 예측 GA + 소유 클라(비권위)면 새 예측키 스코프 안에서 재활성화
+			// (서버는 ServerReactivateAbility에서 같은 키로 미러 — 같은 예측 스코프에서 처리하기 위함)
 			const bool bPredictReactivation =
 				(false == IsOwnerActorAuthoritative()) &&
 				(EGameplayAbilityNetExecutionPolicy::LocalPredicted == GA->GetNetExecutionPolicy());

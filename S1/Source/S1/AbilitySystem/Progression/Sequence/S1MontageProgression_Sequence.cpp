@@ -56,6 +56,12 @@ void US1MontageProgression_Sequence::PlayMontageAtIndex()
 		return;
 	}
 
+	if (true == IsSectionMode())
+	{
+		PlaySectionAtIndex();
+		return;
+	}
+
 	if (false == ComboMontages.IsValidIndex(CurrentComboIndex) || false == IsValid(ComboMontages[CurrentComboIndex]))
 	{
 		GA->RequestEndAbility(true);
@@ -71,9 +77,55 @@ void US1MontageProgression_Sequence::PlayMontageAtIndex()
 	if (IsValid(AnimInst))
 	{
 		FOnMontageEnded EndDelegate;
-		EndDelegate.BindUObject(this, &ThisClass::OnMontageEnded);
+		EndDelegate.BindUObject(this, &ThisClass::OnMontageEnded, ActivationEpoch);
 		AnimInst->Montage_SetEndDelegate(EndDelegate, CurrentMontage);
 	}
+}
+
+void US1MontageProgression_Sequence::PlaySectionAtIndex()
+{
+	if (false == SectionNames.IsValidIndex(CurrentComboIndex))
+	{
+		GA->RequestEndAbility(true);
+		return;
+	}
+
+	const FName SectionName = SectionNames[CurrentComboIndex];
+
+	// 1타만 재생 — 2타+는 재생 중인 몽타주 안에서 섹션 점프
+	if (0 == CurrentComboIndex)
+	{
+		GA->PlayAbilityMontage(SectionMontage, SectionName);
+
+		US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression();
+		if (IsValid(AnimInst))
+		{
+			FOnMontageEnded EndDelegate;
+			EndDelegate.BindUObject(this, &ThisClass::OnMontageEnded, ActivationEpoch);
+			AnimInst->Montage_SetEndDelegate(EndDelegate, SectionMontage);
+		}
+		return;
+	}
+
+	if (SectionInertializationBlendTime > 0.f)
+	{
+		if (US1AnimInstance* AnimInst = GA->GetAnimInstanceForProgression())
+		{
+			AnimInst->RequestInertialization(SectionInertializationBlendTime);
+		}
+	}
+
+	GA->JumpToMontageSection(SectionMontage, SectionName);
+}
+
+bool US1MontageProgression_Sequence::IsSectionMode() const
+{
+	return ::IsValid(SectionMontage) && SectionNames.Num() > 0;
+}
+
+int32 US1MontageProgression_Sequence::GetComboCount() const
+{
+	return IsSectionMode() ? SectionNames.Num() : ComboMontages.Num();
 }
 
 bool US1MontageProgression_Sequence::TryAdvanceCombo()
@@ -91,7 +143,7 @@ bool US1MontageProgression_Sequence::TryAdvanceCombo()
 	}
 
 	const int32 NextIndex = CurrentComboIndex + 1;
-	if (false == ComboMontages.IsValidIndex(NextIndex))
+	if (NextIndex >= GetComboCount())
 	{
 		// 마지막 콤보 → NextAttackAbilityTag 있으면 해당 어빌리티로 전이
 		if (NextAttackAbilityTag.IsValid())
@@ -133,9 +185,23 @@ bool US1MontageProgression_Sequence::CanNextAction(UAbilitySystemComponent* ASC)
 	return ASC->HasMatchingGameplayTag(CanNextAttackTag);
 }
 
-void US1MontageProgression_Sequence::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void US1MontageProgression_Sequence::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted, int32 Epoch)
 {
-	if (false == ComboMontages.IsValidIndex(CurrentComboIndex) || Montage != ComboMontages[CurrentComboIndex])
+	// 이전 활성화의 지연 콜백 — 무시하지 않으면 방금 시작한 어빌리티가 끝난다
+	if (false == IsCurrentEpoch(Epoch))
+	{
+		return;
+	}
+
+	// 섹션 모드는 몽타주가 하나라 인덱스 검사가 불필요
+	if (true == IsSectionMode())
+	{
+		if (Montage != SectionMontage)
+		{
+			return;
+		}
+	}
+	else if (false == ComboMontages.IsValidIndex(CurrentComboIndex) || Montage != ComboMontages[CurrentComboIndex])
 	{
 		return;
 	}

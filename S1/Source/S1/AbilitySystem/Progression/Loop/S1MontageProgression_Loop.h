@@ -86,9 +86,9 @@ private:
 	void PlayLoopMontage();
 	void PlayEndMontage();
 
-	UFUNCTION() void OnStartMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
-	UFUNCTION() void OnLoopMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
-	UFUNCTION() void OnEndMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	void OnStartMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted, int32 Epoch);
+	void OnLoopMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted, int32 Epoch);
+	void OnEndMontageEnded(UAnimMontage* Montage, bool bInterrupted, int32 Epoch);
 	void OnLoopStartEventReceived(const FGameplayEventData* Payload);
 	void OnLoopCycleEventReceived(const FGameplayEventData* Payload);
 	UFUNCTION() void OnLoopEndEventReceived(FGameplayEventData Payload);

@@ -69,7 +69,7 @@ void US1MontageProgression_Loop::OnActivated()
 			if (IsValid(AnimInst))
 			{
 				FOnMontageBlendingOutStarted BlendingOutDelegate;
-				BlendingOutDelegate.BindUObject(this, &ThisClass::OnStartMontageBlendingOut);
+				BlendingOutDelegate.BindUObject(this, &ThisClass::OnStartMontageBlendingOut, ActivationEpoch);
 				AnimInst->Montage_SetBlendingOutDelegate(BlendingOutDelegate, StartMontage);
 			}
 		}
@@ -218,7 +218,7 @@ void US1MontageProgression_Loop::PlayLoopMontage()
 		if (IsValid(AnimInst))
 		{
 			FOnMontageBlendingOutStarted BlendingOutDelegate;
-			BlendingOutDelegate.BindUObject(this, &ThisClass::OnLoopMontageBlendingOut);
+			BlendingOutDelegate.BindUObject(this, &ThisClass::OnLoopMontageBlendingOut, ActivationEpoch);
 			AnimInst->Montage_SetBlendingOutDelegate(BlendingOutDelegate, LoopMontage);
 		}
 	}
@@ -248,13 +248,19 @@ void US1MontageProgression_Loop::PlayEndMontage()
 	if (IsValid(AnimInst))
 	{
 		FOnMontageEnded EndDelegate;
-		EndDelegate.BindUObject(this, &ThisClass::OnEndMontageEnded);
+		EndDelegate.BindUObject(this, &ThisClass::OnEndMontageEnded, ActivationEpoch);
 		AnimInst->Montage_SetEndDelegate(EndDelegate, CurrentEndMontage);
 	}
 }
 
-void US1MontageProgression_Loop::OnStartMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
+void US1MontageProgression_Loop::OnStartMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted, int32 Epoch)
 {
+	// 이전 활성화의 지연 콜백 — 무시하지 않으면 방금 시작한 어빌리티가 끝난다
+	if (false == IsCurrentEpoch(Epoch))
+	{
+		return;
+	}
+
 	if (Montage != StartMontage || bInterrupted)
 	{
 		// bInterrupted=true: ExitLoop(bImmediate) 에서 이미 처리됨
@@ -271,8 +277,14 @@ void US1MontageProgression_Loop::OnStartMontageBlendingOut(UAnimMontage* Montage
 	}
 }
 
-void US1MontageProgression_Loop::OnLoopMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
+void US1MontageProgression_Loop::OnLoopMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted, int32 Epoch)
 {
+	// 이전 활성화의 지연 콜백 — 무시하지 않으면 방금 시작한 어빌리티가 끝난다
+	if (false == IsCurrentEpoch(Epoch))
+	{
+		return;
+	}
+
 	if (Montage != LoopMontage || bInterrupted)
 	{
 		// bInterrupted=true: ExitLoop(bImmediate) 에서 이미 처리됨
@@ -308,8 +320,14 @@ void US1MontageProgression_Loop::OnLoopMontageBlendingOut(UAnimMontage* Montage,
 	}
 }
 
-void US1MontageProgression_Loop::OnEndMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void US1MontageProgression_Loop::OnEndMontageEnded(UAnimMontage* Montage, bool bInterrupted, int32 Epoch)
 {
+	// 이전 활성화의 지연 콜백 — 무시하지 않으면 방금 시작한 어빌리티가 끝난다
+	if (false == IsCurrentEpoch(Epoch))
+	{
+		return;
+	}
+
 	if (Montage != CurrentEndMontage)
 	{
 		return;

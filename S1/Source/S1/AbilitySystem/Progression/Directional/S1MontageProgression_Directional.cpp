@@ -34,7 +34,7 @@ void US1MontageProgression_Directional::OnActivated()
 	if (IsValid(AnimInst))
 	{
 		FOnMontageEnded EndDelegate;
-		EndDelegate.BindUObject(this, &ThisClass::OnMontageEnded);
+		EndDelegate.BindUObject(this, &ThisClass::OnMontageEnded, ActivationEpoch);
 		AnimInst->Montage_SetEndDelegate(EndDelegate, ActiveMontage);
 	}
 }
@@ -44,8 +44,14 @@ void US1MontageProgression_Directional::OnDeactivated()
 	ActiveMontage = nullptr;
 }
 
-void US1MontageProgression_Directional::OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted)
+void US1MontageProgression_Directional::OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted, int32 Epoch)
 {
+	// 이전 활성화의 지연 콜백 — 무시하지 않으면 방금 시작한 어빌리티가 끝난다
+	if (false == IsCurrentEpoch(Epoch))
+	{
+		return;
+	}
+
 	if (InMontage != ActiveMontage)
 	{
 		return;

@@ -31,5 +31,5 @@ private:
 	TObjectPtr<UAnimMontage> ActiveMontage;
 
 	UFUNCTION()
-	void OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted);
+	void OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted, int32 Epoch);
 };

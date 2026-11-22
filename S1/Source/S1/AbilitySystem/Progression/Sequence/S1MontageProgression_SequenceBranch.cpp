@@ -69,12 +69,17 @@ void US1MontageProgression_SequenceBranch::OnBranchRequested(FGameplayTag InKey)
 	}
 
 	FOnMontageEnded EndDelegate;
-	EndDelegate.BindUObject(this, &ThisClass::OnEndMontageEnded);
+	EndDelegate.BindUObject(this, &ThisClass::OnEndMontageEnded, ActivationEpoch);
 	AnimInst->Montage_SetEndDelegate(EndDelegate, EndMontage);
 }
 
-void US1MontageProgression_SequenceBranch::OnEndMontageEnded(UAnimMontage* InMontage, bool bInterrupted)
+void US1MontageProgression_SequenceBranch::OnEndMontageEnded(UAnimMontage* InMontage, bool bInterrupted, int32 Epoch)
 {
+	// 이전 활성화의 지연 콜백 — 무시하지 않으면 방금 시작한 어빌리티가 끝난다
+	if (false == IsCurrentEpoch(Epoch))
+	{
+		return;
+	}
 	if (InMontage != CurrentEndMontage)
 	{
 		return;

@@ -23,7 +23,7 @@ public:
 
 private:
 	UFUNCTION()
-	void OnEndMontageEnded(UAnimMontage* InMontage, bool bInterrupted);
+	void OnEndMontageEnded(UAnimMontage* InMontage, bool bInterrupted, int32 Epoch);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")

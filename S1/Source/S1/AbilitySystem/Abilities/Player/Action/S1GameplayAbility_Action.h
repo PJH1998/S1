@@ -9,7 +9,7 @@
 
 class US1MontageProgression;
 class US1AnimInstance;
-class UAbilityTask_ApplyRootMotionConstantForce;
+class US1AbilityTask_DelayedRootMotionForce;
 class UAnimMontage;
 
 // 액션 중 상태(State.Action) 관리 + EarlyMove(이동/점프 입력 시 조기 종료) 공통 베이스
@@ -69,6 +69,12 @@ public:
 	// (PlayMontageAndWait 태스크와 동일 메커니즘. 반환: 재생 시간, 실패 시 0)
 	float PlayAbilityMontage(UAnimMontage* Montage, FName StartSection = NAME_None, float Rate = 1.f);
 
+	// 섹션 점프 + 새 구간의 히트 윈도우/루트모션 재스케줄 (Progression 섹션 모드 전용)
+	// UGameplayAbility::MontageJumpToSection이 protected라 래퍼로 노출.
+	// 점프 자체는 엔진이 서버로 자동 전달하지만(ServerCurrentMontageJumpToSectionName),
+	// 구간 스캔은 각 머신이 자기 쪽에서 돌아야 하므로 둘을 묶어 호출 누락을 막는다
+	void JumpToMontageSection(UAnimMontage* Montage, FName SectionName, float Rate = 1.f);
+
 private:
 	UFUNCTION()
 	void OnEarlyMoveEventReceived(FGameplayEventData Payload);
@@ -96,8 +102,8 @@ protected:
 	// 캡처된 이동 방향 — 기본 수평(CapturedActionMoveDir). pitch 포함 3D 이동이 필요한 서브클래스는 override
 	virtual FVector GetCapturedMoveDirection() const;
 
-	// 몽타주의 MoveEvent 노티파이(데이터)를 읽어 활성화 시점(예측 스코프)에 루트모션 task 생성
-	// StrengthOverTime 커브로 노티파이 구간에만 force 적용 → 예측키 확보 + 구간 타이밍 정확
+	// 몽타주의 MoveEvent 노티파이(데이터)를 읽어 활성화 시점에 루트모션 task 생성
+	// StrengthOverTime 커브로 노티파이 구간에만 force 적용 → 구간 타이밍 정확
 	// Rate × Montage RateScale 배속을 반영해 montage-time을 real-time으로 변환
 	void ApplyMontageRootMotion(UAnimMontage* Montage, float Rate, FName SectionName);
 
@@ -106,7 +112,7 @@ protected:
 	bool bMoveEnableGravity = true;
 
 	UPROPERTY()
-	TObjectPtr<UAbilityTask_ApplyRootMotionConstantForce> MoveTask;
+	TObjectPtr<US1AbilityTask_DelayedRootMotionForce> MoveTask;
 
 	// 활성화 시점에 1회 캡처한 이동 방향 (컨트롤 회전=카메라 기준, 복제되어 클라/서버 일치)
 	// 노티파이 시점 실시간 방향은 예측 회전 랙으로 어긋나 서버 보정 되돌림 발생 → 캡처값 사용

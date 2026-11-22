@@ -4,17 +4,17 @@
 #include "Tags/GAS/S1GameplayTags_GAS.h"
 #include "AbilitySystem/Task/S1AbilityTask_EarlyExitChecker.h"
 #include "AbilitySystem/Progression/S1MontageProgression.h"
-#include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
+#include "AbilitySystem/Task/S1AbilityTask_DelayedRootMotionForce.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystemComponent.h"
 #include "GameFramework/RootMotionSource.h"
-#include "Curves/CurveFloat.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
 #include "Animation/S1AnimInstance.h"
 #include "Animation/NotifyState/S1AnimNotifyState_MoveEvent.h"
 #include "Character/S1Character.h"
 #include "Character/Player/S1Player.h"
+#include "S1LogChannels.h"
 
 US1GameplayAbility_Action::US1GameplayAbility_Action(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -229,8 +229,9 @@ float US1GameplayAbility_Action::PlayAbilityMontage(UAnimMontage* Montage, FName
 
 		const float Duration = ASC->PlayMontage(this, GetCurrentActivationInfo(), Montage, Rate, StartSection);
 
-		// 예측 스코프(ActivateAbility 호출 스택) 안에서 루트모션 생성 — 몽타주의 MoveEvent 노티파이를 데이터로 읽음
-		// 노티파이에서 직접 만들면 클라/서버 독립 발화라 공유 예측키가 없어 서버에 네트워킹 안 됨 (틱/스냅백)
+		// 활성화 스코프에서 루트모션 생성 — 몽타주의 MoveEvent 노티파이를 데이터로 읽음
+		// 노티파이 콜백에서 만들면 클라(예측 즉시)/서버(RPC 도착 후) 발화 시각이 어긋나 스냅백 (실측, 원인 미상)
+		// 루트모션 자체는 예측키를 쓰지 않는다 — 클라/서버 정합은 CMC가 saved move로 한다
 		ApplyMontageRootMotion(Montage, Rate, StartSection);
 
 		return Duration;
@@ -247,6 +248,27 @@ float US1GameplayAbility_Action::PlayAbilityMontage(UAnimMontage* Montage, FName
 FVector US1GameplayAbility_Action::GetCapturedMoveDirection() const
 {
 	return CapturedActionMoveDir;
+}
+
+void US1GameplayAbility_Action::JumpToMontageSection(UAnimMontage* Montage, FName SectionName, float Rate)
+{
+	if (nullptr == Montage || SectionName.IsNone())
+	{
+		return;
+	}
+
+	// ServerOnly GA는 MulticastPlayMontage로 재생해 ASC의 LocalAnimMontageInfo가 비어 있다 →
+	// 엔진 MontageJumpToSection이 IsAnimatingAbility 가드에서 조용히 무시한다
+	if (EGameplayAbilityNetExecutionPolicy::LocalPredicted != GetNetExecutionPolicy())
+	{
+		LOG_WARNING(TEXT("JumpToMontageSection은 LocalPredicted GA 전용 — 무시됨 (%s)"), *GetName());
+		return;
+	}
+
+	MontageJumpToSection(SectionName);
+
+	OnAbilityMontagePlayed(Montage, Rate, SectionName);
+	ApplyMontageRootMotion(Montage, Rate, SectionName);
 }
 
 bool US1GameplayAbility_Action::GetMontageScanRange(const UAnimMontage* Montage, FName SectionName, float& OutStartTime, float& OutEndTime)
@@ -276,7 +298,7 @@ bool US1GameplayAbility_Action::GetMontageScanRange(const UAnimMontage* Montage,
 
 void US1GameplayAbility_Action::ApplyMontageRootMotion(UAnimMontage* Montage, float Rate, FName SectionName)
 {
-	// 예측 어빌리티만 — 예측키가 있어야 루트모션이 서버까지 네트워킹됨 (ServerOnly는 notify 직접 경로 사용)
+	// 예측 어빌리티만 — ServerOnly는 notify가 CMC에 직접 주입하는 경로를 쓴다
 	if (EGameplayAbilityNetExecutionPolicy::LocalPredicted != GetNetExecutionPolicy())
 	{
 		return;
@@ -336,22 +358,8 @@ void US1GameplayAbility_Action::ApplyMontageRootMotion(UAnimMontage* Montage, fl
 	const float EffectiveRate = FMath::Max(Rate * Montage->RateScale, KINDA_SMALL_NUMBER);
 	const float RealWindow    = WindowDuration / EffectiveRate;
 	const float Speed         = MoveDistance / RealWindow;					// 음수 = 후방
-	const float TotalDuration = (StartTime + WindowDuration) / EffectiveRate;
-	const float StartNorm     = StartTime / (StartTime + WindowDuration);	// 배속은 분자/분모에서 상쇄 → montage 비율 그대로
-
-	// windup(0~StartNorm) force 0, 노티파이 구간(StartNorm~끝) force 1로 게이트하는 커브
-	// → 활성화 시점에 task 생성(예측키 확보)하되 이동은 노티파이 구간에만 정확히 발생
-	UCurveFloat* StrengthCurve = nullptr;
-	if (StartTime > KINDA_SMALL_NUMBER)
-	{
-		StrengthCurve = NewObject<UCurveFloat>(this);
-		FRichCurve& RichCurve = StrengthCurve->FloatCurve;
-		// 명시적 선형 램프: windup(0~StartNorm) 0, 구간 진입에서 즉시 1
-		RichCurve.AddKey(0.f, 0.f);
-		RichCurve.AddKey(FMath::Max(StartNorm - 0.001f, 0.f), 0.f);
-		RichCurve.AddKey(StartNorm, 1.f);
-		RichCurve.AddKey(1.f, 1.f);
-	}
+	const float RealWindup    = StartTime / EffectiveRate;
+	const float TotalDuration = RealWindup + RealWindow;
 
 	if (IsValid(MoveTask))
 	{
@@ -359,14 +367,15 @@ void US1GameplayAbility_Action::ApplyMontageRootMotion(UAnimMontage* Montage, fl
 		MoveTask = nullptr;
 	}
 
-	MoveTask = UAbilityTask_ApplyRootMotionConstantForce::ApplyRootMotionConstantForce(
+	// 활성화 시점에 task를 만들되 이동은 노티파이 구간에만 발생시킨다.
+	// 게이트를 커브가 아니라 float(초)로 넘기는 이유는 US1AbilityTask_DelayedRootMotionForce 주석 참조
+	MoveTask = US1AbilityTask_DelayedRootMotionForce::ApplyDelayedRootMotionConstantForce(
 		this,
 		US1AnimNotifyState_MoveEvent::RootMotionSourceName,
 		MoveDir,
 		Speed,
 		TotalDuration,
-		false,									// bIsAdditive
-		StrengthCurve,							// 구간 게이트 (StartTime==0이면 nullptr=즉시)
+		RealWindup,								// 이 시간 전에는 이동 없음
 		ERootMotionFinishVelocityMode::SetVelocity,
 		FVector::ZeroVector,					// SetVelocityOnFinish
 		0.f,									// ClampVelocityOnFinish
@@ -382,7 +391,7 @@ void US1GameplayAbility_Action::OnMoveBeginReceived(const FGameplayEventData* Pa
 
 void US1GameplayAbility_Action::OnMoveEndReceived(const FGameplayEventData* Payload)
 {
-	// 루트모션은 유한 Duration으로 스스로 종료(예측키로 동기화) — 여기서 수동 종료 안 함
+	// 루트모션은 유한 Duration으로 스스로 종료 — 여기서 수동 종료 안 함 (클라/서버 타이밍 desync 방지)
 	// 베이스는 비움 — 서브클래스가 히트 콜리전 off / 분기 등만 처리
 }
 

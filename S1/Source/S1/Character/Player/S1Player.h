@@ -74,7 +74,7 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerActivateAbility(const FGameplayTag& AbilityTag, bool bInAir);
 
-	// 예측 콤보 어드밴스 — 클라가 생성한 예측키로 서버가 같은 재활성화를 미러 (루트모션 공유 키)
+	// 예측 콤보 어드밴스 — 서버에 콤보 진행을 알려 같은 타를 재생시킨다 (예측키는 같은 스코프 처리용)
 	UFUNCTION(Server, Reliable)
 	void ServerReactivateAbility(const FGameplayTag& AbilityTag, FPredictionKey Key);
 

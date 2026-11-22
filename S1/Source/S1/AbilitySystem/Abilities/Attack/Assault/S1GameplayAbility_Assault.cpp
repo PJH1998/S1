@@ -2,7 +2,7 @@
 
 #include "AbilitySystem/Abilities/Attack/Assault/S1GameplayAbility_Assault.h"
 #include "AbilitySystem/Progression/S1MontageProgression.h"
-#include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
+#include "AbilitySystem/Task/S1AbilityTask_DelayedRootMotionForce.h"
 #include "AbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
