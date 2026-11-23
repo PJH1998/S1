@@ -199,8 +199,6 @@ void US1GameplayAbility_Hit::ApplyHitLaunchRootMotion(UAnimMontage* Montage, flo
 
 void US1GameplayAbility_Hit::EnterFallingForHitLaunch()
 {
-	// 노티파이가 아니라 GA 타이머/활성화 스코프에서 하는 이유: 데디 서버 NotifyState thrash가
-	// Begin/End를 매 프레임 재발화시켜 NotifyEnd가 소스를 철거해버렸다(로그로 확정, §04와 동일 원인)
 	AS1Character* Character = Cast<AS1Character>(GetAvatarActorFromActorInfo());
 	if (false == IsValid(Character))
 	{
@@ -219,7 +217,8 @@ void US1GameplayAbility_Hit::EnterFallingForHitLaunch()
 	}
 }
 
-void US1GameplayAbility_Hit::ComputeKnockback(float LaunchSpeed, bool& bOutHitFromBack, FVector& OutHitDirection, FVector& OutLaunchVelocity) const
+void US1GameplayAbility_Hit::ComputeKnockback(float LaunchSpeed, bool& bOutHitFromBack,
+	FVector& OutHitDirection, FVector& OutLaunchVelocity) const
 {
 	const AActor* Character = GetAvatarActorFromActorInfo();
 

@@ -4,12 +4,19 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/Attributes/S1AttributeSet.h"
+#include "AbilitySystem/Effects/S1GameplayEffect_Heal.h"
+#include "Tags/S1GameplayTags.h"
+
+US1AnimNotify_ApplyHeal::US1AnimNotify_ApplyHeal()
+{
+	HealEffectClass = US1GameplayEffect_Heal::StaticClass();
+}
 
 void US1AnimNotify_ApplyHeal::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 
-	if (nullptr == MeshComp)
+	if (nullptr == MeshComp || nullptr == HealEffectClass.Get())
 	{
 		return;
 	}
@@ -27,13 +34,14 @@ void US1AnimNotify_ApplyHeal::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 		return;
 	}
 
-	US1AttributeSet* AttributeSet = const_cast<US1AttributeSet*>(Cast<US1AttributeSet>(ASC->GetAttributeSet(US1AttributeSet::StaticClass())));
-	if (nullptr == AttributeSet)
+	const FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(HealEffectClass, 1.f, ASC->MakeEffectContext());
+	if (false == SpecHandle.IsValid())
 	{
 		return;
 	}
 
-	const float HealAmount = AttributeSet->GetMaxHealth() * HealPercentOfMaxHealth;
-	const float NewHealth = FMath::Min(AttributeSet->GetHealth() + HealAmount, AttributeSet->GetMaxHealth());
-	AttributeSet->SetHealth(NewHealth);
+	// 회복량만 넘기고 MaxHealth 초과분은 S1AttributeSet::PostGameplayEffectExecute가 클램프한다
+	const float HealAmount = ASC->GetNumericAttribute(US1AttributeSet::GetMaxHealthAttribute()) * HealPercentOfMaxHealth;
+	SpecHandle.Data->SetSetByCallerMagnitude(S1SetByCallerTags::SetByCaller_Heal, HealAmount);
+	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }

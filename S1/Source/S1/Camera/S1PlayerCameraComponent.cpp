@@ -32,6 +32,7 @@ void US1PlayerCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& 
 		const FVector Pivot = PlayerPos
 			+ RightVec * (SideOffset * SideSign)
 			+ FVector::UpVector * HeightOffset;
+
 		const FVector DesiredPos = Pivot - ToTarget * BackDistance;
 
 		const FVector  LookAt     = FMath::Lerp(PlayerPos, TargetPos, LookAtBlend);

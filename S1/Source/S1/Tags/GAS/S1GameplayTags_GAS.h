@@ -164,6 +164,7 @@ namespace S1EventTags
 namespace S1SetByCallerTags
 {
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Damage);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Heal);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_XP);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Status);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Status_Health);

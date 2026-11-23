@@ -152,6 +152,7 @@ namespace S1EventTags
 namespace S1SetByCallerTags
 {
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Damage,        "SetByCaller.Damage");
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Heal,          "SetByCaller.Heal");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_XP,            "SetByCaller.XP");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Status,        "SetByCaller.Status");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Status_Health, "SetByCaller.Status.Health");

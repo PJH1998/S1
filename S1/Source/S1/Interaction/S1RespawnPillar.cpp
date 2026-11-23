@@ -4,6 +4,8 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/S1AttributeSet.h"
+#include "AbilitySystem/Effects/S1GameplayEffect_Heal.h"
+#include "Tags/S1GameplayTags.h"
 #include "Component/S1InteractComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -31,6 +33,8 @@ AS1RespawnPillar::AS1RespawnPillar()
 	InteractionCollision->SetCollisionResponseToAllChannels(ECR_Ignore);
 	InteractionCollision->SetCollisionResponseToChannel(S1CollisionChannel::CC_Player, ECR_Overlap);
 	InteractionCollision->SetGenerateOverlapEvents(true);
+
+	HealEffectClass = US1GameplayEffect_Heal::StaticClass();
 }
 
 void AS1RespawnPillar::Interact(AActor* Interactor)
@@ -56,11 +60,18 @@ void AS1RespawnPillar::Interact(AActor* Interactor)
 
 	PS->SetLastSpawnPointTag(SpawnPointTag);
 
+	// 회복도 데미지와 같은 GE 경로로 — PostGameplayEffectExecute 클램프 / 태그 조건 / GameplayCue를 그대로 탄다
 	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
-	US1AttributeSet* AttributeSet = ::IsValid(ASC) ? const_cast<US1AttributeSet*>(Cast<US1AttributeSet>(ASC->GetAttributeSet(US1AttributeSet::StaticClass()))) : nullptr;
-	if (AttributeSet)
+	if (::IsValid(ASC) && nullptr != HealEffectClass.Get())
 	{
-		AttributeSet->SetHealth(AttributeSet->GetMaxHealth());
+		const FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(HealEffectClass, 1.f, ASC->MakeEffectContext());
+		if (SpecHandle.IsValid())
+		{
+			// 전부 회복 — MaxHealth만큼 더하고 초과분은 AttributeSet이 클램프한다
+			SpecHandle.Data->SetSetByCallerMagnitude(S1SetByCallerTags::SetByCaller_Heal,
+				ASC->GetNumericAttribute(US1AttributeSet::GetMaxHealthAttribute()));
+			ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
 	}
 
 	if (US1SoundManager* SoundManager = GetWorld()->GetSubsystem<US1SoundManager>())

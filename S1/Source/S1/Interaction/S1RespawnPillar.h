@@ -11,6 +11,7 @@
 class UBoxComponent;
 class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
+class UGameplayEffect;
 class AS1PlayerState;
 
 /**
@@ -54,6 +55,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "RespawnPillar|Sound")
 	FGameplayTag InteractionSoundTag;
+
+	// 상호작용 시 체력 전부 회복에 쓰는 GE — 회복량은 SetByCaller(SetByCaller.Heal)로 MaxHealth를 넘긴다
+	UPROPERTY(EditDefaultsOnly, Category = "RespawnPillar|Heal")
+	TSubclassOf<UGameplayEffect> HealEffectClass;
 
 	// 머티리얼의 활성화 Scalar 파라미터 이름 — BP에서 머티리얼에 맞게 재지정 가능.
 	UPROPERTY(EditDefaultsOnly, Category = "RespawnPillar|Visual")
