@@ -50,8 +50,8 @@ void US1MontageProgression_Loop::OnActivated()
 		return;		// StartMontageTask가 이미 EndAbility를 요청했다
 	}
 
-	// 섹션 흐름을 코드가 정한다 — 애셋에 저작된 Next 링크에 의존하지 않는다.
-	// Loop → Loop 가 사이클 반복을 자동 처리하므로 재생 호출을 매 사이클 하지 않아도 된다
+	// 섹션 흐름을 코드가 정한다 - 애셋에 저작된 Next 링크에 의존하지 않는다.
+	// Loop -> Loop 가 사이클 반복을 자동 처리하므로 재생 호출을 매 사이클 하지 않아도 된다
 	if (bHasStart)
 	{
 		GA->SetMontageNextSection(StartSectionName, LoopSectionName);

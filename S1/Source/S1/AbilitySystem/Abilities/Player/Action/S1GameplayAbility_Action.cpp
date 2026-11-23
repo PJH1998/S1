@@ -215,13 +215,6 @@ UAbilityTask_PlayMontageAndWait* US1GameplayAbility_Action::PlayAbilityMontageTa
 		return nullptr;
 	}
 
-	// ServerOnly GA는 소유 클라에서 돌지 않아 태스크를 쓸 수 없다 (플레이어 GA는 전부 LocalPredicted/ServerInitiated)
-	if (false == RunsOnOwningClient())
-	{
-		LOG_WARNING(TEXT("PlayAbilityMontageTask는 소유 클라에서 도는 GA 전용 — nullptr 반환 (%s)"), *GetName());
-		return nullptr;
-	}
-
 	// 서브클래스 훅 — GA_Attack이 이 몽타주의 AtkCollision 노티파이를 스캔해 서버 히트 윈도우 타이머를 예약
 	OnAbilityMontagePlayed(Montage, Rate, StartSection);
 
@@ -232,7 +225,7 @@ UAbilityTask_PlayMontageAndWait* US1GameplayAbility_Action::PlayAbilityMontageTa
 		return nullptr;
 	}
 
-	// 활성화 스코프에서 루트모션 생성 (§03/§16). 몽타주 재생은 호출자의 ReadyForActivation()에서
+	// 활성화 스코프에서 루트모션 생성. 몽타주 재생은 호출자의 ReadyForActivation()에서
 	// 시작되지만 같은 프레임이라 구간 타이밍에 영향이 없다
 	ApplyMontageRootMotion(Montage, Rate, StartSection);
 
